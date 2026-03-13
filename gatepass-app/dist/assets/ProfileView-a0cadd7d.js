@@ -1,1 +1,487 @@
-import{d as S,u as B,x as d,c as T,w as i,b as s,o as P,e as o,D as L,E as D,B as v,C as U,f as n,t as m,g as F,I as t,a3 as H,h as j,a4 as z,a1 as p,a5 as Q,V as R,a6 as w,a7 as W,a8 as q,a9 as G,aa as J,m as K,r as M,s as X,y as Y,z as b,_ as Z}from"./index-66fa1b7d.js";import{u as $}from"./auth-edc294fa.js";import{b as ee}from"./useToast-ff1e41e4.js";import{d as V}from"./mock-ec9f0cc7.js";import"./index-f4093d9c.js";const se={class:"content-pad"},ne={class:"profile-card"},oe={class:"profile-avatar"},te={class:"profile-info"},le={class:"profile-name"},ae={class:"profile-unit"},ie={class:"profile-estate"},re={key:0,class:"push-banner"},ue={class:"menu-section"},ce={class:"menu-list"},de={class:"menu-section"},me={class:"menu-list"},pe={class:"menu-row no-tap"},fe={class:"menu-row no-tap"},ve={class:"menu-row no-tap"},we={class:"menu-section"},be={class:"menu-list"},_e={class:"menu-row"},ye={class:"menu-row"},ge=S({__name:"ProfileView",setup(he){var h;const x=B(),l=$(),{showToast:c}=ee(),O=d(!1),_=d(((h=l.resident)==null?void 0:h.pushEnabled)??!0),y=d(!0),g=d(!0),k=Y(()=>{var a;return((a=l.resident)==null?void 0:a.name.split(" ").map(e=>e[0]).slice(0,2).join("").toUpperCase())||""});function I(){c("Opening settings…","success")}async function A(){var e,r;await(await b.create({header:"Edit Profile",inputs:[{name:"name",type:"text",value:(e=l.resident)==null?void 0:e.name,placeholder:"Full name"},{name:"phone",type:"tel",value:(r=l.resident)==null?void 0:r.phone,placeholder:"Phone number"}],buttons:[{text:"Cancel",role:"cancel"},{text:"Save",handler:async f=>{await V(400),c("Profile updated","success")}}]})).present()}async function E(){await(await b.create({header:"Change Password",inputs:[{name:"current",type:"password",placeholder:"Current password"},{name:"new",type:"password",placeholder:"New password"},{name:"confirm",type:"password",placeholder:"Confirm new password"}],buttons:[{text:"Cancel",role:"cancel"},{text:"Change",handler:async e=>{if(e.new!==e.confirm)return c("Passwords do not match.","error"),!1;await V(600),c("Password changed.","success")}}]})).present()}async function N(){await(await b.create({header:"Log Out",message:"Are you sure you want to log out?",buttons:[{text:"Cancel",role:"cancel"},{text:"Log Out",role:"destructive",handler:async()=>{l.clearSession(),x.replace("/login")}}]})).present()}return(a,e)=>(P(),T(s(X),null,{default:i(()=>[o(s(U),{class:"ion-no-border"},{default:i(()=>[o(s(L),null,{default:i(()=>[o(s(D),null,{default:i(()=>[...e[3]||(e[3]=[v("Profile",-1)])]),_:1})]),_:1})]),_:1}),o(s(M),{fullscreen:!0,class:"profile-content"},{default:i(()=>{var r,f,C;return[n("div",se,[n("div",ne,[n("div",oe,m(k.value),1),n("div",te,[n("div",le,m((r=s(l).resident)==null?void 0:r.name),1),n("div",ae,m((f=s(l).resident)==null?void 0:f.flatAddress),1),n("div",ie,m((C=s(l).resident)==null?void 0:C.estateName),1)])]),O.value?(P(),F("div",re,[o(s(t),{icon:s(H)},null,8,["icon"]),e[4]||(e[4]=v(" Notifications are disabled. ",-1)),n("button",{class:"settings-link",onClick:I},"Enable in Settings")])):j("",!0),n("div",ue,[e[7]||(e[7]=n("div",{class:"menu-section-label"},"Account",-1)),n("div",ce,[n("button",{class:"menu-row",onClick:A},[o(s(t),{icon:s(z),class:"menu-icon"},null,8,["icon"]),e[5]||(e[5]=n("span",{class:"menu-label"},"Edit Profile",-1)),o(s(t),{icon:s(p),class:"menu-chevron"},null,8,["icon"])]),n("button",{class:"menu-row",onClick:E},[o(s(t),{icon:s(Q),class:"menu-icon"},null,8,["icon"]),e[6]||(e[6]=n("span",{class:"menu-label"},"Change Password",-1)),o(s(t),{icon:s(p),class:"menu-chevron"},null,8,["icon"])])])]),n("div",de,[e[11]||(e[11]=n("div",{class:"menu-section-label"},"Preferences",-1)),n("div",me,[n("div",pe,[o(s(t),{icon:s(R),class:"menu-icon"},null,8,["icon"]),e[8]||(e[8]=n("span",{class:"menu-label"},"Push Notifications",-1)),o(s(w),{modelValue:_.value,"onUpdate:modelValue":e[0]||(e[0]=u=>_.value=u),color:"primary"},null,8,["modelValue"])]),n("div",fe,[o(s(t),{icon:s(W),class:"menu-icon"},null,8,["icon"]),e[9]||(e[9]=n("span",{class:"menu-label"},"Visitor Arrival Alerts",-1)),o(s(w),{modelValue:y.value,"onUpdate:modelValue":e[1]||(e[1]=u=>y.value=u),color:"primary"},null,8,["modelValue"])]),n("div",ve,[o(s(t),{icon:s(q),class:"menu-icon"},null,8,["icon"]),e[10]||(e[10]=n("span",{class:"menu-label"},"Pass Expiry Alerts",-1)),o(s(w),{modelValue:g.value,"onUpdate:modelValue":e[2]||(e[2]=u=>g.value=u),color:"primary"},null,8,["modelValue"])])])]),n("div",we,[e[14]||(e[14]=n("div",{class:"menu-section-label"},"Support",-1)),n("div",be,[n("button",_e,[o(s(t),{icon:s(G),class:"menu-icon"},null,8,["icon"]),e[12]||(e[12]=n("span",{class:"menu-label"},"FAQ",-1)),o(s(t),{icon:s(p),class:"menu-chevron"},null,8,["icon"])]),n("button",ye,[o(s(t),{icon:s(J),class:"menu-icon"},null,8,["icon"]),e[13]||(e[13]=n("span",{class:"menu-label"},"Privacy Policy",-1)),o(s(t),{icon:s(p),class:"menu-chevron"},null,8,["icon"])])])]),o(s(K),{expand:"block",fill:"outline",color:"danger",onClick:N,class:"logout-btn"},{default:i(()=>[...e[15]||(e[15]=[v(" Log Out ",-1)])]),_:1}),e[16]||(e[16]=n("div",{class:"version-label"},"Wardn v1.0.0 • PHDL Estate",-1))])]}),_:1})]),_:1}))}});const ke=Z(ge,[["__scopeId","data-v-ba6f2152"]]);export{ke as default};
+import {
+  d as S,
+  u as B,
+  x as d,
+  c as T,
+  w as i,
+  b as s,
+  o as P,
+  e as o,
+  D as L,
+  E as D,
+  B as v,
+  C as U,
+  f as n,
+  t as m,
+  g as F,
+  I as t,
+  a3 as H,
+  h as j,
+  a4 as z,
+  a1 as p,
+  a5 as Q,
+  V as R,
+  a6 as w,
+  a7 as W,
+  a8 as q,
+  a9 as G,
+  aa as J,
+  m as K,
+  r as M,
+  s as X,
+  y as Y,
+  z as b,
+  _ as Z,
+} from "./index-66fa1b7d.js";
+import { u as $ } from "./auth-edc294fa.js";
+import { b as ee } from "./useToast-ff1e41e4.js";
+import { d as V } from "./mock-ec9f0cc7.js";
+import "./index-f4093d9c.js";
+const se = { class: "content-pad" },
+  ne = { class: "profile-card" },
+  oe = { class: "profile-avatar" },
+  te = { class: "profile-info" },
+  le = { class: "profile-name" },
+  ae = { class: "profile-unit" },
+  ie = { class: "profile-estate" },
+  re = { key: 0, class: "push-banner" },
+  ue = { class: "menu-section" },
+  ce = { class: "menu-list" },
+  de = { class: "menu-section" },
+  me = { class: "menu-list" },
+  pe = { class: "menu-row no-tap" },
+  fe = { class: "menu-row no-tap" },
+  ve = { class: "menu-row no-tap" },
+  we = { class: "menu-section" },
+  be = { class: "menu-list" },
+  _e = { class: "menu-row" },
+  ye = { class: "menu-row" },
+  ge = S({
+    __name: "ProfileView",
+    setup(he) {
+      var h;
+      const x = B(),
+        l = $(),
+        { showToast: c } = ee(),
+        O = d(!1),
+        _ = d(((h = l.resident) == null ? void 0 : h.pushEnabled) ?? !0),
+        y = d(!0),
+        g = d(!0),
+        k = Y(() => {
+          var a;
+          return (
+            ((a = l.resident) == null
+              ? void 0
+              : a.name
+                  .split(" ")
+                  .map((e) => e[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase()) || ""
+          );
+        });
+      function I() {
+        c("Opening settings…", "success");
+      }
+      async function A() {
+        var e, r;
+        await (
+          await b.create({
+            header: "Edit Profile",
+            inputs: [
+              {
+                name: "name",
+                type: "text",
+                value: (e = l.resident) == null ? void 0 : e.name,
+                placeholder: "Full name",
+              },
+              {
+                name: "phone",
+                type: "tel",
+                value: (r = l.resident) == null ? void 0 : r.phone,
+                placeholder: "Phone number",
+              },
+            ],
+            buttons: [
+              { text: "Cancel", role: "cancel" },
+              {
+                text: "Save",
+                handler: async (f) => {
+                  (await V(400), c("Profile updated", "success"));
+                },
+              },
+            ],
+          })
+        ).present();
+      }
+      async function E() {
+        await (
+          await b.create({
+            header: "Change Password",
+            inputs: [
+              {
+                name: "current",
+                type: "password",
+                placeholder: "Current password",
+              },
+              { name: "new", type: "password", placeholder: "New password" },
+              {
+                name: "confirm",
+                type: "password",
+                placeholder: "Confirm new password",
+              },
+            ],
+            buttons: [
+              { text: "Cancel", role: "cancel" },
+              {
+                text: "Change",
+                handler: async (e) => {
+                  if (e.new !== e.confirm)
+                    return (c("Passwords do not match.", "error"), !1);
+                  (await V(600), c("Password changed.", "success"));
+                },
+              },
+            ],
+          })
+        ).present();
+      }
+      async function N() {
+        await (
+          await b.create({
+            header: "Log Out",
+            message: "Are you sure you want to log out?",
+            buttons: [
+              { text: "Cancel", role: "cancel" },
+              {
+                text: "Log Out",
+                role: "destructive",
+                handler: async () => {
+                  (l.clearSession(), x.replace("/login"));
+                },
+              },
+            ],
+          })
+        ).present();
+      }
+      return (a, e) => (
+        P(),
+        T(s(X), null, {
+          default: i(() => [
+            o(
+              s(U),
+              { class: "ion-no-border" },
+              {
+                default: i(() => [
+                  o(s(L), null, {
+                    default: i(() => [
+                      o(s(D), null, {
+                        default: i(() => [
+                          ...(e[3] || (e[3] = [v("Profile", -1)])),
+                        ]),
+                        _: 1,
+                      }),
+                    ]),
+                    _: 1,
+                  }),
+                ]),
+                _: 1,
+              },
+            ),
+            o(
+              s(M),
+              { fullscreen: !0, class: "profile-content" },
+              {
+                default: i(() => {
+                  var r, f, C;
+                  return [
+                    n("div", se, [
+                      n("div", ne, [
+                        n("div", oe, m(k.value), 1),
+                        n("div", te, [
+                          n(
+                            "div",
+                            le,
+                            m((r = s(l).resident) == null ? void 0 : r.name),
+                            1,
+                          ),
+                          n(
+                            "div",
+                            ae,
+                            m(
+                              (f = s(l).resident) == null
+                                ? void 0
+                                : f.flatAddress,
+                            ),
+                            1,
+                          ),
+                          n(
+                            "div",
+                            ie,
+                            m(
+                              (C = s(l).resident) == null
+                                ? void 0
+                                : C.estateName,
+                            ),
+                            1,
+                          ),
+                        ]),
+                      ]),
+                      O.value
+                        ? (P(),
+                          F("div", re, [
+                            o(s(t), { icon: s(H) }, null, 8, ["icon"]),
+                            e[4] ||
+                              (e[4] = v(" Notifications are disabled. ", -1)),
+                            n(
+                              "button",
+                              { class: "settings-link", onClick: I },
+                              "Enable in Settings",
+                            ),
+                          ]))
+                        : j("", !0),
+                      n("div", ue, [
+                        e[7] ||
+                          (e[7] = n(
+                            "div",
+                            { class: "menu-section-label" },
+                            "Account",
+                            -1,
+                          )),
+                        n("div", ce, [
+                          n("button", { class: "menu-row", onClick: A }, [
+                            o(
+                              s(t),
+                              { icon: s(z), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[5] ||
+                              (e[5] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Edit Profile",
+                                -1,
+                              )),
+                            o(
+                              s(t),
+                              { icon: s(p), class: "menu-chevron" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                          ]),
+                          n("button", { class: "menu-row", onClick: E }, [
+                            o(
+                              s(t),
+                              { icon: s(Q), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[6] ||
+                              (e[6] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Change Password",
+                                -1,
+                              )),
+                            o(
+                              s(t),
+                              { icon: s(p), class: "menu-chevron" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                          ]),
+                        ]),
+                      ]),
+                      n("div", de, [
+                        e[11] ||
+                          (e[11] = n(
+                            "div",
+                            { class: "menu-section-label" },
+                            "Preferences",
+                            -1,
+                          )),
+                        n("div", me, [
+                          n("div", pe, [
+                            o(
+                              s(t),
+                              { icon: s(R), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[8] ||
+                              (e[8] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Push Notifications",
+                                -1,
+                              )),
+                            o(
+                              s(w),
+                              {
+                                modelValue: _.value,
+                                "onUpdate:modelValue":
+                                  e[0] || (e[0] = (u) => (_.value = u)),
+                                color: "primary",
+                              },
+                              null,
+                              8,
+                              ["modelValue"],
+                            ),
+                          ]),
+                          n("div", fe, [
+                            o(
+                              s(t),
+                              { icon: s(W), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[9] ||
+                              (e[9] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Visitor Arrival Alerts",
+                                -1,
+                              )),
+                            o(
+                              s(w),
+                              {
+                                modelValue: y.value,
+                                "onUpdate:modelValue":
+                                  e[1] || (e[1] = (u) => (y.value = u)),
+                                color: "primary",
+                              },
+                              null,
+                              8,
+                              ["modelValue"],
+                            ),
+                          ]),
+                          n("div", ve, [
+                            o(
+                              s(t),
+                              { icon: s(q), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[10] ||
+                              (e[10] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Pass Expiry Alerts",
+                                -1,
+                              )),
+                            o(
+                              s(w),
+                              {
+                                modelValue: g.value,
+                                "onUpdate:modelValue":
+                                  e[2] || (e[2] = (u) => (g.value = u)),
+                                color: "primary",
+                              },
+                              null,
+                              8,
+                              ["modelValue"],
+                            ),
+                          ]),
+                        ]),
+                      ]),
+                      n("div", we, [
+                        e[14] ||
+                          (e[14] = n(
+                            "div",
+                            { class: "menu-section-label" },
+                            "Support",
+                            -1,
+                          )),
+                        n("div", be, [
+                          n("button", _e, [
+                            o(
+                              s(t),
+                              { icon: s(G), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[12] ||
+                              (e[12] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "FAQ",
+                                -1,
+                              )),
+                            o(
+                              s(t),
+                              { icon: s(p), class: "menu-chevron" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                          ]),
+                          n("button", ye, [
+                            o(
+                              s(t),
+                              { icon: s(J), class: "menu-icon" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                            e[13] ||
+                              (e[13] = n(
+                                "span",
+                                { class: "menu-label" },
+                                "Privacy Policy",
+                                -1,
+                              )),
+                            o(
+                              s(t),
+                              { icon: s(p), class: "menu-chevron" },
+                              null,
+                              8,
+                              ["icon"],
+                            ),
+                          ]),
+                        ]),
+                      ]),
+                      o(
+                        s(K),
+                        {
+                          expand: "block",
+                          fill: "outline",
+                          color: "danger",
+                          onClick: N,
+                          class: "logout-btn",
+                        },
+                        {
+                          default: i(() => [
+                            ...(e[15] || (e[15] = [v(" Log Out ", -1)])),
+                          ]),
+                          _: 1,
+                        },
+                      ),
+                      e[16] ||
+                        (e[16] = n(
+                          "div",
+                          { class: "version-label" },
+                          "Wardn v1.0.0 • PHDL Estate",
+                          -1,
+                        )),
+                    ]),
+                  ];
+                }),
+                _: 1,
+              },
+            ),
+          ]),
+          _: 1,
+        })
+      );
+    },
+  });
+const ke = Z(ge, [["__scopeId", "data-v-ba6f2152"]]);
+export { ke as default };
