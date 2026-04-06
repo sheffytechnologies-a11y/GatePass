@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
-
 class Pass extends Model
 {
     use HasFactory;
@@ -72,6 +71,11 @@ class Pass extends Model
     public function flaggedItems()
     {
         return $this->hasMany(FlaggedItem::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
     }
 
     public function notifications()

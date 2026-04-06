@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\EmergencyController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,9 @@ use App\Http\Controllers\Api\ProfileController;
 |
 */
 
+// ── Top-level shorthand (base URL: /api) ──────────────────────────────────
+Route::post('login', [AuthController::class, 'login']);
+
 Route::prefix('v1')->group(function () {
 
     // ── Public auth routes ─────────────────────────────────────────────────
@@ -71,6 +75,12 @@ Route::prefix('v1')->group(function () {
             Route::patch('{ulid}/revoke', [PassController::class, 'revoke']);
             Route::patch('{ulid}/extend', [PassController::class, 'extend']);
             Route::post('{ulid}/flag-item', [PassController::class, 'flagItem']);
+            // Items
+            Route::get('{ulid}/items',         [ItemController::class, 'index']);
+            Route::post('{ulid}/items',         [ItemController::class, 'store']);
+            Route::get('{ulid}/items/{id}',     [ItemController::class, 'show']);
+            Route::patch('{ulid}/items/{id}',   [ItemController::class, 'update']);
+            Route::delete('{ulid}/items/{id}',  [ItemController::class, 'destroy']);
         });
 
         // Notifications

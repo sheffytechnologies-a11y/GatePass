@@ -42,6 +42,19 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Security users don't need a resident profile
+        if ($user->type === 'security') {
+            $tokens = $this->issueTokenPair($user);
+
+            return response()->json([
+                'token'        => $tokens['token'],
+                'refreshToken' => $tokens['refreshToken'],
+                'userType'     => 'security',
+                'data'         => $user,
+                'resident'     => null,
+            ]);
+        }
+
         $resident = $user->resident()->with(['unit', 'estate'])->first();
 
         if (! $resident) {
@@ -55,9 +68,11 @@ class AuthController extends Controller
         $tokens = $this->issueTokenPair($user);
 
         return response()->json([
-            'token' => $tokens['token'],
+            'token'        => $tokens['token'],
             'refreshToken' => $tokens['refreshToken'],
-            'resident' => $this->formatResident($resident, $user),
+            'userType'     => 'resident',
+            'data'         => $user,
+            'resident'     => $this->formatResident($resident, $user),
         ]);
     }
 
