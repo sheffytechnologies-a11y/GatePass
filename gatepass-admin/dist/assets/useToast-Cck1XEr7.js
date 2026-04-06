@@ -1,0 +1,1 @@
+import{r as n}from"./index-BbqepKUy.js";const t=n([]);let r=0;function c(){function e(o,u="success"){const s=r++;t.value.push({id:s,message:o,type:u}),setTimeout(()=>{t.value=t.value.filter(a=>a.id!==s)},3500)}return{toasts:t,showToast:e}}export{c as u};

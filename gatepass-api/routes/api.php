@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\EmergencyController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ItemController;
+use App\Http\Controllers\Api\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +102,46 @@ Route::prefix('v1')->group(function () {
             Route::get('/',           [ProfileController::class, 'show']);
             Route::patch('/',         [ProfileController::class, 'update']);
             Route::patch('preferences', [ProfileController::class, 'updatePreferences']);
+        });
+
+        // ── Admin routes (security users only) ────────────────────────────
+        Route::prefix('admin')->group(function () {
+            Route::get('dashboard', [AdminController::class, 'dashboard']);
+
+            // Users
+            Route::get('users',         [AdminController::class, 'listUsers']);
+            Route::post('users',        [AdminController::class, 'createUser']);
+            Route::get('users/{id}',    [AdminController::class, 'showUser']);
+            Route::patch('users/{id}',  [AdminController::class, 'updateUser']);
+            Route::delete('users/{id}', [AdminController::class, 'deleteUser']);
+
+            // Residents
+            Route::get('residents',         [AdminController::class, 'listResidents']);
+            Route::post('residents',        [AdminController::class, 'createResident']);
+            Route::get('residents/{id}',    [AdminController::class, 'showResident']);
+            Route::patch('residents/{id}',  [AdminController::class, 'updateResident']);
+            Route::delete('residents/{id}', [AdminController::class, 'deleteResident']);
+
+            // Passes
+            Route::get('passes',              [AdminController::class, 'listPasses']);
+            Route::post('passes',             [AdminController::class, 'createPass']);
+            Route::get('passes/{ulid}',       [AdminController::class, 'showPass']);
+            Route::patch('passes/{ulid}/revoke', [AdminController::class, 'revokePass']);
+            Route::delete('passes/{ulid}',    [AdminController::class, 'deletePass']);
+
+            // Emergencies
+            Route::get('emergencies',                        [AdminController::class, 'listEmergencies']);
+            Route::patch('emergencies/{id}/acknowledge',     [AdminController::class, 'acknowledgeEmergency']);
+            Route::patch('emergencies/{id}/resolve',         [AdminController::class, 'resolveEmergency']);
+            Route::delete('emergencies/{id}',                [AdminController::class, 'deleteEmergency']);
+
+            // Notifications
+            Route::get('notifications',         [AdminController::class, 'listNotifications']);
+            Route::delete('notifications/{id}', [AdminController::class, 'deleteNotification']);
+
+            // Estates & Units (reference data)
+            Route::get('estates',                [AdminController::class, 'listEstates']);
+            Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
         });
     });
 });
