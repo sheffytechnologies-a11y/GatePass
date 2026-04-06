@@ -159,13 +159,11 @@ import { useRouter } from 'vue-router'
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonSpinner, IonIcon } from '@ionic/vue'
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons'
 import type { Pass } from '@/types'
-import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import QRDisplay from '@/components/QRDisplay.vue'
-import { MOCK_PASSES, delay } from '@/api/mock'
+import client from '@/api/client'
 
 const router = useRouter()
-const auth   = useAuthStore()
 const { showToast } = useToast()
 
 const PURPOSES = ['Personal Visit', 'Delivery', 'Service', 'Business', 'Other']
@@ -207,29 +205,16 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    // ── Replace with real API call ──────────────────────────
-    // const expiresAt = buildExpiresAt()
-    // const res = await passesApi.create({ ...form.value, expiresAt })
-    // createdPass.value = res.data.pass
-    await delay(900)
-    const mockPass: Pass = {
-      ...MOCK_PASSES[0],
-      id: 'GP-' + Math.floor(Math.random() * 9000 + 1000),
-      visitorName: form.value.visitorName,
-      visitorPhone: form.value.visitorPhone ? '+234' + form.value.visitorPhone : null,
-      purpose: form.value.purpose,
-      type: form.value.type,
-      vehiclePlate: form.value.vehiclePlate || null,
+    const res = await client.post('/v1/passes', {
+      visitorName:   form.value.visitorName,
+      visitorPhone:  form.value.visitorPhone || null,
+      purpose:       form.value.purpose,
+      type:          form.value.type,
+      expiresAt:     buildExpiresAt(),
       recurringDays: form.value.type === 'Recurring' ? form.value.recurringDays : null,
-      qrData: 'WARDN:GP-XXXX:res-001',
-      status: 'Pending', itemsFlagged: false, flaggedItems: [],
-      arrivedAt: null, exitedAt: null,
-      expiresAt: buildExpiresAt(),
-      createdAt: new Date().toISOString(),
-      hostUnit: auth.resident?.flatAddress || 'L3, H7, FA',
-      hostName: auth.resident?.name || '',
-    }
-    createdPass.value = mockPass
+      vehiclePlate:  form.value.vehiclePlate || null,
+    })
+    createdPass.value = res.data.pass
     isDone.value = true
     showToast(`Pass created for ${form.value.visitorName}`, 'success')
   } catch {

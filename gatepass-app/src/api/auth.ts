@@ -3,7 +3,7 @@ import client from './client'
 
 export const authApi = {
   login: (phone: string, password: string) =>
-    client.post('/auth/login', { phone, password }),
+    client.post('/login', { phone, password }),
 
   refresh: (refreshToken: string) =>
     client.post('/auth/refresh', { refreshToken }),

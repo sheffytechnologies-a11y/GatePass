@@ -5,7 +5,7 @@
 
         <!-- Logo -->
         <div class="logo-block">
-          <div class="wordmark">Wardn</div>
+          <div class="wordmark">Gatepass</div>
           <div class="tagline">Estate Security & Visitor Management</div>
         </div>
 
@@ -82,12 +82,12 @@ import { IonPage, IonContent, IonButton, IonSpinner, IonIcon, alertController } 
 import { eyeOutline, eyeOffOutline } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
-import { MOCK_RESIDENT, delay } from '@/api/mock'  // ← remove when API is ready
+import { authApi } from '@/api/auth'
 
 const router = useRouter()
 const route  = useRoute()
 const auth   = useAuthStore()
-useToast()
+const { showToast } = useToast()
 
 const phone        = ref('')
 const password     = ref('')
@@ -110,30 +110,28 @@ async function handleLogin() {
   loading.value = true
 
   try {
-    // ── Replace with real API call ───────────────────────────
-    // const res = await authApi.login('+234' + phone.value, password.value)
-    // auth.setSession(res.data)
-    await delay(800)
-    // Mock: any phone/password succeeds
-    auth.setSession({
-      token: 'mock-token-' + Date.now(),
-      refreshToken: 'mock-refresh-' + Date.now(),
-      resident: MOCK_RESIDENT,
-    })
+    const res = await authApi.login(phone.value, password.value)
+    const { token, refreshToken, resident, userType, data: user } = res.data
+    auth.setSession({ token, refreshToken, resident, userType, user })
 
-    if (!auth.onboardingComplete) {
-      router.replace('/onboarding')
-    } else {
+    showToast('Welcome back!', 'success')
+
+    if (userType === 'security' || auth.onboardingComplete) {
       router.replace('/tabs/home')
+    } else {
+      router.replace('/onboarding')
     }
   } catch (e: any) {
     const code = e.response?.data?.code
     if (code === 'AUTH_INVALID_CREDENTIALS') {
       authError.value = 'Incorrect phone number or password. Try again.'
-    } else if (code === 'AUTH_ACCOUNT_DISABLED') {
+      showToast('Incorrect phone number or password.', 'error')
+    } else if (code === 'AUTH_ACCOUNT_DISABLED' || code === 'ACCOUNT_SUSPENDED') {
       authError.value = 'Your account has been suspended. Contact your estate manager.'
+      showToast('Account suspended. Contact your estate manager.', 'error')
     } else {
       authError.value = 'Something went wrong. Try again.'
+      showToast('Something went wrong. Try again.', 'error')
     }
   } finally {
     loading.value = false

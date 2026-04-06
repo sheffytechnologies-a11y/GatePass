@@ -2,7 +2,7 @@
   <ion-page>
     <ion-tabs>
       <ion-router-outlet />
-      <ion-tab-bar slot="bottom">
+      <ion-tab-bar slot="bottom" style="width: 100%; max-width: 100%">
 
         <ion-tab-button tab="home" href="/tabs/home">
           <ion-icon :icon="homeOutline" />

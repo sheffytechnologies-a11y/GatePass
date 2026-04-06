@@ -24,8 +24,8 @@ export const passesApi = {
   extend: (id: string, newExpiresAt: string) =>
     client.patch(`/passes/${id}/extend`, { newExpiresAt }),
 
-  flagItem: (id: string, photoBase64: string, description: string) =>
-    client.post(`/passes/${id}/flag-item`, { photoBase64, description }),
+  createItem: (passId: string, formData: FormData) =>
+    client.post(`/v1/passes/${passId}/items`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 }
 
 // src/api/notifications.ts

@@ -68,7 +68,7 @@ import { ref } from 'vue'
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonSpinner, alertController } from '@ionic/vue'
 import { callOutline } from 'ionicons/icons'
 import { useToast } from '@/composables/useToast'
-import { delay } from '@/api/mock'
+import client from '@/api/client'
 
 const { showToast } = useToast()
 
@@ -110,12 +110,12 @@ async function confirmSOS() {
 async function sendSOS() {
   sending.value = true
   try {
-    // ── Replace with real API call ──────────────────────────
-    // await client.post('/emergency', { type: selectedType.value || 'General', unit: auth.resident?.flatAddress })
-    await delay(800)
+    const res = await client.post('/v1/emergencies', {
+      type: selectedType.value || 'Security Incident',
+    })
     alertSent.value = true
     showToast('Alert sent — PHDL Security notified', 'warning')
-    recentIncidents.value.unshift({ id: Date.now().toString(), type: selectedType.value || 'General', createdAt: new Date().toISOString() })
+    recentIncidents.value.unshift(res.data.emergency)
     setTimeout(() => { alertSent.value = false }, 3000)
   } catch {
     showToast('Alert failed. Call security directly: 08100000000', 'error')

@@ -36,28 +36,53 @@
 
         <!-- Visitor card -->
         <div class="visitor-card">
-          <div class="visitor-avatar" :style="{ background: avatarGradient }">{{ initials }}</div>
-          <div class="visitor-info">
-            <div class="visitor-name">{{ pass.visitorName }}</div>
-            <div class="visitor-unit">{{ pass.hostUnit }}</div>
+          <!-- Header -->
+          <div class="vc-header">
+            <div class="visitor-avatar" :style="{ background: avatarGradient }">{{ initials }}</div>
+            <div class="vc-header-info">
+              <div class="visitor-name">{{ pass.visitorName }}</div>
+              <div class="pass-ref">Pass #GP-{{ passShortId }}</div>
+              <div class="vc-badges">
+                <span class="badge-status" :class="statusBadgeClass">
+                  <span class="status-dot" :class="statusDotClass" />
+                  {{ displayStatus }}
+                </span>
+                <span class="badge-type">{{ pass.type }}</span>
+              </div>
+            </div>
           </div>
-          <StatusBadge :status="displayStatus" />
+
+          <!-- Info grid -->
+          <div class="info-grid">
+            <div class="info-cell">
+              <div class="info-cell-label">📍 DESTINATION</div>
+              <div class="info-cell-value">{{ pass.hostUnit }}</div>
+            </div>
+            <div class="info-cell info-cell-right">
+              <div class="info-cell-label">🏠 HOST</div>
+              <div class="info-cell-value">{{ hostDisplayName }}</div>
+            </div>
+            <div class="info-cell info-cell-top">
+              <div class="info-cell-label">🎯 PURPOSE</div>
+              <div class="info-cell-value">{{ pass.purpose }}</div>
+            </div>
+            <div class="info-cell info-cell-right info-cell-top">
+              <div class="info-cell-label">⏰ EXPIRES</div>
+              <div class="info-cell-value">{{ pass.type === 'Recurring' ? pass.recurringDays?.join(', ') : fmtExpiryShort(pass.expiresAt) }}</div>
+            </div>
+            <div class="info-cell info-cell-top">
+              <div class="info-cell-label">📞 PHONE</div>
+              <div class="info-cell-value">{{ pass.visitorPhone || '—' }}</div>
+            </div>
+            <div class="info-cell info-cell-right info-cell-top">
+              <div class="info-cell-label">🚗 PLATE</div>
+              <div class="info-cell-value">{{ pass.vehiclePlate || '—' }}</div>
+            </div>
+          </div>
         </div>
 
         <!-- QR (only for active/pending) -->
         <QRDisplay v-if="showQR" :value="pass.qrData" :pass-id="pass.id" />
-
-        <!-- Pass info strip -->
-        <div class="info-strip">
-          <div class="info-row"><span>Pass ID</span><strong>{{ pass.id }}</strong></div>
-          <div class="info-row"><span>Type</span><strong>{{ pass.type }}</strong></div>
-          <div class="info-row"><span>Purpose</span><strong>{{ pass.purpose }}</strong></div>
-          <div v-if="pass.vehiclePlate" class="info-row"><span>Vehicle</span><strong>{{ pass.vehiclePlate }}</strong></div>
-          <div class="info-row">
-            <span>{{ pass.type === 'Recurring' ? 'Days' : 'Expires' }}</span>
-            <strong>{{ pass.type === 'Recurring' ? pass.recurringDays?.join(', ') : fmtDatetime(pass.expiresAt) }}</strong>
-          </div>
-        </div>
 
         <!-- Flagged items -->
         <div v-if="pass.flaggedItems.length > 0" class="flagged-section">
@@ -74,33 +99,48 @@
           </div>
         </div>
 
-        <!-- Action tiles -->
-        <div class="action-tiles">
-          <button v-if="canDeclare" class="tile tile-warn" @click="openFlagSheet">
-            <span class="tile-icon">📦</span>
-            <span class="tile-label">Declare<br>Exit Item</span>
-          </button>
-          <button v-if="canRevoke" class="tile tile-danger" @click="confirmRevoke">
-            <span class="tile-icon">🚫</span>
-            <span class="tile-label">Revoke<br>Pass</span>
-          </button>
-          <button v-if="canExtend" class="tile" @click="openExtend">
-            <span class="tile-icon">⏱️</span>
-            <span class="tile-label">Extend<br>Pass</span>
-          </button>
-          <button v-if="canShare" class="tile" @click="sharePass">
-            <span class="tile-icon">↗️</span>
-            <span class="tile-label">Share<br>Pass</span>
-          </button>
+        <!-- Actions -->
+        <div class="actions-section">
+          <div class="actions-header">ACTIONS</div>
+          <div class="action-tiles">
+            <button v-if="canDeclare" class="tile tile-warn" @click="openFlagSheet">
+              <span class="tile-icon">📦</span>
+              <div class="tile-body">
+                <span class="tile-title">Flag Exit Item</span>
+                <span class="tile-sub">Declare item leaving estate</span>
+              </div>
+            </button>
+            <button v-if="canRevoke" class="tile tile-danger" @click="confirmRevoke">
+              <span class="tile-icon">🚫</span>
+              <div class="tile-body">
+                <span class="tile-title">Revoke Pass</span>
+                <span class="tile-sub">Cancel visitor access</span>
+              </div>
+            </button>
+            <button v-if="canExtend" class="tile" @click="openExtend">
+              <span class="tile-icon">⏱️</span>
+              <div class="tile-body">
+                <span class="tile-title">Extend Pass</span>
+                <span class="tile-sub">Add 2 more hours</span>
+              </div>
+            </button>
+            <button v-if="canShare" class="tile" @click="sharePass">
+              <span class="tile-icon">↗️</span>
+              <div class="tile-body">
+                <span class="tile-title">Share Pass</span>
+                <span class="tile-sub">SMS, WhatsApp, link</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         <!-- Contact visitor -->
         <div v-if="pass.visitorPhone" class="contact-row">
           <a :href="`tel:${pass.visitorPhone}`" class="contact-btn">
-            <ion-icon :icon="callOutline" /> Call
+            <ion-icon :icon="callOutline" /> Call Visitor
           </a>
-          <a :href="`https://wa.me/${pass.visitorPhone.replace('+','')}`" target="_blank" class="contact-btn whatsapp-btn">
-            <ion-icon :icon="logoWhatsapp" /> WhatsApp
+          <a :href="`https://wa.me/${pass.visitorPhone.replace('+','')}`" target="_blank" class="contact-btn">
+            💬 Message
           </a>
         </div>
 
@@ -109,8 +149,8 @@
 
     <!-- Flag Item Sheet -->
     <FlagItemSheet
-      v-if="pass"
-      :is-open="flagSheetOpen"
+      v-if="pass && flagSheetOpen"
+      :is-open="true"
       :pass-id="pass.id"
       @close="flagSheetOpen = false"
       @declared="onItemsDeclared"
@@ -126,10 +166,9 @@ import {
   IonContent, IonRefresher, IonRefresherContent, IonSkeletonText, IonIcon,
   alertController, actionSheetController,
 } from '@ionic/vue'
-import { callOutline, logoWhatsapp } from 'ionicons/icons'
+import { callOutline } from 'ionicons/icons'
 import { usePassesStore } from '@/stores/passes'
 import { useToast } from '@/composables/useToast'
-import StatusBadge from '@/components/StatusBadge.vue'
 import QRDisplay from '@/components/QRDisplay.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -160,6 +199,25 @@ const initials = computed(() => pass.value?.visitorName.split(' ').map(w => w[0]
 const avatarGradient = computed(() => {
   const idx = (pass.value?.visitorName.charCodeAt(0) || 0) % GRADIENTS.length
   return GRADIENTS[idx]
+})
+const passShortId = computed(() => (pass.value?.id || '').slice(-4).toUpperCase())
+const hostDisplayName = computed(() => {
+  const name = pass.value?.hostName || ''
+  const parts = name.split(' ')
+  if (parts.length <= 1) return name
+  return `${parts[0]} ${parts[1][0]}.`
+})
+const statusDotClass = computed(() => {
+  const s = pass.value?.status
+  if (s === 'On-site') return 'dot-onsite'
+  if (s === 'Pending') return 'dot-pending'
+  return 'dot-inactive'
+})
+const statusBadgeClass = computed(() => {
+  const s = pass.value?.status
+  if (s === 'On-site') return 'badge-onsite'
+  if (s === 'Pending') return 'badge-pending'
+  return 'badge-inactive'
 })
 
 async function load() { await store.fetchById(route.params.id as string) }
@@ -246,8 +304,15 @@ function sharePass() {
   navigator.clipboard.writeText(link).then(() => showToast('Pass link copied', 'success'))
 }
 
-function fmtDatetime(iso: string) {
-  return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: true })
+function fmtExpiryShort(iso: string) {
+  const d = new Date(iso)
+  const today = new Date()
+  const timeStr = d.toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit', hour12: true })
+  if (d.toDateString() === today.toDateString()) return `${timeStr} today`
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+  if (d.toDateString() === tomorrow.toDateString()) return `${timeStr} tomorrow`
+  return `${timeStr}, ${d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })}`
 }
 function fmtRelative(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000
@@ -262,21 +327,66 @@ onMounted(load)
 .detail-content { --background: var(--w-bg); }
 .content-pad { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; }
 .center { align-items: center; justify-content: center; min-height: 60vh; }
-.sk-card  { height: 90px;  border-radius: var(--w-radius-lg); display: block; }
+.sk-card  { height: 130px; border-radius: var(--w-radius-lg); display: block; }
 .sk-qr    { height: 260px; border-radius: var(--w-radius-lg); display: block; }
-.sk-tiles { height: 80px;  border-radius: var(--w-radius-lg); display: block; }
+.sk-tiles { height: 100px; border-radius: var(--w-radius-lg); display: block; }
 
-.visitor-card { background: var(--w-surface); border-radius: var(--w-radius-lg); padding: 18px; display: flex; align-items: center; gap: 14px; }
-.visitor-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 700; flex-shrink: 0; }
-.visitor-info   { flex: 1; }
-.visitor-name   { font-size: 18px; font-weight: 700; color: var(--w-text); }
-.visitor-unit   { font-size: 13px; color: var(--w-muted); margin-top: 3px; }
+/* Visitor Card */
+.visitor-card {
+  background: var(--w-surface);
+  border-radius: var(--w-radius-lg);
+  border: 1.5px solid #00C97A;
+  overflow: hidden;
+}
+.vc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 16px 16px;
+}
+.visitor-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 18px; font-weight: 700; flex-shrink: 0;
+}
+.vc-header-info { flex: 1; }
+.visitor-name { font-size: 18px; font-weight: 700; color: var(--w-text); }
+.pass-ref { font-size: 13px; color: var(--w-muted); margin-top: 2px; }
+.vc-badges { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.badge-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+  background: rgba(0,201,122,0.12); color: #00C97A;
+}
+.badge-status.badge-pending { background: rgba(245,158,11,0.12); color: #D97706; }
+.badge-status.badge-inactive { background: rgba(107,114,128,0.1); color: #6B7280; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #00C97A; }
+.status-dot.dot-pending { background: #F59E0B; }
+.status-dot.dot-inactive { background: #9CA3AF; }
+.badge-type {
+  font-size: 12px; font-weight: 600; color: #fff;
+  background: #111; padding: 3px 10px; border-radius: 20px;
+}
 
-.info-strip { background: var(--w-surface); border-radius: var(--w-radius-md); overflow: hidden; }
-.info-row { display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--w-border); font-size: 14px; }
-.info-row:last-child { border-bottom: none; }
-.info-row span { color: var(--w-muted); }
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--w-border);
+}
+.info-cell {
+  padding: 13px 16px;
+  border-right: 1px solid var(--w-border);
+}
+.info-cell-right { border-right: none; }
+.info-cell-top { border-top: 1px solid var(--w-border); }
+.info-cell-label {
+  font-size: 10px; font-weight: 700; color: var(--w-muted);
+  letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 5px;
+}
+.info-cell-value { font-size: 14px; font-weight: 500; color: var(--w-text); }
 
+/* Flagged items */
 .flagged-section { background: var(--w-warning-light); border-radius: var(--w-radius-md); padding: 14px 16px; }
 .section-label { font-size: 13px; font-weight: 700; color: var(--w-warning); margin-bottom: 10px; }
 .flagged-item { display: flex; gap: 12px; align-items: flex-start; }
@@ -286,24 +396,33 @@ onMounted(load)
 .flagged-desc { font-size: 14px; color: var(--w-text); font-weight: 500; }
 .flagged-time { font-size: 12px; color: var(--w-muted); margin-top: 3px; }
 
-.action-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.tile {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  padding: 14px 8px; border-radius: var(--w-radius-md); border: 1.5px solid var(--w-border);
-  background: var(--w-surface); cursor: pointer; font-family: var(--w-font-body); transition: all 0.15s;
+/* Actions */
+.actions-section { display: flex; flex-direction: column; gap: 10px; }
+.actions-header {
+  font-size: 11px; font-weight: 700; color: var(--w-muted);
+  letter-spacing: 1px; text-transform: uppercase;
 }
-.tile:active  { transform: scale(0.96); }
-.tile-warn    { border-color: var(--w-warning); background: var(--w-warning-light); }
-.tile-danger  { border-color: var(--w-danger); background: var(--w-danger-light); }
-.tile-icon    { font-size: 22px; }
-.tile-label   { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.3; color: var(--w-text); }
+.action-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile {
+  display: flex; flex-direction: row; align-items: center; gap: 12px;
+  padding: 16px 14px; border-radius: var(--w-radius-md);
+  border: 1.5px solid var(--w-border); background: var(--w-surface);
+  cursor: pointer; font-family: var(--w-font-body); transition: all 0.15s; text-align: left;
+}
+.tile:active { transform: scale(0.96); }
+.tile-warn   { border-color: var(--w-warning); background: var(--w-warning-light); }
+.tile-danger { border-color: var(--w-danger);  background: var(--w-danger-light); }
+.tile-icon { font-size: 22px; flex-shrink: 0; }
+.tile-body { display: flex; flex-direction: column; gap: 2px; }
+.tile-title { font-size: 13px; font-weight: 700; color: var(--w-text); line-height: 1.3; }
+.tile-sub   { font-size: 11px; color: var(--w-muted); line-height: 1.3; }
 
+/* Contact */
 .contact-row { display: flex; gap: 10px; }
 .contact-btn {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 13px; border-radius: var(--w-radius-md); border: 1.5px solid var(--w-border);
+  padding: 14px; border-radius: var(--w-radius-md); border: 1.5px solid var(--w-border);
   background: var(--w-surface); font-size: 14px; font-weight: 600; color: var(--w-text);
   text-decoration: none; transition: all 0.15s;
 }
-.whatsapp-btn { border-color: #25D366; color: #25D366; }
 </style>

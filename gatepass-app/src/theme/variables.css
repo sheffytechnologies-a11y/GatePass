@@ -48,6 +48,8 @@
   --ion-toolbar-color:        var(--w-text);
   --ion-tab-bar-background:   var(--w-surface);
   --ion-tab-bar-border-color: var(--w-border);
+  --ion-safe-area-left: 0px;
+  --ion-safe-area-right: 0px;
   --ion-item-background:      var(--w-surface);
 }
 
@@ -56,6 +58,13 @@
 
 ion-content {
   --background: var(--w-bg);
+}
+
+ion-tab-bar {
+  width: 100% !important;
+  max-width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 ion-card {

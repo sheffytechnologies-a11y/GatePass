@@ -1,209 +1,258 @@
 <template>
-  <ion-modal :is-open="isOpen" @didDismiss="$emit('close')" :initial-breakpoint="0.92" :breakpoints="[0, 0.92]">
-    <ion-page>
-      <ion-header class="ion-no-border">
-        <ion-toolbar>
-          <ion-title>Declare Exit Item</ion-title>
-          <ion-buttons slot="end">
-            <ion-button @click="$emit('close')">
-              <ion-icon :icon="closeOutline" />
-            </ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-content class="sheet-content">
-        <div class="sheet-pad">
-
-          <!-- Camera area -->
-          <div class="camera-zone" @click="takePicture">
-            <template v-if="currentPhoto">
-              <img :src="currentPhoto" class="photo-preview" alt="Item photo" />
-              <button class="retake-btn" @click.stop="currentPhoto = ''; currentBase64 = ''">Retake</button>
-            </template>
-            <template v-else>
-              <div class="camera-placeholder">
-                <ion-icon :icon="cameraOutline" class="cam-icon" />
-                <span>Tap to photograph the item</span>
-              </div>
-            </template>
+  <ion-modal
+    :is-open="isOpen"
+    @didDismiss="onDismiss"
+    :initial-breakpoint="0.88"
+    :breakpoints="[0, 0.88]"
+  >
+    <ion-page class="sheet-wrap">
+      <!-- Header -->
+      <div class="sheet-header">
+        <div class="sheet-handle" />
+        <div class="header-row">
+          <div>
+            <div class="sheet-title">Declare Exit Item</div>
+            <div class="sheet-sub">Security will be notified immediately</div>
           </div>
-
-          <!-- Permission error -->
-          <div v-if="permissionDenied" class="perm-error">
-            <p v-if="permPermanent">
-              Camera access has been blocked. Go to <strong>Settings &gt; Wardn &gt; Camera</strong> to enable it.
-            </p>
-            <p v-else>Camera access is needed to photograph items. Tap the camera area to try again.</p>
-          </div>
-
-          <!-- Gallery fallback -->
-          <button class="gallery-link" @click="pickGallery">Or choose from gallery</button>
-
-          <!-- Description -->
-          <div class="field">
-            <label>Description <span class="req">*</span></label>
-            <textarea
-              v-model="description"
-              placeholder="Describe the item (e.g. MacBook Pro, grey bag)"
-              class="desc-textarea"
-              rows="3"
-            />
-          </div>
-
-          <!-- Add to list -->
-          <ion-button
-            expand="block"
-            fill="outline"
-            color="primary"
-            :disabled="!canAdd"
-            @click="addItem"
-          >
-            + Add to list
-          </ion-button>
-
-          <!-- Items list -->
-          <div v-if="items.length > 0" class="items-list">
-            <div v-for="(item, idx) in items" :key="idx" class="item-row">
-              <div class="item-thumb">
-                <img v-if="item.dataUrl" :src="item.dataUrl" alt="item" />
-                <span v-else>📦</span>
-              </div>
-              <div class="item-desc">{{ item.description }}</div>
-              <button class="remove-btn" @click="items.splice(idx, 1)">✕</button>
-            </div>
-          </div>
-
-          <!-- Send alert -->
-          <ion-button
-            expand="block"
-            color="warning"
-            :disabled="items.length === 0 || submitting"
-            @click="sendAlert"
-            class="alert-btn"
-          >
-            <ion-spinner v-if="submitting" name="crescent" />
-            <span v-else>Send Alert to Security</span>
-          </ion-button>
-
+          <button class="close-btn" @click="$emit('close')">✕</button>
         </div>
-      </ion-content>
+      </div>
+
+    <ion-content class="sheet-content">
+      <div class="sheet-body">
+        <!-- Photo zone -->
+        <div class="section-label">PHOTO OF ITEM</div>
+        <div class="camera-zone" @click="openPhotoSheet">
+          <template v-if="currentPhoto">
+            <img :src="currentPhoto" class="photo-preview" alt="Item photo" />
+            <button class="retake-btn" @click.stop="currentPhoto = ''; currentBlob = null">Retake</button>
+          </template>
+          <template v-else>
+            <div class="cam-icon-wrap">
+              <span class="cam-emoji">📷</span>
+            </div>
+            <div class="cam-label">Tap to take photo</div>
+            <div class="cam-sub">Capture or upload from gallery</div>
+          </template>
+        </div>
+
+        <!-- Permission error -->
+        <div v-if="permissionDenied" class="perm-error">
+          Camera access blocked. Go to <strong>Settings → Gatepass → Camera</strong> to enable it.
+        </div>
+
+        <!-- Description -->
+        <div class="section-label">ITEM DESCRIPTION <span class="req">*</span></div>
+        <textarea
+          v-model="description"
+          placeholder="e.g. Black HP laptop, serial GH-2233 — belongs to resident"
+          class="desc-textarea"
+          rows="4"
+        />
+
+        <!-- Submit -->
+        <div class="submit-area">
+          <button
+            class="alert-btn"
+            :disabled="!canSend || submitting"
+            @click="sendAlert"
+          >
+            <ion-spinner v-if="submitting" name="crescent" color="light" style="width:20px;height:20px" />
+            <template v-else>🔔 Send Alert to Security</template>
+          </button>
+          <div class="submit-caption">Gate guard will be notified instantly</div>
+        </div>
+      </div>
+    </ion-content>
     </ion-page>
   </ion-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { IonModal, IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/vue'
-import { cameraOutline, closeOutline } from 'ionicons/icons'
+import { IonModal, IonPage, IonContent, IonSpinner, actionSheetController } from '@ionic/vue'
 import { useCamera } from '@/composables/useToast'
-import { delay } from '@/api/mock'
+import { useToast } from '@/composables/useToast'
+import client from '@/api/client'
 
 const props = defineProps<{ isOpen: boolean; passId: string }>()
-const emit = defineEmits<{ close: []; declared: [count: number] }>()
+const emit  = defineEmits<{ close: []; declared: [count: number] }>()
 
-const { capturePhoto, pickFromGallery, getPermissionStatus } = useCamera()
+const { capturePhoto, pickFromGallery } = useCamera()
+const { showToast } = useToast()
 
-const currentPhoto   = ref('')
-const currentBase64  = ref('')
-const description    = ref('')
+const currentPhoto  = ref('')
+const currentBlob   = ref<Blob | null>(null)
+const description   = ref('')
 const permissionDenied = ref(false)
-const permPermanent  = ref(false)
-const submitting     = ref(false)
+const submitting    = ref(false)
 
-interface DeclaredItem { dataUrl: string; base64: string; description: string }
-const items = ref<DeclaredItem[]>([])
+const canSend = computed(() => description.value.trim().length > 0)
 
-const canAdd = computed(() => description.value.trim().length > 0)
+async function openPhotoSheet() {
+  const sheet = await actionSheetController.create({
+    header: 'Add Photo',
+    buttons: [
+      { text: 'Take Photo', handler: takePhoto },
+      { text: 'Choose from Gallery', handler: pickGallery },
+      { text: 'Cancel', role: 'cancel' },
+    ],
+  })
+  await sheet.present()
+}
 
-async function takePicture() {
+async function takePhoto() {
   permissionDenied.value = false
-  const status = await getPermissionStatus()
-  if (status === 'denied') {
-    permissionDenied.value = true
-    permPermanent.value = true
-    return
-  }
-
   const result = await capturePhoto()
-  if (!result) {
-    permissionDenied.value = true
-    permPermanent.value = false
-    return
-  }
-  currentPhoto.value  = result.dataUrl
-  currentBase64.value = result.base64
+  if (!result) { permissionDenied.value = true; return }
+  currentPhoto.value = result.dataUrl
+  currentBlob.value  = base64ToBlob(result.base64, 'image/jpeg')
 }
 
 async function pickGallery() {
   const result = await pickFromGallery()
   if (!result) return
-  currentPhoto.value  = result.dataUrl
-  currentBase64.value = result.base64
+  currentPhoto.value = result.dataUrl
+  currentBlob.value  = base64ToBlob(result.base64, 'image/jpeg')
 }
 
-function addItem() {
-  if (!canAdd.value) return
-  items.value.push({
-    dataUrl: currentPhoto.value,
-    base64: currentBase64.value,
-    description: description.value.trim(),
-  })
-  currentPhoto.value  = ''
-  currentBase64.value = ''
-  description.value   = ''
+function base64ToBlob(base64: string, mime: string): Blob {
+  const byteChars = atob(base64)
+  const bytes = new Uint8Array(byteChars.length)
+  for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i)
+  return new Blob([bytes], { type: mime })
 }
 
 async function sendAlert() {
+  if (!canSend.value || submitting.value) return
   submitting.value = true
   try {
-    // ── Replace with real API calls ──────────────────────────
-    // for (const item of items.value) {
-    //   await passesApi.flagItem(props.passId, item.base64, item.description)
-    // }
-    await delay(800)
-    emit('declared', items.value.length)
-    items.value = []
+    const formData = new FormData()
+    formData.append('name', description.value.trim())
+    formData.append('description', description.value.trim())
+    if (currentBlob.value) {
+      formData.append('photo', currentBlob.value, 'item.jpg')
+    }
+    await client.post(`/v1/passes/${props.passId}/items`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    emit('declared', 1)
+    reset()
   } catch {
-    // Parent shows error toast
+    showToast('Failed to send alert. Try again.', 'error')
   } finally {
     submitting.value = false
   }
 }
+
+function reset() {
+  currentPhoto.value = ''
+  currentBlob.value  = null
+  description.value  = ''
+  permissionDenied.value = false
+}
+
+function onDismiss() {
+  reset()
+  emit('close')
+}
 </script>
 
 <style scoped>
-.sheet-content { --background: var(--w-bg); }
-.sheet-pad { padding: 16px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
-.camera-zone {
-  background: var(--w-surface); border: 2px dashed var(--w-border);
-  border-radius: var(--w-radius-lg); min-height: 180px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; overflow: hidden; position: relative;
+/* Modal wrapper fills the sheet */
+.sheet-wrap {
+  display: flex; flex-direction: column; height: 100%;
+  background: var(--w-bg, #fff);
 }
-.camera-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--w-muted); }
-.cam-icon  { font-size: 40px; }
-.photo-preview { width: 100%; object-fit: cover; max-height: 220px; }
+.sheet-content { --background: var(--w-bg, #fff); }
+
+/* Header */
+.sheet-header {
+  padding: 10px 20px 0;
+  border-bottom: 1px solid var(--w-border, #eee);
+  background: var(--w-surface, #fff);
+}
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--w-border, #ddd); margin: 0 auto 14px;
+}
+.header-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 16px;
+}
+.sheet-title { font-size: 20px; font-weight: 700; color: var(--w-text, #111); }
+.sheet-sub   { font-size: 13px; color: var(--w-muted, #888); margin-top: 3px; }
+.close-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--w-border, #eee); border: none;
+  font-size: 14px; color: var(--w-muted, #666); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Scrollable body */
+.sheet-body {
+  flex: 1; overflow-y: auto; padding: 20px 20px 40px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+  color: var(--w-muted, #888); text-transform: uppercase;
+}
+.req { color: #e55; }
+
+/* Camera zone */
+.camera-zone {
+  background: var(--w-surface, #f5f5f5);
+  border: 2px dashed #ccc;
+  border-radius: 16px;
+  min-height: 140px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.cam-icon-wrap {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #1A4731;
+  display: flex; align-items: center; justify-content: center;
+}
+.cam-emoji   { font-size: 24px; }
+.cam-label   { font-size: 15px; font-weight: 700; color: var(--w-text, #111); }
+.cam-sub     { font-size: 13px; color: var(--w-muted, #888); }
+.photo-preview { width: 100%; object-fit: cover; max-height: 240px; border-radius: 14px; }
 .retake-btn {
   position: absolute; bottom: 10px; right: 10px;
-  background: rgba(0,0,0,0.6); color: white; border: none;
-  padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+  background: rgba(0,0,0,0.55); color: #fff; border: none;
+  padding: 5px 14px; border-radius: 20px; font-size: 12px;
+  font-weight: 600; cursor: pointer;
 }
-.perm-error { background: var(--w-danger-light); border-radius: var(--w-radius-md); padding: 12px 14px; font-size: 13px; color: var(--w-danger); }
-.gallery-link { background: none; border: none; color: var(--w-primary); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; padding: 0; }
-.field label  { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--w-text); }
-.req { color: var(--w-danger); }
+
+.perm-error {
+  background: #fff0f0; border-radius: 10px;
+  padding: 10px 14px; font-size: 13px; color: #c0392b;
+}
+
+/* Textarea */
 .desc-textarea {
-  width: 100%; border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md);
-  padding: 12px 14px; font-size: 15px; background: var(--w-surface);
-  color: var(--w-text); font-family: var(--w-font-body); outline: none; resize: none;
+  width: 100%; border: none; border-radius: 14px;
+  padding: 16px; font-size: 15px;
+  background: var(--w-surface, #f5f5f5);
+  color: var(--w-text, #111); font-family: var(--w-font-body, sans-serif);
+  outline: none; resize: none; box-sizing: border-box;
+  min-height: 100px;
 }
-.desc-textarea:focus { border-color: var(--w-primary); }
-.items-list { display: flex; flex-direction: column; gap: 8px; }
-.item-row { display: flex; align-items: center; gap: 10px; background: var(--w-surface); border-radius: var(--w-radius-md); padding: 10px 12px; }
-.item-thumb { width: 40px; height: 40px; border-radius: var(--w-radius-sm); background: var(--w-border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
-.item-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.item-desc  { flex: 1; font-size: 14px; color: var(--w-text); }
-.remove-btn { background: none; border: none; color: var(--w-muted); font-size: 18px; cursor: pointer; padding: 4px; }
-.alert-btn  { --border-radius: 14px; height: 52px; font-size: 16px; font-weight: 700; }
+.desc-textarea::placeholder { color: #bbb; }
+
+/* Submit */
+.submit-area { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 4px; }
+.alert-btn {
+  width: 100%; padding: 17px;
+  background: #F5A98A; border: none; border-radius: 50px;
+  font-size: 16px; font-weight: 700; color: #fff;
+  cursor: pointer; transition: opacity 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.alert-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.alert-btn:active:not(:disabled) { opacity: 0.85; }
+.submit-caption { font-size: 12px; color: var(--w-muted, #888); }
 </style>

@@ -87,7 +87,7 @@
           Log Out
         </ion-button>
 
-        <div class="version-label">Wardn v1.0.0 • PHDL Estate</div>
+        <div class="version-label">gatepass v1.0.0 • PHDL Estate</div>
 
       </div>
     </ion-content>

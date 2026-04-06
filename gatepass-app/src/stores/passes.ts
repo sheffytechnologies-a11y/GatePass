@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Pass, PassStatus } from '@/types'
-import { MOCK_PASSES, delay } from '@/api/mock'
+import client from '@/api/client'
 
 export const usePassesStore = defineStore('passes', () => {
   const passes = ref<Pass[]>([])
@@ -23,11 +23,10 @@ export const usePassesStore = defineStore('passes', () => {
     loading.value = true
     error.value = null
     try {
-      // ── Replace with real API call ──────────────────────────
-      // const res = await passesApi.getAll({ status: filterStatus.value, search: searchQuery.value, sort: sortOrder.value })
-      // passes.value = res.data.passes
-      await delay()
-      passes.value = MOCK_PASSES
+      const res = await client.get('/v1/passes', {
+        params: { status: filterStatus.value, search: searchQuery.value || undefined, sort: sortOrder.value },
+      })
+      passes.value = res.data.passes
     } catch (e: any) {
       error.value = "Couldn't load your passes."
     } finally {
@@ -40,12 +39,8 @@ export const usePassesStore = defineStore('passes', () => {
     error.value = null
     activePass.value = null
     try {
-      // ── Replace with real API call ──────────────────────────
-      // const res = await passesApi.getById(id)
-      // activePass.value = res.data.pass
-      await delay()
-      activePass.value = MOCK_PASSES.find(p => p.id === id) || null
-      if (!activePass.value) error.value = 'PASS_NOT_FOUND'
+      const res = await client.get(`/v1/passes/${id}`)
+      activePass.value = res.data.pass
     } catch (e: any) {
       error.value = e.response?.data?.code || 'SERVER_ERROR'
     } finally {
@@ -54,21 +49,18 @@ export const usePassesStore = defineStore('passes', () => {
   }
 
   async function revokePass(id: string) {
-    // ── Replace with real API call ──────────────────────────
-    // await passesApi.revoke(id)
-    await delay(400)
+    await client.patch(`/v1/passes/${id}/revoke`)
     const pass = passes.value.find(p => p.id === id)
     if (pass) pass.status = 'Revoked'
     if (activePass.value?.id === id) activePass.value.status = 'Revoked'
   }
 
   async function extendPass(id: string, newExpiresAt: string) {
-    // ── Replace with real API call ──────────────────────────
-    // await passesApi.extend(id, newExpiresAt)
-    await delay(400)
+    const res = await client.patch(`/v1/passes/${id}/extend`, { expiresAt: newExpiresAt })
+    const updated = res.data.pass
     const pass = passes.value.find(p => p.id === id)
-    if (pass) pass.expiresAt = newExpiresAt
-    if (activePass.value?.id === id) activePass.value.expiresAt = newExpiresAt
+    if (pass) pass.expiresAt = updated.expiresAt
+    if (activePass.value?.id === id) activePass.value.expiresAt = updated.expiresAt
   }
 
   return { passes, activePass, loading, error, filterStatus, searchQuery, sortOrder, displayStatus, fetchAll, fetchById, revokePass, extendPass }
