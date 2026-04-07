@@ -3,7 +3,7 @@
     <div class="login-card">
       <div class="login-logo">
         <span>🛡️</span>
-        <h1>Wardn Admin</h1>
+        <h1>GatePass Admin</h1>
         <p>Sign in to manage the estate</p>
       </div>
 

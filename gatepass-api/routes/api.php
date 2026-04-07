@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\AdminController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes – Wardn (Gatepass)
+| API Routes – Gatepass (Gatepass)
 |--------------------------------------------------------------------------
 |
 | Prefix: /api/v1

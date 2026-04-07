@@ -17,7 +17,7 @@ import '@ionic/vue/css/text-transformation.css'
 import '@ionic/vue/css/flex-utils.css'
 import '@ionic/vue/css/display.css'
 
-/* Wardn design tokens */
+/* Gatepass design tokens */
 import './theme/variables.css'
 
 const app = createApp(App)
