@@ -242,7 +242,7 @@ function fmtExpiry(iso: string) {
 
 function buildShareMsg() {
   const p = createdPass.value!
-  const link = `https://wardn.ng/pass/${p.id}`
+  const link = `https://gatepass-mob-app.web.app/pass/${p.id}`
   return `Hi ${p.visitorName}, here is your visitor pass for PHDL Estate. Show this QR code to the security guard at the gate on arrival.\n\nPass ID: ${p.id}\nValid until: ${fmtExpiry(p.expiresAt)}\nHost: ${p.hostName} — ${p.hostUnit}\n\nPass link: ${link}`
 }
 
@@ -259,7 +259,7 @@ function shareSMS() {
 }
 
 function copyLink() {
-  const link = `https://wardn.ng/pass/${createdPass.value!.id}`
+  const link = `https://gatepass-mob-app.web.app/pass/${createdPass.value!.id}`
   navigator.clipboard.writeText(link).then(() => showToast('Pass link copied', 'success'))
 }
 

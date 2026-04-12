@@ -15,6 +15,9 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->default('Nigeria');
+            $table->string('bank_name')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('account_name')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

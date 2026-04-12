@@ -295,9 +295,9 @@ class PassController extends Controller
             'recurringDays' => $pass->recurring_days,
             'flaggedItems'  => $pass->flaggedItems->map(fn($item) => [
                 'id'          => (string) $item->id,
-                'photoUrl'    => $item->photo_url,
+                'photoUrl'    => env('APP_URL') . '/storage/' . $item->photo,
                 'description' => $item->description,
-                'flaggedAt'   => $item->flagged_at->toIso8601String(),
+                'flaggedAt'   => $item->created_at->toIso8601String(),
             ])->values()->all(),
         ];
     }

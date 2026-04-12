@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Gatepass</string>
-    <string name="title_activity_main">Gatepass</string>
-    <string name="package_name">com.gatepass.app</string>
-    <string name="custom_url_scheme">com.gatepass.app</string>
+    <string name="app_name">checkpazz</string>
+    <string name="title_activity_main">checkpazz</string>
+    <string name="package_name">com.checkpazz.app</string>
+    <string name="custom_url_scheme">com.checkpazz.app</string>
 </resources>

@@ -16,17 +16,6 @@ use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
-    // ── Middleware helper ──────────────────────────────────────────────────
-
-    private function requireAdmin(Request $request)
-    {
-        $user = $request->user();
-        if (! $user || $user->type !== 'security') {
-            abort(403, 'Admin access required.');
-        }
-        return $user;
-    }
-
     // ── Users ──────────────────────────────────────────────────────────────
 
     /**
@@ -34,8 +23,6 @@ class AdminController extends Controller
      */
     public function listUsers(Request $request)
     {
-        $this->requireAdmin($request);
-
         $query = User::query();
 
         if ($request->filled('type')) {
@@ -48,7 +35,7 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->latest()->get()->map(fn($u) => $this->formatUser($u));
+        $users = $query->latest()->get()->map(fn(User $u) => $this->formatUser($u));
 
         return response()->json(['users' => $users]);
     }
@@ -58,8 +45,6 @@ class AdminController extends Controller
      */
     public function createUser(Request $request)
     {
-        $this->requireAdmin($request);
-
         $data = $request->validate([
             'name'     => 'required|string|max:255',
             'phone'    => 'required|string|unique:users,phone',
@@ -85,7 +70,6 @@ class AdminController extends Controller
      */
     public function showUser(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $user = User::findOrFail($id);
         return response()->json(['user' => $this->formatUser($user)]);
     }
@@ -95,7 +79,6 @@ class AdminController extends Controller
      */
     public function updateUser(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $user = User::findOrFail($id);
 
         $data = $request->validate([
@@ -121,7 +104,6 @@ class AdminController extends Controller
      */
     public function deleteUser(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $user = User::findOrFail($id);
         $user->delete();
         return response()->json(['message' => 'User deleted.']);
@@ -134,8 +116,6 @@ class AdminController extends Controller
      */
     public function listResidents(Request $request)
     {
-        $this->requireAdmin($request);
-
         $query = Resident::with(['user', 'unit', 'estate']);
 
         if ($request->filled('estate_id')) {
@@ -148,7 +128,7 @@ class AdminController extends Controller
             });
         }
 
-        $residents = $query->latest()->get()->map(fn($r) => $this->formatResident($r));
+        $residents = $query->latest()->get()->map(fn(Resident $r) => $this->formatResident($r));
 
         return response()->json(['residents' => $residents]);
     }
@@ -158,7 +138,6 @@ class AdminController extends Controller
      */
     public function showResident(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $resident = Resident::with(['user', 'unit', 'estate'])->findOrFail($id);
         return response()->json(['resident' => $this->formatResident($resident)]);
     }
@@ -169,8 +148,6 @@ class AdminController extends Controller
      */
     public function createResident(Request $request)
     {
-        $this->requireAdmin($request);
-
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'phone'     => 'required|string|unique:users,phone',
@@ -208,7 +185,6 @@ class AdminController extends Controller
      */
     public function updateResident(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $resident = Resident::with(['user', 'unit', 'estate'])->findOrFail($id);
 
         $data = $request->validate([
@@ -228,7 +204,6 @@ class AdminController extends Controller
      */
     public function deleteResident(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $resident = Resident::findOrFail($id);
         $resident->delete();
         return response()->json(['message' => 'Resident deleted.']);
@@ -241,8 +216,6 @@ class AdminController extends Controller
      */
     public function listPasses(Request $request)
     {
-        $this->requireAdmin($request);
-
         $query = Pass::with(['resident.user', 'resident.unit', 'flaggedItems']);
 
         if ($request->filled('status') && $request->status !== 'all') {
@@ -267,7 +240,6 @@ class AdminController extends Controller
      */
     public function showPass(Request $request, string $ulid)
     {
-        $this->requireAdmin($request);
         $pass = Pass::where('ulid', $ulid)->with(['resident.user', 'resident.unit', 'resident.estate', 'flaggedItems'])->firstOrFail();
         return response()->json(['pass' => $this->formatPassAdmin($pass)]);
     }
@@ -277,8 +249,6 @@ class AdminController extends Controller
      */
     public function createPass(Request $request)
     {
-        $this->requireAdmin($request);
-
         $data = $request->validate([
             'resident_id'   => 'required|exists:residents,id',
             'visitor_name'  => 'required|string|max:255',
@@ -313,7 +283,6 @@ class AdminController extends Controller
      */
     public function revokePass(Request $request, string $ulid)
     {
-        $this->requireAdmin($request);
         $pass = Pass::where('ulid', $ulid)->firstOrFail();
         $pass->update(['status' => 'Revoked', 'revoked_at' => now()]);
         return response()->json(['message' => 'Pass revoked.']);
@@ -324,7 +293,6 @@ class AdminController extends Controller
      */
     public function deletePass(Request $request, string $ulid)
     {
-        $this->requireAdmin($request);
         $pass = Pass::where('ulid', $ulid)->firstOrFail();
         $pass->delete();
         return response()->json(['message' => 'Pass deleted.']);
@@ -337,15 +305,13 @@ class AdminController extends Controller
      */
     public function listEmergencies(Request $request)
     {
-        $this->requireAdmin($request);
-
         $query = Emergency::with(['resident.user', 'estate']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $emergencies = $query->latest()->get()->map(fn($e) => $this->formatEmergency($e));
+        $emergencies = $query->latest()->get()->map(fn(Emergency $e) => $this->formatEmergency($e));
 
         return response()->json(['emergencies' => $emergencies]);
     }
@@ -355,7 +321,6 @@ class AdminController extends Controller
      */
     public function acknowledgeEmergency(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $emergency = Emergency::findOrFail($id);
         $emergency->update(['status' => 'acknowledged', 'acknowledged_at' => now()]);
         return response()->json(['message' => 'Emergency acknowledged.']);
@@ -366,7 +331,6 @@ class AdminController extends Controller
      */
     public function resolveEmergency(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $emergency = Emergency::findOrFail($id);
         $emergency->update(['status' => 'resolved', 'resolved_at' => now()]);
         return response()->json(['message' => 'Emergency resolved.']);
@@ -377,7 +341,6 @@ class AdminController extends Controller
      */
     public function deleteEmergency(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         $emergency = Emergency::findOrFail($id);
         $emergency->delete();
         return response()->json(['message' => 'Emergency deleted.']);
@@ -390,13 +353,11 @@ class AdminController extends Controller
      */
     public function listNotifications(Request $request)
     {
-        $this->requireAdmin($request);
-
         $notifications = Notification::with(['resident.user'])
             ->latest()
             ->limit(100)
             ->get()
-            ->map(fn($n) => $this->formatNotification($n));
+            ->map(fn(Notification $n) => $this->formatNotification($n));
 
         return response()->json(['notifications' => $notifications]);
     }
@@ -406,7 +367,6 @@ class AdminController extends Controller
      */
     public function deleteNotification(Request $request, int $id)
     {
-        $this->requireAdmin($request);
         Notification::findOrFail($id)->delete();
         return response()->json(['message' => 'Notification deleted.']);
     }
@@ -418,7 +378,6 @@ class AdminController extends Controller
      */
     public function listEstates(Request $request)
     {
-        $this->requireAdmin($request);
         $estates = Estate::all()->map(fn($e) => ['id' => $e->id, 'name' => $e->name]);
         return response()->json(['estates' => $estates]);
     }
@@ -428,7 +387,6 @@ class AdminController extends Controller
      */
     public function listUnits(Request $request, int $estateId)
     {
-        $this->requireAdmin($request);
         $units = Unit::where('estate_id', $estateId)->get()->map(fn($u) => ['id' => $u->id, 'number' => $u->number]);
         return response()->json(['units' => $units]);
     }
@@ -440,8 +398,6 @@ class AdminController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $this->requireAdmin($request);
-
         return response()->json([
             'stats' => [
                 'totalUsers'        => User::count(),
@@ -453,10 +409,10 @@ class AdminController extends Controller
             ],
             'recentPasses' => Pass::with(['resident.user', 'resident.unit'])
                 ->latest()->limit(10)->get()
-                ->map(fn($p) => $this->formatPassAdmin($p)),
+                ->map(fn(Pass $p) => $this->formatPassAdmin($p)),
             'recentEmergencies' => Emergency::with(['resident.user', 'estate'])
                 ->latest()->limit(5)->get()
-                ->map(fn($e) => $this->formatEmergency($e)),
+                ->map(fn(Emergency $e) => $this->formatEmergency($e)),
         ]);
     }
 

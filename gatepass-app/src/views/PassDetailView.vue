@@ -84,18 +84,28 @@
         <!-- QR (only for active/pending) -->
         <QRDisplay v-if="showQR" :value="pass.qrData" :pass-id="pass.id" />
 
-        <!-- Flagged items -->
-        <div v-if="pass.flaggedItems.length > 0" class="flagged-section">
-          <div class="section-label">Declared Items</div>
+        <!-- Declared items -->
+        <div v-if="pass.flaggedItems.length > 0 || canDeclare" class="flagged-section">
+          <div class="declared-head">
+            <div class="declared-title">DECLARED ITEMS ({{ pass.flaggedItems.length }})</div>
+            <button v-if="canDeclare" class="declared-add" @click="openFlagSheet">+ Add item</button>
+          </div>
+
+          <div v-if="pass.flaggedItems.length === 0" class="declared-empty">No declared items yet.</div>
+
           <div v-for="item in pass.flaggedItems" :key="item.id" class="flagged-item">
-            <div class="flagged-photo">
-              <img v-if="item.photoUrl" :src="item.photoUrl" alt="Item photo" />
-              <span v-else class="photo-placeholder">📦</span>
+            <div class="flagged-main">
+              <div class="flagged-photo" :class="{ 'flagged-photo--img': !!item.photoUrl }">
+                <img v-if="item.photoUrl" :src="item.photoUrl" alt="Item photo" />
+                <span v-else class="photo-placeholder">📦</span>
+              </div>
+              <div class="flagged-info">
+                <div class="flagged-desc">{{ item.description }}</div>
+                <div class="flagged-meta">{{ item.photoUrl ? '📷 Photo attached' : 'No photo attached' }}</div>
+              </div>
+              <div class="flagged-status">Flagged</div>
             </div>
-            <div class="flagged-info">
-              <div class="flagged-desc">{{ item.description }}</div>
-              <div class="flagged-time">{{ fmtRelative(item.flaggedAt) }}</div>
-            </div>
+            <div class="flagged-time">{{ fmtRelative(item.flaggedAt) }}</div>
           </div>
         </div>
 
@@ -300,7 +310,7 @@ function onItemsDeclared(n: number) {
 
 function sharePass() {
   const p = pass.value!
-  const link = `https://wardn.ng/pass/${p.id}`
+  const link = `https://gatepass-mob-app.web.app/pass/${p.id}`
   navigator.clipboard.writeText(link).then(() => showToast('Pass link copied', 'success'))
 }
 
@@ -386,15 +396,83 @@ onMounted(load)
 }
 .info-cell-value { font-size: 14px; font-weight: 500; color: var(--w-text); }
 
-/* Flagged items */
-.flagged-section { background: var(--w-warning-light); border-radius: var(--w-radius-md); padding: 14px 16px; }
-.section-label { font-size: 13px; font-weight: 700; color: var(--w-warning); margin-bottom: 10px; }
-.flagged-item { display: flex; gap: 12px; align-items: flex-start; }
-.flagged-photo { width: 48px; height: 48px; border-radius: var(--w-radius-sm); background: var(--w-border); overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+/* Declared items */
+.flagged-section { display: flex; flex-direction: column; gap: 8px; }
+.declared-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.declared-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--w-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.declared-add {
+  border: none;
+  background: none;
+  color: var(--w-warning);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0;
+  font-family: var(--w-font-body);
+}
+.declared-empty {
+  background: var(--w-surface);
+  border: 1px dashed var(--w-border);
+  border-radius: var(--w-radius-md);
+  padding: 14px;
+  color: var(--w-muted);
+  font-size: 13px;
+}
+.flagged-item {
+  background: #fffaf3;
+  border: 1.5px solid #f59e0b;
+  border-radius: var(--w-radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.flagged-main { display: flex; gap: 10px; align-items: center; }
+.flagged-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f59e0b;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.flagged-photo--img {
+  border-radius: var(--w-radius-sm);
+  background: var(--w-border);
+}
 .flagged-photo img { width: 100%; height: 100%; object-fit: cover; }
-.photo-placeholder { font-size: 22px; }
-.flagged-desc { font-size: 14px; color: var(--w-text); font-weight: 500; }
-.flagged-time { font-size: 12px; color: var(--w-muted); margin-top: 3px; }
+.photo-placeholder { font-size: 16px; }
+.flagged-info { flex: 1; min-width: 0; }
+.flagged-desc {
+  font-size: 14px;
+  color: var(--w-text);
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flagged-meta { font-size: 12px; color: #b87400; margin-top: 2px; }
+.flagged-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: #d97706;
+  text-transform: uppercase;
+}
+.flagged-time { font-size: 12px; color: var(--w-muted); }
 
 /* Actions */
 .actions-section { display: flex; flex-direction: column; gap: 10px; }

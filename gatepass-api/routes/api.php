@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\EmergencyController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\FeeController;
+use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\NewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +58,12 @@ Route::prefix('v1')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
+    // ── Public admin auth routes ───────────────────────────────────────────
+    Route::prefix('admin/auth')->group(function () {
+        Route::post('login', [AdminAuthController::class, 'login']);
+        Route::post('refresh', [AdminAuthController::class, 'refresh']);
+    });
+
     // ── Protected routes (Sanctum token required) ──────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
 
@@ -65,8 +74,22 @@ Route::prefix('v1')->group(function () {
             Route::post('change-password', [AuthController::class, 'changePassword']);
         });
 
+        // Admin auth
+        Route::prefix('admin/auth')->middleware('admin')->group(function () {
+            Route::post('logout', [AdminAuthController::class, 'logout']);
+            Route::get('me', [AdminAuthController::class, 'me']);
+        });
+
         // Home summary
         Route::get('home/summary', [HomeController::class, 'summary']);
+
+        // Resident fees feed
+        Route::get('fees', [FeeController::class, 'feed']);
+        Route::post('fees/payment-details', [FeeController::class, 'paymentDetails']);
+        Route::post('fees/payments', [FeeController::class, 'submitPayment']);
+
+        // News feed (resident/admin scoped)
+        Route::get('news', [NewsController::class, 'feed']);
 
         // Passes
         Route::prefix('passes')->group(function () {
@@ -105,7 +128,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // ── Admin routes (security users only) ────────────────────────────
-        Route::prefix('admin')->group(function () {
+        Route::prefix('admin')->middleware('admin')->group(function () {
             Route::get('dashboard', [AdminController::class, 'dashboard']);
 
             // Users
@@ -142,6 +165,25 @@ Route::prefix('v1')->group(function () {
             // Estates & Units (reference data)
             Route::get('estates',                [AdminController::class, 'listEstates']);
             Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
+
+            // Fees
+            Route::get('fees',                              [FeeController::class, 'index']);
+            Route::post('fees',                             [FeeController::class, 'store']);
+            Route::get('fees/{id}',                         [FeeController::class, 'show']);
+            Route::patch('fees/{id}',                       [FeeController::class, 'update']);
+            Route::delete('fees/{id}',                      [FeeController::class, 'destroy']);
+            Route::get('fees/{id}/users',                   [FeeController::class, 'listUsers']);
+            Route::post('fees/{id}/users/{userId}',         [FeeController::class, 'attachUser']);
+            Route::post('fees/{id}/users/{userId}/file',    [FeeController::class, 'updateUserFile']);
+            Route::patch('fees/{id}/users/{userId}/status', [FeeController::class, 'updateUserPaymentStatus']);
+            Route::delete('fees/{id}/users/{userId}',       [FeeController::class, 'detachUser']);
+
+            // News
+            Route::get('news',              [NewsController::class, 'index']);
+            Route::post('news',             [NewsController::class, 'store']);
+            Route::get('news/{id}',         [NewsController::class, 'show']);
+            Route::patch('news/{id}',       [NewsController::class, 'update']);
+            Route::delete('news/{id}',      [NewsController::class, 'destroy']);
         });
     });
 });

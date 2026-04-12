@@ -70,7 +70,7 @@ class Pass extends Model
 
     public function flaggedItems()
     {
-        return $this->hasMany(FlaggedItem::class);
+        return $this->hasMany(Item::class);
     }
 
     public function items()

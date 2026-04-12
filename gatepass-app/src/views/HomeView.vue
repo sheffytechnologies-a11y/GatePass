@@ -70,30 +70,76 @@
           />
 
           <section class="section">
-            <div class="section-header">
-              <div class="section-title">Active Passes</div>
-              <button class="see-all" @click="router.push('/tabs/passes')">See all</button>
-            </div>
-            <div v-if="activePasses.length === 0">
-              <EmptyState
-                icon="🎟️"
-                heading="No active passes"
-                body="Create a pass for your next visitor and it will appear here."
-                cta-label="Create a pass"
-                @cta="router.push('/tabs/create')"
-              />
-            </div>
-            <div v-else class="pass-list">
-              <PassCard
-                v-for="pass in activePasses"
-                :key="pass.id"
-                :pass="pass"
-                @click="router.push(`/pass/${pass.id}`)"
-              />
+            <div class="passes-shell">
+              <div class="passes-tabs">
+                <button
+                  class="passes-tab"
+                  :class="{ active: activeHomeTab === 'passes' }"
+                  @click="activeHomeTab = 'passes'"
+                >
+                  Active Passes
+                </button>
+                <button
+                  class="passes-tab"
+                  :class="{ active: activeHomeTab === 'news' }"
+                  @click="activeHomeTab = 'news'"
+                >
+                  News &amp; Update
+                </button>
+              </div>
+
+              <template v-if="activeHomeTab === 'passes'">
+                <div v-if="activePasses.length === 0">
+                  <EmptyState
+                    icon="🎟️"
+                    heading="No active passes"
+                    body="Create a pass for your next visitor and it will appear here."
+                    cta-label="Create a pass"
+                    @cta="router.push('/tabs/create')"
+                  />
+                </div>
+                <div v-else class="pass-mini-list">
+                  <button
+                    v-for="pass in activePasses"
+                    :key="pass.id"
+                    class="pass-mini-row"
+                    @click="router.push(`/pass/${pass.id}`)"
+                  >
+                    <div class="pass-mini-avatar" :style="{ background: avatarColor(pass.visitorName) }">
+                      {{ initials(pass.visitorName) }}
+                    </div>
+                    <div class="pass-mini-body">
+                      <div class="pass-mini-name">{{ pass.visitorName }}</div>
+                      <div class="pass-mini-purpose">{{ pass.purpose || 'Personal Visit' }}</div>
+                    </div>
+                    <span class="pass-mini-status" :class="statusClass(pass.status)">{{ pass.status }}</span>
+                  </button>
+
+                  <button class="view-all-btn" @click="router.push('/tabs/passes')">View all passes</button>
+                </div>
+              </template>
+
+              <template v-else>
+                <div v-if="newsLoading" class="news-mini-empty">Loading updates...</div>
+                <div v-else-if="newsItems.length === 0" class="news-mini-empty">No news updates yet.</div>
+                <div v-else class="news-mini-list">
+                  <button
+                    v-for="item in newsItems"
+                    :key="item.id"
+                    class="news-mini-row"
+                  >
+                    <div class="news-mini-top">
+                      <div class="news-mini-title">{{ item.title }}</div>
+                      <div class="news-mini-date">{{ fmtNewsDate(item.createdAt) }}</div>
+                    </div>
+                    <div class="news-mini-content">{{ item.content }}</div>
+                  </button>
+                </div>
+              </template>
             </div>
           </section>
 
-          <section class="section">
+          <!-- <section class="section">
             <div class="section-header">
               <div class="section-title">Recent Activity</div>
             </div>
@@ -114,7 +160,8 @@
               </div>
               <div v-if="recentNotifs.length === 0" class="notif-empty">No recent activity</div>
             </div>
-          </section>
+          </section> -->
+
         </template>
 
       </div>
@@ -165,6 +212,14 @@ import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
 
+type NewsFeedItem = {
+  id: number
+  title: string
+  content: string
+  image: string | null
+  createdAt: string | null
+}
+
 const router     = useRouter()
 const auth       = useAuthStore()
 const notifStore = useNotificationsStore()
@@ -186,6 +241,9 @@ async function onQRScanned(value: string) {
 const summaryLoading = ref(true)
 const summaryError   = ref(false)
 const summary        = ref<HomeSummary>({ resident: auth.resident!, stats: { onPremises: 0, activePasses: 0, newToday: 0 }, recentPasses: [], notifications: [] })
+const activeHomeTab  = ref<'passes' | 'news'>('passes')
+const newsLoading    = ref(false)
+const newsItems      = ref<NewsFeedItem[]>([])
 
 const firstName = computed(() => {
   const name = auth.resident?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || ''
@@ -198,7 +256,7 @@ const greeting  = computed(() => {
   return 'Good evening'
 })
 
-const activePasses  = computed(() => summary.value.recentPasses.filter(p => p.status !== 'Exited' && p.status !== 'Revoked').slice(0, 3))
+const activePasses  = computed(() => summary.value.recentPasses.filter(p => p.status !== 'Exited' && p.status !== 'Revoked').slice(0, 4))
 const recentNotifs  = computed(() => summary.value.notifications.slice(0, 3))
 
 async function loadSummary() {
@@ -213,6 +271,26 @@ async function loadSummary() {
     summaryError.value = true
   } finally {
     summaryLoading.value = false
+  }
+
+  await loadNews()
+}
+
+async function loadNews() {
+  newsLoading.value = true
+  try {
+    const res = await client.get('/v1/news')
+    newsItems.value = (res.data.news || []).map((item: NewsFeedItem & { image?: string | null; createdAt?: string | null }) => ({
+      id: item.id,
+      title: item.title,
+      content: item.content,
+      image: item.image ?? null,
+      createdAt: item.createdAt ?? null,
+    }))
+  } catch {
+    newsItems.value = []
+  } finally {
+    newsLoading.value = false
   }
 }
 
@@ -237,6 +315,38 @@ function fmtRelative(iso: string) {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
+function fmtNewsDate(iso: string | null) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('en-NG', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function initials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
+function avatarColor(name: string) {
+  const colors = ['#F08A00', '#0E9F24', '#6D17E6', '#E5007E', '#1A3F8F']
+  const idx = (name.charCodeAt(0) || 0) % colors.length
+  return colors[idx]
+}
+
+function statusClass(status: string) {
+  if (status === 'On-site') return 'status-onsite'
+  if (status === 'Pending') return 'status-pending'
+  if (status === 'Expired') return 'status-expired'
+  return 'status-exited'
+}
+
 onMounted(loadSummary)
 </script>
 
@@ -249,6 +359,126 @@ onMounted(loadSummary)
 .section-title  { font-size: 17px; font-weight: 700; color: var(--w-text); }
 .see-all { background: none; border: none; color: var(--w-primary); font-size: 14px; font-weight: 600; cursor: pointer; padding: 4px 0; }
 .pass-list { display: flex; flex-direction: column; gap: 10px; }
+.passes-shell { display: flex; flex-direction: column; gap: 12px; }
+.passes-tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid var(--w-border);
+  margin-bottom: 2px;
+}
+.passes-tab {
+  background: none;
+  border: none;
+  padding: 0 0 10px;
+  color: #8f96a3;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.passes-tab.active {
+  color: #2f7d5e;
+  border-bottom: 2px solid var(--w-primary);
+}
+.pass-mini-list { display: flex; flex-direction: column; gap: 6px; }
+.pass-mini-row {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  background: #ececef;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.pass-mini-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pass-mini-body { flex: 1; min-width: 0; }
+.pass-mini-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #22252b;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pass-mini-purpose { margin-top: 3px; color: #787f8b; font-size: 13px; }
+.pass-mini-status {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.status-onsite { background: #d8f0d3; color: #2a8b35; }
+.status-pending { background: #efe8d2; color: #c39200; }
+.status-expired { background: #f3dedf; color: #f24141; }
+.status-exited { background: #d8d8da; color: #2b2f38; }
+.view-all-btn {
+  margin-top: 2px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  background: #ececef;
+  color: #5f6470;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.news-mini-empty {
+  border-radius: 14px;
+  background: #ececef;
+  color: #6b7280;
+  text-align: center;
+  padding: 18px;
+  font-size: 14px;
+}
+.news-mini-list { display: flex; flex-direction: column; gap: 8px; }
+.news-mini-row {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  background: #ececef;
+  padding: 12px;
+  text-align: left;
+}
+.news-mini-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.news-mini-title {
+  color: #232833;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.news-mini-date {
+  color: #7b8290;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.news-mini-content {
+  margin-top: 6px;
+  color: #636b79;
+  font-size: 12px;
+  line-height: 1.45;
+}
 .sk-hero { height: 140px; border-radius: var(--w-radius-xl); display: block; }
 .security-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .stat-card { background: var(--w-surface); border-radius: var(--w-radius-md); padding: 16px 12px; text-align: center; }

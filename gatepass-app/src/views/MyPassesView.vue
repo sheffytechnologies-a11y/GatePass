@@ -90,7 +90,7 @@ const FILTERS = [
   { label: 'On-site',      value: 'On-site' },
   { label: 'Pending',      value: 'Pending' },
   { label: 'Exited',       value: 'Exited' },
-  { label: 'Item Flagged', value: 'Item Flagged' },
+  // { label: 'Item Flagged', value: 'Item Flagged' },
 ]
 
 const filteredPasses = computed(() => {

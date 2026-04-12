@@ -6,6 +6,7 @@ use App\Models\Estate;
 use App\Models\Resident;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\Fee;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,6 +20,9 @@ class DatabaseSeeder extends Seeder
             'city' => 'Port Harcourt',
             'state' => 'Rivers',
             'country' => 'Nigeria',
+            'bank_name' => 'Fidelity Bank',
+            'account_number' => '1234567890',
+            'account_name' => 'PHDL Estate',
         ]);
 
         $unit = Unit::create([
@@ -63,6 +67,8 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        $this->call(AdminSeeder::class);
+
         Resident::create([
             'user_id' => $resident1->id,
             'unit_id' => $unit->id,
@@ -84,5 +90,17 @@ class DatabaseSeeder extends Seeder
             'expiry_alerts' => true,
             'is_active' => true,
         ]);
+
+
+         Fee::create([
+            'estate_id' => $estate->id,
+            'code' => 'FEE001',
+            'name' => 'Maintenance Fee',
+            'amount' => 5000,
+            'type' => 'recurring',
+            'description' => 'Monthly maintenance fee',
+        ]);
+
+        $this->call(NewsSeeder::class);
     }
 }

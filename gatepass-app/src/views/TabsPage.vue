@@ -9,17 +9,19 @@
           <ion-label>Home</ion-label>
         </ion-tab-button>
 
-        <!-- Centre CREATE button - elevated -->
+      
+
+        <ion-tab-button tab="fees" href="/tabs/fees">
+          <ion-icon :icon="cardOutline" />
+          <ion-label>Fees</ion-label>
+        </ion-tab-button>
+
+          <!-- Centre CREATE button - elevated -->
         <ion-tab-button tab="create" href="/tabs/create" class="tab-create">
           <div class="create-fab">
             <ion-icon :icon="addOutline" />
           </div>
           <ion-label>Create Pass</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button tab="passes" href="/tabs/passes">
-          <ion-icon :icon="listOutline" />
-          <ion-label>My Passes</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="emergency" href="/tabs/emergency">
@@ -39,7 +41,7 @@
 
 <script setup lang="ts">
 import { IonPage, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet } from '@ionic/vue'
-import { homeOutline, addOutline, listOutline, warningOutline, personOutline } from 'ionicons/icons'
+import { homeOutline, addOutline, cardOutline, warningOutline, personOutline } from 'ionicons/icons'
 </script>
 
 <style scoped>

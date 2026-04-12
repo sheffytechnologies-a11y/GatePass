@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Estate extends Model
@@ -40,5 +41,15 @@ class Estate extends Model
     public function emergencies()
     {
         return $this->hasMany(Emergency::class);
+    }
+
+    public function news()
+    {
+        return $this->hasMany(News::class);
+    }
+
+    public function admins(): BelongsToMany
+    {
+        return $this->belongsToMany(Admin::class, 'admin_estate')->withTimestamps();
     }
 }

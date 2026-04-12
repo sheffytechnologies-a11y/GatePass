@@ -24,12 +24,25 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/NotificationsView.vue'),
   },
   {
+    path: '/fees/payment',
+    component: () => import('@/views/FeePaymentView.vue'),
+  },
+  {
+    path: '/fees/payment/details',
+    component: () => import('@/views/PaymentDetailsView.vue'),
+  },
+  {
+    path: '/fees/payment/success',
+    component: () => import('@/views/PaymentSuccessView.vue'),
+  },
+  {
     path: '/tabs',
     component: TabsPage,
     children: [
       { path: '',       redirect: '/tabs/home' },
       { path: 'home',      component: () => import('@/views/HomeView.vue') },
       { path: 'create',    component: () => import('@/views/CreatePassView.vue') },
+      { path: 'fees',      component: () => import('@/views/FeesView.vue') },
       { path: 'passes',    component: () => import('@/views/MyPassesView.vue') },
       { path: 'emergency', component: () => import('@/views/EmergencyView.vue') },
       { path: 'profile',   component: () => import('@/views/ProfileView.vue') },

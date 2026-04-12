@@ -1,9 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.gatepass.app',
-  appName: 'Gatepass',
-  webDir: 'dist'
+  appId: 'com.checkpazz.app',
+  appName: 'checkpazz',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
 };
 
 export default config;

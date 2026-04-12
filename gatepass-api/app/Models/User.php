@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,5 +45,12 @@ class User extends Authenticatable
     public function resident()
     {
         return $this->hasOne(Resident::class);
+    }
+
+    public function fees(): BelongsToMany
+    {
+        return $this->belongsToMany(Fee::class)
+            ->withPivot('file_path', 'payment_status', 'verified_at', 'verified_by')
+            ->withTimestamps();
     }
 }
