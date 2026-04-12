@@ -198,7 +198,7 @@ import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
   IonRefresher, IonRefresherContent, IonSkeletonText,
 } from '@ionic/vue'
-import type { Notification } from '@/types'
+// import type { Notification } from '@/types'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
 import EstateHero from '@/components/EstateHero.vue'
@@ -257,7 +257,7 @@ const greeting  = computed(() => {
 })
 
 const activePasses  = computed(() => summary.value.recentPasses.filter(p => p.status !== 'Exited' && p.status !== 'Revoked').slice(0, 4))
-const recentNotifs  = computed(() => summary.value.notifications.slice(0, 3))
+// const recentNotifs  = computed(() => summary.value.notifications.slice(0, 3))
 
 async function loadSummary() {
   summaryLoading.value = true
@@ -299,21 +299,21 @@ async function onRefresh(event: CustomEvent) {
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 
-function goToNotif(n: Notification) {
-  notifStore.markOneRead(n.id)
-  if (n.passId) router.push(`/pass/${n.passId}`)
-}
+// function goToNotif(n: Notification) {
+//   notifStore.markOneRead(n.id)
+//   if (n.passId) router.push(`/pass/${n.passId}`)
+// }
 
-const NOTIF_ICONS: Record<string, string> = { arrival: '👤', denied: '🚫', expired: '⏱️', item_flagged: '📦' }
-function notifIcon(type: string) { return NOTIF_ICONS[type] || '🔔' }
+// const NOTIF_ICONS: Record<string, string> = { arrival: '👤', denied: '🚫', expired: '⏱️', item_flagged: '📦' }
+// function notifIcon(type: string) { return NOTIF_ICONS[type] || '🔔' }
 
-function fmtRelative(iso: string) {
-  const diff = (Date.now() - new Date(iso).getTime()) / 1000
-  if (diff < 60)   return 'Just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400)return `${Math.floor(diff / 3600)}h ago`
-  return `${Math.floor(diff / 86400)}d ago`
-}
+// function fmtRelative(iso: string) {
+//   const diff = (Date.now() - new Date(iso).getTime()) / 1000
+//   if (diff < 60)   return 'Just now'
+//   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+//   if (diff < 86400)return `${Math.floor(diff / 3600)}h ago`
+//   return `${Math.floor(diff / 86400)}d ago`
+// }
 
 function fmtNewsDate(iso: string | null) {
   if (!iso) return ''
