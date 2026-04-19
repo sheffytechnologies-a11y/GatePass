@@ -29,6 +29,8 @@ watch(
   },
   { immediate: true }
 )
+
+defineExpose({ qrDataUrl })
 </script>
 
 <style scoped>

@@ -3,14 +3,19 @@
     <div class="login-card">
       <div class="login-logo">
         <span>🛡️</span>
-        <h1>GatePass Admin</h1>
-        <p>Sign in to manage the estate</p>
+        <h1>CheckPass Mobile</h1>
+        <p>Admin and security teams share one mobile workspace</p>
+      </div>
+
+      <div class="mode-row">
+        <button class="mode-chip" :class="{ active: mode === 'security' }" @click="mode = 'security'">Security</button>
+        <button class="mode-chip" :class="{ active: mode === 'admin' }" @click="mode = 'admin'">Admin</button>
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label class="form-label">Phone Number</label>
-          <input v-model="phone" type="tel" class="form-input" placeholder="e.g. 08024035326" autocomplete="username" required />
+          <label class="form-label">{{ mode === 'admin' ? 'Email Address' : 'Phone Number' }}</label>
+          <input v-model="identifier" :type="mode === 'admin' ? 'email' : 'tel'" class="form-input" :placeholder="mode === 'admin' ? 'admin@estate.com' : 'e.g. 08024035326'" autocomplete="username" required />
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
@@ -34,7 +39,8 @@ import { useAuthStore } from '@/stores/auth'
 const router = useRouter()
 const auth   = useAuthStore()
 
-const phone    = ref('')
+const mode = ref<'admin' | 'security'>('security')
+const identifier = ref('')
 const password = ref('')
 const loading  = ref(false)
 const error    = ref('')
@@ -43,8 +49,13 @@ async function handleLogin() {
   error.value   = ''
   loading.value = true
   try {
-    await auth.login(phone.value, password.value)
-    router.push('/dashboard')
+    if (mode.value === 'admin') {
+      await auth.loginAdmin(identifier.value, password.value)
+      router.push('/dashboard')
+    } else {
+      await auth.loginSecurity(identifier.value, password.value)
+      router.push('/access')
+    }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
     error.value = err.response?.data?.message ?? 'Invalid credentials. Please try again.'
@@ -57,7 +68,10 @@ async function handleLogin() {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: var(--c-bg);
+  background:
+    radial-gradient(circle at top left, rgba(10, 92, 56, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(0, 201, 122, 0.10), transparent 24%),
+    var(--c-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,19 +79,30 @@ async function handleLogin() {
 }
 .login-card {
   background: var(--c-surface);
-  border-radius: var(--radius-lg);
+  border-radius: 30px;
   box-shadow: var(--shadow-md);
-  padding: 40px 36px;
+  padding: 32px 24px;
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
 }
 .login-logo {
-  text-align: center;
-  margin-bottom: 32px;
+  text-align: left;
+  margin-bottom: 24px;
 }
-.login-logo span { font-size: 40px; }
-.login-logo h1 { font-size: 22px; font-weight: 800; margin-top: 8px; }
-.login-logo p { font-size: 14px; color: var(--c-muted); margin-top: 4px; }
+.login-logo span { font-size: 34px; }
+.login-logo h1 { font-size: 30px; font-weight: 800; margin-top: 8px; font-family: var(--font-display); }
+.login-logo p { font-size: 14px; color: var(--c-muted); margin-top: 6px; }
+.mode-row { display: flex; gap: 10px; margin-bottom: 18px; }
+.mode-chip {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  background: #e5ece7;
+  color: #4b5e54;
+  padding: 12px 14px;
+  font-weight: 800;
+}
+.mode-chip.active { background: var(--c-primary); color: white; }
 .login-form { display: flex; flex-direction: column; gap: 16px; }
 .login-error {
   font-size: 13px; color: var(--c-danger);

@@ -26,7 +26,6 @@
           <button class="settings-link" @click="openSettings">Enable in Settings</button>
         </div>
 
-        <!-- Account section -->
         <div class="menu-section">
           <div class="menu-section-label">Account</div>
           <div class="menu-list">
@@ -82,7 +81,6 @@
           </div>
         </div>
 
-        <!-- Log out -->
         <ion-button expand="block" fill="outline" color="danger" @click="handleLogout" class="logout-btn">
           Log Out
         </ion-button>
@@ -124,7 +122,6 @@ const initials = computed(() =>
 )
 
 function openSettings() {
-  // On native: Capacitor.Plugins.App.openUrl({ url: 'app-settings:' })
   showToast('Opening settings…', 'success')
 }
 

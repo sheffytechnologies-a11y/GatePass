@@ -240,7 +240,7 @@ class AdminController extends Controller
      */
     public function showPass(Request $request, string $ulid)
     {
-        $pass = Pass::where('ulid', $ulid)->with(['resident.user', 'resident.unit', 'resident.estate', 'flaggedItems'])->firstOrFail();
+        $pass = Pass::where('ulid', $ulid)->with(['resident.user', 'resident.unit', 'estate', 'flaggedItems'])->firstOrFail();
         return response()->json(['pass' => $this->formatPassAdmin($pass)]);
     }
 

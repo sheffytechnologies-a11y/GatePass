@@ -82,7 +82,7 @@
         </div>
 
         <!-- QR (only for active/pending) -->
-        <QRDisplay v-if="showQR" :value="pass.qrData" :pass-id="pass.id" />
+        <QRDisplay v-if="showQR" ref="qrDisplayRef" :value="pass.qrData" :pass-id="pass.id" />
 
         <!-- Declared items -->
         <div v-if="pass.flaggedItems.length > 0 || canDeclare" class="flagged-section">
@@ -138,7 +138,7 @@
               <span class="tile-icon">↗️</span>
               <div class="tile-body">
                 <span class="tile-title">Share Pass</span>
-                <span class="tile-sub">SMS, WhatsApp, link</span>
+                <span class="tile-sub">Share QR code image</span>
               </div>
             </button>
           </div>
@@ -169,7 +169,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
@@ -190,6 +190,7 @@ const store  = usePassesStore()
 const { showToast } = useToast()
 
 const flagSheetOpen = ref(false)
+const qrDisplayRef = ref<{ qrDataUrl: string } | null>(null)
 const pass = computed(() => store.activePass)
 const displayStatus = computed(() => pass.value ? store.displayStatus(pass.value) : 'Pending')
 
@@ -197,7 +198,7 @@ const showQR     = computed(() => pass.value && ['On-site','Pending'].includes(p
 const canDeclare = computed(() => pass.value && ['On-site','Pending','Item Flagged'].includes(displayStatus.value) && pass.value.status !== 'Revoked' && pass.value.status !== 'Exited')
 const canRevoke  = computed(() => pass.value && !['Exited','Revoked','Expired'].includes(pass.value.status))
 const canExtend  = computed(() => pass.value && !['Exited','Revoked'].includes(pass.value.status))
-const canShare   = computed(() => pass.value && pass.value.status !== 'Revoked')
+const canShare   = computed(() => Boolean(pass.value && showQR.value))
 
 const GRADIENTS = [
   'linear-gradient(135deg,#0A5C38,#00C97A)',
@@ -308,10 +309,62 @@ function onItemsDeclared(n: number) {
   load()
 }
 
-function sharePass() {
-  const p = pass.value!
-  const link = `https://gatepass-mob-app.web.app/pass/${p.id}`
-  navigator.clipboard.writeText(link).then(() => showToast('Pass link copied', 'success'))
+async function sharePass() {
+  const activePass = pass.value
+  if (!activePass) return
+
+  try {
+    await nextTick()
+    const qrDataUrl = qrDisplayRef.value?.qrDataUrl
+    if (!qrDataUrl) {
+      showToast('QR image is not ready yet. Try again.', 'warning')
+      return
+    }
+
+    const imageBlob = dataUrlToBlob(qrDataUrl)
+    const imageName = `gatepass-${activePass.id.slice(-6).toLowerCase()}.png`
+    const imageFile = new File([imageBlob], imageName, { type: 'image/png' })
+    const nav = navigator as Navigator & {
+      canShare?: (data?: ShareData) => boolean
+      share?: (data?: ShareData) => Promise<void>
+    }
+
+    if (nav.share && (!nav.canShare || nav.canShare({ files: [imageFile] }))) {
+      await nav.share({
+        title: `${activePass.visitorName} gate pass`,
+        text: `QR code for ${activePass.visitorName}`,
+        files: [imageFile],
+      })
+      return
+    }
+
+    downloadQrImage(qrDataUrl, imageName)
+    showToast('QR image downloaded for sharing.', 'success')
+  } catch (error: unknown) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    showToast('Unable to share QR image right now.', 'error')
+  }
+}
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, content] = dataUrl.split(',')
+  const mimeMatch = header.match(/data:(.*?);base64/)
+  const mimeType = mimeMatch?.[1] ?? 'image/png'
+  const binary = atob(content)
+  const bytes = new Uint8Array(binary.length)
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+  return new Blob([bytes], { type: mimeType })
+}
+
+function downloadQrImage(dataUrl: string, fileName: string) {
+  const link = document.createElement('a')
+  link.href = dataUrl
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 function fmtExpiryShort(iso: string) {

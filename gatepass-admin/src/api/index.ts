@@ -1,12 +1,19 @@
 import client from './client'
 
 export const authApi = {
-  login: (phone: string, password: string) =>
+  loginSecurity: (phone: string, password: string) =>
     client.post('/login', { phone, password }),
-  logout: () =>
-    client.post('/v1/auth/logout'),
-  me: () =>
-    client.get('/v1/auth/me'),
+  loginAdmin: (email: string, password: string) =>
+    client.post('/v1/admin/auth/login', { email, password }),
+  logoutSecurity: (refreshToken?: string | null) =>
+    client.post('/v1/auth/logout', { refreshToken }),
+  logoutAdmin: (refreshToken?: string | null) =>
+    client.post('/v1/admin/auth/logout', { refreshToken }),
+  adminMe: () => client.get('/v1/admin/auth/me'),
+}
+
+export const homeApi = {
+  getSummary: () => client.get('/v1/home/summary'),
 }
 
 export const dashboardApi = {

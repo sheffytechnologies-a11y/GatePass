@@ -2,16 +2,18 @@
   <div>
     <div class="page-header">
       <div class="back-row">
-        <router-link to="/passes" class="back-btn">← Passes</router-link>
+        <router-link :to="backLink" class="back-btn">← Back</router-link>
         <h1 class="page-title">Pass Detail</h1>
       </div>
       <div class="header-actions">
         <button
-          v-if="pass && pass.status !== 'Revoked' && pass.status !== 'Expired'"
+          v-if="auth.isAdmin && pass && pass.status !== 'Revoked' && pass.status !== 'Expired'"
           class="btn btn-danger"
           @click="confirmRevoke"
         >Revoke Pass</button>
-        <button v-if="pass" class="btn btn-outline btn-danger-outline" @click="showDeleteConfirm = true">Delete</button>
+        <button v-if="auth.isAdmin && pass" class="btn btn-outline btn-danger-outline" @click="showDeleteConfirm = true">Delete</button>
+        <button v-if="auth.isSecurity && pass && pass.status === 'Pending'" class="btn btn-primary" :disabled="saving" @click="allowEntry">{{ saving ? 'Allowing…' : 'Allow Entry' }}</button>
+        <button v-if="auth.isSecurity && pass && pass.status === 'On-site'" class="btn btn-outline" :disabled="saving" @click="markExited">{{ saving ? 'Updating…' : 'Exited' }}</button>
       </div>
     </div>
 
@@ -108,11 +110,11 @@
           <div class="info-grid" v-if="pass.resident">
             <div class="info-item">
               <span class="info-label">Name</span>
-              <span class="info-value">{{ pass.resident.name ?? '—' }}</span>
+              <span class="info-value">{{ pass.resident.user?.name ?? '—' }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">Unit</span>
-              <span class="info-value">Unit {{ pass.resident.unit ?? '—' }}</span>
+              <span class="info-value">Unit {{ pass.resident.unit?.flat_address ?? '—' }}</span>
             </div>
           </div>
           <div v-else class="empty-state"><p>No resident linked.</p></div>
@@ -167,9 +169,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { passesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
+import { useAuthStore } from '@/stores/auth'
+import client from '@/api/client'
 
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
 const { showToast } = useToast()
 
 const loading = ref(true)
@@ -177,15 +182,46 @@ const pass = ref<any>(null)
 const saving = ref(false)
 const showRevokeConfirm = ref(false)
 const showDeleteConfirm = ref(false)
+const backLink = auth.isSecurity ? '/access' : '/passes'
 
 async function loadPass() {
   try {
-    const res = await passesApi.getOne(route.params.id as string)
+    const res = auth.isSecurity
+      ? await client.get(`/v1/passes/${route.params.id as string}`)
+      : await passesApi.getOne(route.params.id as string)
     pass.value = res.data.pass
   } catch {
     showToast('Pass not found.', 'error')
   } finally {
     loading.value = false
+  }
+}
+
+async function allowEntry() {
+  if (!pass.value || saving.value) return
+  saving.value = true
+  try {
+    const res = await client.patch(`/v1/passes/${route.params.id as string}/allow-entry`)
+    pass.value = res.data.pass
+    showToast('Visitor allowed in.', 'success')
+  } catch (error: any) {
+    showToast(error?.response?.data?.message ?? 'Failed to allow entry.', 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function markExited() {
+  if (!pass.value || saving.value) return
+  saving.value = true
+  try {
+    const res = await client.patch(`/v1/passes/${route.params.id as string}/mark-exited`)
+    pass.value = res.data.pass
+    showToast('Visitor marked as exited.', 'success')
+  } catch (error: any) {
+    showToast(error?.response?.data?.message ?? 'Failed to update exit.', 'error')
+  } finally {
+    saving.value = false
   }
 }
 

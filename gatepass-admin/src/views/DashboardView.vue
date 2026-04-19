@@ -1,15 +1,16 @@
 <template>
-  <div>
-    <div class="page-header">
-      <h1 class="page-title">Dashboard</h1>
-    </div>
+  <div class="dashboard-page">
+    <section class="hero-card">
+      <div class="hero-eyebrow">Command center</div>
+      <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
+      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
+    </section>
 
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
     </div>
 
     <template v-else>
-      <!-- Stats grid -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon stat-icon--blue">👤</div>
@@ -55,13 +56,39 @@
         </div>
       </div>
 
-      <!-- Bottom panels -->
+      <div class="quick-grid">
+        <router-link to="/users" class="quick-card card">
+          <span class="quick-icon">👥</span>
+          <strong>Manage users</strong>
+          <span>Create or update resident and security accounts.</span>
+        </router-link>
+        <router-link to="/residents" class="quick-card card">
+          <span class="quick-icon">🏠</span>
+          <strong>Residents</strong>
+          <span>Assign estates, units, and resident status.</span>
+        </router-link>
+        <router-link to="/access" class="quick-card card">
+          <span class="quick-icon">🛡️</span>
+          <strong>Access feed</strong>
+          <span>Review gate traffic and flagged visitor passes.</span>
+        </router-link>
+        <router-link to="/passes" class="quick-card card">
+          <span class="quick-icon">🎟️</span>
+          <strong>Passes</strong>
+          <span>Create passes and monitor expiry or revocation status.</span>
+        </router-link>
+        <router-link to="/notifications" class="quick-card card">
+          <span class="quick-icon">🔔</span>
+          <strong>Messages</strong>
+          <span>Check system notifications sent to residents.</span>
+        </router-link>
+      </div>
+
       <div class="dashboard-panels">
-        <!-- Recent Passes -->
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Recent Passes</h2>
-            <router-link to="/passes" class="card-link">View all →</router-link>
+            <router-link to="/access" class="card-link">Open access →</router-link>
           </div>
           <div v-if="recentPasses.length === 0" class="empty-state">
             <p>No passes yet.</p>
@@ -92,7 +119,6 @@
           </div>
         </div>
 
-        <!-- Recent Emergencies -->
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Recent Emergencies</h2>
@@ -190,14 +216,17 @@ onMounted(load)
 </script>
 
 <style scoped>
-.page-header {
-  margin-bottom: 24px;
+.dashboard-page { display: flex; flex-direction: column; gap: 18px; }
+.hero-card {
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 38%), linear-gradient(150deg, #102a21 0%, #0a5c38 60%, #78cca2 100%);
+  color: white;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: var(--shadow-md);
 }
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--c-text);
-}
+.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
+.hero-title { margin-top: 10px; font-size: 28px; line-height: 1.04; font-family: var(--font-display); }
+.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; }
 
 .loading-state {
   display: flex;
@@ -205,22 +234,18 @@ onMounted(load)
   padding: 80px 0;
 }
 
-/* Stats */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 .stat-card {
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+  border-radius: 22px;
+  padding: 18px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: var(--shadow);
+  gap: 14px;
 }
 .stat-icon {
   width: 44px; height: 44px;
@@ -247,11 +272,24 @@ onMounted(load)
   margin-top: 4px;
 }
 
-/* Panels */
+.quick-grid {
+  display: grid;
+  gap: 10px;
+}
+.quick-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.quick-icon { font-size: 22px; }
+.quick-card strong { font-size: 16px; color: var(--c-text); }
+.quick-card span:last-child { color: var(--c-muted); font-size: 13px; }
+
 .dashboard-panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 .card {
@@ -282,10 +320,6 @@ onMounted(load)
 .link { color: var(--c-primary); font-weight: 500; }
 .link:hover { text-decoration: underline; }
 
-@media (max-width: 900px) {
-  .dashboard-panels { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-}
 @media (max-width: 500px) {
   .stats-grid { grid-template-columns: 1fr; }
 }

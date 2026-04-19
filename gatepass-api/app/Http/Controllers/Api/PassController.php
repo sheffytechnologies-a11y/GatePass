@@ -55,12 +55,27 @@ class PassController extends Controller
      */
     public function show(Request $request, string $ulid)
     {
-        $resident = $request->user()->resident()->firstOrFail();
+        $user = $request->user();
+        $resident = null;
 
-        $pass = Pass::where('ulid', $ulid)
-                    ->where('resident_id', $resident->id)
-                    ->with('flaggedItems')
-                    ->first();
+        $query = Pass::where('ulid', $ulid)
+                    ->with(['flaggedItems', 'resident.unit', 'resident.user']);
+
+        if ($user->type !== 'security') {
+            $resident = $user->resident()->with(['resident.user', 'unit',  'estate'])->first();
+
+            if (! $resident) {
+                return response()->json([
+                    'error'   => true,
+                    'code'    => 'NO_RESIDENT_PROFILE',
+                    'message' => 'No resident profile found.',
+                ], 404);
+            }
+
+            $query->where('resident_id', $resident->id);
+        }
+
+        $pass = $query->first();
 
         if (! $pass) {
             return response()->json([
@@ -74,7 +89,9 @@ class PassController extends Controller
         $this->maybeExpire($pass);
 
         return response()->json([
-            'pass' => $this->formatPass($pass, $resident),
+            'pass' => $user->type === 'security'
+                ? $this->formatPassForSecurity($pass)
+                : $this->formatPass($pass, $resident),
         ]);
     }
 
@@ -200,6 +217,123 @@ class PassController extends Controller
     }
 
     /**
+     * PATCH /api/v1/passes/{ulid}/allow-entry
+     */
+    public function allowEntry(Request $request, string $ulid)
+    {
+        $user = $request->user();
+
+        if ($user->type !== 'security') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'FORBIDDEN',
+                'message' => 'Only security users can allow entry.',
+            ], 403);
+        }
+
+        $pass = Pass::where('ulid', $ulid)
+            ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->first();
+
+        if (! $pass) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_FOUND',
+                'message' => 'Pass not found.',
+            ], 404);
+        }
+
+        $this->maybeExpire($pass);
+        $pass->refresh();
+
+        if ($pass->status === 'Expired') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_EXPIRED',
+                'message' => 'Expired passes cannot be allowed entry.',
+            ], 422);
+        }
+
+        if (in_array($pass->status, ['Revoked', 'Exited'], true)) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'CANNOT_ALLOW_ENTRY',
+                'message' => 'This pass can no longer be used for entry.',
+            ], 422);
+        }
+
+        if ($pass->status !== 'On-site' || ! $pass->arrived_at) {
+            $pass->update([
+                'status' => 'On-site',
+                'arrived_at' => now(),
+            ]);
+        }
+
+        $pass->load(['flaggedItems', 'resident.unit', 'resident.user']);
+
+        return response()->json([
+            'pass' => $this->formatPassForSecurity($pass),
+        ]);
+    }
+
+    /**
+     * PATCH /api/v1/passes/{ulid}/mark-exited
+     */
+    public function markExited(Request $request, string $ulid)
+    {
+        $user = $request->user();
+
+        if ($user->type !== 'security') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'FORBIDDEN',
+                'message' => 'Only security users can mark exit.',
+            ], 403);
+        }
+
+        $pass = Pass::where('ulid', $ulid)
+            ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->first();
+
+        if (! $pass) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_FOUND',
+                'message' => 'Pass not found.',
+            ], 404);
+        }
+
+        if (in_array($pass->status, ['Revoked', 'Expired'], true)) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'CANNOT_MARK_EXITED',
+                'message' => 'This pass cannot be marked as exited.',
+            ], 422);
+        }
+
+        if ($pass->status !== 'On-site') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_ONSITE',
+                'message' => 'Only on-site visitors can be marked as exited.',
+            ], 422);
+        }
+
+        if (! $pass->exited_at || $pass->status !== 'Exited') {
+            $pass->update([
+                'status' => 'Exited',
+                'exited_at' => now(),
+            ]);
+        }
+
+        $pass->load(['flaggedItems', 'resident.unit', 'resident.user']);
+
+        return response()->json([
+            'pass' => $this->formatPassForSecurity($pass),
+        ]);
+    }
+
+    /**
      * POST /api/v1/passes/{ulid}/flag-item
      * Body: { description, photoBase64? }
      */
@@ -267,6 +401,40 @@ class PassController extends Controller
         if ($pass->status === 'Pending' && $pass->expires_at->isPast()) {
             $pass->update(['status' => 'Expired']);
         }
+    }
+
+    private function formatPassForSecurity(Pass $pass): array
+    {
+        $resident = $pass->resident;
+        $displayStatus = ($pass->status === 'On-site' && $pass->items_flagged)
+            ? 'Item Flagged'
+            : $pass->status;
+
+        return [
+            'id'            => $pass->ulid,
+            'visitorName'   => $pass->visitor_name,
+            'visitorPhone'  => $pass->visitor_phone,
+            'purpose'       => $pass->purpose,
+            'type'          => $pass->type,
+            'status'        => $displayStatus,
+            'itemsFlagged'  => (bool) $pass->items_flagged,
+            'hostUnit'      => $resident?->unit?->flat_address ?? '',
+            'hostName'      => $resident?->user?->name ?? '',
+            'qrData'        => $pass->qr_data,
+            'vehiclePlate'  => $pass->vehicle_plate,
+            'expiresAt'     => $pass->expires_at->toIso8601String(),
+            'createdAt'     => $pass->created_at->toIso8601String(),
+            'arrivedAt'     => $pass->arrived_at?->toIso8601String(),
+            'exitedAt'      => $pass->exited_at?->toIso8601String(),
+            'recurringDays' => $pass->recurring_days,
+            'resident'      => $pass->resident,
+            'flaggedItems'  => $pass->flaggedItems->map(fn($item) => [
+                'id'          => (string) $item->id,
+                'photoUrl'    => $item->photo_url,
+                'description' => $item->description,
+                'flaggedAt'   => $item->flagged_at->toIso8601String(),
+            ])->values()->all(),
+        ];
     }
 
     private function formatPass($pass, $resident): array

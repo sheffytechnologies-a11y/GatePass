@@ -170,7 +170,7 @@ class HomeController extends Controller
                 'id'          => (string) $item->id,
                 'photoUrl'    => $item->photo_url,
                 'description' => $item->description,
-                'flaggedAt'   => $item->flagged_at->toIso8601String(),
+                'flaggedAt'   => $item->created_at->toIso8601String(),
             ])->values()->all(),
         ];
     }

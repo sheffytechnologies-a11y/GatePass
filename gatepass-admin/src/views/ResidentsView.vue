@@ -1,159 +1,204 @@
 <template>
-  <div>
-    <div class="page-header">
+  <div class="mobile-page">
+    <section class="hero-card hero-card--sand">
       <div>
-        <h1 class="page-title">Residents</h1>
-        <p class="page-sub">Manage residents, units and estate assignments</p>
+        <div class="hero-eyebrow">Resident registry</div>
+        <h1 class="hero-title">Assign residents to estates and units from a mobile-first flow.</h1>
       </div>
-      <button class="btn btn-primary" @click="openCreate">+ New Resident</button>
-    </div>
+      <button class="btn btn-primary hero-button" @click="openCreate">New Resident</button>
+    </section>
 
-    <!-- Filters -->
-    <div class="filters card">
-      <input v-model="search" class="form-input" placeholder="Search name or phone…" @input="debouncedLoad" />
+    <section class="card section-card filter-card">
+      <input v-model="search" class="form-input" placeholder="Search by name or phone" @input="debouncedLoad" />
       <select v-model="estateFilter" class="form-select" @change="load">
         <option value="">All Estates</option>
         <option v-for="estate in estates" :key="estate.id" :value="estate.id">{{ estate.name }}</option>
       </select>
-    </div>
+    </section>
 
-    <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
-
-    <div v-else class="card table-card">
-      <div v-if="residents.length === 0" class="empty-state"><p>No residents found.</p></div>
-      <div v-else class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Unit</th>
-              <th>Estate</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="r in residents" :key="r.id">
-              <td class="muted">{{ r.id }}</td>
-              <td class="fw">{{ r.user?.name ?? '—' }}</td>
-              <td class="muted">{{ r.user?.phone ?? '—' }}</td>
-              <td>{{ r.unit?.number ?? '—' }}</td>
-              <td class="muted">{{ r.estate?.name ?? '—' }}</td>
-              <td>
-                <span :class="r.role === 'owner' ? 'badge badge-blue' : 'badge badge-gray'">{{ r.role ?? '—' }}</span>
-              </td>
-              <td>
-                <span :class="r.isActive ? 'badge badge-green' : 'badge badge-gray'">
-                  {{ r.isActive ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-              <td class="muted">{{ fmtDate(r.createdAt) }}</td>
-              <td>
-                <div class="row-actions">
-                  <button class="btn btn-sm btn-outline" @click="openEdit(r)">Edit</button>
-                  <button class="btn btn-sm btn-danger" @click="confirmDelete(r)">Delete</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Resident Modal -->
-    <div v-if="modalOpen" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3>{{ editing ? 'Edit Resident' : 'Add Resident' }}</h3>
-          <button class="modal-close" @click="closeModal">✕</button>
+    <section class="card section-card">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Residents</h2>
+          <p class="section-copy">{{ residents.length }} resident{{ residents.length === 1 ? '' : 's' }} loaded.</p>
         </div>
-        <div class="modal-body">
-          <template v-if="!editing">
-            <p class="section-label">Account Details</p>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Full Name *</label>
-                <input v-model="form.name" class="form-input" placeholder="e.g. Jane Smith" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Phone *</label>
-                <input v-model="form.phone" class="form-input" placeholder="+234…" />
-              </div>
+      </div>
+
+      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-else-if="residents.length === 0" class="empty-state">No residents found.</div>
+      <div v-else class="stack-list">
+        <article v-for="resident in residents" :key="resident.id" class="record-card card">
+          <div class="record-top">
+            <div>
+              <h3 class="record-title">{{ resident.user?.name ?? '—' }}</h3>
+              <p class="record-meta">{{ resident.user?.phone ?? '—' }}</p>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <input v-model="form.email" class="form-input" type="email" placeholder="optional" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Password *</label>
-                <input v-model="form.password" class="form-input" type="password" placeholder="••••••" />
-              </div>
-            </div>
-            <p class="section-label" style="margin-top: 12px;">Residency Details</p>
-          </template>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Estate *</label>
-              <select v-model="form.estate_id" class="form-select" @change="loadUnits">
-                <option value="">Select estate…</option>
-                <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Unit *</label>
-              <select v-model="form.unit_id" class="form-select" :disabled="!form.estate_id">
-                <option value="">Select unit…</option>
-                <option v-for="u in units" :key="u.id" :value="u.id">Unit {{ u.number }}</option>
-              </select>
+            <div class="record-badges">
+              <span :class="resident.role === 'owner' ? 'badge badge-blue' : 'badge badge-gray'">{{ resident.role ?? 'tenant' }}</span>
+              <span :class="resident.isActive ? 'badge badge-green' : 'badge badge-gray'">{{ resident.isActive ? 'Active' : 'Inactive' }}</span>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Role</label>
-              <select v-model="form.role" class="form-select">
-                <option value="tenant">Tenant</option>
-                <option value="owner">Owner</option>
-              </select>
+          <div class="detail-grid">
+            <div>
+              <span class="detail-label">Estate</span>
+              <strong>{{ resident.estate?.name ?? '—' }}</strong>
             </div>
-            <div v-if="editing" class="form-group">
-              <label class="form-label">Status</label>
-              <select v-model="form.is_active" class="form-select">
-                <option :value="true">Active</option>
-                <option :value="false">Inactive</option>
-              </select>
+            <div>
+              <span class="detail-label">Unit</span>
+              <strong>{{ resident.unit?.number ?? '—' }}</strong>
+            </div>
+          </div>
+          <div class="record-bottom">
+            <span class="record-sub">Joined {{ fmtDate(resident.createdAt) }}</span>
+            <div class="row-actions">
+              <button class="btn btn-sm btn-outline" @click="openEdit(resident)">Edit</button>
+              <button class="btn btn-sm btn-danger" @click="confirmDelete(resident)">Delete</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div v-if="modalOpen" class="sheet-overlay" @click.self="closeModal">
+      <!-- Full-screen form for create -->
+      <div v-if="!editing" class="form-overlay" @click.self="closeModal">
+        <div class="form-page">
+          <div class="form-nav">
+            <button class="nav-back" @click="closeModal">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="nav-title">Add Resident</span>
+            <button class="nav-close" @click="closeModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7B7E87" stroke-width="1.5"/><path d="M9 9l6 6M15 9l-6 6" stroke="#7B7E87" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Close
+            </button>
+          </div>
+          <div class="form-scroll">
+            <h3 class="form-section-heading">Residency Details</h3>
+            <div class="form-group">
+              <label class="form-label">Owner's Full Name</label>
+              <input v-model="form.name" class="form-input" placeholder="Enter Full Name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Owner's Phone No.</label>
+              <input v-model="form.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Owner's Email Address</label>
+              <input v-model="form.email" class="form-input" type="email" placeholder="Enter Email Address" />
+            </div>
+            <div class="address-row">
+              <div class="form-group">
+                <label class="form-label">Lane</label>
+                <input v-model="form.lane" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">House</label>
+                <input v-model="form.house" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flat</label>
+                <input v-model="form.flat" class="form-input" />
+              </div>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle-switch">
+                <input type="checkbox" v-model="form.landlordIsOccupant" />
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </label>
+              <span class="toggle-label">Landlord is occupant</span>
+            </div>
+            <div class="occupants-head">
+              <h3 class="form-section-heading">Occupants</h3>
+              <button type="button" class="btn btn-sm btn-primary btn-add-tenant" @click="addTenant">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.25" stroke="white" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Add Tenant
+              </button>
+            </div>
+            <div v-for="(tenant, i) in form.tenants" :key="i" class="tenant-block">
+              <div class="form-group">
+                <div class="label-row">
+                  <label class="form-label">Full Name</label>
+                  <button type="button" class="tenant-del" @click="removeTenant(i)">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+                <input v-model="tenant.name" class="form-input" placeholder="Enter Full Name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone No.</label>
+                <input v-model="tenant.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input v-model="tenant.email" class="form-input" type="email" placeholder="Enter Email Address" />
+              </div>
+            </div>
+            <p v-if="formError" class="form-error">{{ formError }}</p>
+          </div>
+          <div class="form-footer">
+            <button class="btn btn-primary btn-block" :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save' }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sheet for edit -->
+      <div v-else class="sheet card">
+        <div class="sheet-head">
+          <h3 class="sheet-title">Edit Resident</h3>
+          <button class="sheet-close" @click="closeModal">✕</button>
+        </div>
+        <div class="sheet-body">
+          <div class="form-group">
+            <label class="form-label">Estate</label>
+            <select v-model="form.estate_id" class="form-select" @change="loadUnits">
+              <option value="">Select estate…</option>
+              <option v-for="estate in estates" :key="estate.id" :value="estate.id">{{ estate.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <select v-model="form.unit_id" class="form-select" :disabled="!form.estate_id">
+              <option value="">Select unit…</option>
+              <option v-for="unit in units" :key="unit.id" :value="unit.id">Unit {{ unit.number }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <div class="chip-row">
+              <button class="chip" :class="{ active: form.role === 'tenant' }" @click="form.role = 'tenant'">Tenant</button>
+              <button class="chip" :class="{ active: form.role === 'owner' }" @click="form.role = 'owner'">Owner</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <div class="chip-row">
+              <button class="chip" :class="{ active: form.is_active }" @click="form.is_active = true">Active</button>
+              <button class="chip" :class="{ active: !form.is_active }" @click="form.is_active = false">Inactive</button>
             </div>
           </div>
           <p v-if="formError" class="form-error">{{ formError }}</p>
         </div>
-        <div class="modal-footer">
+        <div class="sheet-actions">
           <button class="btn btn-outline" @click="closeModal">Cancel</button>
-          <button class="btn btn-primary" :disabled="saving" @click="save">
-            {{ saving ? 'Saving…' : (editing ? 'Save Changes' : 'Add Resident') }}
-          </button>
+          <button class="btn btn-primary" :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save Changes' }}</button>
         </div>
       </div>
     </div>
 
-    <!-- Confirm Delete -->
-    <div v-if="deleteTarget" class="modal-overlay" @click.self="deleteTarget = null">
-      <div class="modal modal--sm">
-        <div class="modal-header">
-          <h3>Delete Resident</h3>
-          <button class="modal-close" @click="deleteTarget = null">✕</button>
+    <div v-if="deleteTarget" class="sheet-overlay" @click.self="deleteTarget = null">
+      <div class="sheet sheet-sm card">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-eyebrow">Delete resident</div>
+            <h3 class="sheet-title">Remove {{ deleteTarget.user?.name }}?</h3>
+          </div>
+          <button class="sheet-close" @click="deleteTarget = null">✕</button>
         </div>
-        <div class="modal-body">
-          <p>Delete resident <strong>{{ deleteTarget.user?.name }}</strong>? This cannot be undone.</p>
-        </div>
-        <div class="modal-footer">
+        <p class="confirm-copy">This resident record and assignment will be removed permanently.</p>
+        <div class="sheet-actions">
           <button class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
-          <button class="btn btn-danger" :disabled="saving" @click="doDelete">
-            {{ saving ? 'Deleting…' : 'Delete' }}
-          </button>
+          <button class="btn btn-danger" :disabled="saving" @click="doDelete">{{ saving ? 'Deleting…' : 'Delete' }}</button>
         </div>
       </div>
     </div>
@@ -181,7 +226,11 @@ const formError = ref('')
 const deleteTarget = ref<any>(null)
 
 const form = ref({
-  name: '', phone: '', email: '', password: '',
+  name: '', phone: '', email: '',
+  lane: '', house: '', flat: '',
+  landlordIsOccupant: false,
+  tenants: [] as { name: string; phone: string; email: string }[],
+  // edit-only fields
   estate_id: '' as number | '',
   unit_id: '' as number | '',
   role: 'tenant',
@@ -228,7 +277,11 @@ async function loadUnits() {
 
 function openCreate() {
   editing.value = null
-  form.value = { name: '', phone: '', email: '', password: '', estate_id: '', unit_id: '', role: 'tenant', is_active: true }
+  form.value = {
+    name: '', phone: '', email: '',
+    lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
+    estate_id: '', unit_id: '', role: 'tenant', is_active: true,
+  }
   formError.value = ''
   units.value = []
   modalOpen.value = true
@@ -237,7 +290,8 @@ function openCreate() {
 function openEdit(r: any) {
   editing.value = r
   form.value = {
-    name: '', phone: '', email: '', password: '',
+    name: '', phone: '', email: '',
+    lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
     estate_id: r.estate?.id ?? '',
     unit_id: r.unit?.id ?? '',
     role: r.role ?? 'tenant',
@@ -273,20 +327,28 @@ async function save() {
     } else {
       if (!form.value.name.trim())  { formError.value = 'Name is required.'; saving.value = false; return }
       if (!form.value.phone.trim()) { formError.value = 'Phone is required.'; saving.value = false; return }
-      if (!form.value.password)     { formError.value = 'Password is required.'; saving.value = false; return }
-      if (!form.value.estate_id)    { formError.value = 'Please select an estate.'; saving.value = false; return }
-      if (!form.value.unit_id)      { formError.value = 'Please select a unit.'; saving.value = false; return }
 
-      const payload: Record<string, unknown> = {
+      const ownerPayload: Record<string, unknown> = {
         name: form.value.name,
         phone: form.value.phone,
-        password: form.value.password,
-        estate_id: form.value.estate_id,
-        unit_id: form.value.unit_id,
-        role: form.value.role,
+        role: 'owner',
+        lane: form.value.lane,
+        house: form.value.house,
+        flat: form.value.flat,
+        landlord_is_occupant: form.value.landlordIsOccupant,
       }
-      if (form.value.email) payload.email = form.value.email
-      await residentsApi.create(payload)
+      if (form.value.email) ownerPayload.email = form.value.email
+      await residentsApi.create(ownerPayload)
+
+      for (const t of form.value.tenants) {
+        if (!t.name.trim() || !t.phone.trim()) continue
+        const tp: Record<string, unknown> = {
+          name: t.name, phone: t.phone, role: 'tenant',
+          lane: form.value.lane, house: form.value.house, flat: form.value.flat,
+        }
+        if (t.email) tp.email = t.email
+        await residentsApi.create(tp)
+      }
       showToast('Resident created.', 'success')
     }
     closeModal()
@@ -297,6 +359,9 @@ async function save() {
     saving.value = false
   }
 }
+
+function addTenant() { form.value.tenants.push({ name: '', phone: '', email: '' }) }
+function removeTenant(i: number) { form.value.tenants.splice(i, 1) }
 
 function confirmDelete(r: any) { deleteTarget.value = r }
 
@@ -324,29 +389,71 @@ onMounted(() => { load(); loadEstates() })
 </script>
 
 <style scoped>
-.page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  margin-bottom: 20px; gap: 16px; flex-wrap: wrap;
+.mobile-page { display: flex; flex-direction: column; gap: 16px; }
+.hero-card { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; padding: 20px; border-radius: 28px; color: white; }
+.hero-card--sand { background: linear-gradient(145deg, #5c3b12 0%, #9e6523 55%, #dca966 100%); }
+.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
+.hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
+.hero-button { background: white; color: #7d4b11; }
+.section-card { padding: 16px; }
+.filter-card { display: flex; flex-direction: column; gap: 12px; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.section-title { font-size: 18px; font-weight: 700; }
+.section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
+.loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }
+.stack-list { display: flex; flex-direction: column; gap: 10px; }
+.record-card { padding: 16px; border-radius: 20px; }
+.record-top, .record-bottom { display: flex; justify-content: space-between; gap: 12px; }
+.record-bottom { margin-top: 14px; align-items: center; }
+.record-title { font-size: 17px; font-weight: 700; color: var(--c-text); }
+.record-meta { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
+.record-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding: 14px; background: #f7f4ee; border-radius: 18px; }
+.detail-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-muted); margin-bottom: 4px; }
+.record-sub { color: var(--c-muted); font-size: 12px; }
+.row-actions { display: flex; gap: 8px; }
+.chip-row { display: flex; gap: 8px; overflow-x: auto; }
+.chip { border: none; border-radius: 999px; padding: 10px 14px; background: #edf2ee; color: #4f5f56; white-space: nowrap; font-weight: 700; }
+.chip.active { background: var(--c-primary); color: white; }
+/* Edit/delete sheets */
+.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.5); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+.sheet { width: min(var(--shell-width), 100%); border-radius: 28px; padding: 18px; }
+.sheet-sm { max-width: 420px; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.sheet-title { font-size: 18px; font-weight: 700; }
+.sheet-close { width: 32px; height: 32px; border: none; border-radius: 50%; background: #edf2ee; color: var(--c-text); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.sheet-body { display: flex; flex-direction: column; gap: 14px; }
+.sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
+.sheet-actions .btn { flex: 1; justify-content: center; }
+.confirm-copy { color: var(--c-muted); font-size: 14px; margin-bottom: 4px; }
+/* Full-screen add form */
+.form-overlay { position: fixed; inset: 0; background: #fff; z-index: 200; display: flex; justify-content: center; }
+.form-page { width: 100%; max-width: var(--shell-width); height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.form-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #F0F0F0; flex-shrink: 0; }
+.nav-back { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
+.nav-title { font-size: 16px; font-weight: 700; color: #1A1A1A; }
+.nav-close { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #7B7E87; background: none; border: none; cursor: pointer; }
+.form-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+.form-section-heading { font-size: 18px; font-weight: 700; color: #1A1A1A; }
+.address-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
+.toggle-row { display: flex; align-items: center; gap: 12px; }
+.toggle-switch { position: relative; display: inline-flex; cursor: pointer; }
+.toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.toggle-track { width: 44px; height: 26px; background: #E0E0E0; border-radius: 13px; transition: background 0.2s; position: relative; display: block; }
+.toggle-switch input:checked + .toggle-track { background: var(--c-primary); }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle-switch input:checked + .toggle-track .toggle-thumb { left: 21px; }
+.toggle-label { font-size: 14px; color: #1A1A1A; }
+.occupants-head { display: flex; align-items: center; justify-content: space-between; }
+.btn-add-tenant { display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 14px; }
+.tenant-block { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid #F0F0F0; }
+.label-row { display: flex; align-items: center; justify-content: space-between; }
+.tenant-del { background: none; border: none; padding: 0; cursor: pointer; display: flex; }
+.form-footer { padding: 14px 16px; border-top: 1px solid #F0F0F0; flex-shrink: 0; }
+.btn-block { width: 100%; justify-content: center; border-radius: 14px; padding: 15px; font-size: 16px; }
+@media (max-width: 420px) {
+  .record-top, .record-bottom { flex-direction: column; align-items: flex-start; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .record-badges { justify-content: flex-start; }
 }
-.page-title { font-size: 22px; font-weight: 700; }
-.page-sub   { font-size: 13px; color: var(--c-muted); margin-top: 2px; }
-
-.filters { display: flex; gap: 12px; margin-bottom: 16px; padding: 12px 16px; flex-wrap: wrap; }
-.filters .form-input  { flex: 1; min-width: 200px; }
-.filters .form-select { width: 200px; }
-
-.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
-.table-card { overflow: hidden; }
-.loading-state { display: flex; justify-content: center; padding: 80px; }
-
-.fw    { font-weight: 500; }
-.muted { color: var(--c-muted); }
-.row-actions { display: flex; gap: 6px; }
-
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-.form-error { color: var(--c-danger); font-size: 13px; margin-top: 8px; }
-.section-label { font-size: 12px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
-
-.modal--sm { max-width: 420px; }
 </style>

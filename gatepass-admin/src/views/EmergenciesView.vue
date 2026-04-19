@@ -1,91 +1,65 @@
 <template>
-  <div>
-    <div class="page-header">
+  <div class="mobile-page">
+    <section class="hero-card hero-card--alert">
       <div>
-        <h1 class="page-title">Emergencies</h1>
-        <p class="page-sub">All reported incidents across the estate</p>
+        <div class="hero-eyebrow">Emergency feed</div>
+        <h1 class="hero-title">Respond to active incidents without leaving the mobile admin shell.</h1>
       </div>
-    </div>
+    </section>
 
-    <!-- Filters -->
-    <div class="filters card">
-      <select v-model="statusFilter" class="form-select" @change="load">
-        <option value="">All Statuses</option>
-        <option value="sent">Sent</option>
-        <option value="acknowledged">Acknowledged</option>
-        <option value="resolved">Resolved</option>
-      </select>
-    </div>
-
-    <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
-
-    <div v-else class="card table-card">
-      <div v-if="emergencies.length === 0" class="empty-state"><p>No emergencies found.</p></div>
-      <div v-else class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Type</th>
-              <th>Resident</th>
-              <th>Estate</th>
-              <th>Notes</th>
-              <th>Status</th>
-              <th>Reported</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="e in emergencies" :key="e.id" :class="{ 'row-urgent': e.status === 'sent' }">
-              <td class="muted">{{ e.id }}</td>
-              <td class="fw">
-                <span class="type-icon">{{ typeIcon(e.type) }}</span> {{ e.type }}
-              </td>
-              <td>{{ e.resident?.name ?? '—' }}</td>
-              <td class="muted">{{ e.estate?.name ?? '—' }}</td>
-              <td class="muted truncate">{{ e.notes ?? '—' }}</td>
-              <td>
-                <span :class="statusClass(e.status)" class="badge">{{ e.status }}</span>
-              </td>
-              <td class="muted">{{ fmtDatetime(e.createdAt) }}</td>
-              <td>
-                <div class="row-actions">
-                  <button
-                    v-if="e.status === 'sent'"
-                    class="btn btn-sm btn-outline"
-                    :disabled="saving === e.id"
-                    @click="acknowledge(e)"
-                  >Acknowledge</button>
-                  <button
-                    v-if="e.status !== 'resolved'"
-                    class="btn btn-sm btn-primary"
-                    :disabled="saving === e.id"
-                    @click="resolve(e)"
-                  >Resolve</button>
-                  <button class="btn btn-sm btn-danger" :disabled="saving === e.id" @click="confirmDelete(e)">Delete</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <section class="card section-card filter-card">
+      <div class="chip-row">
+        <button v-for="item in statusOptions" :key="item.value" class="chip" :class="{ active: statusFilter === item.value }" @click="setStatus(item.value)">
+          {{ item.label }}
+        </button>
       </div>
-    </div>
+    </section>
 
-    <!-- Confirm Delete -->
-    <div v-if="deleteTarget" class="modal-overlay" @click.self="deleteTarget = null">
-      <div class="modal modal--sm">
-        <div class="modal-header">
-          <h3>Delete Emergency</h3>
-          <button class="modal-close" @click="deleteTarget = null">✕</button>
+    <section class="card section-card">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Reported incidents</h2>
+          <p class="section-copy">{{ emergencies.length }} incident{{ emergencies.length === 1 ? '' : 's' }} in view.</p>
         </div>
-        <div class="modal-body">
-          <p>Permanently delete the <strong>{{ deleteTarget.type }}</strong> emergency record? This cannot be undone.</p>
+      </div>
+
+      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-else-if="emergencies.length === 0" class="empty-state">No emergencies found.</div>
+      <div v-else class="stack-list">
+        <article v-for="incident in emergencies" :key="incident.id" class="record-card card" :class="{ urgent: incident.status === 'sent' }">
+          <div class="record-top">
+            <div>
+              <h3 class="record-title">{{ typeIcon(incident.type) }} {{ incident.type }}</h3>
+              <p class="record-meta">{{ incident.resident?.name ?? '—' }} • {{ incident.estate?.name ?? '—' }}</p>
+            </div>
+            <span :class="statusClass(incident.status)" class="badge">{{ incident.status }}</span>
+          </div>
+          <p class="incident-notes">{{ incident.notes ?? 'No notes provided.' }}</p>
+          <div class="record-bottom">
+            <span class="record-sub">Reported {{ fmtDatetime(incident.createdAt) }}</span>
+            <div class="row-actions">
+              <button v-if="incident.status === 'sent'" class="btn btn-sm btn-outline" :disabled="saving === incident.id" @click="acknowledge(incident)">Acknowledge</button>
+              <button v-if="incident.status !== 'resolved'" class="btn btn-sm btn-primary" :disabled="saving === incident.id" @click="resolve(incident)">Resolve</button>
+              <button class="btn btn-sm btn-danger" :disabled="saving === incident.id" @click="confirmDelete(incident)">Delete</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div v-if="deleteTarget" class="sheet-overlay" @click.self="deleteTarget = null">
+      <div class="sheet sheet-sm card">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-eyebrow">Delete emergency</div>
+            <h3 class="sheet-title">Remove {{ deleteTarget.type }}?</h3>
+          </div>
+          <button class="sheet-close" @click="deleteTarget = null">✕</button>
         </div>
-        <div class="modal-footer">
+        <p class="confirm-copy">This emergency record will be permanently removed.</p>
+        <div class="sheet-actions">
           <button class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
-          <button class="btn btn-danger" :disabled="saving !== null" @click="doDelete">
-            {{ saving !== null ? 'Deleting…' : 'Delete' }}
-          </button>
+          <button class="btn btn-danger" :disabled="saving !== null" @click="doDelete">{{ saving !== null ? 'Deleting…' : 'Delete' }}</button>
         </div>
       </div>
     </div>
@@ -105,6 +79,13 @@ const statusFilter = ref('')
 const saving = ref<number | null>(null)
 const deleteTarget = ref<any>(null)
 
+const statusOptions = [
+  { label: 'All', value: '' },
+  { label: 'Sent', value: 'sent' },
+  { label: 'Acknowledged', value: 'acknowledged' },
+  { label: 'Resolved', value: 'resolved' },
+]
+
 async function load() {
   loading.value = true
   try {
@@ -119,10 +100,15 @@ async function load() {
   }
 }
 
-async function acknowledge(e: any) {
-  saving.value = e.id
+function setStatus(value: string) {
+  statusFilter.value = value
+  load()
+}
+
+async function acknowledge(incident: any) {
+  saving.value = incident.id
   try {
-    await emergenciesApi.acknowledge(e.id)
+    await emergenciesApi.acknowledge(incident.id)
     showToast('Emergency acknowledged.', 'success')
     load()
   } catch {
@@ -132,10 +118,10 @@ async function acknowledge(e: any) {
   }
 }
 
-async function resolve(e: any) {
-  saving.value = e.id
+async function resolve(incident: any) {
+  saving.value = incident.id
   try {
-    await emergenciesApi.resolve(e.id)
+    await emergenciesApi.resolve(incident.id)
     showToast('Emergency resolved.', 'success')
     load()
   } catch {
@@ -145,7 +131,7 @@ async function resolve(e: any) {
   }
 }
 
-function confirmDelete(e: any) { deleteTarget.value = e }
+function confirmDelete(incident: any) { deleteTarget.value = incident }
 
 async function doDelete() {
   if (!deleteTarget.value) return
@@ -165,18 +151,18 @@ async function doDelete() {
 function typeIcon(type: string): string {
   const icons: Record<string, string> = {
     'Security Incident': '🔒',
-    'Fire': '🔥',
-    'Medical': '🏥',
-    'Intruder': '⚠️',
+    Fire: '🔥',
+    Medical: '🏥',
+    Intruder: '⚠️',
   }
   return icons[type] ?? '🚨'
 }
 
 function statusClass(status: string) {
   return {
-    'badge-red':    status === 'sent',
+    'badge-red': status === 'sent',
     'badge-yellow': status === 'acknowledged',
-    'badge-green':  status === 'resolved',
+    'badge-green': status === 'resolved',
   }
 }
 
@@ -189,27 +175,41 @@ onMounted(load)
 </script>
 
 <style scoped>
-.page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  margin-bottom: 20px; gap: 16px; flex-wrap: wrap;
+.mobile-page { display: flex; flex-direction: column; gap: 16px; }
+.hero-card { padding: 20px; border-radius: 28px; color: white; }
+.hero-card--alert { background: linear-gradient(145deg, #6d1118 0%, #c1272d 56%, #f3836f 100%); }
+.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
+.hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
+.section-card { padding: 16px; }
+.filter-card { display: flex; flex-direction: column; gap: 12px; }
+.chip-row { display: flex; gap: 8px; overflow-x: auto; }
+.chip { border: none; border-radius: 999px; padding: 10px 14px; background: #f2e7e7; color: #725252; white-space: nowrap; font-weight: 700; }
+.chip.active { background: #b91c1c; color: white; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.section-title { font-size: 18px; font-weight: 700; }
+.section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
+.loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }
+.stack-list { display: flex; flex-direction: column; gap: 10px; }
+.record-card { padding: 16px; border-radius: 20px; }
+.record-card.urgent { background: #fff3f2; }
+.record-top, .record-bottom { display: flex; justify-content: space-between; gap: 12px; }
+.record-bottom { margin-top: 14px; align-items: center; }
+.record-title { font-size: 17px; font-weight: 700; color: var(--c-text); }
+.record-meta { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
+.incident-notes { margin-top: 14px; padding: 14px; border-radius: 18px; background: #faf4f4; color: var(--c-text); }
+.record-sub { color: var(--c-muted); font-size: 12px; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.6); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+.sheet { width: min(var(--shell-width), 100%); border-radius: 28px; padding: 18px; }
+.sheet-sm { max-width: 420px; }
+.sheet-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.sheet-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--c-muted); }
+.sheet-title { margin-top: 6px; font-size: 22px; font-family: var(--font-display); }
+.sheet-close { width: 36px; height: 36px; border: none; border-radius: 50%; background: #edf2ee; color: var(--c-text); }
+.sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
+.sheet-actions .btn { flex: 1; justify-content: center; }
+.confirm-copy { margin-top: 16px; color: var(--c-muted); }
+@media (max-width: 420px) {
+  .record-top, .record-bottom { flex-direction: column; align-items: flex-start; }
 }
-.page-title { font-size: 22px; font-weight: 700; }
-.page-sub   { font-size: 13px; color: var(--c-muted); margin-top: 2px; }
-
-.filters { display: flex; gap: 12px; margin-bottom: 16px; padding: 12px 16px; flex-wrap: wrap; }
-.filters .form-select { width: 200px; }
-
-.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
-.table-card { overflow: hidden; }
-.loading-state { display: flex; justify-content: center; padding: 80px; }
-
-.fw    { font-weight: 500; }
-.muted { color: var(--c-muted); }
-.truncate { max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.type-icon { margin-right: 4px; }
-.row-urgent { background: #FFF5F5; }
-.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-
-.modal--sm { max-width: 420px; }
 </style>

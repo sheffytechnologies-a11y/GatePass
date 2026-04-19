@@ -1,31 +1,44 @@
 /* ── Design tokens ─────────────────────────── */
 :root {
   --c-primary:       #0A5C38;
-  --c-primary-light: #E8F5EE;
+  --c-primary-light: #E6F4EE;
   --c-accent:        #00C97A;
-  --c-bg:            #F4F6F8;
+  --c-bg:            #F4F2EE;
   --c-surface:       #FFFFFF;
-  --c-border:        #E5E9EF;
-  --c-text:          #111827;
-  --c-muted:         #6B7280;
+  --c-border:        #E5E3DF;
+  --c-text:          #1A1A1A;
+  --c-muted:         #7B7E87;
   --c-danger:        #DC2626;
-  --c-danger-light:  #FEF2F2;
+  --c-danger-light:  #FEE2E2;
   --c-warning:       #D97706;
-  --c-warning-light: #FFFBEB;
-  --c-success:       #059669;
-  --c-success-light: #ECFDF5;
+  --c-warning-light: #FEF9EE;
+  --c-success:       #0E9F6E;
+  --c-success-light: #E8FAF2;
+  --c-info:          #1A3F8F;
+  --c-info-light:    #EEF2FB;
 
-  --sidebar-width: 240px;
-  --topbar-height: 60px;
-  --radius:        8px;
-  --radius-lg:     12px;
-  --shadow:        0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:     0 4px 12px rgba(0,0,0,0.10);
+  --radius:          14px;
+  --radius-lg:       22px;
+  --shadow:          0 8px 24px rgba(20, 30, 20, 0.08);
+  --shadow-md:       0 18px 42px rgba(20, 30, 20, 0.14);
+  --shell-width:     460px;
+  --font-display:    'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body:       'DM Sans', system-ui, sans-serif;
 }
 
 /* ── Reset ────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; line-height: 1.5; }
+html, body, #app { min-height: 100%; }
+body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at top left, rgba(10, 92, 56, 0.10), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(26, 63, 143, 0.08), transparent 24%),
+    var(--c-bg);
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: inherit; }
 input, select, textarea { font-family: inherit; font-size: 14px; }
@@ -52,7 +65,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 /* ── Buttons ──────────────────────────────── */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: var(--radius); border: none;
+  padding: 10px 16px; border-radius: 999px; border: none;
   font-size: 14px; font-weight: 600; transition: opacity 0.15s, background 0.15s;
 }
 .btn:active { opacity: 0.85; }
@@ -70,8 +83,8 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .form-label { font-size: 13px; font-weight: 600; color: var(--c-text); }
 .form-label span { color: var(--c-danger); margin-left: 2px; }
 .form-input, .form-select, .form-textarea {
-  width: 100%; padding: 9px 12px; border: 1.5px solid var(--c-border);
-  border-radius: var(--radius); background: var(--c-surface); color: var(--c-text);
+  width: 100%; padding: 13px 15px; border: 1.5px solid var(--c-border);
+  border-radius: 16px; background: #FBFAF7; color: var(--c-text);
   outline: none; transition: border-color 0.15s;
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--c-accent); }
@@ -79,7 +92,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .form-error { font-size: 12px; color: var(--c-danger); }
 
 /* ── Card ────────────────────────────────── */
-.card { background: var(--c-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+.card { background: var(--c-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); border: 1px solid rgba(10, 92, 56, 0.06); }
 
 /* ── Table ───────────────────────────────── */
 .table-wrap { overflow-x: auto; }

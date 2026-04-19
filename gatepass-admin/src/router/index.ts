@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+type AppRole = 'admin' | 'security'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -11,13 +13,14 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: '', redirect: '/dashboard' },
-        { path: 'dashboard', component: () => import('@/views/DashboardView.vue') },
-        { path: 'users', component: () => import('@/views/UsersView.vue') },
-        { path: 'passes', component: () => import('@/views/PassesView.vue') },
-        { path: 'passes/:id', component: () => import('@/views/PassDetailView.vue') },
-        { path: 'emergencies', component: () => import('@/views/EmergenciesView.vue') },
-        { path: 'residents', component: () => import('@/views/ResidentsView.vue') },
-        { path: 'notifications', component: () => import('@/views/NotificationsView.vue') },
+        { path: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { roles: ['admin'] } },
+        { path: 'access', component: () => import('@/views/AccessView.vue'), meta: { roles: ['admin', 'security'] } },
+        { path: 'users', component: () => import('@/views/UsersView.vue'), meta: { roles: ['admin'] } },
+        { path: 'passes', component: () => import('@/views/PassesView.vue'), meta: { roles: ['admin'] } },
+        { path: 'passes/:id', component: () => import('@/views/PassDetailView.vue'), meta: { roles: ['admin', 'security'] } },
+        { path: 'emergencies', component: () => import('@/views/EmergenciesView.vue'), meta: { roles: ['admin'] } },
+        { path: 'residents', component: () => import('@/views/ResidentsView.vue'), meta: { roles: ['admin'] } },
+        { path: 'notifications', component: () => import('@/views/NotificationsView.vue'), meta: { roles: ['admin'] } },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
@@ -27,7 +30,12 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStore()
   if (!to.meta.public && !auth.isAuthenticated) return '/login'
-  if (to.path === '/login' && auth.isAuthenticated) return '/dashboard'
+  if (to.path === '/login' && auth.isAuthenticated) return auth.isSecurity ? '/access' : '/dashboard'
+
+  const roles = to.meta.roles as AppRole[] | undefined
+  if (roles && !roles.includes(auth.role)) {
+    return auth.isSecurity ? '/access' : '/dashboard'
+  }
 })
 
 export default router

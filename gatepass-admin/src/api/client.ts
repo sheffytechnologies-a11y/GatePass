@@ -11,6 +11,12 @@ export const client = axios.create({
   },
 })
 
+function clearSession() {
+  localStorage.removeItem('admin_token')
+  localStorage.removeItem('admin_user')
+  localStorage.removeItem('admin_role')
+}
+
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -21,8 +27,7 @@ client.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('admin_token')
-      localStorage.removeItem('admin_user')
+      clearSession()
       window.location.href = '/login'
     }
     return Promise.reject(error)
