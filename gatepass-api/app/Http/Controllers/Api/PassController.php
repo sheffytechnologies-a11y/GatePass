@@ -62,7 +62,7 @@ class PassController extends Controller
                     ->with(['flaggedItems', 'resident.unit', 'resident.user']);
 
         if ($user->type !== 'security') {
-            $resident = $user->resident()->with(['resident.user', 'unit',  'estate'])->first();
+            $resident = $user->resident()->with(['user', 'unit', 'estate'])->first();
 
             if (! $resident) {
                 return response()->json([
@@ -92,6 +92,64 @@ class PassController extends Controller
             'pass' => $user->type === 'security'
                 ? $this->formatPassForSecurity($pass)
                 : $this->formatPass($pass, $resident),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/passes/find-by-phone?phone=...
+     */
+    public function findByPhone(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->type !== 'security') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'FORBIDDEN',
+                'message' => 'Only security users can search by phone.',
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'phone' => 'required|string|max:30',
+        ]);
+
+        $searchTail = $this->phoneTail($data['phone']);
+        if ($searchTail === '') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'INVALID_PHONE',
+                'message' => 'Provide a valid phone number.',
+            ], 422);
+        }
+
+        $candidates = Pass::whereNotNull('visitor_phone')
+            ->latest()
+            ->limit(300)
+            ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->get();
+
+        $matches = $candidates->filter(function (Pass $pass) use ($searchTail) {
+            return $this->phoneTail((string) $pass->visitor_phone) === $searchTail;
+        });
+
+        $pass = $matches->first(function (Pass $candidate) {
+            return in_array($candidate->status, ['Pending', 'On-site'], true);
+        }) ?? $matches->first();
+
+        if (! $pass) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_FOUND',
+                'message' => 'No pass found for this phone number.',
+            ], 404);
+        }
+
+        $this->maybeExpire($pass);
+        $pass->refresh()->load(['flaggedItems', 'resident.unit', 'resident.user']);
+
+        return response()->json([
+            'pass' => $this->formatPassForSecurity($pass),
         ]);
     }
 
@@ -401,6 +459,19 @@ class PassController extends Controller
         if ($pass->status === 'Pending' && $pass->expires_at->isPast()) {
             $pass->update(['status' => 'Expired']);
         }
+    }
+
+    private function phoneTail(?string $value): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $value) ?? '';
+
+        if ($digits === '') {
+            return '';
+        }
+
+        return strlen($digits) > 10
+            ? substr($digits, -10)
+            : $digits;
     }
 
     private function formatPassForSecurity(Pass $pass): array

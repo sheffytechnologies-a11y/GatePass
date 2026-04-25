@@ -261,10 +261,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { usersApi, residentsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 
 const { showToast } = useToast()
+const router = useRouter()
 
 // ── Screen state ──────────────────────────────────────────────────
 type Screen = 'list' | 'type-select' | 'form'
@@ -374,10 +376,7 @@ async function load() {
 
 // ── Add user flow ─────────────────────────────────────────────────
 function startAdd() {
-  form.value = { name: '', phone: '', email: '', lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [] }
-  formError.value = ''
-  selectedType.value = 'resident'
-  screen.value = 'type-select'
+  router.push('/users/new')
 }
 function addTenant()         { form.value.tenants.push({ name: '', phone: '', email: '' }) }
 function removeTenant(i: number) { form.value.tenants.splice(i, 1) }

@@ -95,6 +95,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('passes')->group(function () {
             Route::get('/',               [PassController::class, 'index']);
             Route::post('/',              [PassController::class, 'store']);
+            Route::get('find-by-phone',   [PassController::class, 'findByPhone']);
             Route::get('{ulid}',          [PassController::class, 'show']);
             Route::patch('{ulid}/revoke', [PassController::class, 'revoke']);
             Route::patch('{ulid}/allow-entry', [PassController::class, 'allowEntry']);

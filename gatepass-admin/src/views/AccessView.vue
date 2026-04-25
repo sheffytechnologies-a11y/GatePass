@@ -79,6 +79,7 @@ import { useToast } from '@/composables/useToast'
 type FeedPass = {
   id: string
   visitorName: string
+  visitorPhone: string | null
   purpose: string
   status: string
   hostName: string
@@ -114,6 +115,7 @@ function mapAdminPass(pass: any): FeedPass {
   return {
     id: pass.ulid,
     visitorName: pass.visitorName,
+    visitorPhone: pass.visitorPhone || null,
     purpose: pass.purpose || 'General access',
     status: pass.status,
     hostName: pass.resident?.name || 'Unknown resident',
@@ -127,6 +129,7 @@ function mapSecurityPass(pass: any): FeedPass {
   return {
     id: pass.id,
     visitorName: pass.visitorName,
+    visitorPhone: pass.visitorPhone || null,
     purpose: pass.purpose || 'General access',
     status: pass.status,
     hostName: pass.hostName || 'Unknown resident',
@@ -177,10 +180,53 @@ function openPass(id: string) {
   router.push(`/passes/${id}`)
 }
 
+function isLikelyPassId(value: string) {
+  return /^[0-9A-HJKMNP-TV-Z]{26}$/i.test(value)
+}
+
+function normalizePhone(value: string) {
+  return value.replace(/\D+/g, '')
+}
+
+function phoneTail(value: string) {
+  const normalized = normalizePhone(value)
+  return normalized.length > 10 ? normalized.slice(-10) : normalized
+}
+
 async function handleScanned(value: string) {
   const trimmed = value.trim()
   if (!trimmed) return
-  router.push(`/passes/${trimmed}`)
+
+  if (isLikelyPassId(trimmed)) {
+    openPass(trimmed)
+    return
+  }
+
+  try {
+    const res = await passesApi.findByPhone(trimmed)
+    const passId = String(res?.data?.pass?.id || '').trim()
+    if (passId) {
+      openPass(passId)
+      return
+    }
+  } catch {
+    // Fallback to local list matching if API lookup fails.
+  }
+
+  const scannedPhoneTail = phoneTail(trimmed)
+  const passByPhone = scannedPhoneTail
+    ? passes.value.find((pass) => {
+      if (!pass.visitorPhone) return false
+      return phoneTail(pass.visitorPhone) === scannedPhoneTail
+    })
+    : null
+
+  if (passByPhone) {
+    openPass(passByPhone.id)
+    return
+  }
+
+  showToast('No pass found for that phone number.', 'error')
 }
 
 function statusBadge(status: string) {

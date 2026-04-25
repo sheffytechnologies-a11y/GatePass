@@ -31,6 +31,7 @@ export const usersApi = {
 export const passesApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/passes', { params }),
   getOne: (ulid: string) => client.get(`/v1/admin/passes/${ulid}`),
+  findByPhone: (phone: string) => client.get('/v1/passes/find-by-phone', { params: { phone } }),
   create: (data: Record<string, unknown>) => client.post('/v1/admin/passes', data),
   revoke: (ulid: string) => client.patch(`/v1/admin/passes/${ulid}/revoke`),
   delete: (ulid: string) => client.delete(`/v1/admin/passes/${ulid}`),
@@ -59,4 +60,12 @@ export const estatesApi = {
 export const notificationsApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/notifications', { params }),
   delete: (id: number) => client.delete(`/v1/admin/notifications/${id}`),
+}
+
+export const feesApi = {
+  getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/fees', { params }),
+  getOne: (id: number) => client.get(`/v1/admin/fees/${id}`),
+  create: (data: Record<string, unknown>) => client.post('/v1/admin/fees', data),
+  update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/fees/${id}`, data),
+  delete: (id: number) => client.delete(`/v1/admin/fees/${id}`),
 }

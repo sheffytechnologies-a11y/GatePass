@@ -6,10 +6,10 @@
       <template v-if="!scannerSupported">
         <div class="scanner-state">
           <div class="scanner-icon">⌨️</div>
-          <h3>Enter pass code manually</h3>
-          <p>This device does not support live QR scanning. Paste or type the QR code value below.</p>
-          <input v-model="manualCode" class="form-input" placeholder="Enter QR or pass code" />
-          <button class="btn btn-primary scanner-action" @click="submitManualCode">Continue</button>
+          <h3>Enter phone number manually</h3>
+          <p>This device does not support live QR scanning. Enter the visitor phone number to find the pass.</p>
+          <input v-model="manualCode" class="form-input" type="tel" placeholder="Enter visitor phone number" />
+          <button class="btn btn-primary scanner-action" @click="submitManualCode">Use phone number</button>
         </div>
       </template>
 
@@ -17,7 +17,7 @@
         <div class="scanner-state">
           <div class="scanner-icon">📷</div>
           <h3>Scan visitor pass</h3>
-          <p>Point the camera at the visitor QR code. If scanning fails, enter the code manually.</p>
+          <p>Point the camera at the visitor QR code. If scanning fails, enter the visitor phone number manually.</p>
         </div>
 
         <div class="video-frame">
@@ -26,8 +26,8 @@
         </div>
 
         <div class="scanner-manual">
-          <input v-model="manualCode" class="form-input" placeholder="Enter QR or pass code" />
-          <button class="btn btn-outline" @click="submitManualCode">Use code</button>
+          <input v-model="manualCode" class="form-input" type="tel" placeholder="Enter visitor phone number" />
+          <button class="btn btn-outline" @click="submitManualCode">Use phone number</button>
         </div>
       </template>
     </div>

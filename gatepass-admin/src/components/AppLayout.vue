@@ -28,7 +28,7 @@
             <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 21V12h6v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="bottom-label">Home</span>
           </router-link>
-          <router-link to="/passes" class="bottom-item" active-class="bottom-item--active">
+          <router-link to="/fees" class="bottom-item" active-class="bottom-item--active">
             <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/><path d="M7 15h4M15 15h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <span class="bottom-label">Finance</span>
           </router-link>
@@ -80,6 +80,7 @@ const navItems = computed(() => auth.isSecurity
   ? [{ path: '/access', icon: '📷', label: 'Gate' }]
   : [
       { path: '/dashboard', icon: '🏡', label: 'Home' },
+      { path: '/fees', icon: '💳', label: 'Finance' },
       { path: '/users', icon: '👥', label: 'Users' },
       { path: '/residents', icon: '🏠', label: 'Residents' },
       { path: '/access', icon: '🛡️', label: 'Access' },
