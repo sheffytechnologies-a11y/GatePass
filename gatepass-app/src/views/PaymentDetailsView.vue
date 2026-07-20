@@ -3,7 +3,7 @@
     <ion-content :fullscreen="true" class="details-content">
       <div class="details-wrap">
         <div class="heading">Payment Details</div>
-        <div class="subheading">Transfer the exact amount to the account below</div>
+        <div class="subheading">Review your fees and pay securely online</div>
 
         <div v-if="loading" class="state-card">Loading payment details...</div>
         <div v-else-if="errorMessage" class="state-card state-error">{{ errorMessage }}</div>
@@ -20,23 +20,6 @@
             </div>
           </div>
 
-          <div class="bank-card">
-            <div class="bank-title">Bank Account Details</div>
-
-            <div class="bank-row">
-              <span>Bank Name</span>
-              <strong>{{ bankDetails.bankName || '-' }}</strong>
-            </div>
-            <div class="bank-row">
-              <span>Account Name</span>
-              <strong>{{ bankDetails.accountName || '-' }}</strong>
-            </div>
-            <div class="bank-row">
-              <span>Account Number</span>
-              <strong>{{ bankDetails.accountNumber || '-' }}</strong>
-            </div>
-          </div>
-
           <div class="fees-card">
             <div class="fees-title">Breakdown</div>
             <div v-for="item in fees" :key="item.id" class="fee-row">
@@ -45,14 +28,13 @@
             </div>
           </div>
 
-          <label class="upload-card" for="receiptFile">
-            <div class="upload-title">Upload Payment Receipt</div>
-            <div class="upload-subtitle">{{ selectedFileName || 'Tap to choose receipt image' }}</div>
-            <input id="receiptFile" class="file-input" type="file" accept="image/*" @change="onFileSelected" />
-          </label>
-
-          <button class="done-btn" :disabled="submitting" @click="submitPayment">
-            {{ submitting ? 'Submitting...' : "I've Made Payment" }}
+          <button class="pay-btn" :disabled="paying" @click="payWithPaystack">
+            <span v-if="paying" class="pay-btn-inner">
+              <span class="spinner-sm"></span> Processing…
+            </span>
+            <span v-else class="pay-btn-inner">
+              Pay {{ formatAmount(totalAmount) }} with Paystack
+            </span>
           </button>
         </template>
       </div>
@@ -66,49 +48,32 @@ import { useRoute, useRouter } from 'vue-router'
 import { IonPage, IonContent } from '@ionic/vue'
 import client from '@/api/client'
 
+declare global {
+  interface Window {
+    PaystackPop: any
+  }
+}
+
 type FeeItem = {
   id: string
   title: string
   amount: number
 }
 
-type PaymentDetailsResponse = {
-  totalAmount: number
-  fees: FeeItem[]
-  bankDetails: {
-    bankName: string | null
-    accountName: string | null
-    accountNumber: string | null
-  }
-}
-
 const route = useRoute()
 const router = useRouter()
 
 const loading = ref(false)
-const submitting = ref(false)
+const paying = ref(false)
 const errorMessage = ref('')
 const totalAmount = ref(0)
 const fees = ref<FeeItem[]>([])
-const selectedFile = ref<File | null>(null)
-const selectedFileName = ref('')
 
-const bankDetails = ref({
-  bankName: null as string | null,
-  accountName: null as string | null,
-  accountNumber: null as string | null,
-})
-
-function parseIdsFromQuery() {
+function parseIdsFromQuery(): string[] {
   const raw = route.query.ids
-  if (!raw) return [] as string[]
-
+  if (!raw) return []
   const idsText = Array.isArray(raw) ? raw.join(',') : String(raw)
-
-  return idsText
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
+  return idsText.split(',').map((p) => p.trim()).filter(Boolean)
 }
 
 async function loadPaymentDetails() {
@@ -122,42 +87,36 @@ async function loadPaymentDetails() {
   errorMessage.value = ''
 
   try {
-    const res = await client.post<PaymentDetailsResponse>('/v1/fees/payment-details', { feeIds })
-
+    const res = await client.post('/v1/fees/payment-details', { feeIds })
     totalAmount.value = Number(res.data.totalAmount || 0)
-    fees.value = (res.data.fees || []).map((item) => ({
+    fees.value = (res.data.fees || []).map((item: FeeItem) => ({
       id: item.id,
       title: item.title,
       amount: Number(item.amount || 0),
     }))
-
-    bankDetails.value = {
-      bankName: res.data.bankDetails?.bankName ?? null,
-      accountName: res.data.bankDetails?.accountName ?? null,
-      accountNumber: res.data.bankDetails?.accountNumber ?? null,
-    }
   } catch {
     errorMessage.value = 'Unable to fetch payment details. Please try again.'
-    fees.value = []
-    totalAmount.value = 0
   } finally {
     loading.value = false
   }
-}
-
-function onFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  selectedFile.value = file ?? null
-  selectedFileName.value = file ? file.name : ''
 }
 
 function formatAmount(amount: number) {
   return `₦${amount.toLocaleString('en-NG')}`
 }
 
-async function submitPayment() {
-  if (submitting.value) return
+function loadPaystackScript(): Promise<void> {
+  return new Promise((resolve) => {
+    if (window.PaystackPop) { resolve(); return }
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v2/inline.js'
+    script.onload = () => resolve()
+    document.head.appendChild(script)
+  })
+}
+
+async function payWithPaystack() {
+  if (paying.value) return
 
   const feeIds = parseIdsFromQuery()
   if (feeIds.length === 0) {
@@ -165,30 +124,42 @@ async function submitPayment() {
     return
   }
 
-  if (!selectedFile.value) {
-    errorMessage.value = 'Please upload your payment receipt image before continuing.'
-    return
-  }
-
-  submitting.value = true
+  paying.value = true
   errorMessage.value = ''
 
   try {
-    const formData = new FormData()
-    feeIds.forEach((id) => formData.append('feeIds[]', id))
-    formData.append('file', selectedFile.value)
+    const initRes = await client.post('/v1/fees/paystack/initialize', { feeIds })
+    const { reference, amount, email } = initRes.data
 
-    await client.post('/v1/fees/payments', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    await loadPaystackScript()
+
+    const paystack = new window.PaystackPop()
+    paystack.newTransaction({
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email,
+      amount,
+      reference,
+      onSuccess: async (transaction: { reference: string }) => {
+        try {
+          await client.post('/v1/fees/paystack/verify', {
+            reference: transaction.reference,
+            feeIds,
+          })
+          router.push('/fees/payment/success')
+        } catch {
+          errorMessage.value = 'Payment was made but verification failed. Please contact support.'
+        } finally {
+          paying.value = false
+        }
+      },
+      onCancel: () => {
+        paying.value = false
+        errorMessage.value = 'Payment was cancelled. You can try again.'
       },
     })
-
-    router.push('/fees/payment/success')
-  } catch {
-    errorMessage.value = 'Unable to submit payment. Please try again.'
-  } finally {
-    submitting.value = false
+  } catch (err: any) {
+    errorMessage.value = err?.response?.data?.message ?? 'Unable to start payment. Please try again.'
+    paying.value = false
   }
 }
 
@@ -240,9 +211,7 @@ onMounted(loadPaymentDetails)
 }
 
 .summary-card,
-.bank-card,
-.fees-card,
-.upload-card {
+.fees-card {
   border-radius: var(--w-radius-md);
   border: 1px solid var(--w-border);
   background: var(--w-surface);
@@ -250,7 +219,6 @@ onMounted(loadPaymentDetails)
 }
 
 .summary-row,
-.bank-row,
 .fee-row {
   display: flex;
   align-items: center;
@@ -262,20 +230,16 @@ onMounted(loadPaymentDetails)
 }
 
 .summary-row strong,
-.bank-row strong,
 .fee-row strong {
   color: #1f2531;
 }
 
 .summary-row + .summary-row,
-.bank-row + .bank-row,
 .fee-row + .fee-row {
   margin-top: 10px;
 }
 
-.bank-title,
-.fees-title,
-.upload-title {
+.fees-title {
   color: #1f2531;
   font-size: 13px;
   font-weight: 700;
@@ -285,33 +249,42 @@ onMounted(loadPaymentDetails)
   letter-spacing: 0.02em;
 }
 
-.upload-card {
-  display: block;
-  cursor: pointer;
-}
-
-.upload-subtitle {
-  color: var(--w-muted);
-  font-size: 15px;
-  font-family: var(--w-font-body);
-}
-
-.file-input {
-  display: none;
-}
-
-.done-btn {
+.pay-btn {
   margin-top: auto;
   width: 100%;
   border: none;
   border-radius: 14px;
   background: #0b6c40;
-  color: #ffffff;
-  font-family: var(--w-font-body);
+  color: #fff;
   font-size: 16px;
-  line-height: 1;
+  font-family: var(--w-font-body);
   font-weight: 700;
-  height: 52px;
+  height: 56px;
   padding: 0 16px;
+}
+
+.pay-btn:disabled {
+  opacity: 0.6;
+}
+
+.pay-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

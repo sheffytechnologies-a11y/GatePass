@@ -22,7 +22,7 @@ class Fee extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('file_path', 'payment_status', 'verified_at', 'verified_by')
+            ->withPivot('file_path', 'payment_status', 'verified_at', 'verified_by', 'paystack_reference')
             ->withTimestamps();
     }
 }

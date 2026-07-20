@@ -47,6 +47,9 @@ use App\Http\Controllers\Api\NewsController;
 |
 */
 
+// ── Public Paystack webhook (no auth) ─────────────────────────────────────
+Route::post('v1/paystack/webhook', [FeeController::class, 'paystackWebhook']);
+
 // ── Top-level shorthand (base URL: /api) ──────────────────────────────────
 Route::post('login', [AuthController::class, 'login']);
 
@@ -87,6 +90,8 @@ Route::prefix('v1')->group(function () {
         Route::get('fees', [FeeController::class, 'feed']);
         Route::post('fees/payment-details', [FeeController::class, 'paymentDetails']);
         Route::post('fees/payments', [FeeController::class, 'submitPayment']);
+        Route::post('fees/paystack/initialize', [FeeController::class, 'initializePaystackPayment']);
+        Route::post('fees/paystack/verify', [FeeController::class, 'verifyPaystackPayment']);
 
         // News feed (resident/admin scoped)
         Route::get('news', [NewsController::class, 'feed']);

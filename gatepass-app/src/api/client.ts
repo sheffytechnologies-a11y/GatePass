@@ -1,10 +1,11 @@
 // src/api/client.ts
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.wardn.ng/v1'
+const BASE_URL: string = import.meta.env.VITE_API_BASE_URL
 
 export const client = axios.create({
-  baseURL: BASE_URL,
+  // baseURL: BASE_URL,
+  baseURL: "https://erp-api.hayokmedicare.ng/api",
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

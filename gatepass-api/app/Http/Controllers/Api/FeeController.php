@@ -7,6 +7,8 @@ use App\Models\Fee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -212,6 +214,213 @@ class FeeController extends Controller
         return response()->json([
             'message' => 'Payment submitted successfully.',
         ], 201);
+    }
+
+    // ── Paystack online payment ────────────────────────────────────────────
+
+    /**
+     * POST /api/v1/fees/paystack/initialize
+     * Initialize a Paystack transaction for the selected fees.
+     */
+    public function initializePaystackPayment(Request $request)
+    {
+        /** @var User|null $user */
+        $user = $request->user();
+
+        $resident = $user?->resident()->with('estate')->first();
+        if (! $resident) {
+            return response()->json([
+                'error' => true,
+                'code' => 'NO_RESIDENT_PROFILE',
+                'message' => 'No resident profile found for this account.',
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'feeIds'   => 'required|array|min:1',
+            'feeIds.*' => 'required',
+        ]);
+
+        $feeIds = collect($data['feeIds'])->map(fn($id) => (string) $id)->all();
+
+        $fees = Fee::query()
+            ->where('estate_id', $resident->estate_id)
+            ->whereIn('id', $feeIds)
+            ->with(['users' => fn($q) => $q->where('user_id', $user->id)])
+            ->get();
+
+        if ($fees->count() !== count(array_unique($feeIds))) {
+            return response()->json([
+                'error' => true,
+                'code' => 'INVALID_FEES',
+                'message' => 'One or more selected fees are invalid for this estate.',
+            ], 422);
+        }
+
+        $paidFeeIds = $fees
+            ->filter(fn(Fee $fee) => $fee->users->first()?->pivot?->payment_status === 'paid')
+            ->map(fn(Fee $fee) => (string) $fee->id)
+            ->values();
+
+        if ($paidFeeIds->isNotEmpty()) {
+            return response()->json([
+                'error' => true,
+                'code' => 'FEE_ALREADY_PAID',
+                'message' => 'One or more selected fees are already marked as paid.',
+                'feeIds' => $paidFeeIds,
+            ], 422);
+        }
+
+        $totalKobo = (int) round($fees->sum('amount') * 100);
+        $reference = 'GP-' . strtoupper(uniqid());
+
+        $response = Http::withToken(config('services.paystack.secret_key'))
+            ->post('https://api.paystack.co/transaction/initialize', [
+                'email'     => $user->email,
+                'amount'    => $totalKobo,
+                'reference' => $reference,
+                'metadata'  => [
+                    'user_id' => $user->id,
+                    'fee_ids' => $feeIds,
+                ],
+            ]);
+
+        if (! $response->successful() || ! $response->json('status')) {
+            Log::error('Paystack initialization failed', ['body' => $response->body()]);
+            return response()->json([
+                'error' => true,
+                'message' => 'Payment initialization failed. Please try again.',
+            ], 502);
+        }
+
+        return response()->json([
+            'authorizationUrl' => $response->json('data.authorization_url'),
+            'reference'        => $reference,
+            'amount'           => $totalKobo,
+            'email'            => $user->email,
+        ]);
+    }
+
+    /**
+     * POST /api/v1/fees/paystack/verify
+     * Verify a Paystack payment and mark matched fees as paid.
+     */
+    public function verifyPaystackPayment(Request $request)
+    {
+        /** @var User|null $user */
+        $user = $request->user();
+
+        $resident = $user?->resident()->first();
+        if (! $resident) {
+            return response()->json([
+                'error' => true,
+                'code' => 'NO_RESIDENT_PROFILE',
+                'message' => 'No resident profile found for this account.',
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'reference' => 'required|string',
+            'feeIds'    => 'required|array|min:1',
+            'feeIds.*'  => 'required',
+        ]);
+
+        $feeIds = collect($data['feeIds'])->map(fn($id) => (string) $id)->all();
+
+        $response = Http::withToken(config('services.paystack.secret_key'))
+            ->get("https://api.paystack.co/transaction/verify/{$data['reference']}");
+
+        if (! $response->successful() || $response->json('data.status') !== 'success') {
+            return response()->json([
+                'error' => true,
+                'code' => 'PAYMENT_NOT_VERIFIED',
+                'message' => 'Payment could not be verified. Please contact support if funds were debited.',
+            ], 422);
+        }
+
+        $fees = Fee::query()
+            ->where('estate_id', $resident->estate_id)
+            ->whereIn('id', $feeIds)
+            ->get();
+
+        DB::transaction(function () use ($fees, $user, $data) {
+            foreach ($fees as $fee) {
+                $pivotData = [
+                    'payment_status'     => 'paid',
+                    'paystack_reference' => $data['reference'],
+                    'verified_at'        => now(),
+                    'verified_by'        => null,
+                    'file_path'          => null,
+                ];
+
+                if ($fee->users()->where('user_id', $user->id)->exists()) {
+                    $fee->users()->updateExistingPivot($user->id, $pivotData);
+                } else {
+                    $fee->users()->attach($user->id, $pivotData);
+                }
+            }
+        });
+
+        return response()->json(['message' => 'Payment verified and confirmed.']);
+    }
+
+    /**
+     * POST /api/v1/paystack/webhook
+     * Handle Paystack webhook events (public — no auth required).
+     */
+    public function paystackWebhook(Request $request)
+    {
+        $secret    = config('services.paystack.secret_key');
+        $signature = $request->header('x-paystack-signature');
+        $payload   = $request->getContent();
+
+        if ($signature !== hash_hmac('sha512', $payload, $secret)) {
+            return response()->json(['error' => 'Invalid signature.'], 401);
+        }
+
+        $event = $request->json('event');
+
+        if ($event !== 'charge.success') {
+            return response()->json(['message' => 'Event ignored.']);
+        }
+
+        $metadata  = $request->json('data.metadata');
+        $reference = $request->json('data.reference');
+        $userId    = $metadata['user_id'] ?? null;
+        $feeIds    = $metadata['fee_ids'] ?? [];
+
+        if (! $userId || empty($feeIds)) {
+            return response()->json(['message' => 'Metadata missing.']);
+        }
+
+        $user = User::find($userId);
+        if (! $user) {
+            return response()->json(['message' => 'User not found.']);
+        }
+
+        $feeIds = collect($feeIds)->map(fn($id) => (string) $id)->all();
+
+        $fees = Fee::whereIn('id', $feeIds)->get();
+
+        DB::transaction(function () use ($fees, $user, $reference) {
+            foreach ($fees as $fee) {
+                $pivotData = [
+                    'payment_status'     => 'paid',
+                    'paystack_reference' => $reference,
+                    'verified_at'        => now(),
+                    'verified_by'        => null,
+                    'file_path'          => null,
+                ];
+
+                if ($fee->users()->where('user_id', $user->id)->exists()) {
+                    $fee->users()->updateExistingPivot($user->id, $pivotData);
+                } else {
+                    $fee->users()->attach($user->id, $pivotData);
+                }
+            }
+        });
+
+        return response()->json(['message' => 'Webhook processed.']);
     }
 
     // ── CRUD ───────────────────────────────────────────────────────────────
@@ -467,10 +676,11 @@ class FeeController extends Controller
             'fileUrl'  => $user->pivot->file_path
                 ? asset('storage/' . $user->pivot->file_path)
                 : null,
-            'paymentStatus' => $user->pivot->payment_status,
-            'verifiedAt' => $user->pivot->verified_at,
-            'verifiedBy' => $user->pivot->verified_by,
-            'attachedAt' => $user->pivot->created_at?->toIso8601String(),
+            'paymentStatus'     => $user->pivot->payment_status,
+            'paystackReference' => $user->pivot->paystack_reference,
+            'verifiedAt'        => $user->pivot->verified_at,
+            'verifiedBy'        => $user->pivot->verified_by,
+            'attachedAt'        => $user->pivot->created_at?->toIso8601String(),
         ];
     }
 }
