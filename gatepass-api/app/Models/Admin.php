@@ -17,6 +17,7 @@ class Admin extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
         'is_active',
     ];
 
@@ -41,5 +42,25 @@ class Admin extends Authenticatable
     public function news(): HasMany
     {
         return $this->hasMany(News::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isEstateAdmin(): bool
+    {
+        return $this->role === 'estate_admin';
+    }
+
+    /**
+     * The single estate an estate_admin manages (self-registered admins
+     * are scoped to exactly one estate). Returns null for super_admin
+     * or an estate_admin who hasn't created their estate yet.
+     */
+    public function currentEstateId(): ?int
+    {
+        return $this->estates()->first()?->id;
     }
 }

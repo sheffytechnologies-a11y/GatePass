@@ -3,19 +3,14 @@
     <div class="login-card">
       <div class="login-logo">
         <span>🛡️</span>
-        <h1>CheckPass Mobile</h1>
-        <p>Admin and security teams share one mobile workspace</p>
-      </div>
-
-      <div class="mode-row">
-        <button class="mode-chip" :class="{ active: mode === 'security' }" @click="mode = 'security'">Security</button>
-        <button class="mode-chip" :class="{ active: mode === 'admin' }" @click="mode = 'admin'">Admin</button>
+        <h1>Gatepass</h1>
+        <p>Sign in to manage your estate</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label class="form-label">{{ mode === 'admin' ? 'Email Address' : 'Phone Number' }}</label>
-          <input v-model="identifier" :type="mode === 'admin' ? 'email' : 'tel'" class="form-input" :placeholder="mode === 'admin' ? 'admin@estate.com' : 'e.g. 08024035326'" autocomplete="username" required />
+          <label class="form-label">Email Address</label>
+          <input v-model="email" type="email" class="form-input" placeholder="admin@estate.com" autocomplete="username" required />
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
@@ -27,6 +22,10 @@
           <span v-else>Sign In</span>
         </button>
       </form>
+
+      <div class="login-footer">
+        New estate? <router-link to="/register">Create a free account</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -39,8 +38,7 @@ import { useAuthStore } from '@/stores/auth'
 const router = useRouter()
 const auth   = useAuthStore()
 
-const mode = ref<'admin' | 'security'>('security')
-const identifier = ref('')
+const email = ref('')
 const password = ref('')
 const loading  = ref(false)
 const error    = ref('')
@@ -49,13 +47,8 @@ async function handleLogin() {
   error.value   = ''
   loading.value = true
   try {
-    if (mode.value === 'admin') {
-      await auth.loginAdmin(identifier.value, password.value)
-      router.push('/dashboard')
-    } else {
-      await auth.loginSecurity(identifier.value, password.value)
-      router.push('/access')
-    }
+    await auth.loginAdmin(email.value, password.value)
+    router.push('/dashboard')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
     error.value = err.response?.data?.message ?? 'Invalid credentials. Please try again.'
@@ -92,17 +85,6 @@ async function handleLogin() {
 .login-logo span { font-size: 34px; }
 .login-logo h1 { font-size: 30px; font-weight: 800; margin-top: 8px; font-family: var(--font-display); }
 .login-logo p { font-size: 14px; color: var(--c-muted); margin-top: 6px; }
-.mode-row { display: flex; gap: 10px; margin-bottom: 18px; }
-.mode-chip {
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  background: #e5ece7;
-  color: #4b5e54;
-  padding: 12px 14px;
-  font-weight: 800;
-}
-.mode-chip.active { background: var(--c-primary); color: white; }
 .login-form { display: flex; flex-direction: column; gap: 16px; }
 .login-error {
   font-size: 13px; color: var(--c-danger);
@@ -114,4 +96,6 @@ async function handleLogin() {
   font-size: 15px; justify-content: center;
   margin-top: 4px;
 }
+.login-footer { text-align: center; font-size: 13px; color: var(--c-muted); margin-top: 20px; }
+.login-footer a { color: var(--c-primary); font-weight: 700; }
 </style>

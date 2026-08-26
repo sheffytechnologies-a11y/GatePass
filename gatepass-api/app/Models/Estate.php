@@ -16,6 +16,9 @@ class Estate extends Model
         'city',
         'state',
         'country',
+        'bank_name',
+        'account_number',
+        'account_name',
         'is_active',
     ];
 
@@ -51,5 +54,10 @@ class Estate extends Model
     public function admins(): BelongsToMany
     {
         return $this->belongsToMany(Admin::class, 'admin_estate')->withTimestamps();
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class);
     }
 }

@@ -19,11 +19,19 @@
 
   --radius:          14px;
   --radius-lg:       22px;
+  --shadow-sm:       0 2px 8px rgba(20, 30, 20, 0.06);
   --shadow:          0 8px 24px rgba(20, 30, 20, 0.08);
   --shadow-md:       0 18px 42px rgba(20, 30, 20, 0.14);
   --shell-width:     460px;
   --font-display:    'Bricolage Grotesque', system-ui, sans-serif;
   --font-body:       'DM Sans', system-ui, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
 }
 
 /* ── Reset ────────────────────────────────── */
@@ -42,6 +50,7 @@ body {
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: inherit; }
 input, select, textarea { font-family: inherit; font-size: 14px; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 
 /* ── Utilities ─────────────────────────────── */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
@@ -66,10 +75,10 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 10px 16px; border-radius: 999px; border: none;
-  font-size: 14px; font-weight: 600; transition: opacity 0.15s, background 0.15s;
+  font-size: 14px; font-weight: 600; transition: opacity 0.15s, background 0.15s, transform 0.1s;
 }
-.btn:active { opacity: 0.85; }
-.btn-primary { background: var(--c-primary); color: #fff; }
+.btn:active { opacity: 0.85; transform: scale(0.98); }
+.btn-primary { background: var(--c-primary); color: #fff; box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22); }
 .btn-primary:hover { background: #084d2f; }
 .btn-danger  { background: var(--c-danger);  color: #fff; }
 .btn-danger:hover  { background: #b91c1c; }
@@ -87,7 +96,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   border-radius: 16px; background: #FBFAF7; color: var(--c-text);
   outline: none; transition: border-color 0.15s;
 }
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--c-accent); }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--c-accent); box-shadow: 0 0 0 3px rgba(0, 201, 122, 0.14); }
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-error { font-size: 12px; color: var(--c-danger); }
 
@@ -100,6 +109,7 @@ table { width: 100%; border-collapse: collapse; }
 thead th { padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1.5px solid var(--c-border); }
 tbody td { padding: 12px 14px; border-bottom: 1px solid var(--c-border); font-size: 14px; color: var(--c-text); }
 tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
 tbody tr:hover { background: var(--c-bg); }
 
 /* ── Modal overlay ───────────────────────── */

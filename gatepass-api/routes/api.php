@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\FeeController;
 use App\Http\Controllers\Api\AdminAuthController;
+use App\Http\Controllers\Api\AdminRegistrationController;
+use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\NewsController;
 
 /*
@@ -47,8 +49,9 @@ use App\Http\Controllers\Api\NewsController;
 |
 */
 
-// ── Public Paystack webhook (no auth) ─────────────────────────────────────
+// ── Public Paystack webhooks (no auth) ─────────────────────────────────────
 Route::post('v1/paystack/webhook', [FeeController::class, 'paystackWebhook']);
+Route::post('v1/paystack/billing/webhook', [BillingController::class, 'webhook']);
 
 // ── Top-level shorthand (base URL: /api) ──────────────────────────────────
 Route::post('login', [AuthController::class, 'login']);
@@ -65,6 +68,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('admin/auth')->group(function () {
         Route::post('login', [AdminAuthController::class, 'login']);
         Route::post('refresh', [AdminAuthController::class, 'refresh']);
+        Route::post('register', [AdminRegistrationController::class, 'register']);
     });
 
     // ── Protected routes (Sanctum token required) ──────────────────────────
@@ -81,6 +85,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin/auth')->middleware('admin')->group(function () {
             Route::post('logout', [AdminAuthController::class, 'logout']);
             Route::get('me', [AdminAuthController::class, 'me']);
+            Route::post('register/estate', [AdminRegistrationController::class, 'registerEstate']);
         });
 
         // Home summary
@@ -173,6 +178,7 @@ Route::prefix('v1')->group(function () {
             // Estates & Units (reference data)
             Route::get('estates',                [AdminController::class, 'listEstates']);
             Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
+            Route::post('units',                 [AdminController::class, 'createUnit']);
 
             // Fees
             Route::get('fees',                              [FeeController::class, 'index']);
@@ -192,6 +198,15 @@ Route::prefix('v1')->group(function () {
             Route::get('news/{id}',         [NewsController::class, 'show']);
             Route::patch('news/{id}',       [NewsController::class, 'update']);
             Route::delete('news/{id}',      [NewsController::class, 'destroy']);
+
+            // Billing (self-service subscription management)
+            Route::prefix('billing')->group(function () {
+                Route::get('subscription',  [BillingController::class, 'subscription']);
+                Route::get('plans',         [BillingController::class, 'plans']);
+                Route::get('transactions',  [BillingController::class, 'transactions']);
+                Route::post('checkout',     [BillingController::class, 'checkout']);
+                Route::post('verify',       [BillingController::class, 'verify']);
+            });
         });
     });
 });

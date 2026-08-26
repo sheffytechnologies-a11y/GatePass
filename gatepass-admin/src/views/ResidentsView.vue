@@ -45,7 +45,7 @@
             </div>
             <div>
               <span class="detail-label">Unit</span>
-              <strong>{{ resident.unit?.number ?? '—' }}</strong>
+              <strong>{{ resident.unit?.flatAddress ?? '—' }}</strong>
             </div>
           </div>
           <div class="record-bottom">
@@ -157,11 +157,23 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Unit</label>
+            <div class="label-row">
+              <label class="form-label">Unit</label>
+              <button type="button" class="unit-add-link" :disabled="!form.estate_id" @click="showAddUnit = !showAddUnit">
+                {{ showAddUnit ? 'Cancel' : '+ New unit' }}
+              </button>
+            </div>
             <select v-model="form.unit_id" class="form-select" :disabled="!form.estate_id">
               <option value="">Select unit…</option>
-              <option v-for="unit in units" :key="unit.id" :value="unit.id">Unit {{ unit.number }}</option>
+              <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.flatAddress || unit.flat_address }}</option>
             </select>
+            <div v-if="showAddUnit" class="unit-add-box">
+              <input v-model="newUnitAddress" class="form-input" placeholder="e.g. L3, H7, FA" />
+              <button type="button" class="btn btn-sm btn-primary" :disabled="creatingUnit" @click="createUnit">
+                {{ creatingUnit ? 'Adding…' : 'Add' }}
+              </button>
+            </div>
+            <p v-if="unitError" class="form-error">{{ unitError }}</p>
           </div>
           <div class="form-group">
             <label class="form-label">Role</label>
@@ -207,7 +219,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { residentsApi, estatesApi } from '@/api/index'
+import { residentsApi, estatesApi, unitsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 
 const { showToast } = useToast()
@@ -224,6 +236,10 @@ const editing = ref<any>(null)
 const saving = ref(false)
 const formError = ref('')
 const deleteTarget = ref<any>(null)
+const showAddUnit = ref(false)
+const newUnitAddress = ref('')
+const creatingUnit = ref(false)
+const unitError = ref('')
 
 const form = ref({
   name: '', phone: '', email: '',
@@ -310,6 +326,30 @@ async function loadUnitsById(estateId: number) {
 }
 
 function closeModal() { modalOpen.value = false; editing.value = null }
+
+async function createUnit() {
+  unitError.value = ''
+  if (!form.value.estate_id || !newUnitAddress.value.trim()) {
+    unitError.value = 'Enter a unit/flat address.'
+    return
+  }
+  creatingUnit.value = true
+  try {
+    const res = await unitsApi.create({
+      estate_id: form.value.estate_id,
+      flat_address: newUnitAddress.value.trim(),
+    })
+    await loadUnits()
+    form.value.unit_id = res.data.unit.id
+    newUnitAddress.value = ''
+    showAddUnit.value = false
+    showToast('Unit added.', 'success')
+  } catch (err: any) {
+    unitError.value = err?.response?.data?.message ?? 'Could not add unit.'
+  } finally {
+    creatingUnit.value = false
+  }
+}
 
 async function save() {
   formError.value = ''
@@ -413,6 +453,10 @@ onMounted(() => { load(); loadEstates() })
 .record-sub { color: var(--c-muted); font-size: 12px; }
 .row-actions { display: flex; gap: 8px; }
 .chip-row { display: flex; gap: 8px; overflow-x: auto; }
+.unit-add-link { background: none; border: none; color: var(--c-primary); font-size: 12px; font-weight: 700; }
+.unit-add-link:disabled { color: var(--c-muted); cursor: not-allowed; }
+.unit-add-box { display: flex; gap: 8px; margin-top: 8px; }
+.unit-add-box .form-input { flex: 1; }
 .chip { border: none; border-radius: 999px; padding: 10px 14px; background: #edf2ee; color: #4f5f56; white-space: nowrap; font-weight: 700; }
 .chip.active { background: var(--c-primary); color: white; }
 /* Edit/delete sheets */

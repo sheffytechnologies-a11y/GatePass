@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Concerns\IssuesAdminTokens;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AdminAuthController extends Controller
 {
+    use IssuesAdminTokens;
+
     /**
      * POST /api/v1/admin/auth/login
      * Body: { email, password }
@@ -43,12 +46,7 @@ class AdminAuthController extends Controller
         return response()->json([
             'token' => $tokens['token'],
             'refreshToken' => $tokens['refreshToken'],
-            'admin' => [
-                'id' => $admin->id,
-                'name' => $admin->name,
-                'email' => $admin->email,
-                'isActive' => (bool) $admin->is_active,
-            ],
+            'admin' => $this->formatAdmin($admin),
         ]);
     }
 
@@ -147,23 +145,7 @@ class AdminAuthController extends Controller
         }
 
         return response()->json([
-            'admin' => [
-                'id' => $admin->id,
-                'name' => $admin->name,
-                'email' => $admin->email,
-                'isActive' => (bool) $admin->is_active,
-            ],
+            'admin' => $this->formatAdmin($admin),
         ]);
-    }
-
-    private function issueTokenPair(Admin $admin): array
-    {
-        $access = $admin->createToken('admin-access', ['*'], now()->addDays(7));
-        $refresh = $admin->createToken('admin-refresh', ['refresh'], now()->addDays(30));
-
-        return [
-            'token' => $access->plainTextToken,
-            'refreshToken' => $refresh->plainTextToken,
-        ];
     }
 }

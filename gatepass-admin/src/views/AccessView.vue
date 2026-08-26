@@ -1,12 +1,10 @@
 <template>
   <div class="mobile-page">
-    <section class="hero-card" :class="auth.isSecurity ? 'hero-card--security' : ''">
-      <div class="hero-eyebrow">{{ auth.isSecurity ? 'Gate mode' : 'Access control' }}</div>
-      <h1 class="hero-title">{{ auth.isSecurity ? 'Scan passes and clear visitors for entry.' : 'Track active and flagged visitor passes.' }}</h1>
+    <section class="hero-card">
+      <div class="hero-eyebrow">Access control</div>
+      <h1 class="hero-title">Track active and flagged visitor passes.</h1>
       <p class="hero-copy">
-        {{ auth.isSecurity
-          ? 'Security users can only inspect passes and approve visitors at the gate.'
-          : 'Admins can monitor the gate feed, inspect flagged activity, and jump into pass records fast.' }}
+        Monitor the gate feed, inspect flagged activity, and jump into pass records fast.
       </p>
       <button class="btn btn-primary hero-button" @click="scannerOpen = true">Scan QR Pass</button>
     </section>
@@ -26,7 +24,7 @@
       </article>
     </section>
 
-    <section v-if="auth.isAdmin" class="card section-card search-card">
+    <section class="card section-card search-card">
       <input v-model="search" class="form-input" type="search" placeholder="Search visitor name" @keyup.enter="loadAdminPasses" />
       <div class="chip-row">
         <button v-for="filter in filters" :key="filter.value" class="chip" :class="{ active: statusFilter === filter.value }" @click="setFilter(filter.value)">
@@ -38,8 +36,8 @@
     <section class="section-card card">
       <div class="section-head">
         <div>
-          <h2 class="section-title">{{ auth.isSecurity ? "Today's passes" : 'Access feed' }}</h2>
-          <p class="section-copy">{{ auth.isSecurity ? 'Recent visitor passes from the security summary.' : 'Active pass records across the estate.' }}</p>
+          <h2 class="section-title">Access feed</h2>
+          <p class="section-copy">Active pass records across the estate.</p>
         </div>
         <button class="btn btn-outline btn-sm" @click="refresh">Refresh</button>
       </div>
@@ -71,9 +69,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { homeApi, passesApi } from '@/api'
+import { passesApi } from '@/api'
 import QrScannerSheet from '@/components/QrScannerSheet.vue'
-import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 
 type FeedPass = {
@@ -88,7 +85,6 @@ type FeedPass = {
   itemsFlagged: boolean
 }
 
-const auth = useAuthStore()
 const router = useRouter()
 const { showToast } = useToast()
 
@@ -125,20 +121,6 @@ function mapAdminPass(pass: any): FeedPass {
   }
 }
 
-function mapSecurityPass(pass: any): FeedPass {
-  return {
-    id: pass.id,
-    visitorName: pass.visitorName,
-    visitorPhone: pass.visitorPhone || null,
-    purpose: pass.purpose || 'General access',
-    status: pass.status,
-    hostName: pass.hostName || 'Unknown resident',
-    hostUnit: pass.hostUnit || 'No unit',
-    createdAt: pass.createdAt,
-    itemsFlagged: !!pass.itemsFlagged,
-  }
-}
-
 async function loadAdminPasses() {
   loading.value = true
   try {
@@ -154,21 +136,8 @@ async function loadAdminPasses() {
   }
 }
 
-async function loadSecurityFeed() {
-  loading.value = true
-  try {
-    const res = await homeApi.getSummary()
-    passes.value = (res.data.recentPasses || []).map(mapSecurityPass)
-  } catch {
-    showToast('Could not load gate summary.', 'error')
-  } finally {
-    loading.value = false
-  }
-}
-
 async function refresh() {
-  if (auth.isSecurity) await loadSecurityFeed()
-  else await loadAdminPasses()
+  await loadAdminPasses()
 }
 
 async function setFilter(value: string) {
@@ -253,7 +222,6 @@ onMounted(refresh)
   border-radius: 28px;
   box-shadow: var(--shadow-md);
 }
-.hero-card--security { background: linear-gradient(160deg, #17302e 0%, #0b5f56 60%, #5fc3ab 100%); }
 .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.72); }
 .hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
 .hero-copy { margin-top: 8px; color: rgba(255,255,255,0.78); font-size: 14px; }

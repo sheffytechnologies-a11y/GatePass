@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Concerns\ScopesToEstate;
 use App\Models\Fee;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Illuminate\Validation\Rule;
 
 class FeeController extends Controller
 {
+    use ScopesToEstate;
+
     /**
      * GET /api/v1/fees
      * Resident-facing fees list scoped to the authenticated user's estate.
@@ -431,10 +434,7 @@ class FeeController extends Controller
     public function index(Request $request)
     {
         $query = Fee::query();
-
-        if ($request->filled('estate_id')) {
-            $query->where('estate_id', $request->estate_id);
-        }
+        $this->scopeEstate($query, $request);
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -458,13 +458,17 @@ class FeeController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'estate_id'   => 'required|exists:estates,id',
+            'estate_id'   => 'nullable|exists:estates,id',
             'code'        => 'required|string|max:50|unique:fees,code',
             'name'        => 'required|string|max:255',
             'amount'      => 'required|numeric|min:0',
             'type'        => 'required|in:one-time,recurring',
             'description' => 'nullable|string',
         ]);
+
+        $estateId = $this->resolveEstateId($request, $data['estate_id'] ?? null);
+        $this->assertEstateAccess($request, $estateId);
+        $data['estate_id'] = $estateId;
 
         $fee = Fee::create($data);
 
@@ -477,6 +481,7 @@ class FeeController extends Controller
     public function show(Request $request, int $id)
     {
         $fee = Fee::findOrFail($id);
+        $this->assertEstateAccess($request, $fee->estate_id);
 
         return response()->json(['fee' => $this->formatFee($fee)]);
     }
@@ -487,6 +492,7 @@ class FeeController extends Controller
     public function update(Request $request, int $id)
     {
         $fee = Fee::findOrFail($id);
+        $this->assertEstateAccess($request, $fee->estate_id);
 
         $data = $request->validate([
             'code'        => ['sometimes', 'string', 'max:50', Rule::unique('fees', 'code')->ignore($id)],
@@ -507,6 +513,7 @@ class FeeController extends Controller
     public function destroy(Request $request, int $id)
     {
         $fee = Fee::findOrFail($id);
+        $this->assertEstateAccess($request, $fee->estate_id);
         $fee->delete();
 
         return response()->json(['message' => 'Fee deleted.']);

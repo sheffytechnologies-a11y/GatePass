@@ -1,15 +1,30 @@
 import client from './client'
 
 export const authApi = {
-  loginSecurity: (phone: string, password: string) =>
-    client.post('/login', { phone, password }),
   loginAdmin: (email: string, password: string) =>
     client.post('/v1/admin/auth/login', { email, password }),
-  logoutSecurity: (refreshToken?: string | null) =>
-    client.post('/v1/auth/logout', { refreshToken }),
+  registerAdmin: (name: string, email: string, password: string, phone?: string) =>
+    client.post('/v1/admin/auth/register', { name, email, password, phone }),
   logoutAdmin: (refreshToken?: string | null) =>
     client.post('/v1/admin/auth/logout', { refreshToken }),
   adminMe: () => client.get('/v1/admin/auth/me'),
+}
+
+export const onboardingApi = {
+  createEstate: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/auth/register/estate', data),
+}
+
+export const billingApi = {
+  getSubscription: (params?: Record<string, unknown>) =>
+    client.get('/v1/admin/billing/subscription', { params }),
+  getPlans: () => client.get('/v1/admin/billing/plans'),
+  getTransactions: (params?: Record<string, unknown>) =>
+    client.get('/v1/admin/billing/transactions', { params }),
+  checkout: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/billing/checkout', data),
+  verify: (reference: string) =>
+    client.post('/v1/admin/billing/verify', { reference }),
 }
 
 export const homeApi = {
@@ -55,6 +70,10 @@ export const residentsApi = {
 export const estatesApi = {
   getAll: () => client.get('/v1/admin/estates'),
   getUnits: (estateId: number) => client.get(`/v1/admin/estates/${estateId}/units`),
+}
+
+export const unitsApi = {
+  create: (data: Record<string, unknown>) => client.post('/v1/admin/units', data),
 }
 
 export const notificationsApi = {

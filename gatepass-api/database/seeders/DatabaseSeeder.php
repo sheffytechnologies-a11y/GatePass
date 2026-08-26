@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'mango@gmail.com',
             'phone' => '08024035326',
             'type' => 'resident',
+            'estate_id' => $estate->id,
             'password' => Hash::make('123456'),
             'is_active' => true,
         ]);
@@ -54,6 +55,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'sheriff@gmail.com',
             'phone' => '08132489619',
             'type' => 'resident',
+            'estate_id' => $estate->id,
             'password' => Hash::make('123456'),
             'is_active' => true,
         ]);
@@ -63,11 +65,13 @@ class DatabaseSeeder extends Seeder
             'email' => 'gate@gmail.com',
             'phone' => '00000000000',
             'type' => 'security',
+            'estate_id' => $estate->id,
             'password' => Hash::make('123456'),
             'is_active' => true,
         ]);
 
         $this->call(AdminSeeder::class);
+        $this->call(PlanSeeder::class);
 
         Resident::create([
             'user_id' => $resident1->id,

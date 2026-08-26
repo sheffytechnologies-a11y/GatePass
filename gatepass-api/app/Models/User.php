@@ -21,6 +21,7 @@ class User extends Authenticatable
         'type',
         'password',
         'is_active',
+        'estate_id',
     ];
 
     protected $hidden = [
@@ -35,6 +36,11 @@ class User extends Authenticatable
             'password'          => 'hashed',
             'is_active'         => 'boolean',
         ];
+    }
+
+    public function estate()
+    {
+        return $this->belongsTo(Estate::class);
     }
 
     public function residents()

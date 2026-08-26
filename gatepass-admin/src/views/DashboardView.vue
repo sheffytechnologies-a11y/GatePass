@@ -82,6 +82,11 @@
           <strong>Messages</strong>
           <span>Check system notifications sent to residents.</span>
         </router-link>
+        <router-link to="/billing" class="quick-card card">
+          <span class="quick-icon">💳</span>
+          <strong>Billing</strong>
+          <span>Manage your plan, usage, and payments.</span>
+        </router-link>
       </div>
 
       <div class="dashboard-panels">
@@ -236,7 +241,7 @@ onMounted(load)
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 .stat-card {
@@ -274,6 +279,7 @@ onMounted(load)
 
 .quick-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
 }
 .quick-card {
@@ -288,7 +294,7 @@ onMounted(load)
 
 .dashboard-panels {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
   gap: 16px;
 }
 

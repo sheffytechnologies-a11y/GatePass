@@ -7,13 +7,13 @@
       </div>
       <div class="header-actions">
         <button
-          v-if="auth.isAdmin && pass && pass.status !== 'Revoked' && pass.status !== 'Expired'"
+          v-if="pass && pass.status !== 'Revoked' && pass.status !== 'Expired'"
           class="btn btn-danger"
           @click="confirmRevoke"
         >Revoke Pass</button>
-        <button v-if="auth.isAdmin && pass" class="btn btn-outline btn-danger-outline" @click="showDeleteConfirm = true">Delete</button>
-        <button v-if="auth.isSecurity && pass && pass.status === 'Pending'" class="btn btn-primary" :disabled="saving" @click="allowEntry">{{ saving ? 'Allowing…' : 'Allow Entry' }}</button>
-        <button v-if="auth.isSecurity && pass && pass.status === 'On-site'" class="btn btn-outline" :disabled="saving" @click="markExited">{{ saving ? 'Updating…' : 'Exited' }}</button>
+        <button v-if="pass" class="btn btn-outline btn-danger-outline" @click="showDeleteConfirm = true">Delete</button>
+        <button v-if="pass && pass.status === 'Pending'" class="btn btn-primary" :disabled="saving" @click="allowEntry">{{ saving ? 'Allowing…' : 'Allow Entry' }}</button>
+        <button v-if="pass && pass.status === 'On-site'" class="btn btn-outline" :disabled="saving" @click="markExited">{{ saving ? 'Updating…' : 'Exited' }}</button>
       </div>
     </div>
 
@@ -169,12 +169,10 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { passesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
-import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
 
 const route = useRoute()
 const router = useRouter()
-const auth = useAuthStore()
 const { showToast } = useToast()
 
 const loading = ref(true)
@@ -182,13 +180,11 @@ const pass = ref<any>(null)
 const saving = ref(false)
 const showRevokeConfirm = ref(false)
 const showDeleteConfirm = ref(false)
-const backLink = auth.isSecurity ? '/access' : '/passes'
+const backLink = '/passes'
 
 async function loadPass() {
   try {
-    const res = auth.isSecurity
-      ? await client.get(`/v1/passes/${route.params.id as string}`)
-      : await passesApi.getOne(route.params.id as string)
+    const res = await passesApi.getOne(route.params.id as string)
     pass.value = res.data.pass
   } catch {
     showToast('Pass not found.', 'error')
