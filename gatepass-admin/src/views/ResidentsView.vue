@@ -214,6 +214,31 @@
         </div>
       </div>
     </div>
+
+    <div v-if="newCredentials" class="sheet-overlay" @click.self="newCredentials = null">
+      <div class="sheet card">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-eyebrow">Save these credentials</div>
+            <h3 class="sheet-title">Resident login details</h3>
+          </div>
+          <button class="sheet-close" @click="newCredentials = null">✕</button>
+        </div>
+        <p class="confirm-copy">Share these temporary passwords with each resident — they won't be shown again.</p>
+        <div class="credentials-list">
+          <div v-for="(c, i) in newCredentials" :key="i" class="credential-row">
+            <div>
+              <strong>{{ c.name }}</strong>
+              <span class="record-sub">{{ c.phone }}</span>
+            </div>
+            <code class="credential-password">{{ c.password }}</code>
+          </div>
+        </div>
+        <div class="sheet-actions">
+          <button class="btn btn-primary" @click="newCredentials = null">Done</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -240,6 +265,7 @@ const showAddUnit = ref(false)
 const newUnitAddress = ref('')
 const creatingUnit = ref(false)
 const unitError = ref('')
+const newCredentials = ref<{ name: string; phone: string; password: string }[] | null>(null)
 
 const form = ref({
   name: '', phone: '', email: '',
@@ -378,7 +404,11 @@ async function save() {
         landlord_is_occupant: form.value.landlordIsOccupant,
       }
       if (form.value.email) ownerPayload.email = form.value.email
-      await residentsApi.create(ownerPayload)
+      const ownerRes = await residentsApi.create(ownerPayload)
+      const credentials: { name: string; phone: string; password: string }[] = []
+      if (ownerRes.data.temporaryPassword) {
+        credentials.push({ name: form.value.name, phone: form.value.phone, password: ownerRes.data.temporaryPassword })
+      }
 
       for (const t of form.value.tenants) {
         if (!t.name.trim() || !t.phone.trim()) continue
@@ -387,9 +417,15 @@ async function save() {
           lane: form.value.lane, house: form.value.house, flat: form.value.flat,
         }
         if (t.email) tp.email = t.email
-        await residentsApi.create(tp)
+        const tenantRes = await residentsApi.create(tp)
+        if (tenantRes.data.temporaryPassword) {
+          credentials.push({ name: t.name, phone: t.phone, password: tenantRes.data.temporaryPassword })
+        }
       }
       showToast('Resident created.', 'success')
+      if (credentials.length > 0) {
+        newCredentials.value = credentials
+      }
     }
     closeModal()
     load()
@@ -470,6 +506,17 @@ onMounted(() => { load(); loadEstates() })
 .sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
 .sheet-actions .btn { flex: 1; justify-content: center; }
 .confirm-copy { color: var(--c-muted); font-size: 14px; margin-bottom: 4px; }
+.credentials-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.credential-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; background: var(--c-bg); border-radius: var(--radius);
+}
+.credential-row .record-sub { display: block; margin-top: 2px; }
+.credential-password {
+  font-family: monospace; font-size: 14px; font-weight: 700;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  padding: 4px 10px; border-radius: 8px; color: var(--c-primary);
+}
 /* Full-screen add form */
 .form-overlay { position: fixed; inset: 0; background: #fff; z-index: 200; display: flex; justify-content: center; }
 .form-page { width: 100%; max-width: var(--shell-width); height: 100%; display: flex; flex-direction: column; overflow: hidden; }

@@ -14,6 +14,7 @@ use App\Models\Estate;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -163,30 +164,35 @@ class AdminController extends Controller
         $data = $request->validate([
             'name'      => 'required|string|max:255',
             'phone'     => 'required|string|unique:users,phone',
-            'password'  => 'required|string|min:6',
+            'password'  => 'nullable|string|min:6',
             'email'     => 'nullable|email|unique:users,email',
-            'unit_id'   => 'required|exists:units,id',
+            'unit_id'   => 'nullable|exists:units,id',
             'estate_id' => 'nullable|exists:estates,id',
             'role'      => 'nullable|string|in:owner,tenant',
+            'lane'      => 'nullable|string|max:100',
+            'house'     => 'nullable|string|max:100',
+            'flat'      => 'nullable|string|max:100',
         ]);
 
         $estateId = $this->resolveEstateId($request, $data['estate_id'] ?? null);
         $this->assertEstateAccess($request, $estateId);
-
-        $unit = Unit::findOrFail($data['unit_id']);
-        if ($unit->estate_id !== $estateId) {
-            abort(422, 'The selected unit does not belong to this estate.');
+        if (! $estateId) {
+            abort(422, 'estate_id is required.');
         }
 
         $estate = Estate::findOrFail($estateId);
         $this->assertNotPastDue($estate, $request->user());
+
+        $unit = $this->resolveResidentUnit($estate, $data);
         $this->assertCanAddResident($unit);
+
+        $plainPassword = $data['password'] ?? Str::random(10);
 
         $user = User::create([
             'name'      => $data['name'],
             'phone'     => $data['phone'],
             'email'     => $data['email'] ?? null,
-            'password'  => Hash::make($data['password']),
+            'password'  => Hash::make($plainPassword),
             'type'      => 'resident',
             'estate_id' => $estateId,
             'is_active' => true,
@@ -194,7 +200,7 @@ class AdminController extends Controller
 
         $resident = Resident::create([
             'user_id'   => $user->id,
-            'unit_id'   => $data['unit_id'],
+            'unit_id'   => $unit->id,
             'estate_id' => $estateId,
             'role'      => $data['role'] ?? 'tenant',
             'is_active' => true,
@@ -202,7 +208,56 @@ class AdminController extends Controller
 
         $resident->load(['user', 'unit', 'estate']);
 
-        return response()->json(['resident' => $this->formatResident($resident)], 201);
+        return response()->json([
+            'resident' => $this->formatResident($resident),
+            'temporaryPassword' => isset($data['password']) ? null : $plainPassword,
+        ], 201);
+    }
+
+    /**
+     * Resolve the unit for a new resident: an explicit unit_id wins, otherwise
+     * find-or-create a unit within the estate matching lane/house/flat.
+     */
+    private function resolveResidentUnit(Estate $estate, array $data): Unit
+    {
+        if (! empty($data['unit_id'])) {
+            $unit = Unit::findOrFail($data['unit_id']);
+            if ($unit->estate_id !== $estate->id) {
+                abort(422, 'The selected unit does not belong to this estate.');
+            }
+            return $unit;
+        }
+
+        $lane = $data['lane'] ?? null;
+        $house = $data['house'] ?? null;
+        $flat = $data['flat'] ?? null;
+
+        if (! $lane && ! $house && ! $flat) {
+            abort(422, 'A unit is required — provide unit_id or lane/house/flat.');
+        }
+
+        $unit = Unit::where('estate_id', $estate->id)
+            ->where('lane', $lane)
+            ->where('house', $house)
+            ->where('flat', $flat)
+            ->first();
+
+        if ($unit) {
+            return $unit;
+        }
+
+        $this->assertCanAddUnit($estate);
+
+        $flatAddress = collect([$flat, $house, $lane])->filter()->implode(', ') ?: 'Unit';
+
+        return Unit::create([
+            'estate_id'    => $estate->id,
+            'lane'         => $lane,
+            'house'        => $house,
+            'flat'         => $flat,
+            'flat_address' => $flatAddress,
+            'is_active'    => true,
+        ]);
     }
 
     /**
