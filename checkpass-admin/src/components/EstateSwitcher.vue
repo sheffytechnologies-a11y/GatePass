@@ -1,5 +1,5 @@
 <template>
-  <div class="estate-switcher" ref="dropdownRef">
+  <div class="estate-switcher" :class="{ 'estate-switcher--hero': props.variant === 'hero' }" ref="dropdownRef">
     <!-- Trigger Pill Button -->
     <button
       type="button"
@@ -149,36 +149,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-
-/* Hero Frosted Glass Variant */
-.switcher-trigger--hero {
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #ffffff;
-  padding: 8px 16px 8px 10px;
-  border-radius: 99px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-.switcher-trigger--hero:hover,
-.switcher-trigger--hero.is-open {
-  background: rgba(255, 255, 255, 0.28);
-  border-color: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-.switcher-trigger--hero .estate-icon-badge {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
-.switcher-trigger--hero .estate-name-display {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 13.5px;
-}
-.switcher-trigger--hero .switcher-chevron {
-  color: rgba(255, 255, 255, 0.85);
-}
 
 .estate-switcher {
   position: relative;
@@ -402,5 +372,43 @@ onUnmounted(() => {
   opacity: 0;
   transform: translateY(-4px);
 }
+
+/* ── Hero High-Contrast White Pill Variant ── */
+.estate-switcher--hero .switcher-dropdown {
+  right: 0;
+  left: auto;
+}
+
+.switcher-trigger.switcher-trigger--hero {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  color: #0a5c38 !important;
+  padding: 8px 16px 8px 10px;
+  border-radius: 99px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+.switcher-trigger.switcher-trigger--hero:hover,
+.switcher-trigger.switcher-trigger--hero.is-open {
+  background: #f0fdf4 !important;
+  border-color: #0a5c38 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.switcher-trigger.switcher-trigger--hero .estate-icon-badge {
+  background: #ecfdf5 !important;
+  color: #0a5c38 !important;
+}
+
+.switcher-trigger.switcher-trigger--hero .estate-name-display {
+  color: #0a5c38 !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+}
+
+.switcher-trigger.switcher-trigger--hero .switcher-chevron {
+  color: #0a5c38 !important;
+}
+
 </style>
 
