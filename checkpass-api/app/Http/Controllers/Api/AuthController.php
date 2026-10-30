@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -213,6 +214,126 @@ class AuthController extends Controller
             'token' => $access->plainTextToken,
             'refreshToken' => $refresh->plainTextToken,
         ];
+    }
+
+    /**
+     * POST /api/v1/auth/forgot-password
+     * Body: { identifier: phone or email }
+     */
+    public function forgotPassword(Request $request)
+    {
+        $identifier = $request->input('identifier') ?? $request->input('phone') ?? $request->input('email');
+
+        if (! $identifier) {
+            throw ValidationException::withMessages([
+                'identifier' => ['Please enter your registered phone number or email address.'],
+            ]);
+        }
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        // Even if user not found, return friendly message to prevent user enumeration
+        if (! $user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account matches those details, a 6-digit verification code has been dispatched.',
+            ]);
+        }
+
+        // Generate 6-digit numeric OTP
+        $otp = (string) mt_rand(100000, 999999);
+
+        // Store OTP in Cache for 15 minutes
+        $cacheKey = 'pwd_reset_' . md5($user->id);
+        Cache::put($cacheKey, [
+            'user_id' => $user->id,
+            'otp'     => $otp,
+            'expires' => now()->addMinutes(15)->timestamp,
+        ], now()->addMinutes(15));
+
+        $res = [
+            'success' => true,
+            'message' => 'A 6-digit verification code has been dispatched to your registered phone or email.',
+        ];
+
+        // In local/testing/debug environment, return debugOtp for immediate testing
+        if (config('app.debug') || app()->environment('local', 'testing')) {
+            $res['debugOtp'] = $otp;
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * POST /api/v1/auth/reset-password
+     * Body: { identifier, otp, newPassword }
+     */
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'identifier'  => 'required|string',
+            'otp'         => 'required|string|size:6',
+            'newPassword' => 'required|string|min:8',
+        ]);
+
+        $identifier = $data['identifier'];
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'identifier' => ['No account found for this phone or email.'],
+            ]);
+        }
+
+        $cacheKey = 'pwd_reset_' . md5($user->id);
+        $cached = Cache::get($cacheKey);
+
+        if (! $cached || $cached['otp'] !== trim($data['otp'])) {
+            throw ValidationException::withMessages([
+                'otp' => ['The verification code is invalid or has expired. Please request a new code.'],
+            ]);
+        }
+
+        // Update password
+        $user->update(['password' => Hash::make($data['newPassword'])]);
+
+        // Clear cache
+        Cache::forget($cacheKey);
+
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        // Issue new token pair so user is logged in immediately
+        $tokens = $this->issueTokenPair($user);
+        $resident = $user->type === 'resident'
+            ? $user->resident()->with(['unit', 'estate'])->first()
+            : null;
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Password reset successfully. You are now logged in.',
+            'token'        => $tokens['token'],
+            'refreshToken' => $tokens['refreshToken'],
+            'userType'     => $user->type,
+            'resident'     => $resident ? $this->formatResident($resident, $user) : null,
+            'data'         => $user,
+        ]);
     }
 
     private function normalisePhone(string $phone): string

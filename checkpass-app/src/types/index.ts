@@ -11,6 +11,8 @@ export interface FlaggedItem {
 
 export interface Pass {
   id: string
+  ulid?: string
+  isOfflineCached?: boolean
   visitorName: string
   visitorPhone: string | null
   purpose: string // 'Personal Visit' | 'Delivery' | 'Service' | 'Business' | 'Other'

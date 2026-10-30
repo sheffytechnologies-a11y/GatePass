@@ -80,7 +80,7 @@
 
             <!-- Forgot Password Row -->
             <div class="options-row">
-              <a href="#" class="forgot-link" @click.prevent="showForgotInfo">Forgot your Password?</a>
+              <router-link to="/forgot-password" class="forgot-link">Forgot your Password?</router-link>
             </div>
 
             <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
@@ -334,15 +334,7 @@ async function handleLogin() {
   }
 }
 
-async function showForgotInfo() {
-  const alert = await alertController.create({
-    header: 'Reset Password',
-    subHeader: 'Resident & Security Support',
-    message: 'To keep estate access secure, password resets are verified directly by your Estate Manager or Admin Office. Please contact them with your unit number to receive a temporary passkey.',
-    buttons: ['OK'],
-  })
-  await alert.present()
-}
+
 
 async function showResidentAccessInfo() {
   const alert = await alertController.create({
