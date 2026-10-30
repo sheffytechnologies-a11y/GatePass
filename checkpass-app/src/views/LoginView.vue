@@ -83,6 +83,21 @@
               <a href="#" class="forgot-link" @click.prevent="showForgotInfo">Forgot your Password?</a>
             </div>
 
+            <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
+            <div class="terms-consent-row">
+              <label class="terms-checkbox-label">
+                <input
+                  v-model="agreeTerms"
+                  type="checkbox"
+                  class="terms-checkbox-input"
+                  required
+                />
+                <span class="terms-text">
+                  I agree to the <button type="button" class="legal-link-btn" @click="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click="openLegalModal('privacy')">Privacy Policy</button>
+                </span>
+              </label>
+            </div>
+
             <!-- Primary Action Button -->
             <button
               type="submit"
@@ -154,6 +169,71 @@
 
       <!-- Centered Brand Loading Popup Overlay -->
       <BrandLoadingOverlay :visible="loading" :size="96" color="#FFFFFF" />
+
+      <!-- Legal Modal Sheet (Terms & Privacy Viewer) -->
+      <ion-modal :is-open="legalModalOpen" @didDismiss="legalModalOpen = false" class="legal-sheet-modal">
+        <div class="legal-modal-shell">
+          <div class="legal-modal-header">
+            <div class="legal-tab-group">
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'terms' }"
+                @click="legalTab = 'terms'"
+              >
+                Terms of Service
+              </button>
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'privacy' }"
+                @click="legalTab = 'privacy'"
+              >
+                Privacy Policy
+              </button>
+            </div>
+            <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
+          </div>
+
+          <div class="legal-modal-body">
+            <!-- Terms Tab -->
+            <div v-if="legalTab === 'terms'" class="legal-text-flow">
+              <h3>Checkpass Resident &amp; Visitor Terms</h3>
+              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies</p>
+              
+              <h4>1. Account Creation &amp; Management</h4>
+              <p>Resident accounts are issued exclusively through authorized Estate Administrators. Residents cannot self-register without an existing unit assigned by their estate office. Upon first access, residents must replace their temporary password with a secure credential.</p>
+
+              <h4>2. Visitor Access Passes</h4>
+              <p>Passes generated via Checkpass grant temporary authorization for estate entry. Pass issuance creates an immutable digital audit log recording timestamp, visitor name, vehicle plate (if provided), and gatekeeper verification.</p>
+
+              <h4>3. Estate Community Standards</h4>
+              <p>Residents are responsible for passes issued under their flat address. Fraudulent pass generation or sharing access phrases with unauthorized parties is strictly prohibited.</p>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div v-else class="legal-text-flow">
+              <h3>Checkpass Privacy Framework</h3>
+              <p class="legal-date">NDPR Compliant &middot; Bank-Grade Data Protection</p>
+
+              <h4>1. Information We Collect</h4>
+              <p>We process your official phone number, estate name, unit number, and access pass history solely to authenticate entrance and ensure security across your gated community.</p>
+
+              <h4>2. Security &amp; Access Controls</h4>
+              <p>Credentials and passwords are encrypted using SHA-256 with salted hashing. Security guards at the gate only verify pass validity and visitor name; your personal data is never made public.</p>
+
+              <h4>3. Data Rights &amp; Retention</h4>
+              <p>In accordance with Nigerian Data Protection Regulation (NDPR), you have the right to review visitor logs associated with your flat and request log archival through your Estate Office.</p>
+            </div>
+          </div>
+
+          <div class="legal-modal-footer">
+            <button type="button" class="legal-agree-action-btn" @click="acceptLegalModal">
+              I Understand &amp; Agree
+            </button>
+          </div>
+        </div>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -161,7 +241,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { IonPage, IonContent, alertController } from '@ionic/vue'
+import { IonPage, IonContent, IonModal, alertController } from '@ionic/vue'
 import BrandLoadingOverlay from '@/components/BrandLoadingOverlay.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
@@ -178,12 +258,26 @@ const loading         = ref(false)
 const authError       = ref('')
 const showPassword    = ref(false)
 const fieldError      = ref({ login: '', password: '' })
+const agreeTerms      = ref(false)
+const legalModalOpen  = ref(false)
+const legalTab        = ref<'terms' | 'privacy'>('terms')
+
+function openLegalModal(tab: 'terms' | 'privacy') {
+  legalTab.value = tab
+  legalModalOpen.value = true
+}
+
+function acceptLegalModal() {
+  agreeTerms.value = true
+  legalModalOpen.value = false
+}
 
 const expiredBanner   = computed(() => route.query.expired === '1')
 const suspendedBanner = computed(() => route.query.suspended === '1')
 const isEmail         = computed(() => loginIdentifier.value.includes('@'))
 
 const canSubmit = computed(() => {
+  if (!agreeTerms.value) return false
   const val = loginIdentifier.value.trim()
   if (val.includes('@')) {
     return val.length >= 5 && password.value.length >= 1
@@ -208,8 +302,18 @@ async function handleLogin() {
     const { token, refreshToken, resident, userType, data: user } = res.data
     auth.setSession({ token, refreshToken, resident, userType, user })
 
-    showToast('Welcome back!', 'success')
-    router.replace('/tabs/home')
+    // Check if user logged in with default/initial password or requires password change
+    const isDefaultPassword = password.value === '123456'
+    const mustChange = isDefaultPassword || !!(user as any)?.must_change_password
+
+    if (mustChange) {
+      sessionStorage.setItem('w_temp_pwd', password.value)
+      showToast('Temporary password detected. Please set your new password.', 'warning')
+      router.replace('/set-new-password')
+    } else {
+      showToast('Welcome back!', 'success')
+      router.replace('/tabs/home')
+    }
   } catch (e: any) {
     const code = e.response?.data?.code
     const status = e.response?.status
@@ -641,4 +745,155 @@ async function showResidentAccessInfo() {
   font-size: 11px;
   color: #A3B3A9;
 }
+
+/* ── Terms & Privacy Checkbox Row ── */
+.terms-consent-row {
+  margin: 14px 0 6px;
+  padding: 0 4px;
+}
+
+.terms-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.terms-checkbox-input {
+  margin-top: 3px;
+  width: 17px;
+  height: 17px;
+  accent-color: #0A5C38;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.terms-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.legal-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #0A5C38;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 12.5px;
+  display: inline;
+}
+
+/* ── In-App Legal Modal Sheet ── */
+.legal-sheet-modal {
+  --height: 80%;
+  --border-radius: 24px 24px 0 0;
+}
+
+.legal-modal-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #FFFFFF;
+}
+
+.legal-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.legal-tab-group {
+  display: flex;
+  gap: 8px;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.legal-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.legal-tab-btn.active {
+  background: #FFFFFF;
+  color: #0A5C38;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.legal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  color: #64748B;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.legal-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.legal-text-flow h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 4px;
+}
+
+.legal-date {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0 0 16px;
+}
+
+.legal-text-flow h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 16px 0 6px;
+}
+
+.legal-text-flow p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #475569;
+  margin: 0 0 10px;
+}
+
+.legal-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #E2E8F0;
+  background: #F8FAFC;
+}
+
+.legal-agree-action-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 </style>

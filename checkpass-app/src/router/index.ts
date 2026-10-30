@@ -21,6 +21,10 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
+    path: '/set-new-password',
+    component: () => import('@/views/SetNewPasswordView.vue'),
+  },
+  {
     path: '/pass/:id',
     component: () => import('@/views/PassDetailView.vue'),
   },

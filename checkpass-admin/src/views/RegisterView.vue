@@ -128,20 +128,21 @@
             <div class="input-block">
               <label class="input-label" for="admin-phone">Mobile phone number <span class="req">*</span></label>
               <div class="input-wrapper phone-wrapper">
-                <div class="country-select-wrapper">
-                  <select
-                    id="country-code"
-                    v-model="countryCode"
-                    class="country-select"
-                    aria-label="Country dial code"
-                  >
-                    <option v-for="c in countryCodes" :key="c.code" :value="c.code">
-                      {{ c.code }} ({{ c.country }})
-                    </option>
-                  </select>
+                <div class="country-select-wrapper" title="Select country dial code">
+                  <span class="selected-dial-code">{{ countryCode }}</span>
                   <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m6 9 6 6 6-6"/>
                   </svg>
+                  <select
+                    id="country-code"
+                    v-model="countryCode"
+                    class="country-select-hidden"
+                    aria-label="Country dial code"
+                  >
+                    <option v-for="c in countryCodes" :key="c.code" :value="c.code">
+                      {{ c.code }} &nbsp; ({{ c.country }})
+                    </option>
+                  </select>
                 </div>
                 <input
                   id="admin-phone"
@@ -726,45 +727,54 @@ async function handleRegister() {
   position: relative;
   display: flex;
   align-items: center;
+  gap: 6px;
   height: 44px;
+  min-width: 72px;
   background: #F1F5F9;
   border-right: 1.5px solid #E2E8F0;
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
-  padding: 0 10px 0 14px;
-  transition: background 0.15s ease;
+  padding: 0 12px 0 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .country-select-wrapper:hover {
   background: #E2E8F0;
 }
 
-.country-select {
-  height: 100%;
-  border: none;
-  background: transparent;
-  font-size: 13.5px;
+.selected-dial-code {
+  font-size: 14px;
   font-weight: 700;
-  color: #1E293B;
-  cursor: pointer;
-  outline: none;
-  padding-right: 16px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-.country-select option {
-  font-weight: 500;
   color: #0F172A;
-  background: #FFFFFF;
+  letter-spacing: -0.01em;
+  user-select: none;
+  pointer-events: none;
 }
 
 .select-chevron {
-  position: absolute;
-  right: 8px;
   pointer-events: none;
   color: #64748B;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.country-select-hidden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 16px;
+}
+
+.country-select-hidden option {
+  font-weight: 500;
+  color: #0F172A;
+  background: #FFFFFF;
+  padding: 8px 12px;
 }
 
 .phone-input {
