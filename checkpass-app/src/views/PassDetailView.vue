@@ -186,6 +186,15 @@
       @close="flagSheetOpen = false"
       @declared="onItemsDeclared"
     />
+
+    <!-- Exit Clearance Modal (GAP-03) -->
+    <ExitClearanceModal
+      v-if="pass && exitClearanceOpen"
+      :is-open="true"
+      :pass="pass"
+      @close="exitClearanceOpen = false"
+      @exited="onExitCompleted"
+    />
   </ion-page>
 </template>
 
@@ -206,6 +215,7 @@ import QRDisplay from '@/components/QRDisplay.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import FlagItemSheet from '@/components/FlagItemSheet.vue'
+import ExitClearanceModal from '@/components/ExitClearanceModal.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -214,6 +224,7 @@ const auth   = useAuthStore()
 const { showToast } = useToast()
 
 const flagSheetOpen = ref(false)
+const exitClearanceOpen = ref(false)
 const qrDisplayRef = ref<{ qrDataUrl: string } | null>(null)
 const pass = computed(() => store.activePass)
 const displayStatus = computed(() => pass.value ? store.displayStatus(pass.value) : 'Pending')
@@ -237,15 +248,14 @@ async function handleAllowEntry() {
   }
 }
 
-async function handleMarkExited() {
+function handleMarkExited() {
   if (!pass.value) return
-  try {
-    await passesApi.markExited(pass.value.id)
-    showToast('Visitor exit recorded', 'success')
-    await load()
-  } catch (err: any) {
-    showToast(err.response?.data?.message || 'Failed to record exit.', 'error')
-  }
+  exitClearanceOpen.value = true
+}
+
+async function onExitCompleted() {
+  exitClearanceOpen.value = false
+  await load()
 }
 
 const GRADIENTS = [

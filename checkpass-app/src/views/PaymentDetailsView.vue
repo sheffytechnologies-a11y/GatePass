@@ -145,7 +145,14 @@ async function payWithPaystack() {
             reference: transaction.reference,
             feeIds,
           })
-          router.push('/fees/payment/success')
+          router.push({
+            path: '/fees/payment/success',
+            query: {
+              ref: transaction.reference,
+              amount: String(totalAmount.value),
+              items: fees.value.map(f => f.title).join('|'),
+            },
+          })
         } catch {
           errorMessage.value = 'Payment was made but verification failed. Please contact support.'
         } finally {
