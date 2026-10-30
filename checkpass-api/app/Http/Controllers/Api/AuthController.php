@@ -1,0 +1,368 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
+
+class AuthController extends Controller
+{
+    /**
+     * POST /api/v1/auth/login
+     * Body: { phone, password }
+     */
+    public function login(Request $request)
+    {
+        $identifier = $request->input('phone') ?? $request->input('email') ?? $request->input('login');
+
+        if (! $identifier || ! $request->input('password')) {
+            throw ValidationException::withMessages([
+                'phone' => ['The email/phone and password are required.'],
+            ]);
+        }
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'phone' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        if (! $user->is_active) {
+            return response()->json([
+                'error' => true,
+                'code' => 'ACCOUNT_SUSPENDED',
+                'message' => 'Your account has been suspended. Contact your estate manager.',
+            ], 403);
+        }
+
+        // Security users don't need a resident profile
+        if ($user->type === 'security') {
+            $tokens = $this->issueTokenPair($user);
+
+            return response()->json([
+                'token'        => $tokens['token'],
+                'refreshToken' => $tokens['refreshToken'],
+                'userType'     => 'security',
+                'data'         => $user,
+                'resident'     => null,
+            ]);
+        }
+
+        $resident = $user->resident()->with(['unit', 'estate'])->first();
+
+        if (! $resident) {
+            return response()->json([
+                'error' => true,
+                'code' => 'NO_RESIDENT_PROFILE',
+                'message' => 'No resident profile found for this account.',
+            ], 403);
+        }
+
+        $tokens = $this->issueTokenPair($user);
+
+        return response()->json([
+            'token'        => $tokens['token'],
+            'refreshToken' => $tokens['refreshToken'],
+            'userType'     => 'resident',
+            'data'         => $user,
+            'resident'     => $this->formatResident($resident, $user),
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/refresh
+     * Body: { refreshToken }
+     */
+    public function refresh(Request $request)
+    {
+        $data = $request->validate([
+            'refreshToken' => 'required|string',
+        ]);
+
+        $token = PersonalAccessToken::findToken($data['refreshToken']);
+
+        if (! $token || ! $token->can('refresh')) {
+            return response()->json([
+                'error' => true,
+                'code' => 'AUTH_REFRESH_INVALID',
+                'message' => 'Invalid or expired refresh token.',
+            ], 401);
+        }
+
+        if ($token->expires_at && $token->expires_at->isPast()) {
+            $token->delete();
+            return response()->json([
+                'error' => true,
+                'code' => 'AUTH_REFRESH_EXPIRED',
+                'message' => 'Refresh token expired. Please log in again.',
+            ], 401);
+        }
+
+        $user = $token->tokenable;
+
+        if (! $user || ! $user->is_active) {
+            return response()->json([
+                'error' => true,
+                'code' => 'ACCOUNT_SUSPENDED',
+                'message' => 'Account unavailable.',
+            ], 403);
+        }
+
+        // Rotate refresh token
+        $token->delete();
+
+        $tokens = $this->issueTokenPair($user);
+
+        return response()->json([
+            'token' => $tokens['token'],
+            'refreshToken' => $tokens['refreshToken'],
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/logout
+     */
+    public function logout(Request $request)
+    {
+        $data = $request->validate([
+            'refreshToken' => 'nullable|string',
+        ]);
+
+        // Revoke current access token
+        $request->user()->currentAccessToken()?->delete();
+
+        // Revoke provided refresh token too (if belongs to same user)
+        if (! empty($data['refreshToken'])) {
+            $refresh = PersonalAccessToken::findToken($data['refreshToken']);
+            if ($refresh && $refresh->tokenable_id === $request->user()->id && $refresh->tokenable_type === $request->user()::class) {
+                $refresh->delete();
+            }
+        }
+
+        return response()->json(['message' => 'Logged out successfully.']);
+    }
+
+    /**
+     * POST /api/v1/auth/change-password
+     */
+    public function changePassword(Request $request)
+    {
+        $data = $request->validate([
+            'currentPassword' => 'required|string',
+            'newPassword' => 'required|string|min:8',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($data['currentPassword'], $user->password)) {
+            throw ValidationException::withMessages([
+                'currentPassword' => ['The current password is incorrect.'],
+            ]);
+        }
+
+        $user->update(['password' => Hash::make($data['newPassword'])]);
+
+        // Revoke all other tokens
+        $currentId = $request->user()->currentAccessToken()->id;
+        $user->tokens()->where('id', '!=', $currentId)->delete();
+
+        return response()->json(['message' => 'Password changed successfully.']);
+    }
+
+    /**
+     * GET /api/v1/auth/me
+     */
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        $resident = $user->resident()->with(['unit', 'estate'])->first();
+
+        if (! $resident) {
+            return response()->json([
+                'error' => true,
+                'code' => 'NO_RESIDENT_PROFILE',
+                'message' => 'No resident profile found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'resident' => $this->formatResident($resident, $user),
+        ]);
+    }
+
+    private function issueTokenPair(User $user): array
+    {
+        $access = $user->createToken('mobile-access', ['*'], now()->addDays(7));
+        $refresh = $user->createToken('mobile-refresh', ['refresh'], now()->addDays(30));
+
+        return [
+            'token' => $access->plainTextToken,
+            'refreshToken' => $refresh->plainTextToken,
+        ];
+    }
+
+    /**
+     * POST /api/v1/auth/forgot-password
+     * Body: { identifier: phone or email }
+     */
+    public function forgotPassword(Request $request)
+    {
+        $identifier = $request->input('identifier') ?? $request->input('phone') ?? $request->input('email');
+
+        if (! $identifier) {
+            throw ValidationException::withMessages([
+                'identifier' => ['Please enter your registered phone number or email address.'],
+            ]);
+        }
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        // Even if user not found, return friendly message to prevent user enumeration
+        if (! $user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account matches those details, a 6-digit verification code has been dispatched.',
+            ]);
+        }
+
+        // Generate 6-digit numeric OTP
+        $otp = (string) mt_rand(100000, 999999);
+
+        // Store OTP in Cache for 15 minutes
+        $cacheKey = 'pwd_reset_' . md5($user->id);
+        Cache::put($cacheKey, [
+            'user_id' => $user->id,
+            'otp'     => $otp,
+            'expires' => now()->addMinutes(15)->timestamp,
+        ], now()->addMinutes(15));
+
+        $res = [
+            'success' => true,
+            'message' => 'A 6-digit verification code has been dispatched to your registered phone or email.',
+        ];
+
+        // In local/testing/debug environment, return debugOtp for immediate testing
+        if (config('app.debug') || app()->environment('local', 'testing')) {
+            $res['debugOtp'] = $otp;
+        }
+
+        return response()->json($res);
+    }
+
+    /**
+     * POST /api/v1/auth/reset-password
+     * Body: { identifier, otp, newPassword }
+     */
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'identifier'  => 'required|string',
+            'otp'         => 'required|string|size:6',
+            'newPassword' => 'required|string|min:8',
+        ]);
+
+        $identifier = $data['identifier'];
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'identifier' => ['No account found for this phone or email.'],
+            ]);
+        }
+
+        $cacheKey = 'pwd_reset_' . md5($user->id);
+        $cached = Cache::get($cacheKey);
+
+        if (! $cached || $cached['otp'] !== trim($data['otp'])) {
+            throw ValidationException::withMessages([
+                'otp' => ['The verification code is invalid or has expired. Please request a new code.'],
+            ]);
+        }
+
+        // Update password
+        $user->update(['password' => Hash::make($data['newPassword'])]);
+
+        // Clear cache
+        Cache::forget($cacheKey);
+
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        // Issue new token pair so user is logged in immediately
+        $tokens = $this->issueTokenPair($user);
+        $resident = $user->type === 'resident'
+            ? $user->resident()->with(['unit', 'estate'])->first()
+            : null;
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Password reset successfully. You are now logged in.',
+            'token'        => $tokens['token'],
+            'refreshToken' => $tokens['refreshToken'],
+            'userType'     => $user->type,
+            'resident'     => $resident ? $this->formatResident($resident, $user) : null,
+            'data'         => $user,
+        ]);
+    }
+
+    private function normalisePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D/', '', $phone);
+        if (str_starts_with($digits, '0')) {
+            return '+234' . substr($digits, 1);
+        }
+        if (str_starts_with($digits, '234')) {
+            return '+' . $digits;
+        }
+        return $phone;
+    }
+
+    private function formatResident($resident, $user): array
+    {
+        return [
+            'id' => (string) $resident->id,
+            'unitId' => (string) $resident->unit_id,
+            'name' => $user->name,
+            'phone' => $user->phone,
+            'flatAddress' => $resident->unit?->flat_address ?? '',
+            'estateName' => $resident->estate?->name ?? '',
+            'lane' => $resident->unit?->lane ?? '',
+            'house' => $resident->unit?->house ?? '',
+            'flat' => $resident->unit?->flat ?? '',
+            'role' => $resident->role,
+            'pushEnabled' => (bool) $resident->push_enabled,
+            'isActive' => (bool) $resident->is_active,
+        ];
+    }
+}
