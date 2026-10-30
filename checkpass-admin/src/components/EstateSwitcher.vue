@@ -4,7 +4,7 @@
     <button
       type="button"
       class="switcher-trigger"
-      :class="{ 'is-open': isOpen }"
+      :class="{ 'is-open': isOpen, 'switcher-trigger--hero': props.variant === 'hero' }"
       @click="toggleDropdown"
       aria-haspopup="true"
       :aria-expanded="isOpen"
@@ -72,6 +72,12 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore, type EstateWorkspace } from '@/stores/auth'
 import { estatesApi } from '@/api'
+
+const props = withDefaults(defineProps<{
+  variant?: 'default' | 'hero'
+}>(), {
+  variant: 'default'
+})
 
 const auth = useAuthStore()
 const isOpen = ref(false)
@@ -143,6 +149,37 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+
+/* Hero Frosted Glass Variant */
+.switcher-trigger--hero {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  padding: 8px 16px 8px 10px;
+  border-radius: 99px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+.switcher-trigger--hero:hover,
+.switcher-trigger--hero.is-open {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.switcher-trigger--hero .estate-icon-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+.switcher-trigger--hero .estate-name-display {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.switcher-trigger--hero .switcher-chevron {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .estate-switcher {
   position: relative;
   display: inline-block;
@@ -366,3 +403,4 @@ onUnmounted(() => {
   transform: translateY(-4px);
 }
 </style>
+

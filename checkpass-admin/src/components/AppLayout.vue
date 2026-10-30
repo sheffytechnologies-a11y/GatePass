@@ -7,11 +7,6 @@
         <img src="/logo-dark.png" alt="Checkpass" class="brand-logo" />
       </div>
 
-      <!-- Multi-Estate Workspace Switcher (Desktop) -->
-      <div class="sidebar-estate-box">
-        <EstateSwitcher />
-      </div>
-
       <nav class="side-nav">
         <router-link
           v-for="item in navItems"

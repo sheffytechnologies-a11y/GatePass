@@ -6,10 +6,7 @@
           <div class="hero-eyebrow">Command center</div>
           <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
         </div>
-        <button class="btn btn-hero-action" @click="showAddEstateModal = true">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-          Add Estate
-        </button>
+        <EstateSwitcher variant="hero" />
       </div>
       <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
     </section>
@@ -233,6 +230,8 @@ import { ref, onMounted } from 'vue'
 import { dashboardApi, estatesApi, onboardingApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import StateSelect from '@/components/StateSelect.vue'
+import EstateSwitcher from '@/components/EstateSwitcher.vue'
+import { onUnmounted } from 'vue'
 
 const { showToast } = useToast()
 
@@ -321,7 +320,13 @@ function fmtDate(iso: string | null): string {
   return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  window.addEventListener('checkpass:estate-switched', load)
+})
+onUnmounted(() => {
+  window.removeEventListener('checkpass:estate-switched', load)
+})
 </script>
 
 <style scoped>
