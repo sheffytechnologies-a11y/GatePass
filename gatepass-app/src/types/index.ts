@@ -64,6 +64,15 @@ export interface HomeSummary {
   notifications: Notification[]
 }
 
+export interface AccessPhrase {
+  phrase: string           // 'AMBER LION 27'
+  validFor: string         // 'YYYY-MM-DD' (estate-local day)
+  expiresAt: string        // ISO, local midnight
+  flatAddress: string
+  locked: boolean          // too many wrong attempts at the gate
+  attemptsRemaining: number
+}
+
 export interface ApiError {
   error: true
   code: string
