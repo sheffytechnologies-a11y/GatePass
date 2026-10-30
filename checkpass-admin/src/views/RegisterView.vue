@@ -223,7 +223,7 @@
             <div class="terms-row">
               <label class="terms-label">
                 <input v-model="agreeTerms" type="checkbox" class="terms-checkbox" required />
-                <span>I agree to the <a href="#" @click.prevent>Terms of Service</a> &amp; <a href="#" @click.prevent>Privacy Policy</a></span>
+                <span>I agree to the <a href="#" @click.prevent="openLegal('terms')">Terms of Service</a> &amp; <a href="#" @click.prevent="openLegal('privacy')">Privacy Policy</a></span>
               </label>
             </div>
 
@@ -256,6 +256,89 @@
 
         </div>
       </div>
+
+    <!-- Legal Modal Dialog (Terms & Privacy) -->
+    <div v-if="legalModalOpen" class="legal-modal-backdrop" @click.self="legalModalOpen = false">
+      <div class="legal-modal-card">
+        <div class="legal-modal-header">
+          <div class="legal-tabs">
+            <button
+              type="button"
+              class="legal-tab-btn"
+              :class="{ active: legalTab === 'terms' }"
+              @click="legalTab = 'terms'"
+            >
+              Terms of Service
+            </button>
+            <button
+              type="button"
+              class="legal-tab-btn"
+              :class="{ active: legalTab === 'privacy' }"
+              @click="legalTab = 'privacy'"
+            >
+              Privacy Policy
+            </button>
+          </div>
+          <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
+        </div>
+
+        <div class="legal-modal-body">
+          <!-- Terms Tab -->
+          <div v-if="legalTab === 'terms'" class="legal-text-flow">
+            <h3>Checkpass Terms of Service</h3>
+            <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (Nigeria)</p>
+            
+            <h4>1. Definitions &amp; Role Framework</h4>
+            <p>These Terms govern your access to the Checkpass Platform. Under Section 24 of the Nigeria Data Protection Act 2023 (NDPA), the Estate Homeowners Association (HOA) acts as the Data Controller, while Checkpass acts as the Data Processor providing digital access management, visitor passes, and estate infrastructure.</p>
+
+            <h4>2. Platform Nature &amp; Estate Authority</h4>
+            <p>Checkpass is an independent proptech platform. Checkpass is NOT a private security firm, law enforcement body, or emergency first responder. Physical admission into any estate remains governed exclusively by estate bylaws and gate security personnel.</p>
+
+            <h4>3. Account Registration &amp; Administration</h4>
+            <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
+
+            <h4>4. Visitor Passes &amp; Host Warranty</h4>
+            <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
+
+            <h4>5. Estate Levies &amp; Payment Processing</h4>
+            <p>All estate dues and subscription fees are processed through PCI-DSS certified payment processors (Paystack Payments Limited). Checkpass never touches or stores raw credit or debit card numbers.</p>
+
+            <h4>6. Emergency &amp; Panic Alerts Disclaimer</h4>
+            <p>The panic alert feature is an informational digital relay alerting security guards. Checkpass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
+
+            <h4>7. Limitation of Liability &amp; Governing Law</h4>
+            <p>To the maximum extent permitted by Nigerian law, Checkpass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
+          </div>
+
+          <!-- Privacy Tab -->
+          <div v-else class="legal-text-flow">
+            <h3>Checkpass Privacy Policy</h3>
+            <p class="legal-date">NDPA 2023 &amp; NDPR Certified &middot; Bank-Grade Data Protection</p>
+
+            <h4>1. Data Controller vs. Data Processor</h4>
+            <p>For resident rosters, unit assignments, and gate logs, your Estate HOA is the primary Data Controller. Checkpass acts as Data Processor providing cloud hosting, cryptographic pass tokens, and administrative consoles.</p>
+
+            <h4>2. Data We Process</h4>
+            <p>We process only data essential for gated perimeter integrity: (a) Administrator and resident names, phone numbers, and unit addresses; (b) Visitor full name, phone number, vehicle plate, and gate timestamp; (c) Pass access logs and security audit entries.</p>
+
+            <h4>3. Legal Bases for Processing</h4>
+            <p>Data processing is conducted under Contractual Necessity (Section 25 NDPA) to issue access passes, and Legitimate Interest to safeguard community perimeter security.</p>
+
+            <h4>4. Financial &amp; Cardholder Security</h4>
+            <p>Checkpass does NOT collect or store full credit/debit card numbers or CVVs. All payment transactions are securely tokenized and handled directly by Paystack (PCI-DSS Level 1 certified).</p>
+
+            <h4>5. Data Subject Rights &amp; Retention</h4>
+            <p>In accordance with the NDPA 2023, users retain the right to inspect access logs associated with their profile or request data rectification through their Estate Administration.</p>
+          </div>
+        </div>
+
+        <div class="legal-modal-footer">
+          <button type="button" class="legal-accept-btn" @click="acceptLegal">
+            I Understand &amp; Agree
+          </button>
+        </div>
+      </div>
+    </div>
 
     </div>
   </div>
@@ -364,6 +447,18 @@ const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const agreeTerms = ref(false)
+const legalModalOpen = ref(false)
+const legalTab = ref<'terms' | 'privacy'>('terms')
+
+function openLegal(tab: 'terms' | 'privacy') {
+  legalTab.value = tab
+  legalModalOpen.value = true
+}
+
+function acceptLegal() {
+  agreeTerms.value = true
+  legalModalOpen.value = false
+}
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const loading = ref(false)
@@ -807,6 +902,122 @@ async function handleRegister() {
 
 .password-toggle:hover {
   color: #0A5C38;
+}
+
+/* Legal Modal Dialog */
+.legal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.legal-modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.legal-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.legal-tabs {
+  display: flex;
+  gap: 8px;
+}
+.legal-tab-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.legal-tab-btn.active {
+  background: #ffffff;
+  color: #0a5c38;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.legal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.legal-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.legal-text-flow h3 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+.legal-date {
+  font-size: 12px;
+  color: #0a5c38;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.legal-text-flow h4 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+.legal-text-flow p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 12px;
+}
+.legal-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+}
+.legal-accept-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  background: #0a5c38;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(10, 92, 56, 0.2);
 }
 
 /* Terms Row */
