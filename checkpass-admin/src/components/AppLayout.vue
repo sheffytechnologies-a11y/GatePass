@@ -7,6 +7,11 @@
         <img src="/logo-dark.png" alt="Checkpass" class="brand-logo" />
       </div>
 
+      <!-- Multi-Estate Workspace Switcher (Desktop) -->
+      <div class="sidebar-estate-box">
+        <EstateSwitcher />
+      </div>
+
       <nav class="side-nav">
         <router-link
           v-for="item in navItems"
@@ -42,7 +47,10 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </button>
         <div class="topbar-title">{{ pageTitle }}</div>
-        <span class="topbar-role-chip">{{ roleLabel }}</span>
+        <div class="topbar-actions">
+          <EstateSwitcher />
+          <span class="topbar-role-chip">{{ roleLabel }}</span>
+        </div>
       </header>
 
       <main class="content">
@@ -70,6 +78,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import EstateSwitcher from '@/components/EstateSwitcher.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -183,6 +192,23 @@ async function handleLogout() {
 }
 .logout-btn:hover { background: var(--c-danger-light); color: var(--c-danger); }
 
+.sidebar-estate-box {
+  padding: 0 4px 14px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--c-border);
+}
+.sidebar-estate-box :deep(.estate-switcher) {
+  width: 100%;
+}
+.sidebar-estate-box :deep(.switcher-trigger) {
+  width: 100%;
+  justify-content: space-between;
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .sidebar-scrim { display: none; }
 
 /* ── Main column ─────────────────────────── */

@@ -71,9 +71,39 @@
               <p class="form-subtitle">One portal to onboard residents, clear visitors at the gate, and keep every entry on record.</p>
             </div>
 
+          <!-- Smart Multi-Estate Disambiguation Card -->
+          <transition name="alert-slide">
+            <div v-if="emailTaken" class="smart-disambiguation-card">
+              <div class="sdc-header">
+                <div class="sdc-icon">🏢</div>
+                <div class="sdc-title-box">
+                  <div class="sdc-badge">EXISTING ACCOUNT FOUND</div>
+                  <div class="sdc-title">Welcome back, {{ name || 'Manager' }}!</div>
+                </div>
+              </div>
+              <div class="sdc-body">
+                An account for <strong>{{ email }}</strong> already exists. In Checkpass, you don't need separate emails for each estate! You can manage multiple communities from a single login.
+              </div>
+              <div class="sdc-actions">
+                <button
+                  type="button"
+                  class="sdc-link-btn"
+                  :disabled="loading"
+                  @click="handleLinkNewEstate"
+                >
+                  <span v-if="loading" class="spinner-sm"></span>
+                  <span v-else>Enter Password to Add New Estate &rarr;</span>
+                </button>
+                <router-link :to="`/login?email=${encodeURIComponent(email)}`" class="sdc-signin-btn">
+                  Sign in to existing dashboard
+                </router-link>
+              </div>
+            </div>
+          </transition>
+
           <!-- Error Alert -->
           <transition name="alert-slide">
-            <div v-if="error" class="auth-alert">
+            <div v-if="error && !emailTaken" class="auth-alert">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>
@@ -463,6 +493,7 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const loading = ref(false)
 const error = ref('')
+const emailTaken = ref(false)
 
 const canSubmit = computed(() => {
   return (
@@ -474,6 +505,25 @@ const canSubmit = computed(() => {
     agreeTerms.value
   )
 })
+
+async function handleLinkNewEstate() {
+  if (!password.value) {
+    error.value = 'Please enter your account password below to attach a new estate.'
+    document.getElementById('admin-pwd')?.focus()
+    return
+  }
+  loading.value = true
+  error.value = ''
+  try {
+    await auth.loginAdmin(email.value, password.value)
+    router.push('/register/estate')
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } }
+    error.value = err.response?.data?.message || 'Incorrect password for this account. Please try again or use another email.'
+  } finally {
+    loading.value = false
+  }
+}
 
 async function handleRegister() {
   error.value = ''
@@ -493,6 +543,12 @@ async function handleRegister() {
     router.push('/register/estate')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
+    const emailErr = err.response?.data?.errors?.email?.[0] || ''
+    if (emailErr.toLowerCase().includes('already been taken')) {
+      emailTaken.value = true
+      error.value = ''
+      return
+    }
     const firstFieldError = err.response?.data?.errors
       ? Object.values(err.response.data.errors)[0]?.[0]
       : undefined
