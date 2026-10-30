@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\AdminRegistrationController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\AccessPhraseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +98,14 @@ Route::prefix('v1')->group(function () {
         Route::post('fees/payments', [FeeController::class, 'submitPayment']);
         Route::post('fees/paystack/initialize', [FeeController::class, 'initializePaystackPayment']);
         Route::post('fees/paystack/verify', [FeeController::class, 'verifyPaystackPayment']);
+
+        // Daily access phrase (visitors without smartphones)
+        Route::prefix('access-phrase')->group(function () {
+            Route::get('/',           [AccessPhraseController::class, 'show']);
+            Route::post('regenerate', [AccessPhraseController::class, 'regenerate']);
+            Route::get('units',       [AccessPhraseController::class, 'units']);
+            Route::post('verify',     [AccessPhraseController::class, 'verify'])->middleware('throttle:20,1');
+        });
 
         // News feed (resident/admin scoped)
         Route::get('news', [NewsController::class, 'feed']);

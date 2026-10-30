@@ -27,6 +27,14 @@
             </div>
           </button>
 
+          <button class="phrase-entry-btn" @click="phraseSheetOpen = true">
+            <span class="scan-icon">🗣️</span>
+            <div>
+              <div class="phrase-entry-title">Visitor Without Phone</div>
+              <div class="phrase-entry-sub">Verify the unit's daily access phrase</div>
+            </div>
+          </button>
+
           <div class="security-stats">
             <div class="stat-card">
               <div class="stat-value">{{ summary.stats.onPremises }}</div>
@@ -68,6 +76,8 @@
             :gate-open="true"
             :stats="summary.stats"
           />
+
+          <AccessPhraseCard />
 
           <section class="section">
             <div class="passes-shell">
@@ -404,6 +414,14 @@
       @scanned="onQRScanned"
     />
 
+    <!-- Daily phrase entry (visitors without smartphones) -->
+    <PhraseEntrySheet
+      v-if="auth.isSecurityUser"
+      :is-open="phraseSheetOpen"
+      @close="phraseSheetOpen = false"
+      @admitted="onPhraseAdmitted"
+    />
+
     <!-- Artisan Details & Reviews Modal -->
     <ion-modal
       :is-open="!!selectedArtisan"
@@ -645,6 +663,8 @@ import EmptyState from '@/components/EmptyState.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import QRScannerModal from '@/components/QRScannerModal.vue'
+import AccessPhraseCard from '@/components/AccessPhraseCard.vue'
+import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
@@ -687,6 +707,14 @@ const notifStore = useNotificationsStore()
 const { showToast } = useToast()
 
 const scannerOpen = ref(false)
+const phraseSheetOpen = ref(false)
+
+function onPhraseAdmitted(passId: string) {
+  phraseSheetOpen.value = false
+  showToast('Phrase verified — visitor allowed in')
+  loadSummary()
+  router.push(`/pass/${passId}`)
+}
 
 async function onQRScanned(value: string) {
   try {
@@ -2816,6 +2844,15 @@ ion-modal.news-modal-sheet {
 .scan-icon { font-size: 30px; flex-shrink: 0; }
 .scan-btn-title { font-size: 16px; font-weight: 700; color: #fff; }
 .scan-btn-sub   { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.phrase-entry-btn {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 16px 20px; margin-top: 10px;
+  background: var(--w-surface); border: 2px solid var(--w-primary); border-radius: var(--w-radius-lg);
+  cursor: pointer; text-align: left; transition: opacity 0.15s;
+}
+.phrase-entry-btn:active { opacity: 0.85; }
+.phrase-entry-title { font-size: 16px; font-weight: 700; color: var(--w-primary); }
+.phrase-entry-sub   { font-size: 13px; color: var(--w-muted); margin-top: 2px; }
 .notif-list { background: var(--w-surface); border-radius: var(--w-radius-md); overflow: hidden; }
 .notif-row {
   display: flex; align-items: center; gap: 12px; padding: 14px 16px;
