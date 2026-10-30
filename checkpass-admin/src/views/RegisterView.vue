@@ -395,7 +395,7 @@ async function handleRegister() {
     const cleanPhone = `+${codeDigits}${trimmedNumber}`
     
     await auth.registerAdmin(name.value, email.value, password.value, cleanPhone)
-    router.push('/dashboard')
+    router.push('/register/estate')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
     const firstFieldError = err.response?.data?.errors
@@ -953,4 +953,31 @@ async function handleRegister() {
     grid-template-columns: 1fr;
   }
 }
+
+.step-progress-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.step-counter {
+  font-size: 11px;
+  font-weight: 800;
+  color: #065F46;
+  letter-spacing: 0.05em;
+}
+
+.step-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #047857;
+  border-left: 1px solid #6EE7B7;
+  padding-left: 8px;
+}
+
 </style>
