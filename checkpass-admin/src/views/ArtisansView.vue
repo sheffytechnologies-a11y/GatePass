@@ -151,16 +151,14 @@
 
         <div class="card-category-row">
           <span class="cat-tag">{{ artisan.category }}</span>
-          <span class="price-tag">{{ artisan.priceTag || 'Rates on request' }}</span>
-          <div class="rating-box">
+                    <div class="rating-box">
             <span class="star-icon">★</span>
             <span class="rating-num">{{ artisan.rating || 5.0 }}</span>
             <span class="reviews-count">({{ (artisan.reviews && artisan.reviews.length) || 0 }})</span>
           </div>
         </div>
 
-        <p class="artisan-bio">{{ artisan.bio }}</p>
-
+        
         <div class="contact-strip">
           <div class="contact-item">
             <span class="contact-lbl">Phone:</span>
@@ -268,7 +266,7 @@
         <div class="modal-header">
           <div>
             <h3>{{ isEditing ? 'Edit Verified Artisan' : 'Add New Verified Artisan' }}</h3>
-            <p>Vetted contact details and pricing guidance for residents</p>
+            <p>Vetted contact and trade details for residents</p>
           </div>
           <button class="modal-close" @click="showArtisanModal = false">&times;</button>
         </div>
@@ -335,35 +333,13 @@
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Pricing / Call-Out Fee Guidance</label>
-              <input
-                v-model="artisanForm.priceTag"
-                type="text"
-                placeholder="e.g. From ₦5,000 call-out"
-                class="form-input"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Verification Status</label>
-              <select v-model="artisanForm.status" class="form-input">
-                <option value="Active">Active (Visible to Residents)</option>
-                <option value="Under Review">Under Review</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
-
           <div class="form-group">
-            <label class="form-label">Bio &amp; Qualifications*</label>
-            <textarea
-              v-model="artisanForm.bio"
-              rows="3"
-              required
-              placeholder="Describe their experience, specialties, estate clearance status..."
-              class="form-input form-textarea"
-            ></textarea>
+            <label class="form-label">Verification Status</label>
+            <select v-model="artisanForm.status" class="form-input">
+              <option value="Active">Active (Visible to Residents)</option>
+              <option value="Under Review">Under Review</option>
+              <option value="Inactive">Inactive</option>
+            </select>
           </div>
 
           <div class="modal-footer">
@@ -478,8 +454,7 @@
                   <th>Category</th>
                   <th>Specialty / Trade</th>
                   <th>Contact Phone</th>
-                  <th>Pricing Guidance</th>
-                  <th>Resident Rating</th>
+                                    <th>Resident Rating</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -489,8 +464,7 @@
                   <td>{{ a.category }}</td>
                   <td>{{ a.trade }}</td>
                   <td>{{ a.phone }}</td>
-                  <td>{{ a.priceTag || 'Rates on request' }}</td>
-                  <td>⭐ {{ a.rating }} ({{ (a.reviews && a.reviews.length) || 0 }})</td>
+                                    <td>⭐ {{ a.rating }} ({{ (a.reviews && a.reviews.length) || 0 }})</td>
                   <td>
                     <span :class="a.status === 'Active' ? 'text-green' : 'text-amber'">
                       {{ a.status || 'Active' }}

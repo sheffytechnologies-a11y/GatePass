@@ -470,7 +470,7 @@
 
           <!-- Artisan Bio & Rate Info -->
           <div class="artisan-info-card">
-            <div class="info-card-item">
+            <div v-if="selectedArtisan.priceTag" class="info-card-item">
               <span class="info-label">Standard Call-out / Estimate:</span>
               <span class="info-value price-highlight">{{ selectedArtisan.priceTag }}</span>
             </div>
@@ -478,7 +478,7 @@
               <span class="info-label">Estate Security Clearance:</span>
               <span class="info-value text-green">Cleared for Resident Access</span>
             </div>
-            <p class="artisan-bio-text">{{ selectedArtisan.bio }}</p>
+            <p v-if="selectedArtisan.bio" class="artisan-bio-text">{{ selectedArtisan.bio }}</p>
           </div>
 
           <!-- Direct Actions: WhatsApp and Phone Call -->

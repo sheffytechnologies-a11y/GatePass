@@ -15,11 +15,15 @@ function clearSession() {
   localStorage.removeItem('admin_token')
   localStorage.removeItem('admin_user')
   localStorage.removeItem('admin_role')
+  localStorage.removeItem('admin_active_estate_id')
+  localStorage.removeItem('admin_active_estate_name')
 }
 
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  const activeEstateId = localStorage.getItem('admin_active_estate_id')
+  if (activeEstateId) config.headers['X-Estate-Id'] = activeEstateId
   return config
 })
 

@@ -198,32 +198,50 @@
           <div class="legal-modal-body">
             <!-- Terms Tab -->
             <div v-if="legalTab === 'terms'" class="legal-text-flow">
-              <h3>Checkpass Resident &amp; Visitor Terms</h3>
-              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies</p>
+              <h3>Checkpass Terms of Service</h3>
+              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (Nigeria)</p>
               
-              <h4>1. Account Creation &amp; Management</h4>
-              <p>Resident accounts are issued exclusively through authorized Estate Administrators. Residents cannot self-register without an existing unit assigned by their estate office. Upon first access, residents must replace their temporary password with a secure credential.</p>
+              <h4>1. Platform Nature &amp; Estate Authority</h4>
+              <p>Checkpass is an independent digital proptech infrastructure platform operated by Sheffy Technologies Limited. Checkpass is not a security guard agency, emergency dispatch unit, or law enforcement body. Physical admission into any residential estate is governed exclusively by that estate's Homeowners Association (HOA) bylaws and on-duty security guards.</p>
 
-              <h4>2. Visitor Access Passes</h4>
-              <p>Passes generated via Checkpass grant temporary authorization for estate entry. Pass issuance creates an immutable digital audit log recording timestamp, visitor name, vehicle plate (if provided), and gatekeeper verification.</p>
+              <h4>2. Resident Accounts &amp; Authorized Provisioning</h4>
+              <p>Resident accounts are provisioned exclusively through authorized Estate Administrators. Residents cannot self-onboard without an assigned unit. Upon first login, residents must replace default or temporary passwords with a confidential, high-strength password. Residents are strictly responsible for safeguarding their login credentials.</p>
 
-              <h4>3. Estate Community Standards</h4>
-              <p>Residents are responsible for passes issued under their flat address. Fraudulent pass generation or sharing access phrases with unauthorized parties is strictly prohibited.</p>
+              <h4>3. Visitor Passes &amp; Host Warranty</h4>
+              <p>When issuing digital visitor passes, QR codes, or daily access phrases, the resident host warrants that: (a) they have obtained the visitor's prior consent to provide their name and phone number for gate verification; (b) the visit complies with estate community regulations; and (c) the resident assumes responsibility for their visitor's conduct and departure.</p>
+
+              <h4>4. Estate Dues &amp; Payment Processing</h4>
+              <p>All estate service charges, facility dues, and levy payments are processed through PCI-DSS Level 1 certified payment gateways (Paystack Payments Limited). Checkpass never stores raw credit or debit card numbers. Any dispute regarding levy calculations, penalties, or estate refunds is strictly between the resident and the Estate HOA.</p>
+
+              <h4>5. Emergency &amp; Panic Alerts Disclaimer</h4>
+              <p>The emergency panic distress functionality is a digital broadcast relay designed to alert estate gate security. Checkpass DOES NOT guarantee physical response times by security, police, or medical services. In critical emergencies, users must contact Nigerian emergency services directly (112 or 199).</p>
+
+              <h4>6. Prohibited Activities</h4>
+              <p>Users shall not generate fraudulent passes for commercial trespass, reverse engineer platform APIs, bypass QR cryptographic verification, or submit false emergency alerts.</p>
+
+              <h4>7. Governing Law</h4>
+              <p>These Terms are governed by and construed in accordance with the laws of the Federal Republic of Nigeria (Arbitration and Mediation Act 2023).</p>
             </div>
 
             <!-- Privacy Tab -->
             <div v-else class="legal-text-flow">
-              <h3>Checkpass Privacy Framework</h3>
-              <p class="legal-date">NDPR Compliant &middot; Bank-Grade Data Protection</p>
+              <h3>Checkpass Privacy Framework &amp; NDPA Compliance</h3>
+              <p class="legal-date">NDPA 2023 &amp; NDPR Certified &middot; Bank-Grade Data Protection</p>
 
-              <h4>1. Information We Collect</h4>
-              <p>We process your official phone number, estate name, unit number, and access pass history solely to authenticate entrance and ensure security across your gated community.</p>
+              <h4>1. Dual-Role Architecture (Controller vs. Processor)</h4>
+              <p>Under Section 24 of the Nigeria Data Protection Act 2023 (NDPA), your Estate Homeowners Association (HOA) acts as the Data Controller for unit allocations, resident directories, and gate logs. Checkpass acts as the Data Processor managing cloud hosting, cryptographic QR tokens, and mobile app infrastructure.</p>
 
-              <h4>2. Security &amp; Access Controls</h4>
-              <p>Credentials and passwords are encrypted using SHA-256 with salted hashing. Security guards at the gate only verify pass validity and visitor name; your personal data is never made public.</p>
+              <h4>2. Information We Process</h4>
+              <p>We process only data essential for gated perimeter integrity: (a) Resident full name, verified telephone number, estate name, and unit flat address; (b) Visitor full name, phone number, vehicle plate, and gate timestamp; (c) Push notification device tokens for arrival alerts; (d) Emergency SOS logs.</p>
 
-              <h4>3. Data Rights &amp; Retention</h4>
-              <p>In accordance with Nigerian Data Protection Regulation (NDPR), you have the right to review visitor logs associated with your flat and request log archival through your Estate Office.</p>
+              <h4>3. Telecommunications &amp; Camera Permissions</h4>
+              <p>Camera access is requested solely for scanning visitor QR codes at gatehouses or photographing declared exit items. Camera streams are processed locally and are never stored without user action. Device push tokens are used exclusively for security notifications.</p>
+
+              <h4>4. Cardholder Data &amp; Financial Security</h4>
+              <p>Checkpass does NOT collect or store full credit/debit card numbers, CVVs, or card PINs. All payment transactions are securely tokenized and handled directly by Paystack (PCI-DSS compliant).</p>
+
+              <h4>5. Data Subject Rights &amp; Retention</h4>
+              <p>In accordance with the NDPA 2023, you have the right to inspect visitor logs linked to your residence, request data rectification, or request account closure through your Estate Administration office.</p>
             </div>
           </div>
 
