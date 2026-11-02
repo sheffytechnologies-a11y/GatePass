@@ -42,7 +42,7 @@
         <button class="btn btn-outline btn-sm" @click="refresh">Refresh</button>
       </div>
 
-      <div v-if="loading" class="empty-stack"><div class="spinner"></div></div>
+      <div v-if="loading" class="empty-stack"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="passes.length === 0" class="empty-stack">No passes found.</div>
       <div v-else class="pass-stack">
         <article v-for="pass in passes" :key="pass.id" class="pass-card card" @click="openPass(pass.id)">

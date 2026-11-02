@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="residents.length === 0" class="empty-state">No residents found.</div>
       <div v-else class="stack-list">
         <article v-for="resident in residents" :key="resident.id" class="record-card card">

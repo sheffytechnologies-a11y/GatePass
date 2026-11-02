@@ -109,7 +109,7 @@
               class="submit-signin-btn"
               :disabled="loading || !canSubmit"
             >
-              <span v-if="loading" class="spinner"></span>
+              <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
               <span v-else class="btn-content">
                 Sign In to Admin Portal
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>

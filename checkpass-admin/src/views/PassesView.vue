@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="passes.length === 0" class="empty-state">No passes found.</div>
       <div v-else class="stack-list">
         <article v-for="pass in passes" :key="pass.ulid" class="record-card card" :class="{ flagged: pass.itemsFlagged }">

@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+    <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
 
     <template v-else-if="pass">
       <div class="detail-grid">

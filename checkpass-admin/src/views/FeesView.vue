@@ -37,7 +37,7 @@
         <button class="btn btn-outline btn-sm" @click="loadFees">Refresh</button>
       </div>
 
-      <div v-if="loading" class="empty-stack"><div class="spinner"></div></div>
+      <div v-if="loading" class="empty-stack"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="fees.length === 0" class="empty-stack">No fees found.</div>
       <div v-else class="fee-stack">
         <article v-for="fee in fees" :key="fee.id" class="fee-card card">

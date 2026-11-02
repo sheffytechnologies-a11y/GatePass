@@ -24,7 +24,7 @@
     </div>
 
     <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
+      <BrandSpinner :size="40" color="var(--c-primary)" />
     </div>
 
     <template v-else>
@@ -215,7 +215,7 @@
           <div class="modal-actions">
             <button type="button" class="btn btn-secondary" @click="showAddEstateModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" :disabled="creatingEstate">
-              <span v-if="creatingEstate" class="spinner" />
+              <BrandSpinner v-if="creatingEstate" :size="18" color="#ffffff" />
               <span v-else>Save Estate &rarr;</span>
             </button>
           </div>
