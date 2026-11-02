@@ -1,0 +1,5 @@
+{
+	"appId": "com.gatepass.app",
+	"appName": "Gatepass",
+	"webDir": "dist"
+}

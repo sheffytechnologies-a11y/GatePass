@@ -1,0 +1,3 @@
+com.checkpazz.app.test
+style WhiteBackgroundDialogTheme
+style WhiteBackgroundTheme
