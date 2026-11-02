@@ -1,5 +1,14 @@
 <template>
   <div class="landing-wrapper">
+    <!-- Full-Screen Brand Loading Cover -->
+    <Transition name="fade-landing-loader">
+      <div v-if="pageLoading" class="landing-screen-loader">
+        <div class="landing-loader-center">
+          <BrandSpinner :size="72" color="#0A5C38" />
+          <span class="landing-loader-text">Loading Checkpass...</span>
+        </div>
+      </div>
+    </Transition>
 
 
 <!-- NAVBAR -->
@@ -1818,7 +1827,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const pageLoading = ref(true)
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -1844,8 +1855,22 @@ onMounted(() => {
     styleEl.id = 'landing-styles'
     styleEl.rel = 'stylesheet'
     styleEl.href = '/landing.css'
+    styleEl.onload = () => {
+      setTimeout(() => {
+        pageLoading.value = false
+      }, 250)
+    }
     document.head.appendChild(styleEl)
+  } else {
+    setTimeout(() => {
+      pageLoading.value = false
+    }, 250)
   }
+
+  // Safety fallback so loader never hangs
+  setTimeout(() => {
+    pageLoading.value = false
+  }, 1200)
 
   const loadScript = (src: string): Promise<void> => {
     return new Promise((resolve) => {
@@ -1884,3 +1909,53 @@ onUnmounted(() => {
   if (scriptEl) scriptEl.remove()
 })
 </script>
+
+<style scoped>
+
+/* ── Full-Screen Loading Cover ── */
+.landing-screen-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.landing-loader-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.landing-loader-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0A5C38;
+  letter-spacing: 0.04em;
+}
+.fade-landing-loader-enter-active,
+.fade-landing-loader-leave-active {
+  transition: opacity 0.35s ease;
+}
+.fade-landing-loader-enter-from,
+.fade-landing-loader-leave-to {
+  opacity: 0;
+}
+
+/* Base logo protection before landing.css paints */
+.logo-light {
+  display: none !important;
+}
+.logo-dark {
+  height: 32px !important;
+  width: auto !important;
+  max-width: 170px !important;
+  object-fit: contain;
+}
+.nav-mobile:not(.open) {
+  display: none !important;
+}
+
+</style>
