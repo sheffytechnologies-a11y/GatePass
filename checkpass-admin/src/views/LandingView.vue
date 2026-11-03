@@ -118,32 +118,6 @@
   <section class="flagship-showcase-section" id="flagshipSection">
     <div class="flagship-sticky-wrapper">
       <div class="container flagship-container">
-        <!-- Minimal Stepper Progress Bar (No bulky tabs, purely shows active stage & progress) -->
-        <div class="flagship-stepper-wrap">
-          <div class="flagship-stepper">
-            <button class="flagship-step-btn active" id="stepBtn0" onclick="goToFlagshipSlide(0)" aria-label="Step 1: Gate Verification">
-              <span class="step-num">01</span>
-              <span class="step-title">Gate Verification</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine0"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn1" onclick="goToFlagshipSlide(1)" aria-label="Step 2: Visitor Pass">
-              <span class="step-num">02</span>
-              <span class="step-title">Visitor Pass &amp; QR</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine1"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn2" onclick="goToFlagshipSlide(2)" aria-label="Step 3: Exit Declarations">
-              <span class="step-num">03</span>
-              <span class="step-title">Exit Item Declaration</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine2"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn3" onclick="goToFlagshipSlide(3)" aria-label="Step 4: Estate Dues">
-              <span class="step-num">04</span>
-              <span class="step-title">Estate Dues &amp; Ledger</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine3"></span></span>
-            </button>
-          </div>
-        </div>
-
         <!-- Split Showcase Grid (Header & Sub-header only, No CTA | Right: Centered Phone Visual) -->
         <div class="flagship-split-grid">
           
