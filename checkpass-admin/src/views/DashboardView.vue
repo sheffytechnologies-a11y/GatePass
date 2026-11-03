@@ -94,6 +94,11 @@
           <strong>Passes</strong>
           <span>Create passes and monitor expiry or revocation status.</span>
         </router-link>
+        <router-link to="/news" class="quick-card card">
+          <span class="quick-icon">📢</span>
+          <strong>Broadcasts</strong>
+          <span>Publish news and notices to resident mobile feeds.</span>
+        </router-link>
         <router-link to="/notifications" class="quick-card card">
           <span class="quick-icon">🔔</span>
           <strong>Messages</strong>

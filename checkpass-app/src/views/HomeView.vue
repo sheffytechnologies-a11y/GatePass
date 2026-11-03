@@ -1135,7 +1135,7 @@ async function loadNews() {
 }
 
 async function onRefresh(event: CustomEvent) {
-  await loadSummary()
+  await Promise.all([loadSummary(), loadNews()])
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 

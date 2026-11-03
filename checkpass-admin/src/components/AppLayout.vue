@@ -69,10 +69,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import { emergenciesApi } from '@/api/index'
 import EstateSwitcher from '@/components/EstateSwitcher.vue'
 
 const route  = useRoute()
@@ -91,6 +92,7 @@ const ICONS = {
   finance: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/></svg>',
   billing: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 2h12a1 1 0 0 1 1 1v18l-3-2-3 2-3-2-3 2-3-2V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 8h8M8 12h8M8 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   emergencies: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  news: '<svg viewBox="0 0 24 24" fill="none"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   notifications: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0 1 12 0c0 6.5 2.5 8.5 2.5 8.5h-17S6 14.5 6 8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   support: '<svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 10h.01M12 10h.01M16 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   artisans: '<svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -120,6 +122,30 @@ const roleLabel = computed(() => auth.isSuperAdmin ? 'Super Admin' : 'Estate Adm
 const userInitial = computed(() => {
   const name = auth.displayName ?? ''
   return name.charAt(0).toUpperCase() || 'A'
+})
+
+
+const activeEmergencyCount = ref(0)
+let emergencyPollTimer: any = null
+
+async function checkActiveEmergencies() {
+  if (!auth.isAuthenticated) return
+  try {
+    const res = await emergenciesApi.getAll({ status: 'sent' })
+    const list = res.data?.emergencies || []
+    activeEmergencyCount.value = list.length
+  } catch (err) {
+    // Silent catch on poll
+  }
+}
+
+onMounted(() => {
+  checkActiveEmergencies()
+  emergencyPollTimer = setInterval(checkActiveEmergencies, 12000)
+})
+
+onUnmounted(() => {
+  if (emergencyPollTimer) clearInterval(emergencyPollTimer)
 })
 
 async function handleLogout() {
@@ -256,4 +282,83 @@ async function handleLogout() {
 @media (max-width: 640px) {
   .toast-container { bottom: 16px; right: 16px; left: 16px; }
 }
+
+.nav-label-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.emergency-nav-badge {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 12px;
+  animation: pulseBadge 1.8s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+  100% { transform: scale(1); }
+}
+
+.emergency-top-alert {
+  background: linear-gradient(90deg, #DC2626 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  position: relative;
+  z-index: 50;
+}
+
+.emergency-alert-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.emergency-pulse-beacon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  animation: whitePulse 1.4s infinite;
+}
+
+@keyframes whitePulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.emergency-text {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.emergency-action-btn {
+  background: #FFFFFF;
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.emergency-action-btn:hover {
+  background: #FEE2E2;
+}
+
 </style>
