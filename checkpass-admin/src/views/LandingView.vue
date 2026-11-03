@@ -100,19 +100,30 @@
     </div>
   </section>
 
-  <!-- STATS STRIP -->
-  <div class="stats-strip">
-    <div class="container">
-      <p class="stats-eyebrow">Live data from active deployment</p>
-      <div class="stats-inner">
-        <div class="stat-item"><div class="stat-num" data-count="1">0</div><div class="stat-label">Property onboarded</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="120+">0+</div><div class="stat-label">Active residents</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="350+">0+</div><div class="stat-label">Passes created</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="500+">0+</div><div class="stat-label">Entries verified</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="80+">0+</div><div class="stat-label">Items declared</div></div>
+  <!-- STATS STRIP (AUTOMATIC HORIZONTAL TICKER) -->
+  <section class="stats-strip" aria-label="Deployment statistics">
+    <div class="stats-eyebrow-wrap">
+      <span class="stats-live-dot"></span>
+      <span class="stats-eyebrow">Live data from active deployment</span>
+    </div>
+    <div class="stats-ticker-outer">
+      <div class="stats-ticker-track">
+        <!-- Set 1 -->
+        <div class="stat-card"><div class="stat-num" data-count="1">0</div><div class="stat-label">Property onboarded</div></div>
+        <div class="stat-card"><div class="stat-num" data-count="120+">0+</div><div class="stat-label">Active residents</div></div>
+        <div class="stat-card"><div class="stat-num" data-count="350+">0+</div><div class="stat-label">Passes created</div></div>
+        <div class="stat-card"><div class="stat-num" data-count="500+">0+</div><div class="stat-label">Entries verified</div></div>
+        <div class="stat-card"><div class="stat-num" data-count="80+">0+</div><div class="stat-label">Items declared</div></div>
+
+        <!-- Set 2 (for seamless continuous infinite loop) -->
+        <div class="stat-card" aria-hidden="true"><div class="stat-num" data-count="1">0</div><div class="stat-label">Property onboarded</div></div>
+        <div class="stat-card" aria-hidden="true"><div class="stat-num" data-count="120+">0+</div><div class="stat-label">Active residents</div></div>
+        <div class="stat-card" aria-hidden="true"><div class="stat-num" data-count="350+">0+</div><div class="stat-label">Passes created</div></div>
+        <div class="stat-card" aria-hidden="true"><div class="stat-num" data-count="500+">0+</div><div class="stat-label">Entries verified</div></div>
+        <div class="stat-card" aria-hidden="true"><div class="stat-num" data-count="80+">0+</div><div class="stat-label">Items declared</div></div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- FLAGSHIP INSPIRATION PHONE SHOWCASE & FLOATING CARDS -->
   <section class="flagship-showcase-section" id="flagshipSection">
