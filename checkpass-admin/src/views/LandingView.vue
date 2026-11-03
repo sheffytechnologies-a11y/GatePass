@@ -629,8 +629,8 @@
     </div>
   </section>
 
-  <!-- S9: TESTIMONIALS -->
-  <section class="testimonials">
+  <!-- S9: TESTIMONIALS (Disabled until real reviews are collected; set showTestimonials to true to re-enable) -->
+  <section v-if="showTestimonials" class="testimonials">
     <div class="container">
       <div class="section-header centered" data-reveal>
         <span class="badge badge-green label">What Managers Say</span>
@@ -1829,6 +1829,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const pageLoading = ref(true)
 const isMobileNavOpen = ref(false)
+// Set to true once verified real customer testimonials are collected from testing
+const showTestimonials = ref(false)
 
 function toggleMobileNav() {
   isMobileNavOpen.value = !isMobileNavOpen.value
