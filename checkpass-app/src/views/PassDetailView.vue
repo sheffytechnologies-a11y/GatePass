@@ -34,59 +34,13 @@
       <!-- Pass detail -->
       <div v-else-if="pass" class="content-pad">
 
-        <!-- Visitor card with background emblem zoom -->
-        <div class="visitor-card">
-          <!-- Background Emblem Zoom Watermark -->
-          <div class="vc-watermark">
-            <svg viewBox="0 0 119 119" fill="#0A5C38">
-              <path d="M21.6807 96.6416H55.5674V118.174H42.3701C30.6745 118.174 21.1566 108.849 20.8457 97.2285C9.34033 96.8386 0.108192 87.4159 0.0576172 75.8047L0 62.6084L21.5322 62.5146L21.6807 96.6416ZM118.079 62.6084L118.021 75.8047C117.971 87.4163 108.738 96.8391 97.2324 97.2285C96.9215 108.849 87.4046 118.174 75.709 118.174H62.5127V96.6416H96.3984L96.5469 62.5146L118.079 62.6084Z" />
-              <path d="M55.5674 21.5322H21.6807L21.5322 55.6592L0 55.5654L0.0576172 42.3691C0.108192 30.7579 9.34032 21.3343 20.8457 20.9443C21.1571 9.32425 30.6748 0 42.3701 0H55.5674V21.5322ZM75.71 0C87.405 0.000315153 96.923 9.32446 97.2344 20.9443C108.739 21.3347 117.971 30.7582 118.021 42.3691L118.079 55.5654L96.5479 55.6592L96.3994 21.5322H62.5127V0H75.71Z" />
-            </svg>
-          </div>
-
-          <!-- Header -->
-          <div class="vc-header">
-            <div class="visitor-avatar" :style="{ background: avatarGradient }">{{ initials }}</div>
-            <div class="vc-header-info">
-              <div class="visitor-name">{{ pass.visitorName }}</div>
-              <div class="pass-ref">Pass #CP-{{ passShortId }}</div>
-              <div class="vc-badges">
-                <span class="badge-status" :class="statusBadgeClass">
-                  <span class="status-dot" :class="statusDotClass" />
-                  {{ displayStatus }}
-                </span>
-                <span class="badge-type">{{ pass.type }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Info grid (Focused on Destination, Host, Purpose & Expiry) -->
-          <div class="info-grid">
-            <div class="info-cell">
-              <div class="info-cell-label">📍 DESTINATION</div>
-              <div class="info-cell-value">{{ pass.hostUnit }}</div>
-            </div>
-            <div class="info-cell info-cell-right">
-              <div class="info-cell-label">🏠 HOST</div>
-              <div class="info-cell-value">{{ hostDisplayName }}</div>
-            </div>
-            <div class="info-cell info-cell-top">
-              <div class="info-cell-label">🎯 PURPOSE</div>
-              <div class="info-cell-value">{{ pass.purpose }}</div>
-            </div>
-            <div class="info-cell info-cell-right info-cell-top">
-              <div class="info-cell-label">⏰ EXPIRES</div>
-              <div class="info-cell-value">{{ pass.type === 'Recurring' ? pass.recurringDays?.join(', ') : fmtExpiryShort(pass.expiresAt) }}</div>
-            </div>
-            <div v-if="pass.vehiclePlate" class="info-cell info-cell-top full-width-cell">
-              <div class="info-cell-label">🚗 VEHICLE PLATE</div>
-              <div class="info-cell-value">{{ pass.vehiclePlate }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- QR (only for active/pending) -->
-        <QRDisplay v-if="showQR" ref="qrDisplayRef" :value="pass.qrData" :pass-id="pass.id" />
+        <!-- Branded Seamless Pass Invite Card (Option 01) -->
+        <PassInviteCard
+          ref="inviteCardRef"
+          :pass="pass"
+          :show-q-r="Boolean(showQR)"
+          :estate-name="auth.resident?.estateName"
+        />
 
         <!-- Declared items -->
         <div v-if="pass.flaggedItems.length > 0 || canDeclare" class="flagged-section">
@@ -211,7 +165,7 @@ import { usePassesStore } from '@/stores/passes'
 import { useAuthStore } from '@/stores/auth'
 import { passesApi } from '@/api/passes'
 import { useToast } from '@/composables/useToast'
-import QRDisplay from '@/components/QRDisplay.vue'
+import PassInviteCard from '@/components/PassInviteCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import FlagItemSheet from '@/components/FlagItemSheet.vue'
@@ -225,7 +179,7 @@ const { showToast } = useToast()
 
 const flagSheetOpen = ref(false)
 const exitClearanceOpen = ref(false)
-const qrDisplayRef = ref<{ qrDataUrl: string } | null>(null)
+const inviteCardRef = ref<InstanceType<typeof PassInviteCard> | null>(null)
 const pass = computed(() => store.activePass)
 const displayStatus = computed(() => pass.value ? store.displayStatus(pass.value) : 'Pending')
 
@@ -257,37 +211,6 @@ async function onExitCompleted() {
   exitClearanceOpen.value = false
   await load()
 }
-
-const GRADIENTS = [
-  'linear-gradient(135deg,#0A5C38,#00C97A)',
-  'linear-gradient(135deg,#1A3F8F,#4A90D9)',
-  'linear-gradient(135deg,#7C3AED,#C084FC)',
-  'linear-gradient(135deg,#D97706,#FBBF24)',
-]
-const initials = computed(() => pass.value?.visitorName.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase() || '')
-const avatarGradient = computed(() => {
-  const idx = (pass.value?.visitorName.charCodeAt(0) || 0) % GRADIENTS.length
-  return GRADIENTS[idx]
-})
-const passShortId = computed(() => (pass.value?.id || '').slice(-4).toUpperCase())
-const hostDisplayName = computed(() => {
-  const name = pass.value?.hostName || ''
-  const parts = name.split(' ')
-  if (parts.length <= 1) return name
-  return `${parts[0]} ${parts[1][0]}.`
-})
-const statusDotClass = computed(() => {
-  const s = pass.value?.status
-  if (s === 'On-site') return 'dot-onsite'
-  if (s === 'Pending') return 'dot-pending'
-  return 'dot-inactive'
-})
-const statusBadgeClass = computed(() => {
-  const s = pass.value?.status
-  if (s === 'On-site') return 'badge-onsite'
-  if (s === 'Pending') return 'badge-pending'
-  return 'badge-inactive'
-})
 
 async function load() { await store.fetchById(route.params.id as string) }
 async function onRefresh(e: CustomEvent) { await load(); (e.target as HTMLIonRefresherElement).complete() }
@@ -373,14 +296,15 @@ async function sharePass() {
 
   try {
     await nextTick()
-    const qrDataUrl = qrDisplayRef.value?.qrDataUrl
-    if (!qrDataUrl) {
-      showToast('QR image is not ready yet. Try again.', 'warning')
+    showToast('Generating invite card image...', 'warning')
+    const cardDataUrl = await inviteCardRef.value?.generateImage()
+    if (!cardDataUrl) {
+      showToast('Invite card image is not ready yet. Try again.', 'warning')
       return
     }
 
-    const imageBlob = dataUrlToBlob(qrDataUrl)
-    const imageName = `checkpass-${activePass.id.slice(-6).toLowerCase()}.png`
+    const imageBlob = dataUrlToBlob(cardDataUrl)
+    const imageName = `checkpass-${activePass.visitorName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${activePass.id.slice(-4).toLowerCase()}.png`
     const imageFile = new File([imageBlob], imageName, { type: 'image/png' })
     const nav = navigator as Navigator & {
       canShare?: (data?: ShareData) => boolean
@@ -389,18 +313,18 @@ async function sharePass() {
 
     if (nav.share && (!nav.canShare || nav.canShare({ files: [imageFile] }))) {
       await nav.share({
-        title: `${activePass.visitorName} Checkpass`,
-        text: `QR code for ${activePass.visitorName}`,
+        title: `${activePass.visitorName} Checkpass Invite`,
+        text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
         files: [imageFile],
       })
       return
     }
 
-    downloadQrImage(qrDataUrl, imageName)
-    showToast('QR image downloaded for sharing.', 'success')
+    downloadQrImage(cardDataUrl, imageName)
+    showToast('Invite card image downloaded for sharing.', 'success')
   } catch (error: unknown) {
     if (error instanceof DOMException && error.name === 'AbortError') return
-    showToast('Unable to share QR image right now.', 'error')
+    showToast('Unable to share invite card right now.', 'error')
   }
 }
 
@@ -425,16 +349,7 @@ function downloadQrImage(dataUrl: string, fileName: string) {
   document.body.removeChild(link)
 }
 
-function fmtExpiryShort(iso: string) {
-  const d = new Date(iso)
-  const today = new Date()
-  const timeStr = d.toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit', hour12: true })
-  if (d.toDateString() === today.toDateString()) return `${timeStr} today`
-  const tomorrow = new Date(today)
-  tomorrow.setDate(today.getDate() + 1)
-  if (d.toDateString() === tomorrow.toDateString()) return `${timeStr} tomorrow`
-  return `${timeStr}, ${d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })}`
-}
+
 function fmtRelative(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`

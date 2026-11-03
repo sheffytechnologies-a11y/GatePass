@@ -18,17 +18,19 @@
             <div class="check-circle animate-check-pop">✓</div>
             <div class="done-heading">Pass created!</div>
 
-            <QRDisplay :value="createdPass.qrData" :pass-id="createdPass.id" />
-
-            <div class="pass-summary">
-              <div class="summary-row"><span>Visitor</span><strong>{{ createdPass.visitorName }}</strong></div>
-              <div class="summary-row"><span>Purpose</span><strong>{{ createdPass.purpose }}</strong></div>
-              <div class="summary-row"><span>Expires</span><strong>{{ fmtExpiry(createdPass.expiresAt) }}</strong></div>
-              <div class="summary-row"><span>Your address</span><strong>{{ createdPass.hostUnit }}</strong></div>
-            </div>
+            <PassInviteCard
+              ref="inviteCardRef"
+              :pass="createdPass"
+              :estate-name="authStore.resident?.estateName"
+            />
 
             <div class="share-section">
               <div class="share-heading">Share this pass with your visitor</div>
+              <div class="share-main-action">
+                <button class="share-card-btn" @click="shareCardImage">
+                  <span>📸 Share Invite Card Image</span>
+                </button>
+              </div>
               <div class="share-grid">
                 <button class="share-btn whatsapp" @click="shareWhatsApp">
                   <span class="share-icon">💬</span>
@@ -49,7 +51,7 @@
               </div>
             </div>
 
-            <ion-button expand="block" fill="outline" color="primary" @click="router.push(`/pass/${createdPass.id}`)">
+            <ion-button expand="block" fill="outline" color="primary" @click="createdPass && router.push(`/pass/${createdPass.id}`)">
               View Pass Details
             </ion-button>
             <ion-button expand="block" color="primary" @click="resetForm">
@@ -160,11 +162,14 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonCon
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons'
 import type { Pass } from '@/types'
 import { useToast } from '@/composables/useToast'
-import QRDisplay from '@/components/QRDisplay.vue'
+import PassInviteCard from '@/components/PassInviteCard.vue'
+import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
 
 const router = useRouter()
 const { showToast } = useToast()
+const authStore = useAuthStore()
+const inviteCardRef = ref<InstanceType<typeof PassInviteCard> | null>(null)
 
 const PURPOSES = ['Personal Visit', 'Delivery', 'Service', 'Business', 'Other']
 const DAYS     = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -231,6 +236,52 @@ async function handleSubmit() {
 function buildExpiresAt(): string {
   const date = form.value.type === 'One-time' ? form.value.visitDate : todayStr
   return new Date(`${date}T${form.value.expiryTime}:00`).toISOString()
+}
+
+async function shareCardImage() {
+  const p = createdPass.value
+  if (!p) return
+  try {
+    showToast('Generating invite card image...', 'warning')
+    const imgDataUrl = await inviteCardRef.value?.generateImage()
+    if (!imgDataUrl) {
+      showToast('Could not generate pass image.', 'error')
+      return
+    }
+    const [header, content] = imgDataUrl.split(',')
+    const mimeMatch = header.match(/data:(.*?);base64/)
+    const mimeType = mimeMatch?.[1] ?? 'image/png'
+    const byteCharacters = atob(content)
+    const byteNumbers = new Array(byteCharacters.length)
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i)
+    }
+    const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType })
+    const filename = `checkpass-${p.visitorName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.png`
+    const file = new File([blob], filename, { type: 'image/png' })
+    const nav = navigator as Navigator & {
+      canShare?: (data?: ShareData) => boolean
+      share?: (data?: ShareData) => Promise<void>
+    }
+    if (nav.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
+      await nav.share({
+        title: `${p.visitorName} Checkpass Invite`,
+        text: `Here is your Checkpass visitor pass for ${p.visitorName} at ${p.hostUnit}.`,
+        files: [file],
+      })
+      return
+    }
+    const link = document.createElement('a')
+    link.href = imgDataUrl
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    showToast('Pass image downloaded.', 'success')
+  } catch (err: unknown) {
+    if (err instanceof DOMException && err.name === 'AbortError') return
+    showToast('Unable to share pass image.', 'error')
+  }
 }
 
 function resetForm() {
@@ -316,7 +367,26 @@ function shareEmail() {
 .summary-row  { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--w-border); font-size: 14px; }
 .summary-row:last-child { border-bottom: none; }
 .summary-row span { color: var(--w-muted); }
-.share-section { width: 100%; }
+.share-section { width: 100%; max-width: 440px; margin: 0 auto; }
+.share-main-action { margin-bottom: 12px; }
+.share-card-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0A5C38 0%, #00C97A 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.25);
+  transition: all 0.2s;
+}
+.share-card-btn:active { transform: scale(0.98); }
 .share-heading { font-size: 14px; font-weight: 600; color: var(--w-text); margin-bottom: 12px; text-align: center; }
 .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .share-btn {
