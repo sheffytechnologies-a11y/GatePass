@@ -31,13 +31,13 @@
       <button class="btn btn-login" onclick="window.goToLogin()">Log In</button>
       <button class="btn btn-primary btn-sm" onclick="window.goToRegister()">Create Free Account</button>
     </div>
-    <div class="nav-hamburger" id="hamburger" onclick="toggleMobileNav()">
+    <div class="nav-hamburger" id="hamburger" @click="toggleMobileNav" onclick="toggleMobileNav()">
       <span></span><span></span><span></span>
     </div>
   </div>
 </nav>
 
-<div class="nav-mobile" id="mobileNav">
+<div class="nav-mobile" id="mobileNav" :class="{ open: isMobileNavOpen }">
   <a class="nav-link" href="#" onclick="showPage('how-it-works');closeMobileNav();return false">How It Works</a>
   <a class="nav-link" href="#" onclick="showPage('features');closeMobileNav();return false">Features</a>
   <a class="nav-link" href="#" onclick="showPage('pricing');closeMobileNav();return false">Pricing</a>
@@ -1644,23 +1644,21 @@
 
 
 <!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="footer-inner" style="grid-template-columns: 2fr 1fr 1.2fr 1fr;">
+<footer class="landing-footer">
+  <div class="container footer-container">
+    <div class="footer-inner">
       <div class="footer-brand">
-        <div class="nav-logo" onclick="showPage('home')" style="cursor:pointer">
-          <span class="nav-logo-lockup" aria-label="Checkpass">
-            <img class="logo-light" src="/assets/logo/for dark background.png" alt="Checkpass" style="opacity: 1 !important; display: block;">
-          </span>
+        <div class="footer-logo-wrap" onclick="showPage('home')" style="cursor:pointer">
+          <img class="footer-brand-logo" src="/checkpass-logo-white.svg" alt="Checkpass">
         </div>
-        <p class="footer-tagline">Estate operations & access management. Without the chaos.</p>
+        <p class="footer-tagline">Estate operations &amp; access management. Without the chaos.</p>
         <p class="footer-sub">A product of Sheffy Technologies</p>
         <div class="footer-social">
-          <a href="https://x.com/checkpassng" target="_blank" aria-label="Twitter/X"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg> X</a>
-          <a href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
-          <a href="https://linkedin.com/company/checkpassng" target="_blank" aria-label="LinkedIn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7H10V9h4v1.765A4 4 0 0116 8zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg> LinkedIn</a>
-          <a href="https://facebook.com/checkpassng" target="_blank" aria-label="Facebook"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg> Facebook</a>
-          <a href="https://wa.me/2348000000000" target="_blank" aria-label="WhatsApp"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.2-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.488-.893-.796-1.496-1.779-1.671-2.08-.175-.3-.019-.463.132-.613.136-.134.301-.351.451-.527.151-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.238-.244-.589-.493-.509-.677-.518l-.577-.01c-.2 0-.527.075-.802.376-.276.3-1.053 1.03-1.053 2.511 0 1.482 1.078 2.912 1.228 3.113.15.2 2.122 3.24 5.141 4.542.718.31 1.279.495 1.716.634.721.229 1.377.197 1.895.12.577-.087 1.78-.727 2.03-1.43.25-.702.25-1.304.175-1.43-.075-.125-.276-.201-.577-.351zM12.04 2C6.53 2 2.06 6.47 2.06 11.98c0 1.76.46 3.48 1.34 5.01L2 22l5.18-1.36c1.48.81 3.15 1.24 4.86 1.24 5.51 0 9.98-4.47 9.98-9.98C22.02 6.47 17.55 2 12.04 2z"/></svg> WhatsApp</a>
+          <a href="https://x.com/checkpassng" target="_blank" aria-label="Twitter/X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg> <span>X</span></a>
+          <a href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg> <span>Instagram</span></a>
+          <a href="https://linkedin.com/company/checkpassng" target="_blank" aria-label="LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7H10V9h4v1.765A4 4 0 0116 8zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg> <span>LinkedIn</span></a>
+          <a href="https://facebook.com/checkpassng" target="_blank" aria-label="Facebook"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg> <span>Facebook</span></a>
+          <a href="https://wa.me/2348000000000" target="_blank" aria-label="WhatsApp"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.2-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.488-.893-.796-1.496-1.779-1.671-2.08-.175-.3-.019-.463.132-.613.136-.134.301-.351.451-.527.151-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.238-.244-.589-.493-.509-.677-.518l-.577-.01c-.2 0-.527.075-.802.376-.276.3-1.053 1.03-1.053 2.511 0 1.482 1.078 2.912 1.228 3.113.15.2 2.122 3.24 5.141 4.542.718.31 1.279.495 1.716.634.721.229 1.377.197 1.895.12.577-.087 1.78-.727 2.03-1.43.25-.702.25-1.304.175-1.43-.075-.125-.276-.201-.577-.351zM12.04 2C6.53 2 2.06 6.47 2.06 11.98c0 1.76.46 3.48 1.34 5.01L2 22l5.18-1.36c1.48.81 3.15 1.24 4.86 1.24 5.51 0 9.98-4.47 9.98-9.98C22.02 6.47 17.55 2 12.04 2z"/></svg> <span>WhatsApp</span></a>
         </div>
       </div>
       <div class="footer-col">
@@ -1668,17 +1666,17 @@
         <ul>
           <li><a href="#" onclick="showPage('how-it-works');return false">How It Works</a></li>
           <li><a href="#" onclick="showPage('features');return false">Features</a></li>
-          <li><a href="#" onclick="showPage('pricing');return false">Pricing & Plans</a></li>
+          <li><a href="#" onclick="showPage('pricing');return false">Pricing &amp; Plans</a></li>
           <li><a href="#" onclick="showPage('estates');return false">Supported Estates</a></li>
         </ul>
       </div>
-      <div class="footer-col">
-        <h5>Contact & Support</h5>
+      <div class="footer-col footer-col-contact">
+        <h5>Contact &amp; Support</h5>
         <ul>
-          <li><a href="mailto:support@checkpass.ng">support@checkpass.ng</a></li>
-          <li><a href="mailto:sales@checkpass.ng">sales@checkpass.ng</a></li>
-          <li><a href="tel:+2348002432572">+234 (0) 800 CHECKPASS</a></li>
-          <li><a href="https://wa.me/2348000000000" target="_blank" style="color:var(--gold)">WhatsApp Chat</a></li>
+          <li><a href="mailto:support@checkpass.ng" class="footer-contact-link">support@checkpass.ng</a></li>
+          <li><a href="mailto:sales@checkpass.ng" class="footer-contact-link">sales@checkpass.ng</a></li>
+          <li><a href="tel:+2348002432572" class="footer-contact-link">+234 (0) 800 CHECKPASS</a></li>
+          <li><a href="https://wa.me/2348000000000" target="_blank" class="footer-whatsapp-link">💬 WhatsApp Chat</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1692,8 +1690,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 CheckPass &middot; Sheffy Technologies. All rights reserved.</p>
-      <div class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <p>&copy; 2026 CheckPass &middot; Sheffy Technologies. All rights reserved.</p>
+      <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
     </div>
   </div>
 </footer>
@@ -1830,6 +1828,19 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const pageLoading = ref(true)
+const isMobileNavOpen = ref(false)
+
+function toggleMobileNav() {
+  isMobileNavOpen.value = !isMobileNavOpen.value
+  const el = document.getElementById('mobileNav')
+  if (el) el.classList.toggle('open', isMobileNavOpen.value)
+}
+
+function closeMobileNav() {
+  isMobileNavOpen.value = false
+  const el = document.getElementById('mobileNav')
+  if (el) el.classList.remove('open')
+}
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -1846,6 +1857,8 @@ if (typeof window !== 'undefined') {
   (window as any).goToLogin = goToLogin;
   (window as any).goToRegister = goToRegister;
   (window as any).openLoginModal = goToLogin;
+  (window as any).toggleMobileNav = toggleMobileNav;
+  (window as any).closeMobileNav = closeMobileNav;
 }
 
 onMounted(() => {
@@ -1944,18 +1957,132 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* Base logo protection before landing.css paints */
-.logo-light {
-  display: none !important;
+
+/* ── CRITICAL PRE-PAINT NAVBAR & MOBILE STYLES (Guarantees zero FOUC) ── */
+.navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  height: var(--nav-h, 72px) !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
 }
-.logo-dark {
-  height: 32px !important;
-  width: auto !important;
-  max-width: 170px !important;
-  object-fit: contain;
+.nav-inner {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
 }
-.nav-mobile:not(.open) {
+.nav-logo {
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+.nav-logo-lockup {
+  position: relative !important;
+  width: min(180px, 42vw) !important;
+  min-width: 130px !important;
+  height: 34px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+.nav-logo-lockup img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+.nav-logo .logo-dark { opacity: 1; }
+.nav-logo .logo-light { opacity: 0; }
+.navbar.hero-nav .nav-logo .logo-dark,
+.navbar.dark-nav .nav-logo .logo-dark { opacity: 0 !important; }
+.navbar.hero-nav .nav-logo .logo-light,
+.navbar.dark-nav .nav-logo .logo-light { opacity: 1 !important; }
+.navbar.scrolled .nav-logo .logo-dark { opacity: 1 !important; }
+.navbar.scrolled .nav-logo .logo-light { opacity: 0 !important; }
+
+.nav-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+.nav-cta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.nav-hamburger {
   display: none !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  padding: 8px !important;
+  cursor: pointer !important;
+  color: #ffffff !important;
+  z-index: 1001 !important;
+}
+.navbar.scrolled .nav-hamburger {
+  color: #0B1F17 !important;
+}
+.nav-hamburger span {
+  display: block !important;
+  width: 22px !important;
+  height: 2px !important;
+  background: currentColor !important;
+  border-radius: 2px !important;
+  transition: all 0.25s ease !important;
+}
+.nav-mobile {
+  position: fixed !important;
+  top: var(--nav-h, 72px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: 16px 20px 24px !important;
+  display: none !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14) !important;
+  z-index: 999 !important;
+  box-sizing: border-box !important;
+}
+.nav-mobile.open {
+  display: flex !important;
+}
+.nav-mobile .nav-link {
+  color: #1a2e24 !important;
+  padding: 12px 14px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  border-radius: 8px !important;
+  transition: background 0.15s ease !important;
+}
+.nav-mobile .nav-link:hover {
+  background: rgba(10, 92, 56, 0.06) !important;
+  color: #0A5C38 !important;
+}
+
+@media (max-width: 768px) {
+  .nav-links,
+  .nav-cta {
+    display: none !important;
+  }
+  .nav-hamburger {
+    display: flex !important;
+  }
 }
 
 </style>

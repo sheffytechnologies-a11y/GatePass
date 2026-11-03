@@ -468,17 +468,12 @@
             </div>
           </div>
 
-          <!-- Artisan Bio & Rate Info -->
+          <!-- Estate Security Clearance Info -->
           <div class="artisan-info-card">
-            <div v-if="selectedArtisan.priceTag" class="info-card-item">
-              <span class="info-label">Standard Call-out / Estimate:</span>
-              <span class="info-value price-highlight">{{ selectedArtisan.priceTag }}</span>
-            </div>
             <div class="info-card-item">
               <span class="info-label">Estate Security Clearance:</span>
               <span class="info-value text-green">Cleared for Resident Access</span>
             </div>
-            <p v-if="selectedArtisan.bio" class="artisan-bio-text">{{ selectedArtisan.bio }}</p>
           </div>
 
           <!-- Direct Actions: WhatsApp and Phone Call -->
@@ -694,10 +689,8 @@ export interface ArtisanItem {
   phone: string
   whatsapp: string
   rating: number
-  priceTag: string
   avatarBg: string
   initials: string
-  bio: string
   reviews: ArtisanReview[]
 }
 
@@ -840,10 +833,8 @@ const artisansList = ref<ArtisanItem[]>([
     phone: '+2348031234567',
     whatsapp: '2348031234567',
     rating: 4.9,
-    priceTag: 'From ₦4,000 call-out',
     avatarBg: '#0A5C38',
     initials: 'CO',
-    bio: 'Over 12 years experience in high-grade residential electrical wiring, lithium/tubular inverter backup installations, solar hybrid integration, and DB panel troubleshooting.',
     reviews: [
       {
         id: 'rev-1',
@@ -879,10 +870,8 @@ const artisansList = ref<ArtisanItem[]>([
     phone: '+2348059876543',
     whatsapp: '2348059876543',
     rating: 4.8,
-    priceTag: 'From ₦3,500 call-out',
     avatarBg: '#0284C7',
     initials: 'SA',
-    bio: 'Certified plumbing specialist. Expert in borehole pressure pumps, water heater installations, PPR pipe welding, and hidden underground leak detection.',
     reviews: [
       {
         id: 'rev-4',
@@ -910,10 +899,8 @@ const artisansList = ref<ArtisanItem[]>([
     phone: '+2348123456789',
     whatsapp: '2348123456789',
     rating: 5.0,
-    priceTag: 'From ₦5,000 service',
     avatarBg: '#D97706',
     initials: 'MI',
-    bio: 'Comprehensive air conditioning servicing, coil chemical wash, R410A / R22 gas top-up, compressor troubleshooting, and smart inverter AC diagnostics.',
     reviews: [
       {
         id: 'rev-6',
@@ -941,10 +928,8 @@ const artisansList = ref<ArtisanItem[]>([
     phone: '+2348098765432',
     whatsapp: '2348098765432',
     rating: 4.9,
-    priceTag: 'From ₦8,000 flat',
     avatarBg: '#7C3AED',
     initials: 'GS',
-    bio: 'Trained residential cleaning crew. Post-construction scrubbing, sofa steam extraction, kitchen degreasing, and eco-friendly odorless fumigation.',
     reviews: [
       {
         id: 'rev-8',
@@ -964,10 +949,8 @@ const artisansList = ref<ArtisanItem[]>([
     phone: '+2348076543210',
     whatsapp: '2348076543210',
     rating: 4.7,
-    priceTag: 'From ₦4,500 call-out',
     avatarBg: '#B45309',
     initials: 'YD',
-    bio: 'Master carpenter specializing in modern MDF/HDF kitchen cabinets, wardrobe repairs, smart digital door lock installations, and sagging door adjustments.',
     reviews: [
       {
         id: 'rev-9',

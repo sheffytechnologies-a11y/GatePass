@@ -511,10 +511,8 @@ export interface ArtisanItem {
   phone: string
   whatsapp: string
   rating: number
-  priceTag: string
   avatarBg: string
   initials: string
-  bio: string
   status?: 'Active' | 'Under Review' | 'Inactive'
   reviews: ArtisanReview[]
 }
@@ -531,11 +529,9 @@ const defaultArtisans: ArtisanItem[] = [
     phone: '+2348031234567',
     whatsapp: '2348031234567',
     rating: 4.9,
-    priceTag: 'From ₦4,000 call-out',
     avatarBg: '#0A5C38',
     initials: 'CO',
     status: 'Active',
-    bio: 'Over 12 years experience in high-grade residential electrical wiring, lithium/tubular inverter backup installations, solar hybrid integration, and DB panel troubleshooting.',
     reviews: [
       {
         id: 'rev-1',
@@ -563,11 +559,9 @@ const defaultArtisans: ArtisanItem[] = [
     phone: '+2348023456789',
     whatsapp: '2348023456789',
     rating: 4.8,
-    priceTag: 'From ₦3,500 call-out',
     avatarBg: '#1D4ED8',
     initials: 'MA',
     status: 'Active',
-    bio: 'Specialist in overhead tank float valves, submersible pump repairs, silent pipe leak detection, PPR pipe fusion, and bathroom sanitary fixtures.',
     reviews: [
       {
         id: 'rev-3',
@@ -587,11 +581,9 @@ const defaultArtisans: ArtisanItem[] = [
     phone: '+2348056789012',
     whatsapp: '2348056789012',
     rating: 4.9,
-    priceTag: 'From ₦5,000 call-out',
     avatarBg: '#B45309',
     initials: 'EB',
     status: 'Active',
-    bio: 'Expert diagnostic servicing for all inverter and split air conditioners (LG, Daikin, Panasonic, Midea). Gas top-ups, chemical jet washing, and motherboard repairs.',
     reviews: [
       {
         id: 'rev-4',
@@ -611,11 +603,9 @@ const defaultArtisans: ArtisanItem[] = [
     phone: '+2348089012345',
     whatsapp: '2348089012345',
     rating: 4.7,
-    priceTag: 'From ₦15,000 deep clean',
     avatarBg: '#7C3AED',
     initials: 'SP',
     status: 'Active',
-    bio: 'Professional residential cleaning crew. Post-construction scrubbing, upholstery steam wash, kitchen degreasing, and routine weekly housekeeping.',
     reviews: [
       {
         id: 'rev-5',
@@ -635,11 +625,9 @@ const defaultArtisans: ArtisanItem[] = [
     phone: '+2348078901234',
     whatsapp: '2348078901234',
     rating: 4.8,
-    priceTag: 'From ₦4,000 call-out',
     avatarBg: '#059669',
     initials: 'SA',
     status: 'Active',
-    bio: 'Bespoke cabinet repairs, security lock installations, sliding door track realignments, and custom kitchen island refurbishment.',
     reviews: [
       {
         id: 'rev-6',
@@ -740,14 +728,13 @@ function openReviewsModalById(artisanId: string) {
 }
 
 function exportReportCSV() {
-  const headers = ['ID', 'Name', 'Category', 'Trade', 'Phone', 'Price Guidance', 'Status', 'Rating', 'Reviews Count']
+  const headers = ['ID', 'Name', 'Category', 'Trade', 'Phone', 'Status', 'Rating', 'Reviews Count']
   const rows = artisansList.value.map(a => [
     a.id,
     `"${a.name.replace(/"/g, '""')}"`,
     `"${a.category}"`,
     `"${a.trade.replace(/"/g, '""')}"`,
     `"${a.phone}"`,
-    `"${(a.priceTag || '').replace(/"/g, '""')}"`,
     a.status || 'Active',
     a.rating,
     a.reviews?.length || 0,
@@ -802,9 +789,7 @@ const artisanForm = ref({
   category: 'Electrician',
   phone: '',
   whatsapp: '',
-  priceTag: '',
   status: 'Active' as 'Active' | 'Under Review' | 'Inactive',
-  bio: '',
 })
 
 function openCreateModal() {
@@ -816,9 +801,7 @@ function openCreateModal() {
     category: 'Electrician',
     phone: '',
     whatsapp: '',
-    priceTag: '',
     status: 'Active',
-    bio: '',
   }
   showArtisanModal.value = true
 }
@@ -832,9 +815,7 @@ function openEditModal(artisan: ArtisanItem) {
     category: artisan.category,
     phone: artisan.phone,
     whatsapp: artisan.whatsapp,
-    priceTag: artisan.priceTag || '',
     status: artisan.status || 'Active',
-    bio: artisan.bio,
   }
   showArtisanModal.value = true
 }
@@ -875,9 +856,7 @@ function saveArtisan() {
           category: artisanForm.value.category,
           phone: artisanForm.value.phone.trim(),
           whatsapp: artisanForm.value.whatsapp.replace(/\D/g, ''),
-          priceTag: artisanForm.value.priceTag.trim() || 'Rates on request',
           status: artisanForm.value.status,
-          bio: artisanForm.value.bio.trim(),
           initials: getInitials(artisanForm.value.name),
           avatarBg: getAvatarColor(artisanForm.value.category),
         }
@@ -891,9 +870,7 @@ function saveArtisan() {
         category: artisanForm.value.category,
         phone: artisanForm.value.phone.trim(),
         whatsapp: artisanForm.value.whatsapp.replace(/\D/g, '') || artisanForm.value.phone.replace(/\D/g, ''),
-        priceTag: artisanForm.value.priceTag.trim() || 'Rates on request',
         status: artisanForm.value.status,
-        bio: artisanForm.value.bio.trim(),
         rating: 5.0,
         initials: getInitials(artisanForm.value.name),
         avatarBg: getAvatarColor(artisanForm.value.category),

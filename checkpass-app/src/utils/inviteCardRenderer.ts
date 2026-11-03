@@ -384,3 +384,4 @@ function drawCheckpassEmblem(ctx: CanvasRenderingContext2D) {
   )
   ctx.fill(p)
 }
+
