@@ -85,17 +85,18 @@
 
             <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
             <div class="terms-consent-row">
-              <label class="terms-checkbox-label">
+              <label class="terms-checkbox-label" for="agreeTermsCheck">
                 <input
+                  id="agreeTermsCheck"
                   v-model="agreeTerms"
                   type="checkbox"
                   class="terms-checkbox-input"
                   required
                 />
-                <span class="terms-text">
-                  I agree to the <button type="button" class="legal-link-btn" @click="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click="openLegalModal('privacy')">Privacy Policy</button>
-                </span>
               </label>
+              <div class="terms-text">
+                I agree to the <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button>
+              </div>
             </div>
 
             <!-- Primary Action Button -->
@@ -167,8 +168,10 @@
 
       </div>
 
-      <!-- Centered Brand Loading Popup Overlay -->
-      <BrandLoadingOverlay :visible="loading" :size="96" color="#FFFFFF" />
+    </ion-content>
+
+    <!-- Centered Brand Loading Popup Overlay -->
+    <BrandLoadingOverlay :visible="loading" :size="96" color="#FFFFFF" />
 
       <!-- Legal Modal Sheet (Terms & Privacy Viewer) -->
       <ion-modal :is-open="legalModalOpen" @didDismiss="legalModalOpen = false" class="legal-sheet-modal">
@@ -252,7 +255,6 @@
           </div>
         </div>
       </ion-modal>
-    </ion-content>
   </ion-page>
 </template>
 
@@ -762,11 +764,20 @@ async function showResidentAccessInfo() {
   padding: 0 4px;
 }
 
-.terms-checkbox-label {
+.terms-consent-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  margin: 14px 0 6px;
+  padding: 0 4px;
+}
+
+.terms-checkbox-label {
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
   user-select: none;
 }
 
@@ -906,4 +917,13 @@ async function showResidentAccessInfo() {
   cursor: pointer;
 }
 
+</style>
+
+<style>
+ion-modal.legal-sheet-modal {
+  --height: 85%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.65;
+  align-items: flex-end;
+}
 </style>
