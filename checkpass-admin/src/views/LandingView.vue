@@ -365,7 +365,10 @@
     <div class="container">
       <div class="split-inner">
         <div class="split-img-wrap" data-reveal="left">
-          <img src="/assets/images/2.png" alt="Security guard verifying visitor" class="split-img">
+          <picture class="split-picture">
+            <source srcset="/assets/images/2.webp" type="image/webp">
+            <img src="/assets/images/2.png" alt="Security guard verifying visitor" class="split-img" width="1869" height="1356" loading="lazy" decoding="async">
+          </picture>
         </div>
         <div class="split-content" data-reveal="right">
           <h2 class="display-md">Core System</h2>
@@ -422,7 +425,10 @@
           </button>
         </div>
         <div class="split-img-wrap" data-reveal="right">
-          <img src="/assets/images/3.png" alt="Resident using CheckPass mobile app" class="split-img">
+          <picture class="split-picture">
+            <source srcset="/assets/images/3.webp" type="image/webp">
+            <img src="/assets/images/3.png" alt="Resident using CheckPass mobile app" class="split-img" width="1863" height="1351" loading="lazy" decoding="async">
+          </picture>
         </div>
       </div>
     </div>
