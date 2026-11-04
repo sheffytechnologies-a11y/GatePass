@@ -56,8 +56,6 @@
 
         <!-- Actions (Moved above Declared Items) -->
         <div class="actions-section">
-          <div class="actions-header">ACTIONS</div>
-
           <!-- Security Gate Guard Actions (if applicable) -->
           <div v-if="canAllowEntry || canMarkExited" class="guard-actions-row">
             <button v-if="canAllowEntry" class="guard-btn guard-btn-allow" @click="handleAllowEntry">
@@ -68,35 +66,36 @@
             </button>
           </div>
 
-          <!-- Single-Row Resident Actions -->
-          <div class="action-single-row">
-            <!-- Primary CTA: Share with Phosphor icon -->
-            <button v-if="canShare" class="btn-action btn-share" @click="sharePass">
-              <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+          <!-- Share on its own row -->
+          <div v-if="canShare" class="action-row-share">
+            <button class="btn-action btn-share-full" @click="sharePass">
+              <svg width="19" height="19" viewBox="0 0 256 256" fill="currentColor">
                 <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
               </svg>
               <span>Share</span>
             </button>
+          </div>
 
-            <!-- Revoke (Clean background, no heavy border stroke) -->
-            <button v-if="canRevoke" class="btn-action btn-revoke" @click="confirmRevoke">
+          <!-- Call & Revoke side-by-side below Share -->
+          <div class="action-row-secondary">
+            <!-- Call Visitor -->
+            <button
+              class="btn-action btn-call-half"
+              :class="{ 'btn-call-disabled': !pass.visitorPhone }"
+              @click="handleCallVisitor"
+            >
+              <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M222.37,158.46l-47.11-21.11a16,16,0,0,0-15.71,2.53L136.08,160a124.63,124.63,0,0,1-56.12-56.12l20.12-23.47a16,16,0,0,0,2.53-15.71L81.5,17.59A16,16,0,0,0,66.86,8,56.26,56.26,0,0,0,10.6,63.49,192.29,192.29,0,0,0,192.51,245.4a56.26,56.26,0,0,0,55.49-56.26A16,16,0,0,0,222.37,158.46ZM192.51,229.4A176.26,176.26,0,0,1,26.6,63.49,40.23,40.23,0,0,1,66.86,24l47.11,21.11L94.46,68a12,12,0,0,0-2.31,13.27,140.72,140.72,0,0,0,82.58,82.58A12,12,0,0,0,188,161.54l22.89-19.52L232,163.13A40.23,40.23,0,0,1,192.51,229.4Z"/>
+              </svg>
+              <span>Call Visitor</span>
+            </button>
+
+            <!-- Revoke: white background, red text & red icon -->
+            <button v-if="canRevoke" class="btn-action btn-revoke-half" @click="confirmRevoke">
               <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
                 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a87.64,87.64,0,0,1-54.67-19.19l117.86-117.86A88,88,0,0,1,128,216Zm62.67-34.14L72.81,64.2A88,88,0,0,1,190.67,181.86Z"/>
               </svg>
               <span>Revoke</span>
-            </button>
-
-            <!-- Call Visitor: Icon-only in the same line -->
-            <button
-              class="btn-action btn-call-icon"
-              :class="{ 'btn-call-disabled': !pass.visitorPhone }"
-              title="Call Visitor"
-              @click="handleCallVisitor"
-              aria-label="Call Visitor"
-            >
-              <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
-                <path d="M222.37,158.46l-47.11-21.11a16,16,0,0,0-15.71,2.53L136.08,160a124.63,124.63,0,0,1-56.12-56.12l20.12-23.47a16,16,0,0,0,2.53-15.71L81.5,17.59A16,16,0,0,0,66.86,8,56.26,56.26,0,0,0,10.6,63.49,192.29,192.29,0,0,0,192.51,245.4a56.26,56.26,0,0,0,55.49-56.26A16,16,0,0,0,222.37,158.46ZM192.51,229.4A176.26,176.26,0,0,1,26.6,63.49,40.23,40.23,0,0,1,66.86,24l47.11,21.11L94.46,68a12,12,0,0,0-2.31,13.27,140.72,140.72,0,0,0,82.58,82.58A12,12,0,0,0,188,161.54l22.89-19.52L232,163.13A40.23,40.23,0,0,1,192.51,229.4Z"/>
-              </svg>
             </button>
           </div>
         </div>
@@ -424,11 +423,9 @@ onMounted(load)
 .guard-btn-allow { background: rgba(0, 201, 122, 0.15); color: #065F46; }
 .guard-btn-exit  { background: #EEF2FF; color: #4338CA; }
 
-/* Single-row resident actions */
-.action-single-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Resident actions layout: Share on its own, Call & Revoke below */
+.action-row-share {
+  width: 100%;
 }
 .btn-action {
   height: 48px;
@@ -448,48 +445,50 @@ onMounted(load)
   transform: scale(0.97);
 }
 
-/* Share: Primary CTA */
-.btn-share {
-  flex: 1.25;
+.btn-share-full {
+  width: 100%;
   background: #0A5C38;
   color: #ffffff;
   gap: 8px;
-  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
+  box-shadow: 0 3px 10px rgba(10, 92, 56, 0.22);
 }
-.btn-share:hover {
+.btn-share-full:hover {
   background: #084c2e;
 }
 
-/* Revoke: Secondary action, no background stroke */
-.btn-revoke {
+.action-row-secondary {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.btn-call-half {
   flex: 1;
-  background: #FEE2E2;
-  color: #DC2626;
-  gap: 8px;
-  border: none;
-}
-.btn-revoke:hover {
-  background: #FECACA;
-}
-
-/* Call: Icon-only button in the same line */
-.btn-call-icon {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
   background: var(--w-surface);
-  color: #0A5C38;
+  color: var(--w-text);
   border: 1.5px solid var(--w-border);
-  border-radius: var(--w-radius-md);
-  padding: 0;
+  gap: 8px;
 }
-.btn-call-icon:hover {
-  background: rgba(10, 92, 56, 0.06);
+.btn-call-half:hover {
+  background: rgba(10, 92, 56, 0.05);
 }
 .btn-call-disabled {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.btn-revoke-half {
+  flex: 1;
+  background: #FFFFFF;
+  color: #DC2626;
+  border: 1.5px solid #FCA5A5;
+  gap: 8px;
+}
+.btn-revoke-half svg {
+  color: #DC2626;
+}
+.btn-revoke-half:hover {
+  background: #FEF2F2;
 }
 
 /* Declared exit items */

@@ -116,6 +116,18 @@ ion-tab-bar {
   left: 0 !important;
   right: 0 !important;
   --color-selected: var(--w-primary);
+  contain: none !important;
+  overflow: visible !important;
+}
+
+ion-tab-bar::part(container) {
+  overflow: visible !important;
+  contain: none !important;
+}
+
+ion-tab-button.tab-create {
+  overflow: visible !important;
+  contain: none !important;
 }
 
 ion-card {

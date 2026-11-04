@@ -25,26 +25,6 @@
               Your visitor pass for <strong>{{ createdPass.visitorName }}</strong> is ready.
             </p>
 
-            <!-- Visitor & Pass Summary Card -->
-            <div class="pass-summary-card">
-              <div class="summary-item">
-                <span class="summary-lbl">Visitor</span>
-                <span class="summary-val">{{ createdPass.visitorName }}</span>
-              </div>
-              <div v-if="createdPass.hostUnit" class="summary-item">
-                <span class="summary-lbl">Destination</span>
-                <span class="summary-val">{{ createdPass.hostUnit }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-lbl">Pass Type</span>
-                <span class="summary-val capitalize">{{ createdPass.type }} Pass</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-lbl">Expires</span>
-                <span class="summary-val">{{ fmtExpiry(createdPass.expiresAt) }}</span>
-              </div>
-            </div>
-
             <!-- Action CTAs: Primary "View Pass", Secondary "Back to Home" -->
             <div class="success-cta-stack">
               <button class="cta-primary-btn" @click="goToPassDetails">
@@ -126,6 +106,27 @@
             </div>
           </div>
 
+          <!-- Visitor Photo (Optional) -->
+          <div class="field">
+            <label>Visitor Photo <span class="photo-opt-label">(Optional)</span></label>
+            <div class="photo-upload-wrap">
+              <div v-if="form.photoUrl" class="photo-preview-box">
+                <img :src="form.photoUrl" alt="Visitor photo" class="photo-preview-img" />
+                <button type="button" class="photo-remove-btn" @click="form.photoUrl = ''">&times;</button>
+              </div>
+              <label v-else class="photo-upload-trigger">
+                <input type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
+                <div class="photo-upload-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                  <span>Upload or take visitor photo</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <!-- Additional Details (collapsible) -->
           <div class="collapsible-section">
             <button class="collapsible-toggle" @click="showAdditional = !showAdditional">
@@ -192,6 +193,7 @@ const form = ref({
   visitDate: todayStr, expiryTime: '18:00',
   visitorPhone: '', vehiclePlate: '',
   recurringDays: [] as string[],
+  photoUrl: '',
 })
 
 const submitting       = ref(false)
@@ -209,6 +211,21 @@ const validationError = computed(() => {
   }
   return null
 })
+
+function handlePhotoUpload(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Photo must be under 5MB', 'warning')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = (evt) => {
+    form.value.photoUrl = evt.target?.result as string
+  }
+  reader.readAsDataURL(file)
+}
 
 function toggleDay(d: string) {
   const arr = form.value.recurringDays
@@ -241,6 +258,12 @@ async function handleSubmit() {
       vehiclePlate:  form.value.vehiclePlate ? form.value.vehiclePlate.trim().toUpperCase() : null,
     })
     createdPass.value = res.data.pass
+    if (form.value.photoUrl && createdPass.value) {
+      (createdPass.value as any).photoUrl = form.value.photoUrl
+      try {
+        localStorage.setItem(`checkpass_photo_${createdPass.value.id}`, form.value.photoUrl)
+      } catch {}
+    }
     isDone.value = true
     showToast(`Pass created for ${form.value.visitorName}`, 'success')
   } catch {
@@ -268,10 +291,6 @@ function goToHome() {
   router.push('/tabs/home')
 }
 
-function fmtExpiry(iso?: string | null) {
-  if (!iso) return 'End of day'
-  return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: true })
-}
 </script>
 
 <style scoped>
@@ -416,4 +435,53 @@ function fmtExpiry(iso?: string | null) {
   background: #F9FAFB;
   transform: scale(0.98);
 }
+
+.photo-opt-label { font-size: 11px; font-weight: 400; color: var(--w-muted); margin-left: 4px; }
+.photo-upload-wrap { margin-top: 4px; }
+.photo-upload-trigger { display: block; cursor: pointer; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.photo-upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--w-surface);
+  border: 1.5px dashed var(--w-border);
+  border-radius: var(--w-radius-md);
+  color: var(--w-text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.photo-upload-box:active { background: rgba(10, 92, 56, 0.05); }
+.photo-upload-box svg { color: var(--w-primary, #0A5C38); }
+.photo-preview-box {
+  position: relative;
+  display: inline-block;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--w-radius-md);
+  overflow: hidden;
+  border: 2px solid var(--w-primary, #0A5C38);
+}
+.photo-preview-img { width: 100%; height: 100%; object-fit: cover; }
+.photo-remove-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 </style>

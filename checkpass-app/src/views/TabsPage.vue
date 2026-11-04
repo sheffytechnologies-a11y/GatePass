@@ -181,19 +181,21 @@ ion-tab-button.tab-selected ion-label {
 .create-fab {
   background: var(--w-primary, #0A5C38);
   color: #FFFFFF;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  max-width: 44px;
-  max-height: 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  max-width: 48px;
+  max-height: 48px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -14px;
-  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.38);
+  margin-top: -22px;
+  position: relative;
+  z-index: 25;
+  box-shadow: 0 6px 18px rgba(10, 92, 56, 0.42);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
 }
 

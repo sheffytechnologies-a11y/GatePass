@@ -94,7 +94,7 @@
                     :class="{ active: activeHomeTab === 'news' }"
                     @click="activeHomeTab = 'news'"
                   >
-                    <span>News</span>
+                    <span>Announcements</span>
                     <span v-if="unreadNewsCount > 0" class="tab-unread-pill">{{ unreadNewsCount }}</span>
                   </button>
                   <button
@@ -218,17 +218,78 @@
                       </div>
 
                       <div class="news-card-title">{{ item.title }}</div>
-                      <div class="news-card-snippet">{{ item.content }}</div>
+                      <div
+                        class="news-card-snippet"
+                        :class="{ 'is-expanded': expandedNewsIds.includes(item.id) }"
+                      >
+                        {{ item.content }}
+                      </div>
 
                       <div class="news-card-footer">
-                        <div class="news-card-comment-count" @click.stop="openNewsArticle(item, true)">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <button
+                          type="button"
+                          class="news-card-comment-btn"
+                          @click.stop="toggleInlineComments(item.id)"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                           </svg>
-                          <span>{{ getNewsComments(item.id).length }}</span>
-                        </div>
-                        <span v-if="isLongNewsContent(item.content)" class="news-see-more-link">See more</span>
+                          <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
+                        </button>
+
+                        <button
+                          v-if="isLongNewsContent(item.content)"
+                          type="button"
+                          class="news-see-more-link"
+                          @click.stop="toggleExpandNews(item.id)"
+                        >
+                          {{ expandedNewsIds.includes(item.id) ? 'See less' : 'See more' }}
+                        </button>
                       </div>
+
+                      <!-- Inline Comments Accordion -->
+                      <transition name="slide-fade">
+                        <div
+                          v-if="openInlineCommentsIds.includes(item.id)"
+                          class="news-inline-comments-box"
+                          @click.stop
+                        >
+                          <!-- Comment Composer -->
+                          <div class="inline-comment-row">
+                            <input
+                              v-model="inlineCommentInputs[item.id]"
+                              type="text"
+                              class="inline-comment-input"
+                              placeholder="Write a comment..."
+                              maxlength="200"
+                              @keydown.enter.prevent="submitInlineComment(item.id)"
+                            />
+                            <button
+                              class="inline-comment-post-btn"
+                              :disabled="!inlineCommentInputs[item.id] || !inlineCommentInputs[item.id].trim()"
+                              @click="submitInlineComment(item.id)"
+                            >
+                              Post
+                            </button>
+                          </div>
+
+                          <!-- Existing Comments List -->
+                          <div v-if="getNewsComments(item.id).length > 0" class="inline-comments-stream">
+                            <div
+                              v-for="c in getNewsComments(item.id)"
+                              :key="c.id"
+                              class="inline-comment-entry"
+                            >
+                              <div class="inline-comment-header">
+                                <span class="inline-comment-author">{{ c.authorName }}</span>
+                                <span class="inline-comment-time">{{ c.createdAt }}</span>
+                              </div>
+                              <div class="inline-comment-msg">{{ c.content }}</div>
+                            </div>
+                          </div>
+                          <div v-else class="inline-no-comments">No comments yet. Be the first to comment!</div>
+                        </div>
+                      </transition>
                     </div>
                   </div>
                 </div>
@@ -949,6 +1010,58 @@ function submitNewsComment(newsId: number) {
 
   newNewsCommentText.value = ''
   submittingComment.value = false
+  showToast('Comment posted', 'success')
+}
+
+
+const expandedNewsIds = ref<number[]>([])
+const openInlineCommentsIds = ref<number[]>([])
+const inlineCommentInputs = ref<Record<number, string>>({})
+
+function toggleExpandNews(id: number) {
+  const idx = expandedNewsIds.value.indexOf(id)
+  if (idx >= 0) expandedNewsIds.value.splice(idx, 1)
+  else expandedNewsIds.value.push(id)
+}
+
+function toggleInlineComments(id: number) {
+  const idx = openInlineCommentsIds.value.indexOf(id)
+  if (idx >= 0) {
+    openInlineCommentsIds.value.splice(idx, 1)
+  } else {
+    openInlineCommentsIds.value.push(id)
+    if (!inlineCommentInputs.value[id]) {
+      inlineCommentInputs.value[id] = ''
+    }
+  }
+}
+
+function submitInlineComment(newsId: number) {
+  const text = (inlineCommentInputs.value[newsId] || '').trim()
+  if (!text) return
+
+  const authorName = auth.resident?.name || 'Resident Neighbor'
+  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+
+  const newComment: NewsComment = {
+    id: 'c-' + Date.now(),
+    newsId,
+    authorName,
+    authorUnit,
+    content: text,
+    createdAt: 'Just now',
+  }
+
+  if (!newsCommentsMap.value[newsId]) {
+    newsCommentsMap.value[newsId] = []
+  }
+  newsCommentsMap.value[newsId].push(newComment)
+
+  try {
+    localStorage.setItem(newsCommentsStorageKey, JSON.stringify(newsCommentsMap.value))
+  } catch {}
+
+  inlineCommentInputs.value[newsId] = ''
   showToast('Comment posted', 'success')
 }
 
@@ -2299,13 +2412,21 @@ ion-modal.news-modal-sheet {
   font-weight: 800;
 }
 .news-card-snippet {
-  font-size: 12.5px;
-  color: #556B60;
+  font-size: 13.5px;
   line-height: 1.45;
+  color: var(--w-muted);
+  margin-bottom: 12px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+.news-card-snippet.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 .news-card-footer {
   display: flex;
@@ -2318,14 +2439,14 @@ ion-modal.news-modal-sheet {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #0A5C38;
-  background: #E8F5EE;
-  border: 1px solid rgba(10, 92, 56, 0.16);
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
   border-radius: 999px;
   padding: 2.5px 8.5px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 .news-unread-dot {
   width: 6px;
@@ -3201,4 +3322,121 @@ ion-modal.news-modal-sheet {
 .notif-time { font-size: 11px; color: var(--w-muted); margin-top: 3px; }
 .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--w-primary); flex-shrink: 0; }
 .notif-empty{ padding: 24px; text-align: center; font-size: 14px; color: var(--w-muted); }
+
+/* ── Inline Comments Accordion & Controls ── */
+.news-card-comment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--w-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.news-card-comment-btn:active {
+  background: rgba(10, 92, 56, 0.08);
+  color: #0A5C38;
+}
+.news-card-comment-btn svg {
+  color: currentColor;
+}
+.news-see-more-link {
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0A5C38;
+  cursor: pointer;
+}
+.news-inline-comments-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--w-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inline-comment-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.inline-comment-input {
+  flex: 1;
+  height: 36px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--w-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  color: var(--w-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.inline-comment-input:focus {
+  border-color: #0A5C38;
+}
+.inline-comment-post-btn {
+  height: 36px;
+  padding: 0 14px;
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.inline-comment-post-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.inline-comments-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.inline-comment-entry {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.inline-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.inline-comment-author {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.inline-comment-time {
+  font-size: 10px;
+  color: #94A3B8;
+}
+.inline-comment-msg {
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.35;
+}
+.inline-no-comments {
+  font-size: 11.5px;
+  color: #94A3B8;
+  font-style: italic;
+  padding: 4px 2px;
+}
+
 </style>

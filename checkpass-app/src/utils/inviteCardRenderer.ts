@@ -212,10 +212,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   const textX = avX + avSize + 22
   let curY = idBoxY + 50
 
-  // Kicker
-  ctx.fillStyle = '#79F3BA'
-  ctx.font = 'bold 13px "DM Sans", -apple-system, sans-serif'
-  ctx.fillText('VERIFIED VISITOR', textX, curY)
+  // Kicker removed per user request
 
   // Visitor Name
   curY += 40
@@ -232,11 +229,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   const trimmedHost = hostLabel.length > 34 ? hostLabel.slice(0, 33) + '…' : hostLabel
   ctx.fillText(trimmedHost, textX, curY)
 
-  // Pass Reference ID tag
-  curY += 32
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)'
-  ctx.font = '600 13px "DM Sans", -apple-system, sans-serif'
-  ctx.fillText(`Pass #CP-${pass.id.slice(-6).toUpperCase()}`, textX, curY)
+  // Pass ref removed per user request
   ctx.restore()
 
   // ══ 3. BODY (Seamless White Background) ════════════════════════════════════
