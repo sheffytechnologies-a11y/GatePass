@@ -59,6 +59,9 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::prefix('v1')->group(function () {
 
+    // ── Public platform stats for landing page ─────────────────────────────
+    Route::get('platform-stats', [AdminController::class, 'publicPlatformStats']);
+
     // ── Public auth routes ─────────────────────────────────────────────────
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);

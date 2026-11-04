@@ -570,6 +570,24 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/v1/platform-stats
+     * Real-time platform aggregate counts for Checkpass landing page.
+     * Accessible publicly without authentication.
+     */
+    public function publicPlatformStats()
+    {
+        $propertiesOnboarded = Estate::count();
+
+        return response()->json([
+            'propertiesOnboarded' => $propertiesOnboarded,
+            'activeResidents'     => Resident::where('is_active', true)->count(),
+            'passesCreated'       => Pass::count(),
+            'entriesVerified'     => Pass::whereNotNull('arrived_at')->count(),
+            'itemsDeclared'       => \App\Models\Item::count(),
+        ]);
+    }
+
     // ── Formatters ─────────────────────────────────────────────────────────
 
     private function formatUser(User $u): array

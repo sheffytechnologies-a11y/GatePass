@@ -104,3 +104,7 @@ export const newsApi = {
   update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/news/${id}`, data),
   delete: (id: number) => client.delete(`/v1/admin/news/${id}`),
 }
+
+export const publicApi = {
+  getPlatformStats: () => client.get('/v1/platform-stats'),
+}
