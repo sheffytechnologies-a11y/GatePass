@@ -810,17 +810,15 @@ async function handleLogin() {
 }
 
 .hero-footer-trust {
-  display: inline-flex;
+  position: relative;
+  z-index: 3;
+  display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(8px);
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.65);
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .hero-footer-trust .shield-icon {
