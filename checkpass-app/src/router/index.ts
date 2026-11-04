@@ -27,10 +27,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pass/:id',
     component: () => import('@/views/PassDetailView.vue'),
+    meta: { hideTabBar: true },
   },
   {
     path: '/notifications',
     component: () => import('@/views/NotificationsView.vue'),
+    meta: { hideTabBar: true },
   },
   {
     path: '/fees/payment',
@@ -50,7 +52,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '',       redirect: '/tabs/home' },
       { path: 'home',      component: () => import('@/views/HomeView.vue') },
-      { path: 'create',    component: () => import('@/views/CreatePassView.vue') },
+      { path: 'create',    component: () => import('@/views/CreatePassView.vue'), meta: { hideTabBar: true } },
       { path: 'fees',      component: () => import('@/views/FeesView.vue') },
       { path: 'passes',    component: () => import('@/views/MyPassesView.vue') },
       { path: 'emergency', component: () => import('@/views/EmergencyView.vue') },

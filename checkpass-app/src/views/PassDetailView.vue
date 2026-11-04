@@ -3,7 +3,7 @@
     <ion-header class="ion-no-border">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button default-href="/tabs/passes" text="" />
+          <ion-back-button default-href="/tabs/home" text="" />
         </ion-buttons>
         <ion-title>Pass Details</ion-title>
       </ion-toolbar>

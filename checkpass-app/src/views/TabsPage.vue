@@ -2,7 +2,12 @@
   <ion-page>
     <ion-tabs>
       <ion-router-outlet />
-      <ion-tab-bar slot="bottom" class="custom-tab-bar" :selected-tab="activeTab">
+      <ion-tab-bar
+        v-if="showTabBar"
+        slot="bottom"
+        class="custom-tab-bar"
+        :selected-tab="activeTab"
+      >
 
         <ion-tab-button
           tab="home"
@@ -58,12 +63,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonPage, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet } from '@ionic/vue'
 import { homeOutline, addOutline, cardOutline, warningOutline, personOutline } from 'ionicons/icons'
 
 const route = useRoute()
+const isModalOpen = ref(false)
+
+onMounted(() => {
+  window.addEventListener('ionModalDidPresent', () => { isModalOpen.value = true })
+  window.addEventListener('ionModalDidDismiss', () => { isModalOpen.value = false })
+  window.addEventListener('ionAlertDidPresent', () => { isModalOpen.value = true })
+  window.addEventListener('ionAlertDidDismiss', () => { isModalOpen.value = false })
+  window.addEventListener('ionActionSheetDidPresent', () => { isModalOpen.value = true })
+  window.addEventListener('ionActionSheetDidDismiss', () => { isModalOpen.value = false })
+})
+
+const showTabBar = computed(() => {
+  if (isModalOpen.value) return false
+  if (route.meta?.hideTabBar) return false
+  const p = route.path || ''
+  if (
+    p.includes('/create') ||
+    p.includes('/pass/') ||
+    p.includes('/notifications') ||
+    p.includes('/fees/payment')
+  ) {
+    return false
+  }
+  return true
+})
 
 const activeTab = computed(() => {
   const p = route.path || ''
@@ -159,25 +189,34 @@ ion-tab-button.tab-selected ion-label {
   max-height: 44px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: -14px;
   box-shadow: 0 4px 14px rgba(10, 92, 56, 0.38);
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
-  margin: 0 auto;
-}
-
-.create-fab:active {
-  transform: scale(0.92);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
 }
 
 .create-fab ion-icon {
-  font-size: 26px !important;
-  width: 26px !important;
-  height: 26px !important;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
   color: #FFFFFF !important;
-  display: block;
-  margin: 0 !important;
+  margin: 0;
+}
+
+.tab-create:active .create-fab {
+  transform: scale(0.92);
+}
+
+.tab-create.is-active .create-fab {
+  background: var(--w-primary-dark, #053B23);
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.45);
+}
+
+body.modal-open ion-tab-bar,
+.modal-is-open ion-tab-bar,
+ion-modal.show-modal ~ ion-tab-bar {
+  display: none !important;
 }
 </style>
