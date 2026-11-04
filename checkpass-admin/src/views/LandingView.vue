@@ -5,7 +5,6 @@
       <div v-if="pageLoading" class="landing-screen-loader">
         <div class="landing-loader-center">
           <BrandSpinner :size="72" color="#0A5C38" />
-          <span class="landing-loader-text">Loading Checkpass...</span>
         </div>
       </div>
     </Transition>
@@ -2009,16 +2008,8 @@ onUnmounted(() => {
 }
 .landing-loader-center {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16px;
-}
-.landing-loader-text {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: #0A5C38;
-  letter-spacing: 0.04em;
+  justify-content: center;
 }
 .fade-landing-loader-enter-active,
 .fade-landing-loader-leave-active {
