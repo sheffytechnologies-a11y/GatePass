@@ -1,23 +1,25 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border profile-header">
-      <div class="profile-nav-bar">
-        <h1 class="profile-nav-title">Profile</h1>
-        <button class="header-view-pass-btn" @click="openPassModal" type="button" aria-label="View Resident Pass">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <span>View Pass</span>
-        </button>
-      </div>
+      <ion-toolbar class="profile-toolbar">
+        <ion-title class="profile-page-title">Profile</ion-title>
+        <ion-buttons slot="end">
+          <button class="header-view-pass-btn" @click="openPassModal" type="button" aria-label="View Resident Pass">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span>View Pass</span>
+          </button>
+        </ion-buttons>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true" class="profile-content">
       <div class="content-pad">
 
-        <!-- Profile Resident Card (Clean, Uncongested) -->
-        <div class="profile-card">
+        <!-- Profile Resident Card (Clean, Uncongested, taps to view pass) -->
+        <div class="profile-card" @click="openPassModal" role="button" tabindex="0" title="Tap to view your resident pass">
           <div class="profile-card-main">
             <div class="profile-avatar">{{ initials }}</div>
             <div class="profile-info">
@@ -341,16 +343,16 @@
         @didDismiss="showPassModal = false"
         class="resident-pass-modal"
       >
-        <div class="pass-modal-wrap">
-          <div class="pass-modal-header">
-            <div class="pass-modal-title-col">
-              <h3 class="pass-modal-title">Resident ID Pass</h3>
-              <p class="pass-modal-sub">Official digital pass for gate verification</p>
+        <div class="sheet-modal-shell resident-pass-sheet">
+          <div class="sheet-modal-header">
+            <div>
+              <div class="sheet-header-tag">Official Estate ID</div>
+              <h2 class="sheet-header-title">Resident Gate Pass</h2>
             </div>
-            <button class="pass-modal-close" @click="showPassModal = false" type="button" aria-label="Close pass">✕</button>
+            <button class="modal-close-btn" @click="showPassModal = false" type="button" aria-label="Close pass">&times;</button>
           </div>
 
-          <div class="pass-modal-body">
+          <div class="sheet-modal-body resident-pass-scroll">
             <!-- Branded Resident Pass Card (Exact same visual styling as Invite Card, without invite details) -->
             <ResidentPassCard :resident="auth.resident" />
 
@@ -399,7 +401,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonContent, IonButton,
+  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent, IonButton,
   IonIcon, IonToggle, IonModal, IonSpinner, alertController,
 } from '@ionic/vue'
 import {
@@ -916,56 +918,42 @@ async function handleLogout() {
   margin-top: 2px;
 }
 
-/* Modal styling */
-.resident-pass-modal {
-  --border-radius: 24px;
+/* Header toolbar styling */
+ion-toolbar.profile-toolbar {
+  --background: var(--w-bg);
+  --color: var(--w-text);
+  --border-width: 0;
+  --min-height: 56px;
+  padding: 0 8px 0 4px;
 }
-.pass-modal-wrap {
-  padding: 20px 16px 36px;
-  background: var(--w-bg, #F4F2EE);
-  min-height: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.pass-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0 4px;
-}
-.pass-modal-title {
-  margin: 0;
+.profile-page-title {
   font-size: 20px;
   font-weight: 700;
   color: var(--w-text);
+  font-family: var(--w-font-display, 'Bricolage Grotesque', sans-serif);
   letter-spacing: -0.3px;
+  padding-left: 8px;
 }
-.pass-modal-sub {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--w-muted);
+
+/* Modal styling */
+ion-modal.resident-pass-modal {
+  --height: 92%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.65;
+  align-items: flex-end;
 }
-.pass-modal-close {
-  background: rgba(0, 0, 0, 0.06);
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.resident-pass-sheet {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: var(--w-text);
-  cursor: pointer;
-  transition: background 0.15s ease;
+  flex-direction: column;
+  height: 100%;
+  background: #F4F2EE;
+  color: #112019;
+  overflow: hidden;
 }
-.pass-modal-close:active {
-  background: rgba(0, 0, 0, 0.12);
-}
-.pass-modal-body {
+.resident-pass-scroll {
+  padding: 16px 16px 36px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 16px;
