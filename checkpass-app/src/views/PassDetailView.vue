@@ -1,12 +1,24 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-back-button default-href="/tabs/home" text="" />
-        </ion-buttons>
-        <ion-title>Pass Details</ion-title>
-      </ion-toolbar>
+    <ion-header class="ion-no-border pass-detail-header">
+      <div class="pass-detail-nav-bar">
+        <div class="nav-left">
+          <button class="nav-back-btn" @click="router.back()" aria-label="Go back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <h1 class="nav-title">Pass Details</h1>
+        </div>
+        <div class="nav-right">
+          <button v-if="canShare" class="nav-share-btn" title="Share Pass" @click="sharePass" aria-label="Share Pass">
+            <svg width="22" height="22" viewBox="0 0 256 256" fill="currentColor">
+              <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </ion-header>
 
     <ion-content :fullscreen="true" class="detail-content">
@@ -42,10 +54,57 @@
           :estate-name="auth.resident?.estateName"
         />
 
-        <!-- Declared items -->
-        <div v-if="pass.flaggedItems.length > 0 || canDeclare" class="flagged-section">
+        <!-- Actions (Moved above Declared Items) -->
+        <div class="actions-section">
+          <div class="actions-header">ACTIONS</div>
+
+          <!-- Security Gate Guard Actions (if applicable) -->
+          <div v-if="canAllowEntry || canMarkExited" class="guard-actions-row">
+            <button v-if="canAllowEntry" class="guard-btn guard-btn-allow" @click="handleAllowEntry">
+              <span>✅ Allow Entry</span>
+            </button>
+            <button v-if="canMarkExited" class="guard-btn guard-btn-exit" @click="handleMarkExited">
+              <span>🚪 Mark Exited</span>
+            </button>
+          </div>
+
+          <!-- Single-Row Resident Actions -->
+          <div class="action-single-row">
+            <!-- Primary CTA: Share with Phosphor icon -->
+            <button v-if="canShare" class="btn-action btn-share" @click="sharePass">
+              <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+              </svg>
+              <span>Share</span>
+            </button>
+
+            <!-- Revoke (Clean background, no heavy border stroke) -->
+            <button v-if="canRevoke" class="btn-action btn-revoke" @click="confirmRevoke">
+              <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a87.64,87.64,0,0,1-54.67-19.19l117.86-117.86A88,88,0,0,1,128,216Zm62.67-34.14L72.81,64.2A88,88,0,0,1,190.67,181.86Z"/>
+              </svg>
+              <span>Revoke</span>
+            </button>
+
+            <!-- Call Visitor: Icon-only in the same line -->
+            <button
+              class="btn-action btn-call-icon"
+              :class="{ 'btn-call-disabled': !pass.visitorPhone }"
+              title="Call Visitor"
+              @click="handleCallVisitor"
+              aria-label="Call Visitor"
+            >
+              <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
+                <path d="M222.37,158.46l-47.11-21.11a16,16,0,0,0-15.71,2.53L136.08,160a124.63,124.63,0,0,1-56.12-56.12l20.12-23.47a16,16,0,0,0,2.53-15.71L81.5,17.59A16,16,0,0,0,66.86,8,56.26,56.26,0,0,0,10.6,63.49,192.29,192.29,0,0,0,192.51,245.4a56.26,56.26,0,0,0,55.49-56.26A16,16,0,0,0,222.37,158.46ZM192.51,229.4A176.26,176.26,0,0,1,26.6,63.49,40.23,40.23,0,0,1,66.86,24l47.11,21.11L94.46,68a12,12,0,0,0-2.31,13.27,140.72,140.72,0,0,0,82.58,82.58A12,12,0,0,0,188,161.54l22.89-19.52L232,163.13A40.23,40.23,0,0,1,192.51,229.4Z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Declared Exit Items (Moved below Actions) -->
+        <div class="flagged-section">
           <div class="declared-head">
-            <div class="declared-title">DECLARED ITEMS ({{ pass.flaggedItems.length }})</div>
+            <div class="declared-title">Declared Exit Items ({{ pass.flaggedItems.length }})</div>
             <button v-if="canDeclare" class="declared-add" @click="openFlagSheet">+ Add item</button>
           </div>
 
@@ -65,68 +124,6 @@
             </div>
             <div class="flagged-time">{{ fmtRelative(item.flaggedAt) }}</div>
           </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="actions-section">
-          <div class="actions-header">ACTIONS</div>
-          <div class="action-tiles">
-            <!-- Security Gate Guard Actions -->
-            <button v-if="canAllowEntry" class="tile tile-success" @click="handleAllowEntry">
-              <span class="tile-icon">✅</span>
-              <div class="tile-body">
-                <span class="tile-title">Allow Entry</span>
-                <span class="tile-sub">Record entry at gate</span>
-              </div>
-            </button>
-            <button v-if="canMarkExited" class="tile tile-exit" @click="handleMarkExited">
-              <span class="tile-icon">🚪</span>
-              <div class="tile-body">
-                <span class="tile-title">Mark Exited</span>
-                <span class="tile-sub">Record exit from gate</span>
-              </div>
-            </button>
-
-            <!-- Resident Actions -->
-            <button v-if="canDeclare" class="tile tile-warn" @click="openFlagSheet">
-              <span class="tile-icon">📦</span>
-              <div class="tile-body">
-                <span class="tile-title">Flag Exit Item</span>
-                <span class="tile-sub">Declare item leaving estate</span>
-              </div>
-            </button>
-            <button v-if="canRevoke" class="tile tile-danger" @click="confirmRevoke">
-              <span class="tile-icon">🚫</span>
-              <div class="tile-body">
-                <span class="tile-title">Revoke Pass</span>
-                <span class="tile-sub">Cancel visitor access</span>
-              </div>
-            </button>
-            <button v-if="canExtend" class="tile" @click="openExtend">
-              <span class="tile-icon">⏱️</span>
-              <div class="tile-body">
-                <span class="tile-title">Extend Pass</span>
-                <span class="tile-sub">Add 2 more hours</span>
-              </div>
-            </button>
-            <button v-if="canShare" class="tile" @click="sharePass">
-              <span class="tile-icon">↗️</span>
-              <div class="tile-body">
-                <span class="tile-title">Share Pass</span>
-                <span class="tile-sub">Share QR code image</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <!-- Contact visitor -->
-        <div v-if="pass.visitorPhone" class="contact-row">
-          <a :href="`tel:${pass.visitorPhone}`" class="contact-btn">
-            <ion-icon :icon="callOutline" /> Call Visitor
-          </a>
-          <a :href="`https://wa.me/${pass.visitorPhone.replace('+','')}`" target="_blank" class="contact-btn">
-            💬 Message
-          </a>
         </div>
 
       </div>
@@ -156,11 +153,10 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-  IonContent, IonRefresher, IonRefresherContent, IonSkeletonText, IonIcon,
-  alertController, actionSheetController,
+  IonPage, IonHeader,
+  IonContent, IonRefresher, IonRefresherContent, IonSkeletonText,
+  alertController,
 } from '@ionic/vue'
-import { callOutline } from 'ionicons/icons'
 import { usePassesStore } from '@/stores/passes'
 import { useAuthStore } from '@/stores/auth'
 import { passesApi } from '@/api/passes'
@@ -186,7 +182,6 @@ const displayStatus = computed(() => pass.value ? store.displayStatus(pass.value
 const showQR        = computed(() => pass.value && ['On-site','Pending'].includes(pass.value.status))
 const canDeclare    = computed(() => pass.value && ['On-site','Pending','Item Flagged'].includes(displayStatus.value) && pass.value.status !== 'Revoked' && pass.value.status !== 'Exited')
 const canRevoke     = computed(() => pass.value && !['Exited','Revoked','Expired'].includes(pass.value.status))
-const canExtend     = computed(() => pass.value && !['Exited','Revoked'].includes(pass.value.status))
 const canShare      = computed(() => Boolean(pass.value && showQR.value))
 const canAllowEntry = computed(() => Boolean(auth.isSecurityUser && pass.value && pass.value.status === 'Pending'))
 const canMarkExited = computed(() => Boolean(auth.isSecurityUser && pass.value && pass.value.status === 'On-site'))
@@ -215,6 +210,14 @@ async function onExitCompleted() {
 async function load() { await store.fetchById(route.params.id as string) }
 async function onRefresh(e: CustomEvent) { await load(); (e.target as HTMLIonRefresherElement).complete() }
 
+function handleCallVisitor() {
+  if (pass.value?.visitorPhone) {
+    window.location.href = `tel:${pass.value.visitorPhone}`
+  } else {
+    showToast('No phone number provided for this visitor.', 'warning')
+  }
+}
+
 async function confirmRevoke() {
   const isOnsite = pass.value?.status === 'On-site'
   const alert = await alertController.create({
@@ -238,48 +241,6 @@ async function confirmRevoke() {
     ],
   })
   await alert.present()
-}
-
-async function openExtend() {
-  const id = pass.value!.id
-  const sheet = await actionSheetController.create({
-    header: 'Extend Pass',
-    buttons: [
-      {
-        text: '+1 Hour',
-        handler: () => extendBy(60),
-      },
-      {
-        text: '+3 Hours',
-        handler: () => extendBy(180),
-      },
-      {
-        text: 'Until end of day',
-        handler: async () => {
-          const eod = new Date()
-          eod.setHours(23, 59, 0, 0)
-          await doExtend(id, eod.toISOString())
-        },
-      },
-      { text: 'Cancel', role: 'cancel' },
-    ],
-  })
-  await sheet.present()
-}
-
-async function extendBy(minutes: number) {
-  const current = new Date(pass.value!.expiresAt)
-  const newTime = new Date(current.getTime() + minutes * 60 * 1000)
-  await doExtend(pass.value!.id, newTime.toISOString())
-}
-
-async function doExtend(id: string, newExpiresAt: string) {
-  try {
-    await store.extendPass(id, newExpiresAt)
-    showToast(`Pass extended to ${new Date(newExpiresAt).toLocaleTimeString('en-NG', { hour:'2-digit', minute:'2-digit', hour12:true })}`, 'success')
-  } catch {
-    showToast("Couldn't extend pass. Try again.", 'error')
-  }
 }
 
 function openFlagSheet() { flagSheetOpen.value = true }
@@ -349,7 +310,6 @@ function downloadQrImage(dataUrl: string, fileName: string) {
   document.body.removeChild(link)
 }
 
-
 function fmtRelative(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
@@ -360,101 +320,179 @@ onMounted(load)
 </script>
 
 <style scoped>
+.pass-detail-header {
+  background: var(--w-bg);
+  box-shadow: none;
+}
+.pass-detail-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ion-safe-area-top, 0px) + 14px) 16px 12px;
+  background: var(--w-bg);
+}
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Exactly 8px spacing requested */
+}
+.nav-back-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--w-text);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.nav-back-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+.nav-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--w-text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+.nav-share-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--w-text);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.nav-share-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .detail-content { --background: var(--w-bg); }
-.content-pad { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; }
+.content-pad { padding: 12px 16px 100px; display: flex; flex-direction: column; gap: 16px; }
 .center { align-items: center; justify-content: center; min-height: 60vh; }
 .sk-card  { height: 130px; border-radius: var(--w-radius-lg); display: block; }
 .sk-qr    { height: 260px; border-radius: var(--w-radius-lg); display: block; }
 .sk-tiles { height: 100px; border-radius: var(--w-radius-lg); display: block; }
 
-/* Visitor Card */
-.visitor-card {
-  position: relative;
-  background: var(--w-surface);
-  border-radius: var(--w-radius-lg);
-  border: 1.5px solid #00C97A;
-  overflow: hidden;
+/* Actions */
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.vc-watermark {
-  position: absolute;
-  top: -24px;
-  right: -24px;
-  width: 140px;
-  height: 140px;
-  pointer-events: none;
-  opacity: 0.055;
-  animation: logoZoomBreath 8s ease-in-out infinite;
-  transform-origin: center center;
-  z-index: 0;
+.actions-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--w-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
-.vc-watermark svg {
-  width: 100%;
-  height: 100%;
+.guard-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 4px;
 }
-@keyframes logoZoomBreath {
-  0%, 100% {
-    transform: scale(0.92) rotate(0deg);
-    opacity: 0.055;
-  }
-  50% {
-    transform: scale(1.15) rotate(2deg);
-    opacity: 0.095;
-  }
-}
-.full-width-cell {
-  grid-column: span 2;
-}
-.vc-header {
-  position: relative;
-  z-index: 1;
+.guard-btn {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px 16px 16px;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  border-radius: var(--w-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s;
 }
-.visitor-avatar {
-  width: 52px; height: 52px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 18px; font-weight: 700; flex-shrink: 0;
+.guard-btn:active { transform: scale(0.97); }
+.guard-btn-allow { background: rgba(0, 201, 122, 0.15); color: #065F46; }
+.guard-btn-exit  { background: #EEF2FF; color: #4338CA; }
+
+/* Single-row resident actions */
+.action-single-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.vc-header-info { flex: 1; }
-.visitor-name { font-size: 18px; font-weight: 700; color: var(--w-text); }
-.pass-ref { font-size: 13px; color: var(--w-muted); margin-top: 2px; }
-.vc-badges { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-.badge-status {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
-  background: rgba(0,201,122,0.12); color: #00C97A;
+.btn-action {
+  height: 48px;
+  border-radius: var(--w-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--w-font-body);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.15s ease;
 }
-.badge-status.badge-pending { background: rgba(245,158,11,0.12); color: #D97706; }
-.badge-status.badge-inactive { background: rgba(107,114,128,0.1); color: #6B7280; }
-.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #00C97A; }
-.status-dot.dot-pending { background: #F59E0B; }
-.status-dot.dot-inactive { background: #9CA3AF; }
-.badge-type {
-  font-size: 12px; font-weight: 600; color: #fff;
-  background: #111; padding: 3px 10px; border-radius: 20px;
+.btn-action:active {
+  transform: scale(0.97);
 }
 
-/* Info Grid */
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid var(--w-border);
+/* Share: Primary CTA */
+.btn-share {
+  flex: 1.25;
+  background: #0A5C38;
+  color: #ffffff;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
 }
-.info-cell {
-  padding: 13px 16px;
-  border-right: 1px solid var(--w-border);
+.btn-share:hover {
+  background: #084c2e;
 }
-.info-cell-right { border-right: none; }
-.info-cell-top { border-top: 1px solid var(--w-border); }
-.info-cell-label {
-  font-size: 10px; font-weight: 700; color: var(--w-muted);
-  letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 5px;
-}
-.info-cell-value { font-size: 14px; font-weight: 500; color: var(--w-text); }
 
-/* Declared items */
+/* Revoke: Secondary action, no background stroke */
+.btn-revoke {
+  flex: 1;
+  background: #FEE2E2;
+  color: #DC2626;
+  gap: 8px;
+  border: none;
+}
+.btn-revoke:hover {
+  background: #FECACA;
+}
+
+/* Call: Icon-only button in the same line */
+.btn-call-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  background: var(--w-surface);
+  color: #0A5C38;
+  border: 1.5px solid var(--w-border);
+  border-radius: var(--w-radius-md);
+  padding: 0;
+}
+.btn-call-icon:hover {
+  background: rgba(10, 92, 56, 0.06);
+}
+.btn-call-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Declared exit items */
 .flagged-section { display: flex; flex-direction: column; gap: 8px; }
 .declared-head {
   display: flex;
@@ -466,7 +504,7 @@ onMounted(load)
   font-size: 11px;
   font-weight: 700;
   color: var(--w-muted);
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 .declared-add {
@@ -476,6 +514,7 @@ onMounted(load)
   font-size: 12px;
   font-weight: 700;
   padding: 0;
+  cursor: pointer;
   font-family: var(--w-font-body);
 }
 .declared-empty {
@@ -531,36 +570,4 @@ onMounted(load)
   text-transform: uppercase;
 }
 .flagged-time { font-size: 12px; color: var(--w-muted); }
-
-/* Actions */
-.actions-section { display: flex; flex-direction: column; gap: 10px; }
-.actions-header {
-  font-size: 11px; font-weight: 700; color: var(--w-muted);
-  letter-spacing: 1px; text-transform: uppercase;
-}
-.action-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.tile {
-  display: flex; flex-direction: row; align-items: center; gap: 12px;
-  padding: 16px 14px; border-radius: var(--w-radius-md);
-  border: 1.5px solid var(--w-border); background: var(--w-surface);
-  cursor: pointer; font-family: var(--w-font-body); transition: all 0.15s; text-align: left;
-}
-.tile:active { transform: scale(0.96); }
-.tile-warn   { border-color: var(--w-warning); background: var(--w-warning-light); }
-.tile-danger { border-color: var(--w-danger);  background: var(--w-danger-light); }
-.tile-success { border-color: var(--w-primary); background: var(--w-primary-light); }
-.tile-exit    { border-color: #6366f1; background: #eef2ff; }
-.tile-icon { font-size: 22px; flex-shrink: 0; }
-.tile-body { display: flex; flex-direction: column; gap: 2px; }
-.tile-title { font-size: 13px; font-weight: 700; color: var(--w-text); line-height: 1.3; }
-.tile-sub   { font-size: 11px; color: var(--w-muted); line-height: 1.3; }
-
-/* Contact */
-.contact-row { display: flex; gap: 10px; }
-.contact-btn {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 14px; border-radius: var(--w-radius-md); border: 1.5px solid var(--w-border);
-  background: var(--w-surface); font-size: 14px; font-weight: 600; color: var(--w-text);
-  text-decoration: none; transition: all 0.15s;
-}
 </style>
