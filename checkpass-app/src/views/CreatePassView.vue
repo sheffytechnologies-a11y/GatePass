@@ -113,10 +113,19 @@
             <div class="photo-upload-wrap">
               <div v-if="form.photoUrl" class="photo-preview-box">
                 <img :src="form.photoUrl" alt="Visitor photo" class="photo-preview-img" />
-                <button type="button" class="photo-remove-btn" @click="form.photoUrl = ''">&times;</button>
+                <div class="photo-preview-actions">
+                  <button type="button" class="photo-recrop-btn" @click="reCropPhoto" title="Re-crop photo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 2v14a2 2 0 0 0 2 2h14"/>
+                      <path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+                    </svg>
+                    <span>Crop</span>
+                  </button>
+                  <button type="button" class="photo-remove-btn" @click="clearPhoto" title="Remove photo">&times;</button>
+                </div>
               </div>
               <label v-else class="photo-upload-trigger">
-                <input type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
+                <input ref="fileInputRef" type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
                 <div class="photo-upload-box">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -169,6 +178,14 @@
         </div>
       </div>
     </ion-content>
+
+    <!-- Interactive Image Cropper Modal -->
+    <ImageCropperModal
+      :is-open="showCropper"
+      :image-src="rawPhotoSrc"
+      @crop="onPhotoCropped"
+      @cancel="onCropCancelled"
+    />
   </ion-page>
 </template>
 
@@ -180,6 +197,7 @@ import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons'
 import type { Pass } from '@/types'
 import { useToast } from '@/composables/useToast'
 import client from '@/api/client'
+import ImageCropperModal from '@/components/ImageCropperModal.vue'
 
 const router = useRouter()
 const { showToast } = useToast()
@@ -213,19 +231,54 @@ const validationError = computed(() => {
   return null
 })
 
+// ── CROPPER STATE & HANDLERS ──
+const showCropper   = ref(false)
+const rawPhotoSrc   = ref('')
+const fileInputRef  = ref<HTMLInputElement | null>(null)
+
 function handlePhotoUpload(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('Photo must be under 5MB', 'warning')
+  if (file.size > 8 * 1024 * 1024) {
+    showToast('Photo must be under 8MB', 'warning')
     return
   }
   const reader = new FileReader()
   reader.onload = (evt) => {
-    form.value.photoUrl = evt.target?.result as string
+    rawPhotoSrc.value = evt.target?.result as string
+    showCropper.value = true
+    if (fileInputRef.value) {
+      fileInputRef.value.value = ''
+    }
   }
   reader.readAsDataURL(file)
+}
+
+function onPhotoCropped(croppedDataUrl: string) {
+  form.value.photoUrl = croppedDataUrl
+  showCropper.value = false
+}
+
+function onCropCancelled() {
+  showCropper.value = false
+}
+
+function reCropPhoto() {
+  if (rawPhotoSrc.value) {
+    showCropper.value = true
+  } else if (form.value.photoUrl) {
+    rawPhotoSrc.value = form.value.photoUrl
+    showCropper.value = true
+  }
+}
+
+function clearPhoto() {
+  form.value.photoUrl = ''
+  rawPhotoSrc.value = ''
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
 }
 
 function toggleDay(d: string) {
@@ -482,31 +535,59 @@ function goToHome() {
 .photo-upload-box:active { background: rgba(10, 92, 56, 0.05); }
 .photo-upload-box svg { color: var(--w-primary, #0A5C38); }
 .photo-preview-box {
-  position: relative;
-  display: inline-block;
-  width: 72px;
-  height: 72px;
-  border-radius: var(--w-radius-md);
-  overflow: hidden;
-  border: 2px solid var(--w-primary, #0A5C38);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--w-surface);
+  border: 1.5px solid var(--w-border);
+  border-radius: var(--w-radius-md, 14px);
+  padding: 8px 12px;
 }
-.photo-preview-img { width: 100%; height: 100%; object-fit: cover; }
+.photo-preview-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1.5px solid var(--w-primary, #0A5C38);
+}
+.photo-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.photo-recrop-btn {
+  background: rgba(10, 92, 56, 0.08);
+  border: 1px solid rgba(10, 92, 56, 0.22);
+  color: var(--w-primary, #0A5C38);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.photo-recrop-btn:active {
+  background: rgba(10, 92, 56, 0.16);
+}
 .photo-remove-btn {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.65);
-  color: #ffffff;
+  background: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
   border: none;
-  font-size: 14px;
-  line-height: 1;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+.photo-remove-btn:active {
+  background: rgba(220, 38, 38, 0.2);
 }
 
 </style>
