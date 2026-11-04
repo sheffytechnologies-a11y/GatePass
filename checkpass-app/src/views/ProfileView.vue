@@ -1,57 +1,30 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title>Profile</ion-title>
-      </ion-toolbar>
+    <ion-header class="ion-no-border profile-header">
+      <div class="profile-nav-bar">
+        <h1 class="profile-nav-title">Profile</h1>
+        <button class="header-view-pass-btn" @click="openPassModal" type="button" aria-label="View Resident Pass">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>View Pass</span>
+        </button>
+      </div>
     </ion-header>
 
     <ion-content :fullscreen="true" class="profile-content">
       <div class="content-pad">
 
-        <!-- Profile / Resident Pass card -->
+        <!-- Profile Resident Card (Clean, Uncongested) -->
         <div class="profile-card">
           <div class="profile-card-main">
             <div class="profile-avatar">{{ initials }}</div>
             <div class="profile-info">
-              <div class="profile-name-row">
-                <span class="profile-name">{{ auth.resident?.name }}</span>
-                <span class="verified-resident-pill">✓ Verified</span>
-              </div>
+              <div class="profile-name">{{ auth.resident?.name }}</div>
               <div class="profile-unit">{{ auth.resident?.flatAddress }}</div>
               <div class="profile-estate">{{ auth.resident?.estateName }}</div>
             </div>
-
-            <!-- QR Code container directly on the card -->
-            <button class="profile-qr-box" @click="openPassModal" type="button" aria-label="Expand Resident QR Pass">
-              <canvas ref="cardQrCanvas" class="profile-qr-canvas"></canvas>
-              <span class="profile-qr-sub">Scan / View</span>
-            </button>
-          </div>
-
-          <!-- Quick Action Row on Card -->
-          <div class="profile-card-actions">
-            <button class="pass-card-btn" @click="openPassModal" type="button">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span>View Pass</span>
-            </button>
-            <button
-              class="pass-card-btn pass-card-btn--download"
-              @click="downloadResidentPass"
-              :disabled="downloadingPass"
-              type="button"
-            >
-              <svg v-if="!downloadingPass" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <ion-spinner v-else name="crescent" color="dark" style="width:14px;height:14px" />
-              <span>{{ downloadingPass ? 'Generating…' : 'Download Pass' }}</span>
-            </button>
           </div>
         </div>
 
@@ -374,55 +347,45 @@
               <h3 class="pass-modal-title">Resident ID Pass</h3>
               <p class="pass-modal-sub">Official digital pass for gate verification</p>
             </div>
-            <button class="pass-modal-close" @click="showPassModal = false" type="button">✕</button>
+            <button class="pass-modal-close" @click="showPassModal = false" type="button" aria-label="Close pass">✕</button>
           </div>
 
           <div class="pass-modal-body">
-            <!-- Pass Card Preview -->
-            <div class="modal-pass-card">
-              <div class="modal-card-top">
-                <div class="modal-card-brand">
-                  <span class="modal-brand-name">Checkpass</span>
-                  <span class="modal-brand-tag">RESIDENT PASS</span>
-                </div>
-                <div class="modal-res-row">
-                  <div class="modal-res-avatar">{{ initials }}</div>
-                  <div class="modal-res-info">
-                    <div class="modal-res-name">{{ auth.resident?.name }}</div>
-                    <div class="modal-res-unit">{{ auth.resident?.flatAddress }}</div>
-                    <div class="modal-res-estate">{{ auth.resident?.estateName }}</div>
-                  </div>
-                </div>
-              </div>
+            <!-- Branded Resident Pass Card (Exact same visual styling as Invite Card, without invite details) -->
+            <ResidentPassCard :resident="auth.resident" />
 
-              <!-- Large Scan-ready QR Code -->
-              <div class="modal-qr-section">
-                <div class="modal-qr-container">
-                  <canvas ref="modalQrCanvas" class="modal-qr-canvas"></canvas>
-                </div>
-                <div class="modal-qr-badge">✓ Verified Active Resident</div>
-                <div class="modal-qr-instruction">
-                  Present this QR code to security officers at the estate gate or checkpoint
-                </div>
-              </div>
-            </div>
-
-            <!-- Download Button -->
+            <!-- Actions below card (Download Pass & Share Pass) -->
             <div class="pass-modal-actions">
-              <button
-                class="pass-modal-btn pass-modal-btn--primary"
-                @click="downloadResidentPass"
-                :disabled="downloadingPass"
-                type="button"
-              >
-                <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
-                <span>{{ downloadingPass ? 'Generating…' : 'Download Pass Card' }}</span>
-              </button>
+              <div class="action-row-share">
+                <button
+                  class="btn-action btn-share-full"
+                  @click="downloadResidentPass"
+                  :disabled="downloadingPass"
+                  type="button"
+                >
+                  <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
+                  <span>{{ downloadingPass ? 'Generating Pass…' : 'Download Pass' }}</span>
+                </button>
+              </div>
+
+              <div class="action-row-secondary">
+                <button
+                  class="btn-action btn-secondary-full"
+                  @click="shareResidentPass"
+                  :disabled="downloadingPass"
+                  type="button"
+                >
+                  <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                    <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+                  </svg>
+                  <span>Share Pass</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -433,10 +396,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
+  IonPage, IonHeader, IonContent, IonButton,
   IonIcon, IonToggle, IonModal, IonSpinner, alertController,
 } from '@ionic/vue'
 import {
@@ -444,7 +407,7 @@ import {
   enterOutline, timeOutline, helpCircleOutline, shieldCheckmarkOutline,
   chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline, callOutline,
 } from 'ionicons/icons'
-import QRCode from 'qrcode'
+import ResidentPassCard from '@/components/ResidentPassCard.vue'
 import { generateResidentPassImage } from '@/utils/inviteCardRenderer'
 import EmptyState from '@/components/EmptyState.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -464,50 +427,9 @@ const expiryAlerts = ref(true)
 // ── RESIDENT PASS ID STATE & DOWNLOAD ──
 const showPassModal   = ref(false)
 const downloadingPass = ref(false)
-const cardQrCanvas    = ref<HTMLCanvasElement | null>(null)
-const modalQrCanvas   = ref<HTMLCanvasElement | null>(null)
 
-function getResidentQRData(): string {
-  const res = auth.resident
-  return `CHECKPASS:RESIDENT:${res?.id || 'RES'}:${res?.flatAddress || ''}`
-}
-
-async function renderCardQR() {
-  await nextTick()
-  if (!cardQrCanvas.value) return
-  try {
-    await QRCode.toCanvas(cardQrCanvas.value, getResidentQRData(), {
-      width: 58,
-      margin: 1,
-      color: {
-        dark: '#0A5C38',
-        light: '#FFFFFF',
-      },
-    })
-  } catch (e) {
-    console.error('Failed to render card QR:', e)
-  }
-}
-
-async function openPassModal() {
+function openPassModal() {
   showPassModal.value = true
-  await nextTick()
-  setTimeout(async () => {
-    if (modalQrCanvas.value) {
-      try {
-        await QRCode.toCanvas(modalQrCanvas.value, getResidentQRData(), {
-          width: 200,
-          margin: 1,
-          color: {
-            dark: '#0A5C38',
-            light: '#FFFFFF',
-          },
-        })
-      } catch (e) {
-        console.error('Failed to render modal QR:', e)
-      }
-    }
-  }, 100)
 }
 
 function dataUrlToBlob(dataUrl: string): Blob {
@@ -537,7 +459,35 @@ async function downloadResidentPass() {
   if (!auth.resident) return
   downloadingPass.value = true
   try {
-    showToast('Generating resident pass card…', 'warning')
+    showToast('Generating resident pass…', 'warning')
+    const passDataUrl = await generateResidentPassImage({
+      resident: {
+        id: auth.resident.id,
+        name: auth.resident.name,
+        flatAddress: auth.resident.flatAddress,
+        estateName: auth.resident.estateName,
+        phone: auth.resident.phone,
+        role: auth.resident.role,
+      },
+    })
+    const imageBlob = dataUrlToBlob(passDataUrl)
+    const sanitizedName = (auth.resident.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const fileName = `checkpass-resident-pass-${sanitizedName}.png`
+    downloadImageBlob(imageBlob, fileName)
+    showToast('Resident pass downloaded successfully!', 'success')
+  } catch (err) {
+    console.error('Error generating resident pass:', err)
+    showToast('Failed to download resident pass.', 'error')
+  } finally {
+    downloadingPass.value = false
+  }
+}
+
+async function shareResidentPass() {
+  if (!auth.resident) return
+  downloadingPass.value = true
+  try {
+    showToast('Preparing resident pass card…', 'warning')
     const passDataUrl = await generateResidentPassImage({
       resident: {
         id: auth.resident.id,
@@ -582,20 +532,12 @@ async function downloadResidentPass() {
       showToast('Resident pass shared successfully!', 'success')
     }
   } catch (err) {
-    console.error('Error generating resident pass:', err)
-    showToast('Failed to generate resident pass.', 'error')
+    console.error('Error sharing resident pass:', err)
+    showToast('Failed to share resident pass.', 'error')
   } finally {
     downloadingPass.value = false
   }
 }
-
-onMounted(() => {
-  renderCardQR()
-})
-
-watch(() => auth.resident, () => {
-  renderCardQR()
-})
 
 // ── ESTATE ADMIN MESSAGING STATE ──
 const showMessageModal = ref(false)
@@ -887,13 +829,49 @@ async function handleLogout() {
 .profile-content { --background: var(--w-bg); }
 .content-pad { padding: 16px 16px 80px; display: flex; flex-direction: column; gap: 20px; }
 
+.profile-header {
+  background: var(--w-bg);
+  box-shadow: none;
+}
+.profile-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ion-safe-area-top, 0px) + 14px) 16px 12px;
+  background: var(--w-bg);
+}
+.profile-nav-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--w-text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.header-view-pass-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--w-primary, #0A5C38);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
+  transition: all 0.15s ease;
+}
+.header-view-pass-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
 .profile-card {
   background: var(--w-primary, #0A5C38);
   border-radius: var(--w-radius-xl, 22px);
-  padding: 18px 20px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  padding: 20px 20px;
   color: white;
   box-shadow: 0 4px 16px rgba(10, 92, 56, 0.18);
 }
@@ -903,8 +881,8 @@ async function handleLogout() {
   gap: 14px;
 }
 .profile-avatar {
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: rgba(255,255,255,0.2);
   display: flex;
@@ -920,101 +898,22 @@ async function handleLogout() {
   display: flex;
   flex-direction: column;
 }
-.profile-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 .profile-name {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   font-family: var(--w-font-display);
   color: #FFFFFF;
-}
-.verified-resident-pill {
-  font-size: 10px;
-  font-weight: 700;
-  background: rgba(0, 229, 143, 0.2);
-  color: #00E58F;
-  border: 1px solid rgba(0, 229, 143, 0.4);
-  padding: 1px 7px;
-  border-radius: 12px;
-  letter-spacing: 0.2px;
+  line-height: 1.2;
 }
 .profile-unit {
   font-size: 14px;
   opacity: 0.88;
-  margin-top: 3px;
+  margin-top: 4px;
 }
 .profile-estate {
   font-size: 12.5px;
   opacity: 0.7;
-  margin-top: 1px;
-}
-
-.profile-qr-box {
-  background: #FFFFFF;
-  border: none;
-  border-radius: 12px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-.profile-qr-box:active {
-  transform: scale(0.95);
-}
-.profile-qr-canvas {
-  width: 58px;
-  height: 58px;
-  display: block;
-}
-.profile-qr-sub {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #0A5C38;
-  letter-spacing: -0.2px;
-}
-
-.profile-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-.pass-card-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #FFFFFF;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.pass-card-btn:active {
-  background: rgba(255, 255, 255, 0.25);
-}
-.pass-card-btn--download {
-  background: #FFFFFF;
-  border-color: #FFFFFF;
-  color: #0A5C38;
-  font-weight: 700;
-}
-.pass-card-btn--download:active {
-  background: #F0FDF4;
+  margin-top: 2px;
 }
 
 /* Modal styling */
@@ -1022,23 +921,27 @@ async function handleLogout() {
   --border-radius: 24px;
 }
 .pass-modal-wrap {
-  padding: 20px 20px 32px;
+  padding: 20px 16px 36px;
   background: var(--w-bg, #F4F2EE);
   min-height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 .pass-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  padding: 0 4px;
 }
 .pass-modal-title {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
   color: var(--w-text);
+  letter-spacing: -0.3px;
 }
 .pass-modal-sub {
   margin: 4px 0 0;
@@ -1057,123 +960,61 @@ async function handleLogout() {
   font-size: 14px;
   color: var(--w-text);
   cursor: pointer;
+  transition: background 0.15s ease;
 }
-.modal-pass-card {
-  background: #FFFFFF;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.pass-modal-close:active {
+  background: rgba(0, 0, 0, 0.12);
 }
-.modal-card-top {
-  background: linear-gradient(135deg, #0A5C38, #004422);
-  padding: 20px;
-  color: white;
-}
-.modal-card-brand {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.modal-brand-name {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
-}
-.modal-brand-tag {
-  font-size: 10px;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.18);
-  padding: 3px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.5px;
-}
-.modal-res-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.modal-res-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-}
-.modal-res-name {
-  font-size: 18px;
-  font-weight: 700;
-}
-.modal-res-unit {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-top: 2px;
-}
-.modal-res-estate {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-.modal-qr-section {
-  padding: 24px 20px 20px;
+.pass-modal-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
-}
-.modal-qr-container {
-  background: #FFFFFF;
-  border: 1px solid rgba(10, 92, 56, 0.15);
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-}
-.modal-qr-canvas {
-  width: 200px;
-  height: 200px;
-  display: block;
-}
-.modal-qr-badge {
-  display: inline-block;
-  background: #E8F7F0;
-  color: #0A5C38;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 12px;
-}
-.modal-qr-instruction {
-  font-size: 12.5px;
-  color: var(--w-muted);
-  max-width: 260px;
-  line-height: 1.4;
+  gap: 16px;
 }
 .pass-modal-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 4px;
 }
-.pass-modal-btn {
+.btn-share-full {
   width: 100%;
-  height: 48px;
-  border-radius: 14px;
+  height: 50px;
+  background: var(--w-primary, #0A5C38);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--w-radius-md, 14px);
   font-size: 15px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22);
   cursor: pointer;
-  border: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pass-modal-btn--primary {
-  background: var(--w-primary, #0A5C38);
-  color: white;
+.btn-share-full:active {
+  transform: scale(0.98);
+}
+.btn-secondary-full {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  color: var(--w-primary, #0A5C38);
+  border: 1.5px solid var(--w-primary, #0A5C38);
+  border-radius: var(--w-radius-md, 14px);
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-secondary-full:active {
+  background: rgba(10, 92, 56, 0.05);
+  transform: scale(0.98);
 }
 
 .push-banner { background: var(--w-warning-light); border-radius: var(--w-radius-md); padding: 12px 16px; font-size: 14px; color: var(--w-warning); display: flex; align-items: center; gap: 8px; }
