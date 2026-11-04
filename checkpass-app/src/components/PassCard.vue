@@ -75,10 +75,11 @@ function fmtTime(iso: string | null) {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--w-surface);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--w-radius-md);
   padding: 14px 16px;
-  box-shadow: var(--w-shadow-sm);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: transform 0.15s ease;
 }

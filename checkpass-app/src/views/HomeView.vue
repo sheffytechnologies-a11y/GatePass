@@ -107,7 +107,7 @@
 
               <!-- ── PASSES TAB ── -->
               <template v-if="activeHomeTab === 'passes'">
-                <div v-if="activePasses.length === 0">
+                <div v-if="displayedHomePasses.length === 0">
                   <EmptyState
                     icon="🎟️"
                     heading="No active passes"
@@ -118,7 +118,7 @@
                 </div>
                 <div v-else class="pass-mini-list">
                   <button
-                    v-for="pass in activePasses"
+                    v-for="pass in displayedHomePasses"
                     :key="pass.id"
                     class="pass-mini-row"
                     @click="router.push(`/pass/${pass.id}`)"
@@ -133,7 +133,13 @@
                     <span class="pass-mini-status" :class="statusClass(pass.status)">{{ pass.status }}</span>
                   </button>
 
-                  <button class="view-all-btn" @click="router.push('/tabs/passes')">View all passes</button>
+                  <button
+                    v-if="hasMoreThanFivePasses"
+                    class="view-all-btn"
+                    @click="router.push('/passes')"
+                  >
+                    View all passes
+                  </button>
                 </div>
               </template>
 
@@ -761,6 +767,7 @@ import {
 // import type { Notification } from '@/types'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
+import { usePassesStore } from '@/stores/passes'
 import EstateHero from '@/components/EstateHero.vue'
 import PassCard from '@/components/PassCard.vue'
 import NotifBell from '@/components/NotifBell.vue'
@@ -810,6 +817,7 @@ export interface ArtisanItem {
 const router     = useRouter()
 const auth       = useAuthStore()
 const notifStore = useNotificationsStore()
+const passesStore= usePassesStore()
 const { showToast } = useToast()
 
 const scannerOpen = ref(false)
@@ -1400,7 +1408,21 @@ const greeting  = computed(() => {
   return 'Good evening'
 })
 
-const activePasses  = computed(() => summary.value.recentPasses.filter(p => p.status !== 'Exited' && p.status !== 'Revoked').slice(0, 4))
+const totalPassesCount = computed(() => {
+  const storeCount = passesStore.passes.length
+  const statsActive = summary.value.stats?.activePasses ?? 0
+  const summaryRecent = summary.value.recentPasses?.length ?? 0
+  return Math.max(storeCount, statsActive, summaryRecent)
+})
+
+const hasMoreThanFivePasses = computed(() => totalPassesCount.value > 5)
+
+const allActivePasses = computed(() => {
+  const source = passesStore.passes.length > 0 ? passesStore.passes : summary.value.recentPasses
+  return source.filter(p => p.status !== 'Exited' && p.status !== 'Revoked')
+})
+
+const displayedHomePasses = computed(() => allActivePasses.value.slice(0, 5))
 // const recentNotifs  = computed(() => summary.value.notifications.slice(0, 3))
 
 async function loadSummary() {
@@ -1441,7 +1463,7 @@ async function loadNews() {
 }
 
 async function onRefresh(event: CustomEvent) {
-  await Promise.all([loadSummary(), loadNews()])
+  await Promise.all([loadSummary(), loadNews(), passesStore.fetchAll()])
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 
@@ -1495,6 +1517,7 @@ function statusClass(status: string) {
 
 onMounted(() => {
   loadSummary()
+  passesStore.fetchAll()
   try {
     const saved = localStorage.getItem('cp_estate_artisans')
     if (saved) {

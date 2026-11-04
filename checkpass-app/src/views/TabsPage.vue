@@ -95,6 +95,7 @@ const showTabBar = computed(() => {
   if (
     p.includes('/create') ||
     p.includes('/pass/') ||
+    p.includes('/passes') ||
     p.includes('/notifications') ||
     p.includes('/fees/payment')
   ) {

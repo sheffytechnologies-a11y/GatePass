@@ -66,7 +66,7 @@ class HomeController extends Controller
             ->whereIn('status', ['Pending', 'On-site'])
             ->with('flaggedItems')
             ->latest()
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         // Recent notifications

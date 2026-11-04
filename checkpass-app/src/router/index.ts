@@ -35,6 +35,12 @@ const routes: RouteRecordRaw[] = [
     meta: { hideTabBar: true },
   },
   {
+    path: '/passes',
+    component: () => import('@/views/MyPassesView.vue'),
+    meta: { hideTabBar: true },
+  },
+  { path: '/all-passes', redirect: '/passes' },
+  {
     path: '/fees/payment',
     component: () => import('@/views/FeePaymentView.vue'),
   },
@@ -54,7 +60,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'home',      component: () => import('@/views/HomeView.vue') },
       { path: 'create',    component: () => import('@/views/CreatePassView.vue'), meta: { hideTabBar: true } },
       { path: 'fees',      component: () => import('@/views/FeesView.vue') },
-      { path: 'passes',    component: () => import('@/views/MyPassesView.vue') },
+      { path: 'passes',    redirect: '/passes' },
       { path: 'emergency', component: () => import('@/views/EmergencyView.vue') },
       { path: 'profile',   component: () => import('@/views/ProfileView.vue') },
     ],

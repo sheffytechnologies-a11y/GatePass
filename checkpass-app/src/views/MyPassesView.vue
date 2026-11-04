@@ -2,6 +2,9 @@
   <ion-page>
     <ion-header class="ion-no-border">
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/tabs/home" text="" />
+        </ion-buttons>
         <ion-title>My Passes</ion-title>
       </ion-toolbar>
       <!-- Search -->
@@ -71,7 +74,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, IonRefresher, IonRefresherContent } from '@ionic/vue'
+import {
+  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+  IonContent, IonSearchbar, IonRefresher, IonRefresherContent
+} from '@ionic/vue'
 import { usePassesStore } from '@/stores/passes'
 import PassCard from '@/components/PassCard.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
