@@ -197,11 +197,9 @@
                     >
                       <div class="news-card-header">
                         <div class="news-badge-group">
-                          <span v-if="!readNewsIds.includes(item.id)" class="news-status-badge news-status-badge--unread">
-                            ● New
-                          </span>
-                          <span v-else class="news-status-badge news-status-badge--read">
-                            Read
+                          <span class="news-role-badge">
+                            <span v-if="!readNewsIds.includes(item.id)" class="news-unread-dot"></span>
+                            {{ formatAdminRole(item.authorRole || item.adminRole) }}
                           </span>
                           <span class="news-date-text">{{ fmtNewsDate(item.createdAt) }}</span>
                         </div>
@@ -223,7 +221,13 @@
                       <div class="news-card-snippet">{{ item.content }}</div>
 
                       <div class="news-card-footer">
-                        <span class="read-more-link">Tap to read full notice &rarr;</span>
+                        <div class="news-card-comment-count" @click.stop="openNewsArticle(item, true)">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                          </svg>
+                          <span>{{ getNewsComments(item.id).length }}</span>
+                        </div>
+                        <span v-if="isLongNewsContent(item.content)" class="news-see-more-link">See more</span>
                       </div>
                     </div>
                   </div>
@@ -600,9 +604,11 @@
           <button class="modal-close-btn" @click="selectedNewsItem = null">&times;</button>
         </div>
 
-        <div class="sheet-modal-body news-sheet-scroll">
+        <div class="sheet-modal-body news-sheet-scroll" id="newsModalScrollBody">
           <div class="news-sheet-meta">
-            <span class="news-sheet-badge">Estate Announcement</span>
+            <span class="news-role-badge">
+              {{ formatAdminRole(selectedNewsItem.authorRole || selectedNewsItem.adminRole) }}
+            </span>
             <span class="news-sheet-date">{{ fmtNewsDate(selectedNewsItem.createdAt) }}</span>
           </div>
 
@@ -616,6 +622,58 @@
             <p v-for="(paragraph, idx) in selectedNewsItem.content.split('\n')" :key="idx" class="news-sheet-p">
               {{ paragraph }}
             </p>
+          </div>
+
+          <!-- ── COMMENTS SECTION ── -->
+          <div class="news-comments-section" id="newsCommentsSection">
+            <div class="news-comments-header">
+              <span class="news-comments-title">
+                Comments ({{ getNewsComments(selectedNewsItem.id).length }})
+              </span>
+            </div>
+
+            <!-- Comment Composer -->
+            <div class="news-comment-composer">
+              <input
+                id="newsCommentInput"
+                v-model="newNewsCommentText"
+                type="text"
+                class="news-comment-input"
+                placeholder="Write a comment..."
+                @keydown.enter.prevent="submitNewsComment(selectedNewsItem.id)"
+              />
+              <button
+                class="news-comment-submit-btn"
+                :disabled="!newNewsCommentText.trim() || submittingComment"
+                @click="submitNewsComment(selectedNewsItem.id)"
+              >
+                Post
+              </button>
+            </div>
+
+            <!-- Comments List -->
+            <div class="news-comments-list">
+              <div
+                v-for="c in getNewsComments(selectedNewsItem.id)"
+                :key="c.id"
+                class="news-comment-item"
+              >
+                <div class="news-comment-avatar">
+                  {{ (c.authorName || 'R').charAt(0).toUpperCase() }}
+                </div>
+                <div class="news-comment-content">
+                  <div class="news-comment-top">
+                    <span class="news-comment-author">{{ c.authorName }}</span>
+                    <span v-if="c.authorUnit" class="news-comment-unit">• {{ c.authorUnit }}</span>
+                    <span class="news-comment-time">{{ c.createdAt }}</span>
+                  </div>
+                  <div class="news-comment-text">{{ c.content }}</div>
+                </div>
+              </div>
+              <div v-if="getNewsComments(selectedNewsItem.id).length === 0" class="news-comments-empty">
+                No comments yet. Be the first to leave a comment.
+              </div>
+            </div>
           </div>
 
           <div class="news-sheet-actions">
@@ -666,6 +724,9 @@ export type NewsFeedItem = {
   title: string
   content: string
   image: string | null
+  authorRole?: string | null
+  adminRole?: string | null
+  adminName?: string | null
   createdAt: string | null
 }
 
@@ -729,6 +790,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 101,
     title: 'Routine Transformer Maintenance & Grid Switchover',
+    authorRole: 'Estate Admin',
     content: 'Dear Residents, please be informed that the estate facilities management team will be conducting scheduled quarterly maintenance on the central power transformer this Saturday between 10:00 AM and 2:00 PM. Alternative backup generators will supply essential street lighting and security gate systems during the maintenance window.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
@@ -736,6 +798,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 102,
     title: 'Access Control Security Notice: Visitor Pre-Registration',
+    authorRole: 'Estate Admin',
     content: 'In accordance with our estate security protocol, all visitors, ride-hailing cabs, and delivery dispatch riders must have a valid Checkpass QR code or 6-digit access code generated prior to arrival at the main gates. Thank you for keeping our community safe.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 28).toISOString(),
@@ -743,6 +806,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 103,
     title: 'Monthly Estate Environmental Sanitation Exercise',
+    authorRole: 'Estate Exco',
     content: 'This is a gentle reminder that the mandatory estate-wide clean-up exercise holds on the last Saturday of the month from 7:00 AM to 10:00 AM. Vehicular movement within the estate will be temporarily restricted during these hours.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 72).toISOString(),
@@ -795,9 +859,123 @@ function markAllNewsRead() {
   showToast('All announcements marked as read', 'success')
 }
 
-function openNewsArticle(item: NewsFeedItem) {
+
+export interface NewsComment {
+  id: string
+  newsId: number
+  authorName: string
+  authorUnit: string
+  authorRole?: string
+  content: string
+  createdAt: string
+}
+
+const newsCommentsStorageKey = 'checkpass_news_comments'
+
+const initialDefaultNewsComments: Record<number, NewsComment[]> = {
+  101: [
+    {
+      id: 'c-101-1',
+      newsId: 101,
+      authorName: 'Engr. Tunde Adeleke',
+      authorUnit: 'House 4B',
+      content: 'Thank you for the early notice. Will borehole pumps remain powered on backup generators?',
+      createdAt: '2 hours ago',
+    },
+    {
+      id: 'c-101-2',
+      newsId: 101,
+      authorName: 'Estate Admin',
+      authorUnit: 'Facility Office',
+      authorRole: 'Estate Admin',
+      content: 'Yes Engr. Tunde, generator circuit 2 feeds the borehole pump station throughout.',
+      createdAt: '1 hour ago',
+    },
+  ],
+  102: [
+    {
+      id: 'c-102-1',
+      newsId: 102,
+      authorName: 'Mrs. Folake Adeyemi',
+      authorUnit: 'Flat 12',
+      content: 'This has reduced waiting queues at the main gate significantly this morning.',
+      createdAt: 'Yesterday',
+    },
+  ],
+}
+
+function loadInitialNewsComments(): Record<number, NewsComment[]> {
+  try {
+    const raw = localStorage.getItem(newsCommentsStorageKey)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return initialDefaultNewsComments
+}
+
+const newsCommentsMap = ref<Record<number, NewsComment[]>>(loadInitialNewsComments())
+
+function getNewsComments(newsId: number): NewsComment[] {
+  return newsCommentsMap.value[newsId] || []
+}
+
+const newNewsCommentText = ref('')
+const submittingComment = ref(false)
+
+function submitNewsComment(newsId: number) {
+  const text = newNewsCommentText.value.trim()
+  if (!text || submittingComment.value) return
+  submittingComment.value = true
+
+  const authorName = auth.resident?.name || 'Resident Neighbor'
+  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+
+  const newComment: NewsComment = {
+    id: 'c-' + Date.now(),
+    newsId,
+    authorName,
+    authorUnit,
+    content: text,
+    createdAt: 'Just now',
+  }
+
+  if (!newsCommentsMap.value[newsId]) {
+    newsCommentsMap.value[newsId] = []
+  }
+  newsCommentsMap.value[newsId].push(newComment)
+
+  try {
+    localStorage.setItem(newsCommentsStorageKey, JSON.stringify(newsCommentsMap.value))
+  } catch {}
+
+  newNewsCommentText.value = ''
+  submittingComment.value = false
+  showToast('Comment posted', 'success')
+}
+
+function isLongNewsContent(text: string): boolean {
+  if (!text) return false
+  return text.length > 95 || text.includes('\n')
+}
+
+function formatAdminRole(role?: string | null): string {
+  if (!role) return 'Estate Admin'
+  if (role === 'super_admin') return 'Super Admin'
+  if (role === 'estate_admin') return 'Estate Admin'
+  if (role === 'exco') return 'Estate Exco'
+  if (role === 'manager') return 'Estate Manager'
+  return role
+}
+
+function openNewsArticle(item: NewsFeedItem, focusComment = false) {
   markNewsRead(item.id)
   selectedNewsItem.value = item
+  newNewsCommentText.value = ''
+  if (focusComment) {
+    setTimeout(() => {
+      const input = document.getElementById('newsCommentInput') as HTMLInputElement | null
+      if (input) input.focus()
+    }, 280)
+  }
 }
 
 function dismissNews(id: number, e?: Event) {
@@ -1122,6 +1300,8 @@ async function loadNews() {
       title: item.title,
       content: item.content,
       image: item.image ?? null,
+      authorRole: (item as any).adminRole || (item as any).authorRole || 'Estate Admin',
+      adminName: (item as any).adminName ?? null,
       createdAt: item.createdAt ?? null,
     }))
   } catch {
@@ -2132,11 +2312,185 @@ ion-modal.news-modal-sheet {
   align-items: center;
   padding-top: 2px;
 }
-.read-more-link {
+
+/* ── Role Badge & Unread Dot ── */
+.news-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  background: #E8F5EE;
+  border: 1px solid rgba(10, 92, 56, 0.16);
+  border-radius: 999px;
+  padding: 2.5px 8.5px;
+  letter-spacing: 0.02em;
+}
+.news-unread-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0A5C38;
+  display: inline-block;
+}
+
+/* ── News Card Footer (Comment count on left, See more on right) ── */
+.news-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+}
+.news-card-comment-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.news-card-comment-count:hover, .news-card-comment-count:active {
+  color: #0A5C38;
+  background: #F0FDF4;
+}
+.news-see-more-link {
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--w-primary, #0A5C38);
+  color: #0A5C38;
+  margin-left: auto;
+  cursor: pointer;
+  letter-spacing: 0.01em;
 }
+.news-see-more-link:hover {
+  text-decoration: underline;
+}
+
+/* ── COMMENTS SECTION IN MODAL ── */
+.news-comments-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #E5E7EB;
+}
+.news-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.news-comments-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+}
+.news-comment-composer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.news-comment-input {
+  flex: 1;
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  outline: none;
+  background: #F9FAFB;
+  color: #111827;
+  transition: border-color 0.15s, background 0.15s;
+}
+.news-comment-input:focus {
+  border-color: #0A5C38;
+  background: #FFFFFF;
+}
+.news-comment-submit-btn {
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.news-comment-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.news-comment-submit-btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+.news-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.news-comment-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.news-comment-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #E8F5EE;
+  color: #0A5C38;
+  font-weight: 700;
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.news-comment-content {
+  flex: 1;
+  background: #F8FAFC;
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid #F1F5F9;
+}
+.news-comment-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+.news-comment-author {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1F2937;
+}
+.news-comment-unit {
+  font-size: 11px;
+  color: #6B7280;
+}
+.news-comment-time {
+  font-size: 10.5px;
+  color: #9CA3AF;
+  margin-left: auto;
+}
+.news-comment-text {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.news-comments-empty {
+  font-size: 12px;
+  color: #9CA3AF;
+  text-align: center;
+  padding: 14px 0;
+  font-style: italic;
+}
+
 
 /* ── ARTISAN DETAILS & REVIEWS SHEET MODAL ── */
 .artisan-sheet-modal {
