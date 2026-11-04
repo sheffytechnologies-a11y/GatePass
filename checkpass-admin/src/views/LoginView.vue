@@ -219,7 +219,6 @@
                 <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
                   Sign In
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </span>
               </button>
 
@@ -229,14 +228,14 @@
             <div class="form-bottom-links">
               <template v-if="activeRole === 'admin'">
                 <span class="new-estate-text">Setting up a new estate?</span>
-                <router-link to="/register" class="register-link">Create a free account &rarr;</router-link>
+                <router-link to="/register" class="register-link">Create Account</router-link>
               </template>
               <template v-else-if="activeRole === 'guard'">
                 <span class="new-estate-text">Gate security staff? Contact your estate manager to be assigned to a post.</span>
               </template>
               <template v-else>
                 <span class="new-estate-text">Prefer mobile app?</span>
-                <a :href="residentAppUrl" class="register-link">Open resident web app &rarr;</a>
+                <a :href="residentAppUrl" class="register-link">Open resident web app</a>
               </template>
             </div>
 
@@ -297,7 +296,6 @@
                 <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
                   Send 6-Digit Code
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </span>
               </button>
             </form>
@@ -371,7 +369,6 @@
                 <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
                   Update Password
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </span>
               </button>
             </form>
@@ -388,7 +385,7 @@
                 class="submit-signin-btn"
                 @click="closeForgotPassword"
               >
-                Sign In Now &rarr;
+                Sign In
               </button>
             </div>
 

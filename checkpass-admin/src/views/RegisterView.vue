@@ -67,7 +67,7 @@
 
             <!-- Header -->
             <div class="form-header">
-              <h1 class="form-title">Create Estate Account</h1>
+              <h1 class="form-title">Create Account</h1>
               <p class="form-subtitle">One portal to onboard residents, clear visitors at the gate, and keep every entry on record.</p>
             </div>
 
@@ -265,8 +265,7 @@
             >
               <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
               <span v-else class="btn-content">
-                Create Estate Account
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                Create Account
               </span>
             </button>
 
@@ -275,7 +274,7 @@
           <!-- Footer Switch to Login -->
           <div class="form-bottom-links">
             <span class="already-text">Already registered your community?</span>
-            <router-link to="/login" class="signin-link">Sign in here &rarr;</router-link>
+            <router-link to="/login" class="signin-link">Sign In</router-link>
           </div>
 
           <!-- NDPR Trust Footer -->
