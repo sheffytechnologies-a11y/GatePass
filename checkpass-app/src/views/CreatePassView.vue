@@ -307,12 +307,26 @@ function goToHome() {
 .text-input.uppercase { text-transform: uppercase; }
 
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { padding: 8px 14px; border-radius: var(--w-radius-full); font-size: 13px; font-weight: 500; border: 1.5px solid var(--w-border); background: var(--w-surface); color: var(--w-text); cursor: pointer; transition: all 0.15s; font-family: var(--w-font-body); }
-.chip.active { background: var(--w-primary); color: white; border-color: var(--w-primary); }
-
-.day-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.day-chip { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--w-border); background: var(--w-surface); color: var(--w-text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-family: var(--w-font-body); }
-.day-chip.active { background: var(--w-primary); color: white; border-color: var(--w-primary); }
+.chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--w-border);
+  background: var(--w-surface);
+  font-size: 14px;
+  color: var(--w-text);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--w-font-body);
+}
+.chip.active {
+  background: var(--w-primary);
+  border-color: var(--w-primary);
+  color: white;
+  font-weight: 600;
+}
+.day-chip {
+  padding: 8px 12px;
+}
 
 .input-wrap { display: flex; align-items: center; background: var(--w-surface); border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md); overflow: hidden; }
 .prefix { padding: 0 10px 0 14px; font-size: 15px; color: var(--w-muted); font-weight: 600; border-right: 1px solid var(--w-border); }
