@@ -390,22 +390,27 @@
                         class="artisan-card"
                         @click="openArtisanModal(artisan)"
                       >
-                        <div class="artisan-card-top">
-                          <div class="artisan-avatar" :style="{ background: artisan.avatarBg }">
-                            {{ artisan.initials }}
-                          </div>
-                          <div class="artisan-rating-pill">
-                            <span class="rating-star">★</span>
-                            <span class="rating-val">{{ artisan.rating }}</span>
-                          </div>
+                        <!-- Cover Image Banner -->
+                        <div class="artisan-cover-wrap">
+                          <img
+                            :src="artisan.imageUrl || getCategoryCover(artisan.category)"
+                            :alt="artisan.name"
+                            class="artisan-cover-img"
+                            loading="lazy"
+                          />
                         </div>
 
+                        <!-- Card Body: Name on top, Rating & Reviews together at the bottom of the name -->
                         <div class="artisan-card-body">
                           <div class="artisan-name">{{ artisan.name }}</div>
-                          <div class="artisan-trade">{{ artisan.trade }}</div>
-                          <div class="artisan-reviews-sub">
-                            {{ artisan.reviews.length }} {{ artisan.reviews.length === 1 ? 'review' : 'reviews' }}
+
+                          <div class="artisan-rating-row">
+                            <span class="rating-star">★</span>
+                            <span class="rating-score">{{ artisan.rating }}</span>
+                            <span class="rating-reviews">({{ artisan.reviews.length }} {{ artisan.reviews.length === 1 ? 'review' : 'reviews' }})</span>
                           </div>
+
+                          <div class="artisan-trade">{{ artisan.trade }}</div>
                         </div>
                       </div>
                     </div>
@@ -798,6 +803,7 @@ export interface ArtisanItem {
   rating: number
   avatarBg: string
   initials: string
+  imageUrl?: string
   reviews: ArtisanReview[]
 }
 
@@ -1100,10 +1106,28 @@ const serviceCategories = ['All', 'Electrician', 'Plumber', 'AC Repair', 'Cleani
 const activeServiceCategory = ref('All')
 const simulateEmptyServices = ref(false)
 
+function getCategoryCover(category: string): string {
+  switch (category) {
+    case 'Electrician':
+      return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80'
+    case 'Plumber':
+      return 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=500&q=80'
+    case 'AC Repair':
+      return 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=500&q=80'
+    case 'Cleaning':
+      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+    case 'Carpentry':
+      return 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80'
+    default:
+      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+  }
+}
+
 const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-1',
     name: 'Chinedu Okafor',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80',
     trade: 'Senior Electrician & Inverter Specialist',
     category: 'Electrician',
     phone: '+2348031234567',
@@ -1141,6 +1165,7 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-2',
     name: 'Sunday Adebayo',
+    imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=500&q=80',
     trade: 'Plumbing & Water Heaters',
     category: 'Plumber',
     phone: '+2348059876543',
@@ -1170,6 +1195,7 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-3',
     name: 'Musa Ibrahim',
+    imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=500&q=80',
     trade: 'HVAC & AC Service / Gas Refill',
     category: 'AC Repair',
     phone: '+2348123456789',
@@ -1199,6 +1225,7 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-4',
     name: 'Grace Sparkle Pro',
+    imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80',
     trade: 'Deep Home Cleaning & Fumigation',
     category: 'Cleaning',
     phone: '+2348098765432',
@@ -1220,6 +1247,7 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-5',
     name: 'Yakubu Danladi',
+    imageUrl: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80',
     trade: 'Cabinetry, Door Locks & Woodwork',
     category: 'Carpentry',
     phone: '+2348076543210',
@@ -1470,7 +1498,11 @@ onMounted(() => {
   try {
     const saved = localStorage.getItem('cp_estate_artisans')
     if (saved) {
-      artisansList.value = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
+      artisansList.value = parsed.map((a: any) => ({
+        ...a,
+        imageUrl: a.imageUrl || getCategoryCover(a.category),
+      }))
     }
   } catch {}
 })
@@ -1672,87 +1704,89 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
-/* ── ARTISAN CARDS (Services) ── */
+/* ── ARTISAN CARDS (Services - 2 in a row with Cover Photo) ── */
 .artisan-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 .artisan-card {
   background: #FFFFFF;
-  border: 1px solid rgba(10, 92, 56, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 14px;
-  padding: 12px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .artisan-card:active {
-  transform: scale(0.98);
-  background: #FAFCFB;
+  transform: scale(0.97);
 }
-.artisan-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.artisan-cover-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #F1F4F2;
+  position: relative;
 }
-.artisan-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  color: #FFFFFF;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.artisan-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
 }
-.artisan-rating-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  background: #FEF3C7;
-  color: #92400E;
-  padding: 2.5px 7px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 700;
+.artisan-card:hover .artisan-cover-img {
+  transform: scale(1.03);
 }
 .artisan-card-body {
+  padding: 10px 12px 12px;
   display: flex;
   flex-direction: column;
   gap: 3px;
   flex: 1;
 }
 .artisan-name {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 700;
-  color: #112019;
+  color: #1E293B;
   line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artisan-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 1px;
+}
+.rating-star {
+  color: #F59E0B;
+  font-size: 13px;
+  line-height: 1;
+}
+.rating-score {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.rating-reviews {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 2px;
 }
 .artisan-trade {
   font-size: 11.5px;
-  color: #64746C;
+  color: #64748B;
   line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin-top: 2px;
+  white-space: nowrap;
   overflow: hidden;
-  min-height: 31px;
-}
-.artisan-reviews-sub {
-  font-size: 11px;
-  color: #8C9991;
-  margin-top: auto;
-  padding-top: 4px;
+  text-overflow: ellipsis;
 }
 
 /* ── ARTISAN & NEWS SHEET MODALS ── */
