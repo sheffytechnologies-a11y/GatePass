@@ -384,40 +384,30 @@
                       />
                     </div>
 
-                    <!-- Services Filled State (Clean card: opens details modal) -->
-                    <div v-else class="artisan-list">
+                    <!-- Services Filled State: 2 Cards per Row Grid -->
+                    <div v-else class="artisan-grid">
                       <div
                         v-for="artisan in displayedArtisans"
                         :key="artisan.id"
                         class="artisan-card"
                         @click="openArtisanModal(artisan)"
                       >
-                        <div class="artisan-top">
+                        <div class="artisan-card-top">
                           <div class="artisan-avatar" :style="{ background: artisan.avatarBg }">
                             {{ artisan.initials }}
                           </div>
-                          <div class="artisan-meta">
-                            <div class="artisan-name-row">
-                              <span class="artisan-name">{{ artisan.name }}</span>
-                              <span class="vetted-inline-badge">✓ Verified</span>
-                            </div>
-                            <div class="artisan-trade">{{ artisan.trade }}</div>
-                            <div class="artisan-rating-row">
-                              <span class="rating-star">★</span>
-                              <span class="rating-val">{{ artisan.rating }}</span>
-                              <span class="rating-count">({{ artisan.reviews.length }} resident reviews)</span>
-                            </div>
-                          </div>
-                          <div class="artisan-chevron-box">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M9 18l6-6-6-6"/>
-                            </svg>
+                          <div class="artisan-rating-pill">
+                            <span class="rating-star">★</span>
+                            <span class="rating-val">{{ artisan.rating }}</span>
                           </div>
                         </div>
 
-                        <div class="artisan-card-footer">
-                          <span class="card-action-text">View Profile &amp; Reviews</span>
-                          <span class="card-action-arrow">→</span>
+                        <div class="artisan-card-body">
+                          <div class="artisan-name">{{ artisan.name }}</div>
+                          <div class="artisan-trade">{{ artisan.trade }}</div>
+                          <div class="artisan-reviews-sub">
+                            {{ artisan.reviews.length }} {{ artisan.reviews.length === 1 ? 'review' : 'reviews' }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1663,120 +1653,86 @@ onMounted(() => {
 }
 
 /* ── ARTISAN CARDS (Services) ── */
-.artisan-list {
-  display: flex;
-  flex-direction: column;
+.artisan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 .artisan-card {
   background: #FFFFFF;
   border: 1px solid rgba(10, 92, 56, 0.12);
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .artisan-card:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
   background: #FAFCFB;
 }
-.artisan-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.artisan-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  color: #FFFFFF;
-  font-size: 16px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.artisan-meta {
-  flex: 1;
-  min-width: 0;
-}
-.artisan-name-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.artisan-name {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #112019;
-}
-.artisan-trade {
-  font-size: 12px;
-  color: #64746C;
-  margin-top: 2px;
-}
-.artisan-rating-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: #4A5850;
-  margin-top: 4px;
-}
-.rating-star {
-  color: #F59E0B;
-  font-size: 13px;
-}
-.rating-val {
-  font-weight: 700;
-  color: #112019;
-}
-.rating-count {
-  color: #7A8B81;
-}
-.artisan-chevron-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9AA79F;
-  flex-shrink: 0;
-  padding-right: 2px;
-}
-
-/* ── ARTISAN CARD ENHANCEMENTS ── */
-.vetted-inline-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: #0A5C38;
-  background: #EAF7EE;
-  padding: 1px 6px;
-  border-radius: 999px;
-  margin-left: 4px;
-}
-.artisan-card-footer {
+.artisan-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(10, 92, 56, 0.12);
-  margin-top: 2px;
 }
-.card-action-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: #0A5C38;
-}
-.card-action-arrow {
-  font-size: 13px;
-  color: #0A5C38;
+.artisan-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-size: 14px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.artisan-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 2.5px 7px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.artisan-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.artisan-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #112019;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.artisan-trade {
+  font-size: 11.5px;
+  color: #64746C;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 31px;
+}
+.artisan-reviews-sub {
+  font-size: 11px;
+  color: #8C9991;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 /* ── ARTISAN & NEWS SHEET MODALS ── */
