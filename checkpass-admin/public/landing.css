@@ -705,38 +705,43 @@ footer {
 
 .footer-social {
   display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  margin-top: 18px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
 }
 
 .footer-social a {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 7px !important;
-  padding: 8px 14px !important;
-  border-radius: 999px !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
   background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
   color: #FFFFFF !important;
-  font-size: 0.82rem !important;
-  font-weight: 600 !important;
   text-decoration: none !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
 }
 
 .footer-social a svg {
-  color: #00C97A !important;
-  fill: currentColor !important;
-  flex-shrink: 0;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .footer-social a:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
   border-color: #00C97A !important;
-  color: #00C97A !important;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.06) !important;
+  box-shadow: 0 6px 16px rgba(0, 201, 122, 0.24) !important;
+}
+
+.footer-social a:hover svg {
+  transform: scale(1.08) !important;
 }
 
 .footer-col h5 {
