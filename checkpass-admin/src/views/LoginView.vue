@@ -35,13 +35,13 @@
 
         <!-- Bottom Text Content (Over Gradient) -->
         <div class="hero-text-block">
-          <transition name="moment-fade" mode="out-in">
+          <transition name="moment-headline" mode="out-in" appear>
             <h2 :key="'h-' + activeMoment.id" class="hero-headline">
               {{ activeMoment.headline }}
             </h2>
           </transition>
 
-          <transition name="moment-fade" mode="out-in">
+          <transition name="moment-subhead" mode="out-in" appear>
             <p :key="'sub-' + activeMoment.id" class="hero-copy">
               {{ activeMoment.subhead }}
             </p>
@@ -814,18 +814,45 @@ async function handleLogin() {
   color: #34D399;
 }
 
-/* Cross-fade moment animation */
-.moment-fade-enter-active,
-.moment-fade-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+/* Cross-fade moment animation - Staggered Subtle Entrance */
+/* 1. Headline enters first */
+.moment-headline-enter-active {
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
-.moment-fade-enter-from {
+.moment-headline-leave-active {
+  transition: opacity 0.22s ease-in, transform 0.22s ease-in;
+  will-change: opacity, transform;
+}
+
+.moment-headline-enter-from {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateY(10px);
 }
 
-.moment-fade-leave-to {
+.moment-headline-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* 2. Subhead enters with smooth subtle stagger delay */
+.moment-subhead-enter-active {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+  will-change: opacity, transform;
+}
+
+.moment-subhead-leave-active {
+  transition: opacity 0.2s ease-in, transform 0.2s ease-in;
+  will-change: opacity, transform;
+}
+
+.moment-subhead-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.moment-subhead-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }

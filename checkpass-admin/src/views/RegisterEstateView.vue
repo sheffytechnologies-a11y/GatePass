@@ -310,7 +310,20 @@ function goToDashboard() {
   margin-bottom: 14px;
 }
 
+@keyframes heroEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .hero-headline {
+  animation: heroEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
   font-size: clamp(38px, 4.4vw, 54px);
   font-weight: 800;
   color: #FFFFFF;
@@ -322,6 +335,8 @@ function goToDashboard() {
 }
 
 .hero-subhead {
+  animation: heroEntrance 0.52s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  will-change: opacity, transform;
   font-size: clamp(16px, 1.2vw, 18.5px);
   line-height: 1.48;
   color: rgba(255, 255, 255, 0.92);
