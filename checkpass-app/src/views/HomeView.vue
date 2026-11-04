@@ -77,8 +77,6 @@
             :stats="summary.stats"
           />
 
-          <AccessPhraseCard />
-
           <section class="section">
             <div class="passes-shell">
               <!-- Sticky Tab Navigation Bar (fixed when reaching the top) -->
@@ -658,7 +656,6 @@ import EmptyState from '@/components/EmptyState.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import QRScannerModal from '@/components/QRScannerModal.vue'
-import AccessPhraseCard from '@/components/AccessPhraseCard.vue'
 import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
