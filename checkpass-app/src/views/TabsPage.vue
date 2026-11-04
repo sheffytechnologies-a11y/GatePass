@@ -9,25 +9,29 @@
         :selected-tab="activeTab"
       >
 
+        <!-- 1. Home -->
         <ion-tab-button
           tab="home"
           href="/tabs/home"
           :class="{ 'is-active': activeTab === 'home' }"
         >
-          <ion-icon :icon="homeOutline" />
-          <ion-label>Home</ion-label>
+          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
+            <PhHouse :size="24" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+          </div>
         </ion-tab-button>
 
+        <!-- 2. Fees -->
         <ion-tab-button
           tab="fees"
           href="/tabs/fees"
           :class="{ 'is-active': activeTab === 'fees' }"
         >
-          <ion-icon :icon="cardOutline" />
-          <ion-label>Fees</ion-label>
+          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'fees' }">
+            <PhCreditCard :size="24" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
+          </div>
         </ion-tab-button>
 
-        <!-- Centre CREATE button - perfect circle elevated FAB without text label -->
+        <!-- 3. Centre CREATE (+) FAB Button -->
         <ion-tab-button
           tab="create"
           href="/tabs/create"
@@ -35,26 +39,30 @@
           :class="{ 'is-active': activeTab === 'create' }"
         >
           <div class="create-fab">
-            <ion-icon :icon="addOutline" />
+            <PhPlus :size="24" weight="bold" />
           </div>
         </ion-tab-button>
 
+        <!-- 4. SOS / Emergency -->
         <ion-tab-button
           tab="emergency"
           href="/tabs/emergency"
           :class="{ 'is-active': activeTab === 'emergency' }"
         >
-          <ion-icon :icon="warningOutline" />
-          <ion-label>SOS</ion-label>
+          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'emergency' }">
+            <PhWarningCircle :size="24" :weight="activeTab === 'emergency' ? 'fill' : 'regular'" />
+          </div>
         </ion-tab-button>
 
+        <!-- 5. Profile -->
         <ion-tab-button
           tab="profile"
           href="/tabs/profile"
           :class="{ 'is-active': activeTab === 'profile' }"
         >
-          <ion-icon :icon="personOutline" />
-          <ion-label>Profile</ion-label>
+          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
+            <PhUser :size="24" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+          </div>
         </ion-tab-button>
 
       </ion-tab-bar>
@@ -65,8 +73,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { IonPage, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet } from '@ionic/vue'
-import { homeOutline, addOutline, cardOutline, warningOutline, personOutline } from 'ionicons/icons'
+import { IonPage, IonTabs, IonTabBar, IonTabButton, IonRouterOutlet } from '@ionic/vue'
+import { PhHouse, PhCreditCard, PhPlus, PhWarningCircle, PhUser } from '@phosphor-icons/vue'
 
 const route = useRoute()
 const isModalOpen = ref(false)
@@ -108,103 +116,96 @@ const activeTab = computed(() => {
 
 <style scoped>
 .custom-tab-bar {
-  --background: #FFFFFF;
-  --border-color: #EAEFEA;
-  --color: #8C9991;
-  --color-selected: var(--w-primary, #0A5C38);
-  height: 52px;
-  width: 100% !important;
-  max-width: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
-  border-top: 1px solid #EAEFEA;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
-  contain: none;
+  --background: transparent;
+  --border-color: transparent;
+  position: fixed;
+  bottom: calc(var(--ion-safe-area-bottom, 0px) + 14px);
+  left: 16px;
+  right: 16px;
+  width: calc(100% - 32px) !important;
+  max-width: 420px !important;
+  margin: 0 auto;
+  height: 60px;
+  background: rgba(238, 241, 239, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 6px;
+  contain: none !important;
+  overflow: visible !important;
+  z-index: 999;
 }
 
 ion-tab-button {
+  --background: transparent;
   --color: #8C9991;
   --color-selected: var(--w-primary, #0A5C38);
-  --padding-top: 3px;
-  --padding-bottom: 3px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
   --padding-start: 0px;
   --padding-end: 0px;
+  --ripple-color: transparent;
+  background: transparent;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  contain: none !important;
+  overflow: visible !important;
+}
+
+/* Inactive / Base Pill Wrapper */
+.tab-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  width: 58px;
+  border-radius: 9999px;
   color: #8C9991;
-  transition: color 0.15s ease;
+  background: transparent;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-ion-tab-button ion-icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  transition: color 0.15s ease;
+/* Active Pill Wrapper: Elevated white capsule with green filled icon */
+.tab-pill.pill-active {
+  background: #FFFFFF;
+  color: var(--w-primary, #0A5C38);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-ion-tab-button ion-label {
-  font-size: 11.5px;
-  font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  margin-top: 0;
-  margin-bottom: 2px;
-  transition: color 0.15s ease, font-weight 0.15s ease;
+.tab-pill:active {
+  transform: scale(0.92);
 }
 
-/* Active tab state */
-ion-tab-button.is-active,
-ion-tab-button.tab-selected {
-  --color: var(--w-primary, #0A5C38) !important;
-  color: var(--w-primary, #0A5C38) !important;
-}
-
-ion-tab-button.is-active ion-icon,
-ion-tab-button.tab-selected ion-icon {
-  color: var(--w-primary, #0A5C38) !important;
-}
-
-ion-tab-button.is-active ion-label,
-ion-tab-button.tab-selected ion-label {
-  color: var(--w-primary, #0A5C38) !important;
-  font-weight: 700 !important;
-}
-
-/* Center Create Pass FAB Button */
+/* Center FAB button */
 .tab-create {
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
+  flex: 1;
 }
 
 .create-fab {
   background: var(--w-primary, #0A5C38);
   color: #FFFFFF;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
-  max-width: 48px;
-  max-height: 48px;
-  aspect-ratio: 1 / 1;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -22px;
-  position: relative;
-  z-index: 25;
-  box-shadow: 0 6px 18px rgba(10, 92, 56, 0.42);
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.38);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
-}
-
-.create-fab ion-icon {
-  font-size: 26px;
-  width: 26px;
-  height: 26px;
-  color: #FFFFFF !important;
-  margin: 0;
 }
 
 .tab-create:active .create-fab {
