@@ -3,6 +3,8 @@ import client from './client'
 export const authApi = {
   loginAdmin: (email: string, password: string) =>
     client.post('/v1/admin/auth/login', { email, password }),
+  loginUser: (identifier: string, password: string) =>
+    client.post('/v1/auth/login', { phone: identifier, login: identifier, email: identifier, password }),
   registerAdmin: (name: string, email: string, password: string, phone?: string) =>
     client.post('/v1/admin/auth/register', { name, email, password, phone }),
   logoutAdmin: (refreshToken?: string | null) =>

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-type AppRole = 'super_admin' | 'estate_admin'
+type AppRole = 'super_admin' | 'estate_admin' | 'security' | 'resident'
 
 const ADMIN_ROLES: AppRole[] = ['super_admin', 'estate_admin']
 
@@ -23,7 +23,7 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/dashboard' },
         { path: '/dashboard', component: () => import('@/views/DashboardView.vue'), meta: { roles: ADMIN_ROLES } },
-        { path: '/access', component: () => import('@/views/AccessView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/access', component: () => import('@/views/AccessView.vue'), meta: { roles: ['super_admin', 'estate_admin', 'security'] } },
         { path: '/users', component: () => import('@/views/UsersView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/users/new', component: () => import('@/views/UsersCreateView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/fees', component: () => import('@/views/FeesView.vue'), meta: { roles: ADMIN_ROLES } },
@@ -46,11 +46,13 @@ router.beforeEach((to) => {
   const auth = useAuthStore()
   if (!to.meta.public && !auth.isAuthenticated) return '/login'
   if ((to.path === '/login' || to.path === '/register') && auth.isAuthenticated) {
+    if (auth.role === 'security') return '/access'
     return '/dashboard'
   }
 
   const roles = to.meta.roles as AppRole[] | undefined
   if (roles && !roles.includes(auth.role)) {
+    if (auth.role === 'security') return '/access'
     return '/dashboard'
   }
 })
