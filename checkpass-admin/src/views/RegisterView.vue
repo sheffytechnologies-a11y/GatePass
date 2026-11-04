@@ -95,7 +95,7 @@
                   <span v-else>Enter Password to Add New Estate &rarr;</span>
                 </button>
                 <router-link :to="`/login?email=${encodeURIComponent(email)}`" class="sdc-signin-btn">
-                  Sign in to existing dashboard
+                  Log in to existing dashboard
                 </router-link>
               </div>
             </div>
@@ -274,7 +274,7 @@
           <!-- Footer Switch to Login -->
           <div class="form-bottom-links">
             <span class="already-text">Already registered your community?</span>
-            <router-link to="/login" class="signin-link">Sign In</router-link>
+            <router-link to="/login" class="signin-link">Log In</router-link>
           </div>
 
           <!-- NDPR Trust Footer -->

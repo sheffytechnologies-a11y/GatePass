@@ -66,9 +66,9 @@
           <!-- ════════════════════════════════════════════════════════════════ -->
           <div v-if="!showForgotView">
 
-            <!-- Top Header: "Sign in as" -->
+            <!-- Top Header: "Log in as" -->
             <div class="form-header-group">
-              <h1 class="form-title">Sign in as</h1>
+              <h1 class="form-title">Log in as</h1>
             </div>
 
             <!-- Followed by Role Navigation Bar with Person icon for Resident -->
@@ -210,7 +210,7 @@
                 </div>
               </div>
 
-              <!-- Submit Button (Just "Sign In") -->
+              <!-- Submit Button (Just "Log In") -->
               <button
                 type="submit"
                 class="submit-signin-btn"
@@ -218,7 +218,7 @@
               >
                 <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
-                  Sign In
+                  Log In
                 </span>
               </button>
 
@@ -246,10 +246,10 @@
           <!-- ════════════════════════════════════════════════════════════════ -->
           <div v-else class="forgot-flow-container">
 
-            <!-- Back to Sign In Link -->
+            <!-- Back to Log In Link -->
             <button type="button" class="back-link-btn" @click="closeForgotPassword">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-              Back to Sign In
+              Back to Log In
             </button>
 
             <div class="form-header-group">
@@ -385,7 +385,7 @@
                 class="submit-signin-btn"
                 @click="closeForgotPassword"
               >
-                Sign In
+                Log In
               </button>
             </div>
 

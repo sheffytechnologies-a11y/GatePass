@@ -1793,7 +1793,7 @@
       <div class="nav-logo-lockup" style="margin:0 auto 14px;width:150px;height:30px">
         <img src="/assets/logo/for white background.png" alt="CheckPass">
       </div>
-      <h3>Sign in to CheckPass</h3>
+      <h3>Log in to CheckPass</h3>
       <p id="loginSubText">Select your role to access your portal</p>
     </div>
 
@@ -1825,7 +1825,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary" id="loginSubmitBtn" style="width:100%;justify-content:center">
-        Sign In to Manager Portal &rarr;
+        Log In to Manager Portal &rarr;
       </button>
     </form>
 
