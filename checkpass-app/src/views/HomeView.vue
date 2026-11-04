@@ -3223,7 +3223,7 @@ ion-modal.news-modal-sheet {
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
   background: #FFFFFF;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3276,7 +3276,7 @@ ion-modal.news-modal-sheet {
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
   background: #FFFFFF;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
   color: #475569;
   font-size: 15px;
   font-weight: 600;
@@ -3291,7 +3291,7 @@ ion-modal.news-modal-sheet {
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   background: #FFFFFF;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
   color: #6b7280;
   text-align: center;
   padding: 18px;

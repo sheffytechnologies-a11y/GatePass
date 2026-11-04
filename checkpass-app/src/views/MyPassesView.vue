@@ -7,22 +7,43 @@
         </ion-buttons>
         <ion-title>My Passes</ion-title>
       </ion-toolbar>
-      <!-- Search -->
-      <ion-toolbar>
-        <ion-searchbar
-          v-model="search"
-          placeholder="Search by visitor name…"
-          :debounce="300"
-          class="passes-search"
-        />
-        <div slot="end" class="sort-wrap">
-          <select v-model="sort" class="sort-select">
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="name">A–Z</option>
-          </select>
+      <!-- Integrated Search & Sort Container -->
+      <div class="search-sort-bar">
+        <div class="search-sort-container">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            v-model="search"
+            type="text"
+            class="search-input"
+            placeholder="Search by visitor name…"
+          />
+          <button
+            v-if="search"
+            type="button"
+            class="search-clear-btn"
+            @click="search = ''"
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+
+          <!-- Dropdown inside search container (no border stroke, occupies space, clickable to filter) -->
+          <div class="sort-dropdown-wrap">
+            <select v-model="sort" class="sort-select-native" aria-label="Sort passes">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="name">A–Z</option>
+            </select>
+            <span class="sort-display-text">{{ sortLabel }}</span>
+            <svg class="sort-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
         </div>
-      </ion-toolbar>
+      </div>
       <!-- Filter tabs -->
       <div class="filter-tabs">
         <button
@@ -76,7 +97,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-  IonContent, IonSearchbar, IonRefresher, IonRefresherContent
+  IonContent, IonRefresher, IonRefresherContent
 } from '@ionic/vue'
 import { usePassesStore } from '@/stores/passes'
 import PassCard from '@/components/PassCard.vue'
@@ -90,6 +111,13 @@ const store  = usePassesStore()
 const search      = ref('')
 const sort        = ref<'newest' | 'oldest' | 'name'>('newest')
 const activeFilter= ref('all')
+
+const sortLabel = computed(() => {
+  if (sort.value === 'newest') return 'Newest'
+  if (sort.value === 'oldest') return 'Oldest'
+  if (sort.value === 'name') return 'A–Z'
+  return 'Newest'
+})
 
 const FILTERS = [
   { label: 'All',          value: 'all' },
@@ -145,12 +173,83 @@ onMounted(() => store.fetchAll())
 
 <style scoped>
 .passes-content { --background: var(--w-bg); }
-.passes-search  { --background: var(--w-surface); }
-.sort-wrap { padding-right: 12px; }
-.sort-select {
-  border: 1.5px solid var(--w-border); border-radius: var(--w-radius-sm);
-  padding: 6px 10px; font-size: 13px; background: var(--w-surface); color: var(--w-text);
-  font-family: var(--w-font-body); outline: none;
+.search-sort-bar {
+  padding: 4px 16px 10px;
+  background: var(--w-bg);
+}
+.search-sort-container {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  height: 44px;
+  padding: 0 12px;
+}
+.search-icon {
+  color: #8E8E93;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: var(--w-text);
+  font-family: inherit;
+}
+.search-input::placeholder {
+  color: #8E8E93;
+}
+.search-clear-btn {
+  border: none;
+  background: #E5E5EA;
+  color: #666;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.sort-dropdown-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sort-select-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+  -webkit-appearance: none;
+}
+.sort-display-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--w-text);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.sort-chevron {
+  color: #666666;
+  pointer-events: none;
+  flex-shrink: 0;
 }
 .filter-tabs { display: flex; overflow-x: auto; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--w-border); scrollbar-width: none; }
 .filter-tabs::-webkit-scrollbar { display: none; }
