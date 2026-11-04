@@ -82,10 +82,11 @@
           <!-- Recurring: Days of week -->
           <div v-if="form.type === 'Recurring'" class="field">
             <label>Days of the Week <span class="req">*</span></label>
-            <div class="day-chips">
+            <div class="chip-group day-chip-group">
               <button
                 v-for="d in DAYS" :key="d"
-                class="day-chip" :class="{ active: form.recurringDays.includes(d) }"
+                type="button"
+                class="chip day-chip" :class="{ active: form.recurringDays.includes(d) }"
                 @click="toggleDay(d)"
               >{{ d }}</button>
             </div>
@@ -228,10 +229,14 @@ function handlePhotoUpload(e: Event) {
 }
 
 function toggleDay(d: string) {
-  const arr = form.value.recurringDays
+  const arr = [...form.value.recurringDays]
   const i   = arr.indexOf(d)
-  if (i >= 0) arr.splice(i, 1)
-  else arr.push(d)
+  if (i >= 0) {
+    arr.splice(i, 1)
+  } else {
+    arr.push(d)
+  }
+  form.value.recurringDays = arr
 }
 
 async function handleSubmit() {
@@ -324,8 +329,15 @@ function goToHome() {
   color: white;
   font-weight: 600;
 }
+.day-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .day-chip {
-  padding: 8px 12px;
+  padding: 8px 14px;
+  min-width: 44px;
+  text-align: center;
 }
 
 .input-wrap { display: flex; align-items: center; background: var(--w-surface); border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md); overflow: hidden; }
