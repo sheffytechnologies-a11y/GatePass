@@ -145,6 +145,34 @@
       @close="exitClearanceOpen = false"
       @exited="onExitCompleted"
     />
+
+    <!-- Revoke Confirmation Modal with Alert Icon -->
+    <div v-if="showRevokeConfirm" class="revoke-modal-backdrop" @click.self="showRevokeConfirm = false">
+      <div class="revoke-dialog-card">
+        <!-- Prominent Red Alert Icon Badge -->
+        <div class="revoke-dialog-icon">
+          <svg width="28" height="28" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a87.64,87.64,0,0,1-54.67-19.19l117.86-117.86A88,88,0,0,1,128,216Zm62.67-34.14L72.81,64.2A88,88,0,0,1,190.67,181.86Z"/>
+          </svg>
+        </div>
+
+        <h3 class="revoke-dialog-title">Revoke this pass?</h3>
+        
+        <p class="revoke-dialog-message">
+          <strong>{{ pass?.visitorName }}</strong>'s pass will be cancelled immediately.<span v-if="pass?.status === 'On-site'" class="revoke-onsite-warning"> This visitor is currently on-site.</span> They won't be able to enter the estate with this pass. This cannot be undone.
+        </p>
+
+        <div class="revoke-dialog-actions">
+          <button class="revoke-action-btn revoke-action-cancel" type="button" @click="showRevokeConfirm = false">
+            Cancel
+          </button>
+          <button class="revoke-action-btn revoke-action-danger" type="button" :disabled="revoking" @click="handleConfirmRevoke">
+            <ion-spinner v-if="revoking" name="crescent" color="light" style="width:14px;height:14px" />
+            <span v-else>Yes, Revoke</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </ion-page>
 </template>
 
@@ -154,7 +182,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage, IonHeader,
   IonContent, IonRefresher, IonRefresherContent, IonSkeletonText,
-  alertController,
+  IonSpinner,
 } from '@ionic/vue'
 import { usePassesStore } from '@/stores/passes'
 import { useAuthStore } from '@/stores/auth'
@@ -175,6 +203,8 @@ const { showToast } = useToast()
 
 const flagSheetOpen = ref(false)
 const exitClearanceOpen = ref(false)
+const showRevokeConfirm = ref(false)
+const revoking = ref(false)
 const inviteCardRef = ref<InstanceType<typeof PassInviteCard> | null>(null)
 const pass = computed(() => store.activePass)
 const displayStatus = computed(() => pass.value ? store.displayStatus(pass.value) : 'Pending')
@@ -218,29 +248,23 @@ function handleCallVisitor() {
   }
 }
 
-async function confirmRevoke() {
-  const isOnsite = pass.value?.status === 'On-site'
-  const alert = await alertController.create({
-    header: 'Revoke this pass?',
-    message: `${pass.value?.visitorName}'s pass will be cancelled immediately.${isOnsite ? ' This visitor is currently on-site.' : ''} They won't be able to enter the estate with this pass. This cannot be undone.`,
-    buttons: [
-      { text: 'Cancel', role: 'cancel' },
-      {
-        text: 'Yes, Revoke',
-        role: 'destructive',
-        cssClass: 'alert-danger',
-        handler: async () => {
-          try {
-            await store.revokePass(pass.value!.id)
-            showToast('Pass revoked', 'success')
-          } catch {
-            showToast('Something went wrong. Try again.', 'error')
-          }
-        },
-      },
-    ],
-  })
-  await alert.present()
+function confirmRevoke() {
+  showRevokeConfirm.value = true
+}
+
+async function handleConfirmRevoke() {
+  if (!pass.value) return
+  revoking.value = true
+  try {
+    await store.revokePass(pass.value.id)
+    showToast('Pass revoked', 'success')
+    showRevokeConfirm.value = false
+    await load()
+  } catch {
+    showToast('Something went wrong. Try again.', 'error')
+  } finally {
+    revoking.value = false
+  }
 }
 
 function openFlagSheet() { flagSheetOpen.value = true }
@@ -597,4 +621,104 @@ onMounted(load)
   text-transform: uppercase;
 }
 .flagged-time { font-size: 12px; color: var(--w-muted); }
+
+/* ── Revoke Confirmation Modal with Alert Icon ── */
+.revoke-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.15s ease-out;
+}
+.revoke-dialog-card {
+  width: 100%;
+  max-width: 320px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+  text-align: center;
+  animation: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.revoke-dialog-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+.revoke-dialog-title {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--w-text, #0F172A);
+  letter-spacing: -0.3px;
+}
+.revoke-dialog-message {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #64748B;
+}
+.revoke-onsite-warning {
+  display: block;
+  color: #D97706;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.revoke-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.revoke-action-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.revoke-action-btn:active {
+  transform: scale(0.97);
+}
+.revoke-action-cancel {
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #475569;
+}
+.revoke-action-cancel:active {
+  background: #F1F5F9;
+}
+.revoke-action-danger {
+  border: none;
+  background: #DC2626;
+  color: #FFFFFF;
+}
+.revoke-action-danger:active {
+  background: #B91C1C;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
 </style>
