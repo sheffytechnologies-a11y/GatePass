@@ -535,9 +535,8 @@ const forgotGuideText = computed(() => {
 })
 
 const forgotIdentifierLabel = computed(() => {
-  if (activeRole.value === 'admin') return 'Official Work Email'
-  if (activeRole.value === 'guard') return 'Guard Phone or Email'
-  return 'Registered Phone or Email'
+  if (activeRole.value === 'admin') return 'Email Address'
+  return 'Email Address / Phone No.'
 })
 
 const forgotPlaceholder = computed(() => {
@@ -608,14 +607,12 @@ function setRole(role: RoleType) {
 
 const inputLabel = computed(() => {
   if (activeRole.value === 'admin') return 'Email Address'
-  if (activeRole.value === 'guard') return 'Email Address or Guard Phone'
-  return 'Email Address or Phone Number'
+  return 'Email Address / Phone No.'
 })
 
 const inputPlaceholder = computed(() => {
   if (activeRole.value === 'admin') return 'admin@estate.com'
-  if (activeRole.value === 'guard') return 'e.g. 08012345678 or security@estate.com'
-  return 'e.g. 08012345678 or resident@estate.com'
+  return 'e.g. 08012345678 or name@domain.com'
 })
 
 const canSubmit = computed(() => {
