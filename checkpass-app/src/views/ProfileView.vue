@@ -4,13 +4,13 @@
       <ion-toolbar class="profile-toolbar">
         <ion-title class="profile-page-title">Profile</ion-title>
         <ion-buttons slot="end">
-          <button class="header-view-pass-btn" @click="openPassModal" type="button" aria-label="View Resident Pass">
+          <ion-button fill="clear" class="header-view-pass-btn" @click="openPassModal" aria-label="View Resident Pass">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
             <span>View Pass</span>
-          </button>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -26,6 +26,11 @@
               <div class="profile-name">{{ auth.resident?.name }}</div>
               <div class="profile-unit">{{ auth.resident?.flatAddress }}</div>
               <div class="profile-estate">{{ auth.resident?.estateName }}</div>
+            </div>
+            <div class="profile-card-arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </div>
           </div>
         </div>
@@ -337,63 +342,67 @@
         </div>
       </ion-modal>
 
-      <!-- Resident Pass Modal -->
-      <ion-modal
-        :is-open="showPassModal"
-        @didDismiss="showPassModal = false"
-        class="resident-pass-modal"
-      >
-        <div class="sheet-modal-shell resident-pass-sheet">
-          <div class="sheet-modal-header">
-            <div>
-              <div class="sheet-header-tag">Official Estate ID</div>
-              <h2 class="sheet-header-title">Resident Gate Pass</h2>
-            </div>
-            <button class="modal-close-btn" @click="showPassModal = false" type="button" aria-label="Close pass">&times;</button>
+
+
+    </ion-content>
+
+    <!-- Resident Pass Modal (placed directly on ion-page for guaranteed presentation) -->
+    <ion-modal
+      :is-open="showPassModal"
+      @didDismiss="showPassModal = false"
+      class="resident-pass-modal"
+    >
+      <div class="sheet-modal-shell resident-pass-sheet">
+        <div class="sheet-modal-header">
+          <div>
+            <div class="sheet-header-tag">Official Estate ID</div>
+            <h2 class="sheet-header-title">Resident Gate Pass</h2>
           </div>
+          <button class="modal-close-btn" @click="showPassModal = false" type="button" aria-label="Close pass">&times;</button>
+        </div>
 
-          <div class="sheet-modal-body resident-pass-scroll">
-            <!-- Branded Resident Pass Card (Exact same visual styling as Invite Card, without invite details) -->
-            <ResidentPassCard :resident="auth.resident" />
+        <div class="sheet-modal-body resident-pass-scroll">
+          <!-- Branded Resident Pass Card (Exact same visual styling as Invite Card, without invite details) -->
+          <ResidentPassCard :resident="auth.resident" />
 
-            <!-- Actions below card (Download Pass & Share Pass) -->
-            <div class="pass-modal-actions">
-              <div class="action-row-share">
-                <button
-                  class="btn-action btn-share-full"
-                  @click="downloadResidentPass"
-                  :disabled="downloadingPass"
-                  type="button"
-                >
-                  <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
-                  <span>{{ downloadingPass ? 'Generating Pass…' : 'Download Pass' }}</span>
-                </button>
-              </div>
+          <!-- Actions below card (Download Pass & Share Pass) -->
+          <div class="pass-modal-actions">
+            <!-- Primary Action: Download / Save Pass (supports native save on iOS/Android & file download on desktop) -->
+            <div class="action-row-share">
+              <button
+                class="btn-action btn-share-full"
+                @click="downloadResidentPass"
+                :disabled="downloadingPass"
+                type="button"
+              >
+                <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
+                <span>{{ downloadingPass ? 'Preparing Pass…' : 'Download Pass' }}</span>
+              </button>
+            </div>
 
-              <div class="action-row-secondary">
-                <button
-                  class="btn-action btn-secondary-full"
-                  @click="shareResidentPass"
-                  :disabled="downloadingPass"
-                  type="button"
-                >
-                  <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
-                    <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
-                  </svg>
-                  <span>Share Pass</span>
-                </button>
-              </div>
+            <!-- Secondary Action: Share Pass directly to WhatsApp, contacts, etc. -->
+            <div class="action-row-secondary">
+              <button
+                class="btn-action btn-secondary-full"
+                @click="shareResidentPass"
+                :disabled="downloadingPass"
+                type="button"
+              >
+                <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                  <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+                </svg>
+                <span>Share Pass</span>
+              </button>
             </div>
           </div>
         </div>
-      </ion-modal>
-
-    </ion-content>
+      </div>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -431,6 +440,7 @@ const showPassModal   = ref(false)
 const downloadingPass = ref(false)
 
 function openPassModal() {
+  console.log('[Checkpass] Opening Resident Pass modal')
   showPassModal.value = true
 }
 
@@ -451,14 +461,18 @@ function downloadImageBlob(blob: Blob, filename: string) {
   const a = document.createElement('a')
   a.href = url
   a.download = filename
+  a.target = '_blank'
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
 }
 
 async function downloadResidentPass() {
-  if (!auth.resident) return
+  if (!auth.resident) {
+    showToast('Resident profile not loaded yet.', 'warning')
+    return
+  }
   downloadingPass.value = true
   try {
     showToast('Generating resident pass…', 'warning')
@@ -472,11 +486,40 @@ async function downloadResidentPass() {
         role: auth.resident.role,
       },
     })
+
     const imageBlob = dataUrlToBlob(passDataUrl)
     const sanitizedName = (auth.resident.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
     const fileName = `checkpass-resident-pass-${sanitizedName}.png`
-    downloadImageBlob(imageBlob, fileName)
-    showToast('Resident pass downloaded successfully!', 'success')
+    const imageFile = new File([imageBlob], fileName, { type: 'image/png' })
+
+    const nav = navigator as Navigator & {
+      canShare?: (data?: ShareData) => boolean
+      share?: (data?: ShareData) => Promise<void>
+    }
+
+    let savedViaShare = false
+    // On iOS Safari and Android, navigator.share with files allows direct "Save Image" to Photos/Gallery
+    if (nav?.share && nav?.canShare && nav.canShare({ files: [imageFile] })) {
+      try {
+        await nav.share({
+          title: `${auth.resident.name} - Checkpass Resident Pass`,
+          text: `Official Checkpass Resident ID for ${auth.resident.name}.`,
+          files: [imageFile],
+        })
+        savedViaShare = true
+        showToast('Resident pass ready!', 'success')
+      } catch (shareErr: any) {
+        if (shareErr?.name === 'AbortError') {
+          return // User dismissed share sheet
+        }
+        console.warn('Share sheet dismissed or failed, falling back to file download:', shareErr)
+      }
+    }
+
+    if (!savedViaShare) {
+      downloadImageBlob(imageBlob, fileName)
+      showToast('Resident pass downloaded successfully!', 'success')
+    }
   } catch (err) {
     console.error('Error generating resident pass:', err)
     showToast('Failed to download resident pass.', 'error')
@@ -512,13 +555,19 @@ async function shareResidentPass() {
     }
 
     let shared = false
-    if (nav.share) {
+    if (nav?.share) {
       try {
         if (!nav.canShare || nav.canShare({ files: [imageFile] })) {
           await nav.share({
             title: `${auth.resident.name} - Resident Pass`,
             text: `Checkpass Resident ID Pass for ${auth.resident.name} at ${auth.resident.estateName || 'Estate'}.`,
             files: [imageFile],
+          })
+          shared = true
+        } else {
+          await nav.share({
+            title: `${auth.resident.name} - Resident Pass`,
+            text: `Checkpass Resident ID Pass for ${auth.resident.name} at ${auth.resident.estateName || 'Estate'}.`,
           })
           shared = true
         }
@@ -851,19 +900,32 @@ async function handleLogout() {
   line-height: 1.2;
 }
 .header-view-pass-btn {
+  --color: #FFFFFF;
+  --background: var(--w-primary, #0A5C38);
+  --border-radius: 999px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--w-primary, #0A5C38);
+  margin-right: 6px;
+}
+.profile-card-arrow {
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.profile-card:hover .profile-card-arrow,
+.profile-card:active .profile-card-arrow {
   color: #FFFFFF;
-  border: none;
-  border-radius: 999px;
-  padding: 7px 15px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
-  transition: all 0.15s ease;
+  transform: translateX(2px);
 }
 .header-view-pass-btn:active {
   transform: scale(0.96);
