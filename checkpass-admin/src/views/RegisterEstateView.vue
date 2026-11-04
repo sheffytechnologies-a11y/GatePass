@@ -24,7 +24,7 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            <span>Powered by Sheffy Technologies &middot; Enterprise Estate Security</span>
+            <span>Powered by Sheffy Technologies &middot; Enterprise Security</span>
           </div>
         </div>
       </div>
@@ -346,13 +346,20 @@ function goToDashboard() {
 }
 
 .hero-footer-trust {
-  display: inline-flex;
+  position: relative;
+  z-index: 5;
+  display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.75);
-  padding-top: 16px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.65);
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.hero-footer-trust svg {
+  color: #00C97A;
+  flex-shrink: 0;
 }
 
 /* ── 42% Right Form Interaction Section ── */
@@ -602,3 +609,4 @@ function goToDashboard() {
   .form-interaction-section { width: 100%; min-height: 100vh; padding: 24px 16px; }
 }
 </style>
+

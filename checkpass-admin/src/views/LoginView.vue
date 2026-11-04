@@ -821,8 +821,9 @@ async function handleLogin() {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 
-.hero-footer-trust .shield-icon {
-  color: #34D399;
+.shield-icon {
+  color: #00C97A;
+  flex-shrink: 0;
 }
 
 /* Cross-fade moment animation - Staggered Subtle Entrance */
