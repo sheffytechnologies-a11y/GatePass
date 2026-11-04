@@ -10,6 +10,10 @@ export const authApi = {
   logoutAdmin: (refreshToken?: string | null) =>
     client.post('/v1/admin/auth/logout', { refreshToken }),
   adminMe: () => client.get('/v1/admin/auth/me'),
+  forgotPassword: (identifier: string) =>
+    client.post('/v1/auth/forgot-password', { identifier, phone: identifier, email: identifier }),
+  resetPassword: (identifier: string, otp: string, newPassword: string) =>
+    client.post('/v1/auth/reset-password', { identifier, otp, newPassword }),
 }
 
 export const onboardingApi = {

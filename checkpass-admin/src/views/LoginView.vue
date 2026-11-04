@@ -114,118 +114,284 @@
             </div>
           </div>
 
-          <!-- Clean Header: Just 'Sign In' (No sub, no extra text) -->
-          <div class="form-header-group">
-            <h1 class="form-title">Sign In</h1>
+          <!-- ════════════════════════════════════════════════════════════════ -->
+          <!-- VIEW A: SIGN IN FORM                                             -->
+          <!-- ════════════════════════════════════════════════════════════════ -->
+          <div v-if="!showForgotView">
+
+            <!-- Clean Header: Just 'Sign In' (No sub, no extra text) -->
+            <div class="form-header-group">
+              <h1 class="form-title">Sign In</h1>
+            </div>
+
+            <!-- Error Alert -->
+            <transition name="alert-slide">
+              <div v-if="error" class="auth-alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>{{ error }}</span>
+              </div>
+            </transition>
+
+            <!-- Resident Success Card -->
+            <transition name="alert-slide">
+              <div v-if="residentLoggedIn" class="resident-success-card">
+                <div class="success-header">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <strong>Welcome back!</strong>
+                </div>
+                <p>You are authenticated. Launch the resident mobile app:</p>
+                <a :href="residentAppUrl" class="btn-launch-resident">
+                  Open Checkpass Resident App
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </div>
+            </transition>
+
+            <!-- Sign-In Form -->
+            <form v-if="!residentLoggedIn" @submit.prevent="handleLogin" class="signin-form">
+
+              <!-- Email Address input -->
+              <div class="input-block">
+                <label class="input-label" for="login-email">{{ inputLabel }}</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  </span>
+                  <input
+                    id="login-email"
+                    v-model="identifier"
+                    :type="activeRole === 'admin' ? 'email' : 'text'"
+                    class="text-input"
+                    :placeholder="inputPlaceholder"
+                    :autocomplete="activeRole === 'admin' ? 'email' : 'username'"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Password with "Forgot password?" Link -->
+              <div class="input-block">
+                <div class="label-row">
+                  <label class="input-label" for="login-password">Password</label>
+                  <button
+                    type="button"
+                    class="forgot-link-btn"
+                    @click="openForgotPassword"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div class="input-wrapper">
+                  <span class="input-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </span>
+                  <input
+                    id="login-password"
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    class="text-input with-toggle"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    @click="showPassword = !showPassword"
+                    aria-label="Toggle password visibility"
+                  >
+                    <svg v-if="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Submit Button (Just "Sign In") -->
+              <button
+                type="submit"
+                class="submit-signin-btn"
+                :disabled="loading || !canSubmit"
+              >
+                <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
+                <span v-else class="btn-content">
+                  Sign In
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </button>
+
+            </form>
+
+            <!-- Footer Switch to Registration -->
+            <div class="form-bottom-links">
+              <template v-if="activeRole === 'admin'">
+                <span class="new-estate-text">Setting up a new estate?</span>
+                <router-link to="/register" class="register-link">Create a free account &rarr;</router-link>
+              </template>
+              <template v-else-if="activeRole === 'guard'">
+                <span class="new-estate-text">Gate security staff? Contact your estate manager to be assigned to a post.</span>
+              </template>
+              <template v-else>
+                <span class="new-estate-text">Prefer mobile app?</span>
+                <a :href="residentAppUrl" class="register-link">Open resident web app &rarr;</a>
+              </template>
+            </div>
+
           </div>
 
-          <!-- Error Alert -->
-          <transition name="alert-slide">
-            <div v-if="error" class="auth-alert">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <span>{{ error }}</span>
-            </div>
-          </transition>
+          <!-- ════════════════════════════════════════════════════════════════ -->
+          <!-- VIEW B: FORGOT PASSWORD RECOVERY FLOW (ADMIN, RESIDENT, GUARD)     -->
+          <!-- ════════════════════════════════════════════════════════════════ -->
+          <div v-else class="forgot-flow-container">
 
-          <!-- Resident Success Card -->
-          <transition name="alert-slide">
-            <div v-if="residentLoggedIn" class="resident-success-card">
-              <div class="success-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <strong>Welcome back!</strong>
-              </div>
-              <p>You are authenticated. Launch the resident mobile app:</p>
-              <a :href="residentAppUrl" class="btn-launch-resident">
-                Open Checkpass Resident App
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              </a>
-            </div>
-          </transition>
-
-          <!-- Sign-In Form -->
-          <form v-if="!residentLoggedIn" @submit.prevent="handleLogin" class="signin-form">
-
-            <!-- Email Address input -->
-            <div class="input-block">
-              <label class="input-label" for="login-email">{{ inputLabel }}</label>
-              <div class="input-wrapper">
-                <span class="input-icon">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                </span>
-                <input
-                  id="login-email"
-                  v-model="identifier"
-                  :type="activeRole === 'admin' ? 'email' : 'text'"
-                  class="text-input"
-                  :placeholder="inputPlaceholder"
-                  :autocomplete="activeRole === 'admin' ? 'email' : 'username'"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Password -->
-            <div class="input-block">
-              <div class="label-row">
-                <label class="input-label" for="login-password">Password</label>
-              </div>
-              <div class="input-wrapper">
-                <span class="input-icon">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                </span>
-                <input
-                  id="login-password"
-                  v-model="password"
-                  :type="showPassword ? 'text' : 'password'"
-                  class="text-input with-toggle"
-                  placeholder="••••••••"
-                  autocomplete="current-password"
-                  required
-                />
-                <button
-                  type="button"
-                  class="password-toggle"
-                  @click="showPassword = !showPassword"
-                  aria-label="Toggle password visibility"
-                >
-                  <svg v-if="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Submit Button (Just "Sign In") -->
-            <button
-              type="submit"
-              class="submit-signin-btn"
-              :disabled="loading || !canSubmit"
-            >
-              <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
-              <span v-else class="btn-content">
-                Sign In
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </span>
+            <!-- Back to Sign In Link -->
+            <button type="button" class="back-link-btn" @click="closeForgotPassword">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              Back to Sign In
             </button>
 
-          </form>
+            <div class="form-header-group">
+              <h1 class="form-title">Reset Password</h1>
+              <p class="forgot-guide-text">{{ forgotGuideText }}</p>
+            </div>
 
-          <!-- Footer Switch to Registration -->
-          <div class="form-bottom-links">
-            <template v-if="activeRole === 'admin'">
-              <span class="new-estate-text">Setting up a new estate?</span>
-              <router-link to="/register" class="register-link">Create a free account &rarr;</router-link>
-            </template>
-            <template v-else-if="activeRole === 'guard'">
-              <span class="new-estate-text">Gate security staff? Contact your estate manager to be assigned to a post.</span>
-            </template>
-            <template v-else>
-              <span class="new-estate-text">Prefer mobile app?</span>
-              <a :href="residentAppUrl" class="register-link">Open resident web app &rarr;</a>
-            </template>
+            <!-- Error Alert -->
+            <transition name="alert-slide">
+              <div v-if="forgotError" class="auth-alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>{{ forgotError }}</span>
+              </div>
+            </transition>
+
+            <!-- STEP 1: REQUEST VERIFICATION CODE -->
+            <form v-if="forgotStep === 'request'" @submit.prevent="handleSendResetOtp" class="signin-form">
+              <div class="input-block">
+                <label class="input-label" for="forgot-identifier">{{ forgotIdentifierLabel }}</label>
+                <div class="input-wrapper">
+                  <span class="input-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  </span>
+                  <input
+                    id="forgot-identifier"
+                    v-model="forgotIdentifier"
+                    :type="activeRole === 'admin' ? 'email' : 'text'"
+                    class="text-input"
+                    :placeholder="forgotPlaceholder"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="submit-signin-btn"
+                :disabled="forgotLoading || forgotIdentifier.trim().length < 3"
+              >
+                <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
+                <span v-else class="btn-content">
+                  Send 6-Digit Code
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </button>
+            </form>
+
+            <!-- STEP 2: VERIFY OTP AND SET NEW PASSWORD -->
+            <form v-else-if="forgotStep === 'verify'" @submit.prevent="handlePerformPasswordReset" class="signin-form">
+              <div class="auth-info-banner">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>Code dispatched to <strong>{{ forgotIdentifier }}</strong></span>
+              </div>
+
+              <div class="input-block">
+                <label class="input-label" for="reset-otp">6-Digit Verification Code</label>
+                <div class="input-wrapper">
+                  <input
+                    id="reset-otp"
+                    v-model="resetOtp"
+                    type="text"
+                    maxlength="6"
+                    class="text-input otp-field"
+                    placeholder="e.g. 123456"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="input-block">
+                <label class="input-label" for="reset-new-password">New Password</label>
+                <div class="input-wrapper">
+                  <input
+                    id="reset-new-password"
+                    v-model="resetNewPassword"
+                    :type="showResetPassword ? 'text' : 'password'"
+                    class="text-input with-toggle"
+                    placeholder="Min. 8 characters"
+                    minlength="8"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    @click="showResetPassword = !showResetPassword"
+                    aria-label="Toggle password visibility"
+                  >
+                    <svg v-if="!showResetPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="input-block">
+                <label class="input-label" for="reset-confirm-password">Confirm New Password</label>
+                <div class="input-wrapper">
+                  <input
+                    id="reset-confirm-password"
+                    v-model="resetConfirmPassword"
+                    :type="showResetPassword ? 'text' : 'password'"
+                    class="text-input"
+                    placeholder="Repeat password"
+                    minlength="8"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="submit-signin-btn"
+                :disabled="forgotLoading || resetOtp.length < 6 || resetNewPassword.length < 8"
+              >
+                <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
+                <span v-else class="btn-content">
+                  Update Password
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </button>
+            </form>
+
+            <!-- STEP 3: SUCCESS STATE -->
+            <div v-else-if="forgotStep === 'success'" class="forgot-success-box">
+              <div class="success-icon-bubble">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3 class="success-title">Password Reset Complete!</h3>
+              <p class="success-desc">Your password has been updated securely. You can now log in to Checkpass with your new credentials.</p>
+              <button
+                type="button"
+                class="submit-signin-btn"
+                @click="closeForgotPassword"
+              >
+                Sign In Now &rarr;
+              </button>
+            </div>
+
           </div>
 
           <!-- Trust Footer -->
@@ -245,6 +411,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { authApi } from '@/api'
 
 type RoleType = 'admin' | 'guard' | 'resident'
 
@@ -321,7 +488,7 @@ onUnmounted(() => {
   stopRotation()
 })
 
-// ─── ROLE & FORM STATE ───
+// ─── ROLE & LOGIN FORM STATE ───
 const activeRole = ref<RoleType>('admin')
 const identifier = ref('')
 const password = ref('')
@@ -329,6 +496,96 @@ const showPassword = ref(false)
 const loading  = ref(false)
 const error    = ref('')
 const residentLoggedIn = ref(false)
+
+// ─── FORGOT PASSWORD STATE (FOR ALL 3 ROLES) ───
+const showForgotView = ref(false)
+const forgotStep = ref<'request' | 'verify' | 'success'>('request')
+const forgotIdentifier = ref('')
+const resetOtp = ref('')
+const resetNewPassword = ref('')
+const resetConfirmPassword = ref('')
+const showResetPassword = ref(false)
+const forgotLoading = ref(false)
+const forgotError = ref('')
+
+function openForgotPassword() {
+  showForgotView.value = true
+  forgotStep.value = 'request'
+  forgotError.value = ''
+  forgotIdentifier.value = identifier.value.trim()
+}
+
+function closeForgotPassword() {
+  showForgotView.value = false
+  forgotStep.value = 'request'
+  forgotError.value = ''
+  resetOtp.value = ''
+  resetNewPassword.value = ''
+  resetConfirmPassword.value = ''
+}
+
+const forgotGuideText = computed(() => {
+  if (activeRole.value === 'admin') {
+    return 'Enter your official administrator email address. We will dispatch a 6-digit verification code to reset your password.'
+  }
+  if (activeRole.value === 'guard') {
+    return 'Enter your registered guard phone number or email to receive a 6-digit verification code.'
+  }
+  return 'Enter your registered phone number or email address to receive your 6-digit verification code.'
+})
+
+const forgotIdentifierLabel = computed(() => {
+  if (activeRole.value === 'admin') return 'Official Work Email'
+  if (activeRole.value === 'guard') return 'Guard Phone or Email'
+  return 'Registered Phone or Email'
+})
+
+const forgotPlaceholder = computed(() => {
+  if (activeRole.value === 'admin') return 'admin@estate.com'
+  if (activeRole.value === 'guard') return '08012345678 or security@estate.com'
+  return '08012345678 or resident@estate.com'
+})
+
+async function handleSendResetOtp() {
+  forgotError.value = ''
+  forgotLoading.value = true
+  try {
+    const res = await authApi.forgotPassword(forgotIdentifier.value.trim())
+    // If backend returns debugOtp (in local dev), autofill for testing convenience
+    if (res.data && res.data.debugOtp) {
+      resetOtp.value = String(res.data.debugOtp)
+    }
+    forgotStep.value = 'verify'
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } }
+    forgotError.value = err.response?.data?.message || 'Could not dispatch verification code. Please check your details.'
+  } finally {
+    forgotLoading.value = false
+  }
+}
+
+async function handlePerformPasswordReset() {
+  forgotError.value = ''
+  if (resetNewPassword.value !== resetConfirmPassword.value) {
+    forgotError.value = 'Passwords do not match. Please verify and try again.'
+    return
+  }
+  if (resetNewPassword.value.length < 8) {
+    forgotError.value = 'Password must be at least 8 characters long.'
+    return
+  }
+
+  forgotLoading.value = true
+  try {
+    await authApi.resetPassword(forgotIdentifier.value.trim(), resetOtp.value.trim(), resetNewPassword.value)
+    forgotStep.value = 'success'
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } }
+    forgotError.value = err.response?.data?.message || 'The verification code is invalid or has expired. Please try again.'
+  } finally {
+    forgotLoading.value = false
+  }
+}
 
 const residentAppUrl = computed(() => {
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -342,6 +599,7 @@ function setRole(role: RoleType) {
   activeRole.value = role
   error.value = ''
   residentLoggedIn.value = false
+  forgotError.value = ''
   // Pre-clear if switching to admin with non-email
   if (role === 'admin' && identifier.value.includes('@') === false && identifier.value.length > 0) {
     identifier.value = ''
@@ -597,7 +855,7 @@ async function handleLogin() {
 
 /* ── CLEAN 3-ROLE TABS: ICON BY THE SIDE OF TEXT ── */
 .role-tabs-wrap {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .role-tabs-grid {
@@ -656,11 +914,11 @@ async function handleLogin() {
 
 /* ── HEADER GROUP: JUST "Sign In" ── */
 .form-header-group {
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .form-title {
-  font-size: clamp(28px, 2.4vw, 34px);
+  font-size: clamp(26px, 2.3vw, 32px);
   font-weight: 800;
   color: #0F172A;
   margin: 0;
@@ -668,7 +926,7 @@ async function handleLogin() {
   font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", sans-serif;
 }
 
-/* ── ALERTS ── */
+/* ── ALERTS & BANNERS ── */
 .auth-alert {
   display: flex;
   align-items: center;
@@ -680,6 +938,18 @@ async function handleLogin() {
   border-radius: 12px;
   font-size: 13.5px;
   margin-bottom: 18px;
+}
+
+.auth-info-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
 }
 
 .resident-success-card {
@@ -752,6 +1022,23 @@ async function handleLogin() {
   color: #1E293B;
 }
 
+/* Forgot password link button */
+.forgot-link-btn {
+  background: transparent;
+  border: none;
+  color: #059669;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, text-decoration 0.15s ease;
+}
+
+.forgot-link-btn:hover {
+  color: #047857;
+  text-decoration: underline;
+}
+
 .input-wrapper {
   position: relative;
   display: flex;
@@ -794,6 +1081,13 @@ async function handleLogin() {
 
 .text-input.with-toggle {
   padding-right: 44px;
+}
+
+.otp-field {
+  letter-spacing: 0.25em;
+  font-size: 17px;
+  font-weight: 700;
+  padding-left: 14px;
 }
 
 .password-toggle {
@@ -849,6 +1143,69 @@ async function handleLogin() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ── FORGOT PASSWORD RECOVERY CONTAINER ── */
+.forgot-flow-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.back-link-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s ease;
+  align-self: flex-start;
+}
+
+.back-link-btn:hover {
+  color: #0F172A;
+}
+
+.forgot-guide-text {
+  font-size: 13.5px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.forgot-success-box {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.success-icon-bubble {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.success-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #064E3B;
+  margin: 0 0 8px;
+}
+
+.success-desc {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0 0 20px;
 }
 
 /* ── FOOTER LINKS ── */
