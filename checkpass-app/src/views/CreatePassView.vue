@@ -270,7 +270,6 @@ async function handleSubmit() {
       } catch {}
     }
     isDone.value = true
-    showToast(`Pass created for ${form.value.visitorName}`, 'success')
   } catch {
     showToast("Couldn't create pass. Try again.", 'error')
   } finally {
