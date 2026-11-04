@@ -65,46 +65,60 @@ withDefaults(
   width: 100%;
   height: 100%;
   overflow: visible;
+  animation: brandSpinnerChase 2.8s cubic-bezier(0.5, 0, 0.2, 1) infinite;
 }
 
 .spinner-quadrant {
   transform-origin: 59.5px 59.5px;
   will-change: transform, opacity;
-  animation: quadrantPulse 1.0s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: quadrantChase 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-/* Clockwise Chase Sequence: 1. Top-Right -> 2. Bottom-Right -> 3. Bottom-Left -> 4. Top-Left */
+/* Clockwise Chase Sequence with smooth seamless overlapping delays */
 .sq-top-right {
   animation-delay: 0s;
 }
 
 .sq-bottom-right {
-  animation-delay: 0.25s;
+  animation-delay: -0.9s;
 }
 
 .sq-bottom-left {
-  animation-delay: 0.50s;
+  animation-delay: -0.6s;
 }
 
 .sq-top-left {
-  animation-delay: 0.75s;
+  animation-delay: -0.3s;
 }
 
-@keyframes quadrantPulse {
+@keyframes brandSpinnerChase {
   0% {
-    opacity: 0.22;
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes quadrantChase {
+  0% {
+    opacity: 0.18;
     transform: scale(0.92);
   }
   25% {
     opacity: 1;
-    transform: scale(1.06);
+    transform: scale(1.08);
   }
   50% {
-    opacity: 0.35;
-    transform: scale(0.94);
+    opacity: 0.55;
+    transform: scale(0.99);
+  }
+  75% {
+    opacity: 0.25;
+    transform: scale(0.93);
   }
   100% {
-    opacity: 0.22;
+    opacity: 0.18;
     transform: scale(0.92);
   }
 }
