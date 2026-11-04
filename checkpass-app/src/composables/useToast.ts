@@ -1,21 +1,98 @@
 // src/composables/useToast.ts
-import { toastController } from '@ionic/vue'
+import { ref } from 'vue'
 
-type ToastVariant = 'success' | 'warning' | 'error'
+export type ToastVariant = 'success' | 'warning' | 'info' | 'error'
 
-export function useToast() {
-  async function showToast(message: string, variant: ToastVariant = 'success', duration = 2500) {
-    const toast = await toastController.create({
-      message,
-      duration,
-      position: 'bottom',
-      color: variant === 'success' ? 'success' : variant === 'warning' ? 'warning' : 'danger',
-      cssClass: 'w-toast',
-    })
-    await toast.present()
+export interface ToastItem {
+  id: number
+  title: string
+  subtitle?: string
+  variant: ToastVariant
+}
+
+export interface ToastOptions {
+  title: string
+  subtitle?: string
+  variant?: ToastVariant
+  duration?: number
+}
+
+const toasts = ref<ToastItem[]>([])
+let nextId = 0
+
+function parseToastInput(
+  input: string | ToastOptions,
+  variant: ToastVariant = 'success',
+  duration = 3200
+): { title: string; subtitle?: string; variant: ToastVariant; duration: number } {
+  if (typeof input === 'object' && input !== null) {
+    return {
+      title: input.title,
+      subtitle: input.subtitle,
+      variant: input.variant || 'success',
+      duration: input.duration ?? 3200,
+    }
   }
 
-  return { showToast }
+  const raw = String(input || '').trim()
+  let title = raw
+  let subtitle: string | undefined = undefined
+
+  if (raw.includes(' — ')) {
+    const parts = raw.split(' — ')
+    title = parts[0].trim()
+    subtitle = parts.slice(1).join(' — ').trim()
+  } else if (raw.includes(' - ')) {
+    const parts = raw.split(' - ')
+    title = parts[0].trim()
+    subtitle = parts.slice(1).join(' - ').trim()
+  } else if (raw.includes('. ') && !raw.endsWith('.ng') && !raw.endsWith('.com')) {
+    const firstDot = raw.indexOf('. ')
+    title = raw.substring(0, firstDot).trim()
+    subtitle = raw.substring(firstDot + 2).trim()
+  } else if (raw.toLowerCase().includes('generating invite card')) {
+    title = 'Generating invite card'
+    subtitle = 'Preparing pass image for sharing...'
+  } else if (raw.toLowerCase().includes('downloaded successfully')) {
+    title = 'Invite card downloaded'
+    subtitle = 'Ready to share with your visitor'
+  }
+
+  // Provide helpful contextual subtitle if none found
+  if (!subtitle) {
+    if (variant === 'success') {
+      subtitle = 'Action completed successfully'
+    } else if (variant === 'error') {
+      subtitle = 'Please try again later'
+    } else if (variant === 'warning') {
+      subtitle = 'Check the details and retry'
+    }
+  }
+
+  return { title, subtitle, variant, duration }
+}
+
+export function useToast() {
+  function showToast(input: string | ToastOptions, variant: ToastVariant = 'success', duration = 3200) {
+    const parsed = parseToastInput(input, variant, duration)
+    const id = nextId++
+    toasts.value.push({
+      id,
+      title: parsed.title,
+      subtitle: parsed.subtitle,
+      variant: parsed.variant,
+    })
+
+    setTimeout(() => {
+      dismissToast(id)
+    }, parsed.duration)
+  }
+
+  function dismissToast(id: number) {
+    toasts.value = toasts.value.filter(t => t.id !== id)
+  }
+
+  return { toasts, showToast, dismissToast }
 }
 
 // ─────────────────────────────────────────────────────────────

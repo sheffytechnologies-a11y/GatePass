@@ -53,17 +53,109 @@
       </main>
     </div>
 
-    <!-- Toast container -->
-    <div class="toast-container">
-      <div
-        v-for="t in toasts"
-        :key="t.id"
-        class="toast"
-        :class="`toast-${t.type}`"
-      >
-        <span>{{ t.type === 'success' ? '✅' : t.type === 'error' ? '❌' : '⚠️' }}</span>
-        {{ t.message }}
-      </div>
+    <!-- Toast container (Floating Capsule Pills) -->
+    <div v-if="toasts.length > 0" class="toast-container">
+      <transition-group name="toast-anim" tag="div" class="toast-list">
+        <div
+          v-for="t in toasts"
+          :key="t.id"
+          class="toast-pill"
+          :class="`toast-${t.type}`"
+          @click="dismissToast(t.id)"
+        >
+          <!-- Left Icon Badge -->
+          <div class="toast-icon-wrap" :class="`icon-${t.type}`">
+            <!-- Success: Green Circle with Checkmark -->
+            <svg
+              v-if="t.type === 'success'"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+
+            <!-- Warning: Amber Triangle with Exclamation -->
+            <svg
+              v-else-if="t.type === 'warning'"
+              class="toast-svg-poly"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M12 2.8L1.6 20.8C1.4 21.2 1.7 21.8 2.2 21.8H21.8C22.3 21.8 22.6 21.2 22.4 20.8L12 2.8Z"
+                fill="#F59E0B"
+              />
+              <line x1="12" y1="9" x2="12" y2="13.8" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" />
+              <circle cx="12" cy="17.5" r="1.25" fill="#FFFFFF" />
+            </svg>
+
+            <!-- Info: Blue Circle with Exclamation -->
+            <svg
+              v-else-if="t.type === 'info'"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <line x1="12" y1="7.5" x2="12" y2="13" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" />
+              <circle cx="12" cy="17" r="1.3" fill="#FFFFFF" />
+            </svg>
+
+            <!-- Error: Red Octagon with Exclamation -->
+            <svg
+              v-else
+              class="toast-svg-poly"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <polygon
+                points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+                fill="#DC2626"
+              />
+              <line x1="12" y1="8" x2="12" y2="13.2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" />
+              <circle cx="12" cy="17" r="1.25" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <!-- Middle Content (Title + Subtitle) -->
+          <div class="toast-content">
+            <div class="toast-title">{{ t.title }}</div>
+            <div v-if="t.subtitle" class="toast-subtitle">{{ t.subtitle }}</div>
+          </div>
+
+          <!-- Right Close Button -->
+          <button
+            class="toast-close"
+            type="button"
+            @click.stop="dismissToast(t.id)"
+            aria-label="Close"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -79,7 +171,7 @@ import EstateSwitcher from '@/components/EstateSwitcher.vue'
 const route  = useRoute()
 const router = useRouter()
 const auth   = useAuthStore()
-const { toasts } = useToast()
+const { toasts, dismissToast } = useToast()
 
 const sidebarOpen = ref(false)
 
