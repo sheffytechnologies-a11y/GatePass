@@ -116,7 +116,7 @@
 
           <!-- Visitor Phone -->
           <div class="field">
-            <label>Visitor Phone <span class="optional">(optional — for WhatsApp share)</span></label>
+            <label>Visitor Phone</label>
             <div class="input-wrap">
               <span class="prefix">+234</span>
               <input v-model="form.visitorPhone" type="tel" inputmode="numeric" placeholder="080 0000 0000" class="bare-input" />
