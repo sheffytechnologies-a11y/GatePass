@@ -1137,7 +1137,7 @@ footer {
   left:0;
   right:0;
   height:3px;
-  background:rgba(255,255,255,.2);
+  background:rgba(255,255,255,.22);
   border-radius:3px;
   overflow:hidden;
   z-index:5;
@@ -1152,9 +1152,43 @@ footer {
   height:100%;
   width:0%;
   background:#00C97A;
-  box-shadow:0 0 10px rgba(0,201,122,.9);
+  box-shadow:0 0 12px rgba(0,201,122,.9);
   border-radius:3px;
   transition:width .05s linear;
+  will-change:width;
+}
+
+@keyframes saHeadlineFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saBodyFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saKickerFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================
