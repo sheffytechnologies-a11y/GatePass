@@ -708,6 +708,7 @@ async function handleRegister() {
   color: #FFFFFF;
   letter-spacing: -0.035em;
   text-shadow: 0 3px 20px rgba(0, 0, 0, 0.7);
+  animation: heroEntranceFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-copy {
@@ -718,11 +719,24 @@ async function handleRegister() {
   max-width: 540px;
   min-height: 56px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  animation: heroEntranceFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.14s backwards;
+}
+
+@keyframes heroEntranceFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Moment Transitions - Staggered Subtle Entrance */
 /* 1. Headline enters first */
-.moment-headline-enter-active {
+.moment-headline-enter-active,
+.moment-headline-appear-active {
   transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
@@ -732,7 +746,8 @@ async function handleRegister() {
   will-change: opacity, transform;
 }
 
-.moment-headline-enter-from {
+.moment-headline-enter-from,
+.moment-headline-appear-from {
   opacity: 0;
   transform: translateY(10px);
 }
@@ -743,8 +758,9 @@ async function handleRegister() {
 }
 
 /* 2. Subhead enters with smooth subtle stagger delay */
-.moment-subhead-enter-active {
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s;
+.moment-subhead-enter-active,
+.moment-subhead-appear-active {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.14s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.14s;
   will-change: opacity, transform;
 }
 
@@ -753,7 +769,8 @@ async function handleRegister() {
   will-change: opacity, transform;
 }
 
-.moment-subhead-enter-from {
+.moment-subhead-enter-from,
+.moment-subhead-appear-from {
   opacity: 0;
   transform: translateY(10px);
 }

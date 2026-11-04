@@ -1938,7 +1938,7 @@ onMounted(() => {
     styleEl = document.createElement('link')
     styleEl.id = 'landing-styles'
     styleEl.rel = 'stylesheet'
-    styleEl.href = '/landing.css'
+    styleEl.href = `/landing.css?v=${Date.now()}`
     styleEl.onload = () => {
       setTimeout(() => {
         pageLoading.value = false
@@ -1946,6 +1946,7 @@ onMounted(() => {
     }
     document.head.appendChild(styleEl)
   } else {
+    styleEl.href = `/landing.css?v=${Date.now()}`
     setTimeout(() => {
       pageLoading.value = false
     }, 250)
@@ -2173,6 +2174,168 @@ onUnmounted(() => {
   .nav-hamburger {
     display: flex !important;
   }
+}
+
+/* ── STATS STRIP: STATIONARY CENTERED ON WEB, CAROUSEL ONLY ON MOBILE ── */
+.stats-strip {
+  background: #ffffff !important;
+  border-top: 1px solid var(--border, #E6EAE7) !important;
+  border-bottom: 1px solid var(--border, #E6EAE7) !important;
+  padding: 38px 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.stats-ticker-outer {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 4px 24px !important;
+  overflow: visible !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+.stats-ticker-track {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  width: 100% !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+.stats-ticker-track .stat-card[aria-hidden="true"] {
+  display: none !important;
+}
+
+.stat-card {
+  flex: 1 1 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FAFAF9 !important;
+  border: 1px solid rgba(11, 31, 23, 0.08) !important;
+  border-radius: 18px !important;
+  padding: 18px 24px !important;
+  min-width: 160px !important;
+  max-width: 230px !important;
+  box-shadow: 0 2px 10px rgba(11, 31, 23, 0.03) !important;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+  user-select: none !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(10, 91, 56, 0.22) !important;
+  box-shadow: 0 8px 24px rgba(10, 91, 56, 0.08) !important;
+}
+
+.stat-num {
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 2.1rem !important;
+  color: #0A5C38 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1 !important;
+}
+
+.stat-label {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #526059 !important;
+  margin-top: 6px !important;
+  text-align: center !important;
+  line-height: 1.35 !important;
+  white-space: nowrap !important;
+}
+
+@keyframes statsTickerSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .stats-strip {
+    padding: 24px 0 26px !important;
+  }
+  .stats-ticker-outer {
+    overflow: hidden !important;
+    padding: 6px 0 !important;
+    max-width: 100% !important;
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent) !important;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent) !important;
+  }
+  .stats-ticker-track {
+    width: max-content !important;
+    justify-content: flex-start !important;
+    gap: 14px !important;
+    animation: statsTickerSlide 20s linear infinite !important;
+    will-change: transform !important;
+  }
+  .stats-ticker-track .stat-card[aria-hidden="true"] {
+    display: flex !important;
+  }
+  .stat-card {
+    flex: 0 0 auto !important;
+    min-width: 145px !important;
+    max-width: none !important;
+    padding: 14px 18px !important;
+  }
+  .stat-num {
+    font-size: 1.7rem !important;
+  }
+  .stat-label {
+    font-size: 0.72rem !important;
+  }
+}
+
+/* ── FOOTER SOCIAL BUTTONS: WHITE ICONS ONLY, NO TEXT ── */
+.footer-social {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 20px !important;
+}
+
+.footer-social a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+}
+
+.footer-social a svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.footer-social a:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: #00C97A !important;
+  transform: translateY(-2px) scale(1.06) !important;
+  box-shadow: 0 6px 16px rgba(0, 201, 122, 0.24) !important;
+}
+
+.footer-social a:hover svg {
+  transform: scale(1.08) !important;
 }
 
 </style>
