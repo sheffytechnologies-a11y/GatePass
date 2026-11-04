@@ -1,15 +1,13 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title slot="start" class="home-title">{{ greeting }}, {{ firstName }} 👋</ion-title>
-        <div slot="end">
+    <ion-content :fullscreen="true" class="home-content">
+      <!-- Scrollable Top Greeting Bar (scrolls away as tabs approach the top) -->
+      <div class="home-top-bar">
+        <h1 class="home-title">{{ greeting }}, {{ firstName }} 👋</h1>
+        <div class="home-notif-wrap">
           <NotifBell :count="notifStore.unreadCount" @click="router.push('/notifications')" />
         </div>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content :fullscreen="true" class="home-content">
+      </div>
       <ion-refresher slot="fixed" @ionRefresh="onRefresh">
         <ion-refresher-content />
       </ion-refresher>
@@ -752,7 +750,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
+  IonPage, IonContent,
   IonRefresher, IonRefresherContent, IonSkeletonText, IonModal,
 } from '@ionic/vue'
 // import type { Notification } from '@/types'
@@ -1490,21 +1488,43 @@ onMounted(() => {
 .passes-shell { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── STICKY NAVIGATION TABS BAR ── */
+.home-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ion-safe-area-top, 0px) + 14px) 16px 6px;
+  background: var(--w-bg);
+}
+.home-title {
+  margin: 0;
+  font-size: 19px !important;
+  font-weight: 700;
+  color: var(--w-text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.home-notif-wrap {
+  display: flex;
+  align-items: center;
+}
+
+/* ── STICKY NAVIGATION TABS BAR (Docks at top as greeting scrolls off) ── */
 .passes-tabs-sticky-bar {
   position: sticky;
-  top: -16px; /* docks seamlessly under ion-toolbar at the top of ion-content */
-  z-index: 35;
-  background: var(--w-bg, #F7F9F7);
-  padding-top: 14px;
-  margin-top: -14px;
+  top: 0;
+  z-index: 40;
+  background: var(--w-bg, #F4F2EE);
+  padding-top: calc(var(--ion-safe-area-top, 0px) + 12px);
+  margin-top: calc(-1 * (var(--ion-safe-area-top, 0px) + 12px));
   margin-left: -16px;
   margin-right: -16px;
   padding-left: 16px;
   padding-right: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding-bottom: 2px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1.5px solid var(--w-border, #E5EAE7);
-  box-shadow: 0 4px 12px -3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px -3px rgba(0, 0, 0, 0.04);
 }
 
 .passes-tabs {
