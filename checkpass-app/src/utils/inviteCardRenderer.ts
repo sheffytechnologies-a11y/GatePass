@@ -55,29 +55,9 @@ function drawRoundedRect(
 }
 
 /**
- * Renders a high-resolution, branded 750x1160px PNG image of the Checkpass Invite Card
+ * Renders a high-resolution, branded 750x1180px PNG image of the Checkpass Invite Card
  */
 export async function generateInviteCardImage(pass: Pass, options: RenderPassOptions = {}): Promise<string> {
-  // Generate crisp QR code
-  const qrDataUrl = await QRCode.toDataURL(pass.qrData || `CHECKPASS:${pass.id}`, {
-    width: 380,
-    margin: 1,
-    color: {
-      dark: '#0A5C38',
-      light: '#FFFFFF',
-    },
-  })
-
-  // Load QR image element
-  const qrImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = qrDataUrl
-  })
-
-  // Setup 2x retina canvas (750x1180px)
   const width = 750
   const height = 1180
   const canvas = document.createElement('canvas')
@@ -85,6 +65,20 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Could not get canvas context')
+
+  // Render QR directly to an offscreen canvas (instant, synchronous memory canvas, 0 CORS issues)
+  const qrPodSize = 250
+  const qrInnerPad = 18
+  const qrTargetSize = qrPodSize - qrInnerPad * 2 // 214px
+  const qrCanvas = document.createElement('canvas')
+  await QRCode.toCanvas(qrCanvas, pass.qrData || `CHECKPASS:${pass.id}`, {
+    width: qrTargetSize,
+    margin: 1,
+    color: {
+      dark: '#0A5C38',
+      light: '#FFFFFF',
+    },
+  })
 
   // Background canvas fill (soft sage light tone)
   ctx.fillStyle = '#EEF1EE'
@@ -129,8 +123,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.restore()
 
   // Top Bar: Checkpass Brand + Visitor Pass Badge
-  // Checkpass Logo Symbol + Text
-  ctx.save()
   const logoX = cardX + 32
   const logoY = cardY + 44
 
@@ -147,7 +139,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.fillText('Checkpass', logoX + 38, logoY + 22)
 
   // Visitor Pass Pill Badge
-  const badgeText = 'VISITOR PASS'
+  const badgeText = pass.type === 'Recurring' ? 'RECURRING PASS' : 'VISITOR PASS'
   ctx.font = 'bold 13px "DM Sans", -apple-system, sans-serif'
   const badgeW = ctx.measureText(badgeText).width + 24
   const badgeH = 30
@@ -163,7 +155,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
 
   ctx.fillStyle = '#E2FDEE'
   ctx.fillText(badgeText, badgeX + 12, badgeY + 20)
-  ctx.restore()
 
   // ══ 2. VISITOR IDENTITY FROSTED POD ════════════════════════════════════════
   const idBoxX = cardX + 28
@@ -179,7 +170,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Avatar Circle
+  // Avatar Box
   const avX = idBoxX + 24
   const avY = idBoxY + (idBoxH - 96) / 2
   const avSize = 96
@@ -193,26 +184,51 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.lineWidth = 3
   ctx.stroke()
 
-  // Initials
-  const initials = (pass.visitorName || 'Guest')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w[0].toUpperCase())
-    .join('')
-  ctx.fillStyle = '#FFFFFF'
-  ctx.font = 'bold 36px "Bricolage Grotesque", -apple-system, sans-serif'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText(initials, avX + avSize / 2, avY + avSize / 2 + 2)
-  ctx.textAlign = 'left'
-  ctx.textBaseline = 'alphabetic'
+  // Check for visitor photo
+  let photoDrawn = false
+  const photoSrc = (pass as any).visitorPhoto || (pass as any).photoUrl || (() => {
+    try { return localStorage.getItem(`checkpass_photo_${pass.id}`) } catch { return null }
+  })()
+
+  if (photoSrc) {
+    try {
+      const photoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        const timer = setTimeout(() => reject(new Error('timeout')), 1000)
+        img.onload = () => { clearTimeout(timer); resolve(img) }
+        img.onerror = () => { clearTimeout(timer); reject() }
+        img.src = photoSrc
+      })
+      ctx.save()
+      drawRoundedRect(ctx, avX, avY, avSize, avSize, 24)
+      ctx.clip()
+      ctx.drawImage(photoImg, avX, avY, avSize, avSize)
+      ctx.restore()
+      photoDrawn = true
+    } catch {
+      photoDrawn = false
+    }
+  }
+
+  if (!photoDrawn) {
+    const initials = (pass.visitorName || 'Guest')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0].toUpperCase())
+      .join('')
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = 'bold 36px "Bricolage Grotesque", -apple-system, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(initials, avX + avSize / 2, avY + avSize / 2 + 2)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+  }
 
   // Text info
   const textX = avX + avSize + 22
   let curY = idBoxY + 50
-
-  // Kicker removed per user request
 
   // Visitor Name
   curY += 40
@@ -228,8 +244,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   const hostLabel = `Host: ${pass.hostName || 'Resident'} · ${pass.hostUnit}`
   const trimmedHost = hostLabel.length > 34 ? hostLabel.slice(0, 33) + '…' : hostLabel
   ctx.fillText(trimmedHost, textX, curY)
-
-  // Pass ref removed per user request
   ctx.restore()
 
   // ══ 3. BODY (Seamless White Background) ════════════════════════════════════
@@ -293,9 +307,8 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
     renderCell(ctx, '🚗 VEHICLE PLATE', pass.vehiclePlate.toUpperCase(), col1X, gridY + 192, 'Clearance Registered')
   }
 
-  // ══ 5. CENTERED CLEAN QR POD (No gate barrier text) ════════════════════════
+  // ══ 5. CENTERED CLEAN QR POD (Directly from offscreen canvas) ═════════════
   const qrPodY = gridY + gridH + 34
-  const qrPodSize = 250
   const qrPodX = cardX + (cardW - qrPodSize) / 2
 
   // QR Container Box
@@ -311,14 +324,13 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.stroke()
   ctx.restore()
 
-  // Draw QR Image inside
-  const qrInnerPad = 18
+  // Draw QR Image inside directly from offscreen canvas
   ctx.drawImage(
-    qrImg,
+    qrCanvas,
     qrPodX + qrInnerPad,
     qrPodY + qrInnerPad,
-    qrPodSize - qrInnerPad * 2,
-    qrPodSize - qrInnerPad * 2
+    qrTargetSize,
+    qrTargetSize
   )
 
   // ══ 6. CLEAN ATTRIBUTION FOOTER ════════════════════════════════════════════
@@ -377,4 +389,3 @@ function drawCheckpassEmblem(ctx: CanvasRenderingContext2D) {
   )
   ctx.fill(p)
 }
-

@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IonPage, IonHeader,
@@ -161,6 +161,7 @@ import { useAuthStore } from '@/stores/auth'
 import { passesApi } from '@/api/passes'
 import { useToast } from '@/composables/useToast'
 import PassInviteCard from '@/components/PassInviteCard.vue'
+import { generateInviteCardImage } from '@/utils/inviteCardRenderer'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import FlagItemSheet from '@/components/FlagItemSheet.vue'
@@ -255,35 +256,57 @@ async function sharePass() {
   if (!activePass) return
 
   try {
-    await nextTick()
-    showToast('Generating invite card image...', 'warning')
-    const cardDataUrl = await inviteCardRef.value?.generateImage()
+    showToast('Generating invite card...', 'warning')
+    let cardDataUrl = await inviteCardRef.value?.generateImage()
     if (!cardDataUrl) {
-      showToast('Invite card image is not ready yet. Try again.', 'warning')
+      cardDataUrl = await generateInviteCardImage(activePass, { estateName: auth.resident?.estateName })
+    }
+
+    if (!cardDataUrl) {
+      showToast('Could not generate invite card image. Try again.', 'error')
       return
     }
 
     const imageBlob = dataUrlToBlob(cardDataUrl)
-    const imageName = `checkpass-${activePass.visitorName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${activePass.id.slice(-4).toLowerCase()}.png`
+    const imageName = `checkpass-${(activePass.visitorName || 'invite').toLowerCase().replace(/[^a-z0-9]/g, '-')}-${(activePass.id || 'pass').slice(-4).toLowerCase()}.png`
     const imageFile = new File([imageBlob], imageName, { type: 'image/png' })
     const nav = navigator as Navigator & {
       canShare?: (data?: ShareData) => boolean
       share?: (data?: ShareData) => Promise<void>
     }
 
-    if (nav.share && (!nav.canShare || nav.canShare({ files: [imageFile] }))) {
-      await nav.share({
-        title: `${activePass.visitorName} Checkpass Invite`,
-        text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
-        files: [imageFile],
-      })
-      return
+    let shared = false
+    if (nav.share) {
+      try {
+        if (!nav.canShare || nav.canShare({ files: [imageFile] })) {
+          await nav.share({
+            title: `${activePass.visitorName} Checkpass Invite`,
+            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
+            files: [imageFile],
+          })
+          shared = true
+        } else if (nav.canShare({ text: 'text' })) {
+          await nav.share({
+            title: `${activePass.visitorName} Checkpass Invite`,
+            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
+          })
+          shared = true
+        }
+      } catch (shareErr: unknown) {
+        if (shareErr instanceof DOMException && shareErr.name === 'AbortError') {
+          return
+        }
+        console.warn('Native share failed, falling back to download:', shareErr)
+      }
     }
 
-    downloadQrImage(cardDataUrl, imageName)
-    showToast('Invite card image downloaded for sharing.', 'success')
+    if (!shared) {
+      downloadImageBlob(imageBlob, imageName)
+      showToast('Invite card downloaded successfully for sharing.', 'success')
+    }
   } catch (error: unknown) {
     if (error instanceof DOMException && error.name === 'AbortError') return
+    console.error('Share error:', error)
     showToast('Unable to share invite card right now.', 'error')
   }
 }
@@ -300,13 +323,18 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: mimeType })
 }
 
-function downloadQrImage(dataUrl: string, fileName: string) {
+function downloadImageBlob(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.href = dataUrl
+  link.href = url
   link.download = fileName
+  link.rel = 'noopener'
   document.body.appendChild(link)
   link.click()
-  document.body.removeChild(link)
+  setTimeout(() => {
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }, 1200)
 }
 
 function fmtRelative(iso: string) {
