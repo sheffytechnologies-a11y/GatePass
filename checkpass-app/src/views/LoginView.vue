@@ -8,7 +8,7 @@
           <div class="primary-header">
             <div class="header-content">
               <!-- White Checkpass Logo - Reduced Size, Clean & Isolated -->
-              <img src="/logo-dark.png" alt="Checkpass" class="brand-logo-white" />
+              <img src="/checkpass-logo-white.svg" alt="Checkpass" class="brand-logo-white" />
             </div>
           </div>
 
@@ -416,7 +416,7 @@ async function showResidentAccessInfo() {
   max-width: 170px;
   object-fit: contain;
   display: block;
-  filter: brightness(0) invert(1);
+  /* vector logo */
   transition: transform 0.2s ease;
 }
 

@@ -10,7 +10,7 @@
 
         <!-- Top Checkpass Brand Logo -->
         <div class="hero-brand-header">
-          <img src="/checkpass-logo.svg" alt="Checkpass" class="brand-logo-white" />
+          <img src="/checkpass-logo-white.svg" alt="Checkpass" class="brand-logo-white" />
         </div>
 
         <!-- Bottom Narrative Overlay -->

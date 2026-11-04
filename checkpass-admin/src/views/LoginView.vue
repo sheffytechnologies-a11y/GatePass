@@ -9,7 +9,7 @@
         <!-- Top Brand Logo -->
         <header class="hero-brand-header">
           <router-link to="/" class="brand-logo-link" aria-label="Checkpass Home">
-            <img src="/checkpass-logo.svg" alt="Checkpass" class="brand-logo-img" />
+            <img src="/checkpass-logo-white.svg" alt="Checkpass" class="brand-logo-img" />
           </router-link>
         </header>
 

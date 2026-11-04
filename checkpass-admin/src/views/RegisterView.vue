@@ -11,7 +11,7 @@
         <!-- Top-Left Brand Logo (Positioned naturally in hero panel) -->
         <header class="hero-brand-header">
           <router-link to="/" class="brand-logo-link" aria-label="Checkpass Home">
-            <img src="/logo-dark.png" alt="Checkpass" class="brand-logo-img" />
+            <img src="/checkpass-logo-white.svg" alt="Checkpass" class="brand-logo-img" />
           </router-link>
         </header>
 
@@ -601,9 +601,8 @@ async function handleRegister() {
 }
 
 .brand-logo-img {
-  height: 32px;
+  height: 34px;
   width: auto;
-  filter: brightness(0) invert(1);
   display: block;
 }
 
