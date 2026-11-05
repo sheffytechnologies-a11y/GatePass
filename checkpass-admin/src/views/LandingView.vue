@@ -420,6 +420,97 @@
         </div>
       </div>
     </section>
+
+    <!-- SECTION C: STAY AHEAD OF EVERY ENTRY (OVERLAPS SECTION B ON SCROLL) -->
+    <section class="section-c-feature" id="stay-ahead">
+      <!-- Decorative Sky Blue Corner Accents -->
+      <div class="sec-c-corner-accent sec-c-accent-tr" aria-hidden="true">
+        <svg viewBox="0 0 326 326" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 126H198.7L199.57 325.995L325.65 325.446L325.32 248.168C325.02 180.086 270.82 124.843 203.32 122.695C201.52 54.6274 145.78 0 77.28 0H0V126Z" fill="#50B3D5"/>
+        </svg>
+      </div>
+      <div class="sec-c-corner-accent sec-c-accent-bl" aria-hidden="true">
+        <svg viewBox="0 0 522 522" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M521.584 320H203.341L201.946 0L0 0.88L0.539062 124.65C1.01402 233.69 87.826 322.18 195.932 325.62C198.81 434.64 288.091 522.13 397.809 522.13H521.584V320Z" fill="#50B3D5"/>
+        </svg>
+      </div>
+
+      <div class="container section-c-container">
+        <div class="section-c-grid">
+          <!-- Left Column: Interactive Visual Animation Stage -->
+          <div class="section-c-visual-col" data-reveal="left">
+            <div 
+              class="section-c-stage-wrapper"
+              @mouseenter="pauseSlideC"
+              @mouseleave="resumeSlideC"
+            >
+              <!-- Background Frame SVG -->
+              <div class="section-c-bg-frame">
+                <svg class="section-c-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
+                  <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
+                  <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
+                </svg>
+              </div>
+
+              <!-- Slides Viewport Layer -->
+              <div class="section-c-slides-viewport" :class="{ 'is-exiting': isExitingSlideC }">
+                <!-- SLIDE 1: SECURITY GATE ENTRY PASS -->
+                <div v-show="activeSlideC === 1" class="section-c-slide slide-1" :class="{ active: activeSlideC === 1 }">
+                  <img 
+                    src="/assets/images/section-c/slider-1.png" 
+                    alt="Security Gate Verification" 
+                    class="section-c-slide-img"
+                  />
+                </div>
+
+                <!-- SLIDE 2: ACCESS RECORDS & MOVEMENT LOG -->
+                <div v-show="activeSlideC === 2" class="section-c-slide slide-2" :class="{ active: activeSlideC === 2 }">
+                  <img 
+                    src="/assets/images/section-c/slider-2.png" 
+                    alt="Access Granted Movement Records" 
+                    class="section-c-slide-img"
+                  />
+                </div>
+              </div>
+
+              <!-- Slide Indicator (Exact proportions and colors from Slider indicator.svg: 207 x 60) -->
+              <div class="section-c-indicator" role="tablist" aria-label="Section C Slide Navigation">
+                <button
+                  v-for="idx in 2"
+                  :key="idx"
+                  type="button"
+                  class="indicator-c-item"
+                  :class="{ active: activeSlideC === idx }"
+                  :aria-selected="activeSlideC === idx"
+                  :aria-label="`Go to slide ${idx}`"
+                  @click="setSlideC(idx)"
+                >
+                  <span class="indicator-c-shape"></span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right Column: Heading & Descriptive Copy -->
+          <div class="section-c-content-col" data-reveal="right">
+            <div class="section-c-content-inner">
+              <h2 class="section-c-title">
+                Stay Ahead of<br>
+                Every <span class="section-c-title-accent">Entry.</span>
+              </h2>
+              <p class="section-c-description">
+                Give your security team a reliable way to check visitor passes,<br class="sec-c-sub-br">
+                confirm authorised access and keep records of movement in<br class="sec-c-sub-br">
+                and out of your premises.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- FLAGSHIP INSPIRATION PHONE SHOWCASE & FLOATING CARDS -->
@@ -2214,6 +2305,43 @@ function pauseSlideB() {
 function resumeSlideB() {
   isHoveredSlideB.value = false
 }
+
+// ── SECTION C (STAY AHEAD OF EVERY ENTRY) SLIDER ENGINE ──
+const activeSlideC = ref(1)
+const isExitingSlideC = ref(false)
+const isHoveredSlideC = ref(false)
+let slideCTimer: ReturnType<typeof setInterval> | null = null
+
+function setSlideC(idx: number) {
+  if (idx === activeSlideC.value) return
+  isExitingSlideC.value = true
+  setTimeout(() => {
+    activeSlideC.value = idx
+    isExitingSlideC.value = false
+  }, 180)
+}
+
+function nextSlideC() {
+  const next = activeSlideC.value >= 2 ? 1 : activeSlideC.value + 1
+  setSlideC(next)
+}
+
+function startSlideCTimer() {
+  if (slideCTimer) clearInterval(slideCTimer)
+  slideCTimer = setInterval(() => {
+    if (!isHoveredSlideC.value) {
+      nextSlideC()
+    }
+  }, 4400)
+}
+
+function pauseSlideC() {
+  isHoveredSlideC.value = true
+}
+
+function resumeSlideC() {
+  isHoveredSlideC.value = false
+}
 // Set to true once verified real customer testimonials are collected from testing
 const showTestimonials = ref(false)
 
@@ -2285,6 +2413,7 @@ if (typeof window !== 'undefined') {
 onMounted(() => {
   startSlideATimer()
   startSlideBTimer()
+  startSlideCTimer()
   fetchPlatformStats()
 
   let styleEl = document.getElementById('landing-styles') as HTMLLinkElement
@@ -2344,6 +2473,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (slideATimer) clearInterval(slideATimer)
   if (slideBTimer) clearInterval(slideBTimer)
+  if (slideCTimer) clearInterval(slideCTimer)
   const styleEl = document.getElementById('landing-styles')
   if (styleEl) styleEl.remove()
   const scriptEl = document.getElementById('landing-inline-script')
