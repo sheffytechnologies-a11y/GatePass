@@ -611,27 +611,119 @@
   </section>
 
   <!-- S10: FAQ -->
-  <section class="faq">
+  <section class="faq" id="faq-section">
     <div class="container">
-      <div class="section-header centered" data-reveal>
-        <h2 class="display-md">Before you ask</h2>
-      </div>
-      <div class="faq-list">
-        <div class="faq-item" data-reveal data-delay="1">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"Will our security guards be able to use this?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Yes. CheckPass is designed specifically for guards who need fast, simple actions. Scanning a QR code and confirming a visitor takes under five seconds — no training beyond a brief walkthrough.</div></div>
+      <div class="faq-layout">
+        <!-- Left Column: Header, Subtitle & Direct Channel -->
+        <div class="faq-col-left" data-reveal="left">
+          <h2 class="faq-title">
+            Everything You<br>
+            Need to Know.
+          </h2>
+          <p class="faq-subtitle">
+            Answers to common questions about deploying CheckPass, gate security, resident adoption, and automated dues tracking.
+          </p>
+          <a href="#contact" class="faq-contact-link" onclick="showPage('contact');return false">
+            <span>Have a specific question? Contact us</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-        <div class="faq-item" data-reveal data-delay="2">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"What if residents don't cooperate at first?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Once it's enforced at the gate — no pass, no entry — adoption becomes natural within a few days. We help you structure the rollout so residents understand the system before it goes live.</div></div>
-        </div>
-        <div class="faq-item" data-reveal data-delay="3">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"Do we need special devices or hardware?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">No. CheckPass runs on existing smartphones. Residents, security, and managers each use the relevant app on their own phones — no scanners, tablets, or additional hardware needed.</div></div>
-        </div>
-        <div class="faq-item" data-reveal data-delay="4">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"How long does setup take?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Most estates go live within two days. We handle the full configuration — units, residents, security access, and payment structures — and walk your team through everything before launch.</div></div>
+
+        <!-- Right Column: FAQ Accordion List -->
+        <div class="faq-col-right" data-reveal="right">
+          <div class="faq-list">
+            <!-- Item 1 (Open by default) -->
+            <div class="faq-item open" data-reveal data-delay="1">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>Will our security guards be able to use this?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Yes. CheckPass is built for real gate operations. Guards don't type or learn complex menus; they simply scan visitor QR codes or look up access codes. Clearing a verified guest takes under 5 seconds.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-item" data-reveal data-delay="2">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>Do we need turnstiles, specialized tablets, or barcode scanners?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  No special hardware is required. CheckPass runs on any standard Android smartphone, iPhone, or web browser. Guards, residents, and estate managers use their existing devices from day one with zero hardware purchase.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="faq-item" data-reveal data-delay="3">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>What if our gate has unstable internet or sudden network downtime?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  CheckPass uses cryptographic offline token verification. Valid visitor passes continue to scan and clear at the gate terminal even during network drops. Activity logs automatically sync the moment connection returns.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="faq-item" data-reveal data-delay="4">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>What if residents resist changing from paper slips and phone calls?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Residents adopt CheckPass quickly because it eliminates delays. They generate and share passes directly through WhatsApp in two taps without forcing visitors to download an app. When gates enforce pass verification, compliance reaches 98%+ within days.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="faq-item" data-reveal data-delay="5">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>How does CheckPass stop levy defaults and estate dues disputes?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  CheckPass centralizes your service charges, security dues, and diesel levies. Occupants receive automated reminders and instant payment receipts, giving executives a real-time audit ledger of paid versus defaulting flats ready for every AGM.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="faq-item" data-reveal data-delay="6">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>How fast can our estate onboard and go live?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Most residential communities and estates are fully operational within 48 hours. We handle importing your unit register, setting management permissions, and guiding your gate personnel through a quick operational drill.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

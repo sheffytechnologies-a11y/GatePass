@@ -493,18 +493,163 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
 .testi-name{font-size:.84rem;font-weight:700;color:#0B1F17;font-family:'Cabinet Grotesk',sans-serif}
 .testi-role{font-size:.76rem;color:var(--n400)}
 
-/* ── FAQ ── */
-.faq{background:var(--n50);padding:96px 0}
-.faq-list{display:flex;flex-direction:column;gap:10px;max-width:720px;margin:0 auto}
-.faq-item{background:#fff;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
-.faq-q{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:14px;transition:background var(--t)}
-.faq-q:hover{background:var(--n50)}
-.faq-q h4{font-size:.94rem;font-weight:700;flex:1}
-.faq-arrow{width:26px;height:26px;border-radius:var(--r-sm);background:var(--n100);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);color:#374038}
-.faq-item.open .faq-arrow{background:var(--p);color:#fff;transform:rotate(180deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
-.faq-a-inner{padding:0 22px 18px;font-size:.88rem;line-height:1.7;color:#374038}
-.faq-item.open .faq-a{max-height:220px}
+/* ── FAQ (2-COLUMN EDITORIAL ACCORDION) ── */
+.faq {
+  background: var(--n50);
+  padding: 104px 0 112px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.faq-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: clamp(48px, 6vw, 84px);
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .faq-layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.faq-col-left {
+  position: sticky;
+  top: 108px;
+}
+
+@media (max-width: 900px) {
+  .faq-col-left {
+    position: static;
+  }
+}
+
+.faq-title {
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: clamp(2.3rem, 3.8vw, 3.3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.faq-subtitle {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  line-height: 1.65;
+  color: var(--n700);
+  margin-bottom: 28px;
+  max-width: 440px;
+}
+
+.faq-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--p);
+  text-decoration: none;
+  transition: all var(--t);
+}
+
+.faq-contact-link:hover {
+  color: var(--p-h);
+  transform: translateX(3px);
+}
+
+.faq-contact-link svg {
+  transition: transform var(--t);
+}
+
+.faq-contact-link:hover svg {
+  transform: translateX(3px);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.faq-item {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color var(--t), box-shadow var(--t);
+}
+
+.faq-item.open {
+  border-color: rgba(10, 91, 56, 0.28);
+  box-shadow: 0 4px 16px rgba(11, 31, 23, 0.05);
+}
+
+.faq-q {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 14px;
+  transition: background var(--t);
+}
+
+.faq-q:hover {
+  background: var(--n50);
+}
+
+.faq-q h4 {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--dark);
+  flex: 1;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.faq-arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--n100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--t);
+  color: #374038;
+}
+
+.faq-item.open .faq-arrow {
+  background: var(--p);
+  color: #ffffff;
+  transform: rotate(180deg);
+}
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.faq-a-inner {
+  padding: 0 24px 22px;
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.68;
+  color: var(--n700);
+}
+
+.faq-item.open .faq-a {
+  max-height: 280px;
+}
 
 /* ── FINAL CTA ── */
 .final-cta{background:var(--dark);padding:112px 0;text-align:center;position:relative;overflow:hidden}
