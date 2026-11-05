@@ -322,6 +322,12 @@
                 organise payments and oversee daily operations from<br class="sec-a-sub-br">
                 one dashboard.
               </p>
+              <a href="#features" class="section-cta-link sec-a-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -358,6 +364,12 @@
                 paying estate dues and receiving important updates,<br class="sec-b-sub-br">
                 everything is easier when it's right on your phone.
               </p>
+              <a href="#features" class="section-cta-link sec-b-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
             </div>
           </div>
 
@@ -505,6 +517,12 @@
                 confirm authorised access and keep records of movement in<br class="sec-c-sub-br">
                 and out of your premises.
               </p>
+              <a href="#features" class="section-cta-link sec-c-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
             </div>
           </div>
 

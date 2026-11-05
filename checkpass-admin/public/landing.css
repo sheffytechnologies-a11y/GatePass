@@ -2587,6 +2587,89 @@ footer {
   display: inline;
 }
 
+/* ── OVERLAP SECTIONS A, B, C CTA LINKS (Taste-Skill Hierarchy & Micro-interactions) ── */
+.section-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(24px, 2.5vw, 32px);
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  width: fit-content;
+  min-height: 40px;
+  padding: 4px 0;
+  position: relative;
+  transition: color 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.section-cta-link span {
+  position: relative;
+  display: inline-block;
+}
+
+.section-cta-link span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0%;
+  height: 1.5px;
+  background: currentColor;
+  transition: width 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.section-cta-link:hover span::after {
+  width: 100%;
+}
+
+.section-cta-link .cta-arrow {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.section-cta-link:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+.section-cta-link:active {
+  transform: scale(0.98);
+}
+
+/* Section A specific color (Light ground -> Forest green link) */
+.sec-a-cta {
+  color: #064E3B;
+}
+.sec-a-cta:hover {
+  color: #022B20;
+}
+
+/* Section B specific color (Emerald ground -> Crisp white link with gold accent hover) */
+.sec-b-cta {
+  color: #FFFFFF;
+}
+.sec-b-cta:hover {
+  color: #F4C84A;
+}
+
+/* Section C specific color (Ocean blue ground -> Crisp white link with gold accent hover) */
+.sec-c-cta {
+  color: #FFFFFF;
+}
+.sec-c-cta:hover {
+  color: #F4C84A;
+}
+
+@media (max-width: 900px) {
+  .section-cta-link {
+    margin-top: 20px;
+  }
+}
+
 /* ── SECTION B: MANAGE VISITORS & PAYMENTS WITH EASE (OVERLAPPING CURTAIN) ── */
 .section-b-feature {
   position: sticky;
