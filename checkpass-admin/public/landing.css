@@ -3612,14 +3612,14 @@ footer {
   }
   .section-b-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
   }
   .section-b-visual-col {
-    order: 2;
+    order: 1;
     justify-content: center;
   }
   .section-b-content-col {
-    order: 1;
+    order: 2;
     text-align: left;
   }
   .section-b-stage-wrapper {
@@ -3649,14 +3649,14 @@ footer {
   }
   .section-c-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
   }
   .section-c-visual-col {
-    order: 2;
+    order: 1;
     justify-content: center;
   }
   .section-c-content-col {
-    order: 1;
+    order: 2;
     text-align: left;
   }
   .section-c-stage-wrapper {
@@ -3667,10 +3667,14 @@ footer {
   }
   .section-a-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
   }
   .section-a-visual-col {
+    order: 1;
     justify-content: center;
+  }
+  .section-a-content-col {
+    order: 2;
   }
   .section-a-stage-wrapper {
     max-width: 420px;
