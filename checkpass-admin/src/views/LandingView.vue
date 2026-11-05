@@ -293,6 +293,7 @@
               <button
                 v-for="idx in 4"
                 :key="idx"
+                type="button"
                 class="indicator-item"
                 :class="{ active: activeSlideA === idx }"
                 :aria-selected="activeSlideA === idx"
