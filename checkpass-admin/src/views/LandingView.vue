@@ -103,48 +103,52 @@
   <section class="stats-strip" aria-label="Deployment statistics">
     <div class="stats-ticker-outer">
       <div class="stats-ticker-track">
-        <!-- Set 1 (Desktop + Mobile) -->
-        <div class="stat-card">
-          <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
-          <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
-          <div class="stat-label">Active residents</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
-          <div class="stat-label">Passes created</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
-          <div class="stat-label">Entries verified</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
-          <div class="stat-label">Items declared</div>
+        <!-- Group 1 -->
+        <div class="stats-ticker-group">
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
+            <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
+            <div class="stat-label">Active residents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
+            <div class="stat-label">Passes created</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
+            <div class="stat-label">Entries verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
+            <div class="stat-label">Items declared</div>
+          </div>
         </div>
 
-        <!-- Set 2 (for seamless continuous infinite loop on mobile only) -->
-        <div class="stat-card" aria-hidden="true">
-          <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
-          <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
-        </div>
-        <div class="stat-card" aria-hidden="true">
-          <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
-          <div class="stat-label">Active residents</div>
-        </div>
-        <div class="stat-card" aria-hidden="true">
-          <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
-          <div class="stat-label">Passes created</div>
-        </div>
-        <div class="stat-card" aria-hidden="true">
-          <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
-          <div class="stat-label">Entries verified</div>
-        </div>
-        <div class="stat-card" aria-hidden="true">
-          <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
-          <div class="stat-label">Items declared</div>
+        <!-- Group 2 (Duplicate for continuous seamless infinite loop on mobile) -->
+        <div class="stats-ticker-group" aria-hidden="true">
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
+            <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
+            <div class="stat-label">Active residents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
+            <div class="stat-label">Passes created</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
+            <div class="stat-label">Entries verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
+            <div class="stat-label">Items declared</div>
+          </div>
         </div>
       </div>
     </div>
@@ -2437,7 +2441,7 @@ onUnmounted(() => {
   }
 }
 
-/* ── STATS STRIP: STATIONARY CENTERED ON WEB, CAROUSEL ONLY ON MOBILE ── */
+/* ── STATS STRIP: STATIONARY CENTERED ON WEB, CONTINUOUS TICKER ON MOBILE ── */
 .stats-strip {
   background: #ffffff !important;
   border-top: 1px solid var(--border, #E6EAE7) !important;
@@ -2454,21 +2458,25 @@ onUnmounted(() => {
   margin: 0 auto !important;
   padding: 4px 24px !important;
   overflow: visible !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
 }
 
 .stats-ticker-track {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 20px !important;
   width: 100% !important;
-  animation: none !important;
-  transform: none !important;
+  animation: none;
 }
 
-.stats-ticker-track .stat-card[aria-hidden="true"] {
+.stats-ticker-group {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  width: 100% !important;
+}
+
+.stats-ticker-group[aria-hidden="true"] {
   display: none !important;
 }
 
@@ -2515,39 +2523,52 @@ onUnmounted(() => {
 }
 
 @keyframes statsTickerSlide {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .stats-strip {
-    padding: 24px 0 26px !important;
+    padding: 22px 0 24px !important;
+    overflow: hidden !important;
   }
   .stats-ticker-outer {
     overflow: hidden !important;
-    padding: 6px 0 !important;
+    padding: 4px 0 !important;
     max-width: 100% !important;
-    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent) !important;
-    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent) !important;
+    mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%) !important;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%) !important;
   }
   .stats-ticker-track {
     width: max-content !important;
     justify-content: flex-start !important;
-    gap: 14px !important;
-    animation: statsTickerSlide 20s linear infinite !important;
+    animation: statsTickerSlide 24s linear infinite !important;
     will-change: transform !important;
   }
-  .stats-ticker-track .stat-card[aria-hidden="true"] {
+  .stats-ticker-track:hover,
+  .stats-ticker-track:active {
+    animation-play-state: paused !important;
+  }
+  .stats-ticker-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding-right: 14px !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+  }
+  .stats-ticker-group[aria-hidden="true"] {
     display: flex !important;
   }
   .stat-card {
     flex: 0 0 auto !important;
-    min-width: 145px !important;
+    min-width: 150px !important;
     max-width: none !important;
-    padding: 14px 18px !important;
+    padding: 14px 20px !important;
+    border-radius: 16px !important;
   }
   .stat-num {
-    font-size: 1.7rem !important;
+    font-size: 1.72rem !important;
   }
   .stat-label {
     font-size: 0.72rem !important;

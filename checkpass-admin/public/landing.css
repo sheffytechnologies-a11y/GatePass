@@ -172,12 +172,18 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
   width: 100%;
-  animation: none;
 }
 
-.stats-ticker-track .stat-card[aria-hidden="true"] {
+.stats-ticker-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.stats-ticker-group[aria-hidden="true"] {
   display: none;
 }
 
@@ -223,50 +229,56 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
   white-space: nowrap;
 }
 
-@media (max-width: 768px) {
+@keyframes statsTickerSlide {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (max-width: 900px) {
   .stats-strip {
-    padding: 24px 0 26px;
+    padding: 22px 0 24px;
+    overflow: hidden;
   }
   .stats-ticker-outer {
     overflow: hidden;
-    padding: 6px 0;
+    padding: 4px 0;
     max-width: 100%;
-    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
   }
   .stats-ticker-track {
     width: max-content;
     justify-content: flex-start;
-    gap: 14px;
-    animation: statsTickerSlide 20s linear infinite;
+    animation: statsTickerSlide 24s linear infinite;
     will-change: transform;
   }
   .stats-ticker-track:hover,
   .stats-ticker-track:active {
     animation-play-state: paused;
   }
-  .stats-ticker-track .stat-card[aria-hidden="true"] {
+  .stats-ticker-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-right: 14px;
+    flex-shrink: 0;
+    width: auto;
+  }
+  .stats-ticker-group[aria-hidden="true"] {
     display: flex;
   }
   .stat-card {
     flex: 0 0 auto;
-    min-width: 145px;
+    min-width: 150px;
+    max-width: none;
     padding: 14px 20px;
     border-radius: 16px;
   }
   .stat-num {
-    font-size: 1.75rem;
+    font-size: 1.72rem;
   }
   .stat-label {
     font-size: 0.72rem;
-  }
-  @keyframes statsTickerSlide {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(calc(-50% - 7px));
-    }
   }
 }
 
