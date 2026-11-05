@@ -1,14 +1,11 @@
 <template>
   <div class="dashboard-page">
     <section class="hero-card">
-      <div class="hero-header-row">
-        <div>
-          <div class="hero-eyebrow">Command center</div>
-          <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
-        </div>
+      <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
+      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
+      <div class="hero-switcher-row">
         <EstateSwitcher variant="hero" />
       </div>
-      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
     </section>
 
     <!-- Prominent Setup Banner if no estate yet -->
@@ -345,7 +342,8 @@ onUnmounted(() => {
 }
 .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
 .hero-title { margin-top: 10px; font-size: 28px; line-height: 1.04; font-family: var(--font-display); }
-.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; }
+.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; line-height: 1.5; }
+.hero-switcher-row { margin-top: 14px; display: flex; align-items: center; }
 
 .loading-state {
   display: flex;
