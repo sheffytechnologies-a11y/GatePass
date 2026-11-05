@@ -93,6 +93,11 @@ graph TD
 | **WEB-05** | Page Navigation Reset | User clicks nav links (Features, Pricing, How It Works) | Page jumps smoothly to target and navbar re-appears in clean initial state | UI Interaction | `PASS` ✅ |
 | **WEB-06** | Better Property Management Section (Desktop) | Positioned immediately after hero stats matrix | Image on left occupying ~50% viewport width, headline on right with *"Starts Here"* in gold accent, GSAP scroll-triggered entrance | UI / Layout | `PASS` ✅ |
 | **WEB-07** | Better Property Management Responsive (Mobile) | Screen width <= 900px | Column switches to vertical stack, image above text, auto margin centering, fluid clamp typography | Responsive CSS | `PASS` ✅ |
+| **WEB-08** | Section A Auto-Slider Loop & After-Delay | Section A scrolled into viewport | 5.2s slide rotation cycle; children animate in staggered sequence with shakara tilt & settle | Motion Engine | `PASS` ✅ |
+| **WEB-09** | Section A Slide 1 Check & Card Intro | Slide 1 active | Check icon isometric entry + shakara tilt (+4°/-2°/0°) precedes Greenview Estate card glide by 180ms | Motion / CSS | `PASS` ✅ |
+| **WEB-10** | Section A Slide 2 Tri-Element Choreography | Slide 2 active | "New Resident Added" pop -> "Total Residents: 23" -> Michael James resident card with reverse outro | Motion / SVG | `PASS` ✅ |
+| **WEB-11** | Section A Slide 3 Admin & Security Cascade | Slide 3 active | Admin card enters top-left -> Security guard card enters bottom-right with shield pulse | Motion / UI | `PASS` ✅ |
+| **WEB-12** | Section A Slide 4 Payment SVG Progress Animation | Slide 4 active | Collection badge enters with arrow spin -> Payment Overview SVG card enters with fill transition | SVG Micro-Anim | `PASS` ✅ |
 
 ---
 

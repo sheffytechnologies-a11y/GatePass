@@ -2559,3 +2559,383 @@ footer {
     margin-bottom: 16px;
   }
 }
+
+/* ── SECTION A: TAKE CHARGE OF YOUR PROPERTY (AFTER-DELAY AUTO SLIDER) ── */
+.section-a-feature {
+  padding: 88px 0 96px;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-a-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-a-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 64px;
+}
+
+/* Left Visual Column & Stage */
+.section-a-visual-col {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.section-a-stage-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  aspect-ratio: 1885 / 2013;
+  margin: 0 auto;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Background Frame */
+.section-a-bg-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.section-a-bg-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Slides Viewport Layer */
+.section-a-slides-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.section-a-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.section-a-slide.active {
+  pointer-events: auto;
+}
+
+/* Slide Indicator */
+.section-a-indicator {
+  position: absolute;
+  bottom: 8.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 94, 52, 0.08);
+}
+
+.indicator-item {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.indicator-shape {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background: #96D0B6;
+  transition: all 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.indicator-item.active .indicator-shape {
+  width: 38px;
+  background: #005E34;
+}
+
+/* ── SHAKARA & AFTER-DELAY CHOREOGRAPHY ── */
+
+/* Shakara Keyframes: confident angle + spring overshoot */
+@keyframes shakaraEntry {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -22px, 0) scale(0.92) rotate(-6deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translate3d(0, 3px, 0) scale(1.04) rotate(2.5deg);
+  }
+  78% {
+    transform: translate3d(0, -1px, 0) scale(0.99) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes afterDelaySlideUp {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 32px, 0) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes badgeDropIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(16px, -14px, 0) scale(0.93);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Active Slide Element Application */
+.section-a-slide.active .shakara-elem {
+  animation: shakaraEntry 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.section-a-slide.active .after-delay-elem[data-delay="1"] {
+  animation: afterDelaySlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+.section-a-slide.active .after-delay-elem[data-delay="2"] {
+  animation: afterDelaySlideUp 0.58s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+}
+
+.section-a-slide.active .slide2-total-residents {
+  animation: badgeDropIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+}
+
+/* Outro Transitions */
+.section-a-slides-viewport.is-exiting .section-a-slide.active .slide-hero-card {
+  transition: transform 0.22s cubic-bezier(0.7, 0, 0.84, 0), opacity 0.2s ease;
+  transform: translate3d(0, 20px, 0) scale(0.96);
+  opacity: 0;
+}
+
+.section-a-slides-viewport.is-exiting .section-a-slide.active .shakara-elem,
+.section-a-slides-viewport.is-exiting .section-a-slide.active .after-delay-elem {
+  transition: transform 0.22s cubic-bezier(0.7, 0, 0.84, 0), opacity 0.18s ease;
+  transform: translate3d(0, -12px, 0) scale(0.92);
+  opacity: 0;
+}
+
+/* ── SLIDE SPECIFIC POSITIONING ── */
+
+/* Common Card Styling */
+.slide-hero-card {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 24px;
+  box-shadow: 0 16px 36px -10px rgba(0, 48, 25, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Slide 1 */
+.slide-1 {
+  align-items: center;
+  justify-content: center;
+  padding: 0 12%;
+}
+
+.slide1-check-wrapper {
+  width: 22%;
+  max-width: 96px;
+  aspect-ratio: 1;
+  margin-bottom: 24px;
+}
+
+.slide1-check-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 20px rgba(12, 141, 83, 0.28));
+}
+
+.slide1-card-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Slide 2 */
+.slide-2 {
+  padding: 14% 12% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slide2-badges-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 20px;
+}
+
+.slide2-new-resident {
+  width: 58%;
+  filter: drop-shadow(0 6px 14px rgba(0, 94, 52, 0.12));
+}
+
+.slide2-new-resident img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.slide2-total-residents {
+  width: 34%;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
+}
+
+.slide2-total-residents img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.slide2-card-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Slide 3 */
+.slide-3 {
+  padding: 12% 12% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.slide3-admin-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+.slide3-security-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Slide 4 */
+.slide-4 {
+  padding: 14% 12% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slide4-collection-badge {
+  width: 65%;
+  max-width: 280px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 8px 18px rgba(0, 94, 52, 0.14));
+}
+
+.slide4-collection-badge img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.slide4-card-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Right Content Column */
+.section-a-content-col {
+  display: flex;
+  align-items: center;
+}
+
+.section-a-content-inner {
+  max-width: 540px;
+}
+
+.section-a-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: clamp(2.3rem, 4.2vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #064E3B;
+  margin-bottom: 24px;
+}
+
+.section-a-title-accent {
+  color: #E5A93C;
+  display: inline-block;
+}
+
+.section-a-description {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
+  line-height: 1.72;
+  color: #4A5568;
+  margin: 0;
+  font-weight: 450;
+}
+
+/* Responsive Breakpoint for Mobile (< 900px) */
+@media (max-width: 900px) {
+  .section-a-feature {
+    padding: 56px 0 64px;
+  }
+  .section-a-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .section-a-visual-col {
+    justify-content: center;
+  }
+  .section-a-stage-wrapper {
+    max-width: 420px;
+  }
+  .section-a-content-inner {
+    max-width: 100%;
+    text-align: left;
+  }
+  .section-a-title {
+    font-size: clamp(2rem, 7.5vw, 2.7rem);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+}

@@ -182,6 +182,147 @@
     </div>
   </section>
 
+  <!-- SECTION A: TAKE CHARGE OF YOUR PROPERTY (AFTER-DELAY AUTO SLIDER) -->
+  <section class="section-a-feature" id="take-charge" data-reveal>
+    <div class="container section-a-container">
+      <div class="section-a-grid">
+        <!-- Left Column: Interactive Visual Animation Stage -->
+        <div class="section-a-visual-col" data-reveal="left">
+          <div 
+            class="section-a-stage-wrapper"
+            @mouseenter="pauseSlideA"
+            @mouseleave="resumeSlideA"
+          >
+            <!-- Background Frame SVG -->
+            <div class="section-a-bg-frame">
+              <svg class="section-a-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
+                <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#005E34"/>
+                <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
+              </svg>
+            </div>
+
+            <!-- Slides Viewport Layer -->
+            <div class="section-a-slides-viewport" :class="{ 'is-exiting': isExitingSlideA }">
+              
+              <!-- SLIDE 1: ESTATE CREATION / CHECK -->
+              <div v-show="activeSlideA === 1" class="section-a-slide slide-1" :class="{ active: activeSlideA === 1 }">
+                <!-- Check Icon with Shakara Swagger Tilt -->
+                <div class="slide1-check-wrapper shakara-elem" data-delay="0">
+                  <svg class="slide1-check-svg" viewBox="0 0 283 283" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M282.5 141.25C282.5 178.712 267.618 214.639 241.129 241.129C214.639 267.618 178.712 282.5 141.25 282.5C103.788 282.5 67.8607 267.618 41.3712 241.129C14.8817 214.639 0 178.712 0 141.25C0 103.788 14.8817 67.8607 41.3712 41.3712C67.8607 14.8817 103.788 0 141.25 0C178.712 0 214.639 14.8817 241.129 41.3712C267.618 67.8607 282.5 103.788 282.5 141.25ZM212.405 87.7516C211.143 86.4948 209.642 85.5052 207.989 84.8421C206.337 84.1789 204.568 83.8559 202.788 83.8921C201.008 83.9284 199.253 84.3232 197.629 85.0531C196.005 85.783 194.545 86.8329 193.336 88.14L132.016 166.269L95.0612 129.297C92.551 126.958 89.2308 125.684 85.8001 125.745C82.3695 125.805 79.0963 127.195 76.6701 129.621C74.2439 132.047 72.8542 135.321 72.7936 138.751C72.7331 142.182 74.0065 145.502 76.3456 148.012L123.064 194.748C124.323 196.005 125.821 196.995 127.471 197.659C129.12 198.324 130.887 198.649 132.665 198.616C134.443 198.583 136.196 198.193 137.819 197.467C139.443 196.742 140.904 195.697 142.115 194.395L212.599 106.291C215.002 103.792 216.329 100.451 216.296 96.985C216.263 93.5188 214.872 90.2037 212.422 87.7516H212.405Z" fill="#0C8D53"/>
+                  </svg>
+                </div>
+
+                <!-- Greenview Estate Card -->
+                <div class="slide1-card-wrapper after-delay-elem" data-delay="1">
+                  <img 
+                    src="/assets/images/section-a/slide1-estate.png" 
+                    alt="Greenview Estate" 
+                    class="slide-hero-card"
+                  />
+                </div>
+              </div>
+
+              <!-- SLIDE 2: NEW RESIDENT ADDED + CENSUS -->
+              <div v-show="activeSlideA === 2" class="section-a-slide slide-2" :class="{ active: activeSlideA === 2 }">
+                <!-- Top Row Badges -->
+                <div class="slide2-badges-row">
+                  <!-- New Resident Added with Shakara Pop -->
+                  <div class="slide2-new-resident shakara-elem" data-delay="0">
+                    <img src="/assets/images/section-a/slide2-new-resident.svg" alt="New Resident Added" />
+                  </div>
+                  <!-- Total Residents Badge -->
+                  <div class="slide2-total-residents after-delay-elem" data-delay="1">
+                    <img src="/assets/images/section-a/slide2-total-residents.svg" alt="Total Residents: 23" />
+                  </div>
+                </div>
+
+                <!-- Michael James Floating Card -->
+                <div class="slide2-card-wrapper after-delay-elem" data-delay="2">
+                  <img 
+                    src="/assets/images/section-a/slide2-michael-james.png" 
+                    alt="Michael James - Unit B204" 
+                    class="slide-hero-card"
+                  />
+                </div>
+              </div>
+
+              <!-- SLIDE 3: ADMIN & SECURITY TEAMS -->
+              <div v-show="activeSlideA === 3" class="section-a-slide slide-3" :class="{ active: activeSlideA === 3 }">
+                <!-- Slide 3 Admin Card -->
+                <div class="slide3-admin-card shakara-elem" data-delay="0">
+                  <img 
+                    src="/assets/images/section-a/slide3-admin.png" 
+                    alt="Admin Assigned - Property Administrator" 
+                    class="slide-hero-card"
+                  />
+                </div>
+
+                <!-- Slide 3 Security Card -->
+                <div class="slide3-security-card after-delay-elem" data-delay="1">
+                  <img 
+                    src="/assets/images/section-a/slide3-security.png" 
+                    alt="Security Added - Gate Verification" 
+                    class="slide-hero-card"
+                  />
+                </div>
+              </div>
+
+              <!-- SLIDE 4: PAYMENTS & DUES RECONCILIATION -->
+              <div v-show="activeSlideA === 4" class="section-a-slide slide-4" :class="{ active: activeSlideA === 4 }">
+                <!-- Collection in Progress Badge -->
+                <div class="slide4-collection-badge shakara-elem" data-delay="0">
+                  <img src="/assets/images/section-a/slide4-collection.svg" alt="Collection in progress" />
+                </div>
+
+                <!-- Payment Overview Card -->
+                <div class="slide4-card-wrapper after-delay-elem" data-delay="1">
+                  <img 
+                    src="/assets/images/section-a/slide4-payment-overview.svg" 
+                    alt="Payment Overview" 
+                    class="slide-hero-card"
+                  />
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Slide Indicator Dots -->
+            <div class="section-a-indicator" role="tablist" aria-label="Section A Slide Navigation">
+              <button
+                v-for="idx in 4"
+                :key="idx"
+                class="indicator-item"
+                :class="{ active: activeSlideA === idx }"
+                :aria-selected="activeSlideA === idx"
+                :aria-label="'Go to slide ' + idx"
+                @click="setSlideA(idx)"
+              >
+                <span class="indicator-shape"></span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Column: Heading & Descriptive Copy -->
+        <div class="section-a-content-col" data-reveal="right">
+          <div class="section-a-content-inner">
+            <h2 class="section-a-title">
+              Take Charge of<br>
+              <span class="section-a-title-accent">Your Property</span>
+            </h2>
+            <p class="section-a-description">
+              Whether it's a residential estate, gated community or workplace, manage occupants, assign responsibilities, organise payments and oversee daily operations from one dashboard.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- FLAGSHIP INSPIRATION PHONE SHOWCASE & FLOATING CARDS -->
   <section class="flagship-showcase-section" id="flagshipSection">
     <div class="flagship-sticky-wrapper">
@@ -1900,6 +2041,43 @@ interface PlatformStats {
 
 const pageLoading = ref(true)
 const isMobileNavOpen = ref(false)
+
+// ── SECTION A (TAKE CHARGE OF YOUR PROPERTY) SLIDER ENGINE ──
+const activeSlideA = ref(1)
+const isExitingSlideA = ref(false)
+const isHoveredSlideA = ref(false)
+let slideATimer: ReturnType<typeof setInterval> | null = null
+
+function setSlideA(idx: number) {
+  if (idx === activeSlideA.value) return
+  isExitingSlideA.value = true
+  setTimeout(() => {
+    activeSlideA.value = idx
+    isExitingSlideA.value = false
+  }, 220)
+}
+
+function nextSlideA() {
+  const next = activeSlideA.value >= 4 ? 1 : activeSlideA.value + 1
+  setSlideA(next)
+}
+
+function startSlideATimer() {
+  if (slideATimer) clearInterval(slideATimer)
+  slideATimer = setInterval(() => {
+    if (!isHoveredSlideA.value) {
+      nextSlideA()
+    }
+  }, 5200)
+}
+
+function pauseSlideA() {
+  isHoveredSlideA.value = true
+}
+
+function resumeSlideA() {
+  isHoveredSlideA.value = false
+}
 // Set to true once verified real customer testimonials are collected from testing
 const showTestimonials = ref(false)
 
@@ -1970,6 +2148,7 @@ if (typeof window !== 'undefined') {
 
 onMounted(() => {
   fetchPlatformStats()
+  startSlideATimer()
 
   let styleEl = document.getElementById('landing-styles') as HTMLLinkElement
   if (!styleEl) {
@@ -2026,6 +2205,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (slideATimer) clearInterval(slideATimer)
   const styleEl = document.getElementById('landing-styles')
   if (styleEl) styleEl.remove()
   const scriptEl = document.getElementById('landing-inline-script')
