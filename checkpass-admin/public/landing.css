@@ -2901,39 +2901,6 @@ footer {
   overflow: hidden;
 }
 
-/* Decorative Sky Blue Corner Accents on Section C */
-.sec-c-corner-accent {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.sec-c-accent-tr {
-  top: 0;
-  right: 0;
-  width: clamp(90px, 11vw, 150px);
-  height: auto;
-}
-
-.sec-c-accent-tr svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.sec-c-accent-bl {
-  bottom: 0;
-  left: 0;
-  width: clamp(110px, 14vw, 200px);
-  height: auto;
-}
-
-.sec-c-accent-bl svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
 .section-c-container {
   max-width: 1240px;
   width: 100%;
@@ -2953,7 +2920,7 @@ footer {
 /* Left Visual Column & Stage */
 .section-c-visual-col {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   width: 100%;
 }
@@ -2961,7 +2928,7 @@ footer {
 .section-c-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: 530px;
   aspect-ratio: 1885 / 2013;
   margin: 0 auto;
   user-select: none;
@@ -3016,25 +2983,25 @@ footer {
 
 .section-c-slide-img {
   position: absolute;
-  top: 11.5%;
+  top: 15.7%;
   left: 52.02%;
   transform: translateX(-50%);
-  width: 81%;
+  width: 67.2%;
   height: auto;
   pointer-events: auto;
-  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.22));
 }
 
 /* Slide Indicator (Exact proportions and colors from Slider indicator.svg: 207 x 60) */
 .section-c-indicator {
   position: absolute;
-  top: 86.8%;
+  top: 83%;
   left: 52.02%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 5.54%;
-  width: clamp(74px, 11%, 96px);
+  width: clamp(66px, 11%, 86px);
   aspect-ratio: 207 / 60;
   z-index: 10;
   padding: 0;
