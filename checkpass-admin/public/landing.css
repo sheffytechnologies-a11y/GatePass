@@ -6,6 +6,11 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+html.lenis, html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+.lenis.lenis-scrolling iframe{pointer-events:none}
 body{font-family:'Satoshi','Inter',sans-serif;color:#0B1F17;background:#fff;overflow-x:hidden}
 img{max-width:100%;display:block}
 a{text-decoration:none;color:inherit}
@@ -2225,7 +2230,6 @@ footer {
   top: 0;
   height: 100vh;
   min-height: 640px;
-  max-height: 1020px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2234,6 +2238,7 @@ footer {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  will-change: transform, opacity;
 }
 
 .section-a-container {
@@ -2676,11 +2681,10 @@ footer {
   top: 0;
   height: 100vh;
   min-height: 640px;
-  max-height: 1020px;
   background: #219550;
   border-top-left-radius: clamp(140px, 16vw, 240px);
   border-bottom-right-radius: clamp(140px, 16vw, 240px);
-  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 -24px 64px rgba(0, 0, 0, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2689,6 +2693,7 @@ footer {
   box-sizing: border-box;
   overflow: hidden;
   z-index: 2;
+  will-change: transform, opacity;
 }
 
 .section-b-container {
@@ -2885,20 +2890,23 @@ footer {
 
 /* ── SECTION C: STAY AHEAD OF EVERY ENTRY (OVERLAPPING CURTAIN) ── */
 .section-c-feature {
-  position: relative;
-  z-index: 5;
-  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 640px;
   background: #1784A9;
   border-top-left-radius: clamp(140px, 16vw, 240px);
   border-bottom-right-radius: clamp(140px, 16vw, 240px);
-  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 -24px 64px rgba(0, 0, 0, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(60px, 7vw, 110px) 0;
-  margin-top: 0;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
   overflow: hidden;
+  z-index: 3;
+  will-change: transform;
 }
 
 .section-c-container {
@@ -3132,10 +3140,21 @@ footer {
   .section-c-feature {
     position: relative;
     top: auto;
+    height: auto;
     min-height: auto;
     padding: 56px 0 64px;
     border-top-left-radius: 80px;
     border-bottom-right-radius: 80px;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .section-a-feature, .section-b-feature {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .section-a-container, .section-b-container, .section-c-container {
+    transform: none !important;
+    opacity: 1 !important;
   }
   .section-c-grid {
     grid-template-columns: 1fr;
