@@ -193,11 +193,7 @@
         <div class="section-a-grid">
           <!-- Left Column: Interactive Visual Animation Stage -->
           <div class="section-a-visual-col" data-reveal="left">
-            <div 
-              class="section-a-stage-wrapper"
-              @mouseenter="pauseSlideA"
-              @mouseleave="resumeSlideA"
-            >
+            <div class="section-a-stage-wrapper">
               <!-- Background Frame SVG -->
               <div class="section-a-bg-frame">
                 <svg class="section-a-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -363,11 +359,7 @@
 
           <!-- Right Column: Interactive Visual Animation Stage -->
           <div class="section-b-visual-col" data-reveal="right">
-            <div 
-              class="section-b-stage-wrapper"
-              @mouseenter="pauseSlideB"
-              @mouseleave="resumeSlideB"
-            >
+            <div class="section-b-stage-wrapper">
               <!-- Background Frame SVG -->
               <div class="section-b-bg-frame">
                 <svg class="section-b-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -427,11 +419,7 @@
         <div class="section-c-grid">
           <!-- Left Column: Interactive Visual Animation Stage -->
           <div class="section-c-visual-col" data-reveal="left">
-            <div 
-              class="section-c-stage-wrapper"
-              @mouseenter="pauseSlideC"
-              @mouseleave="resumeSlideC"
-            >
+            <div class="section-c-stage-wrapper">
               <!-- Background Frame SVG -->
               <div class="section-c-bg-frame">
                 <svg class="section-c-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1815,7 +1803,6 @@ const isMobileNavOpen = ref(false)
 // ── SECTION A (TAKE CHARGE OF YOUR PROPERTY) SLIDER ENGINE ──
 const activeSlideA = ref(1)
 const isExitingSlideA = ref(false)
-const isHoveredSlideA = ref(false)
 let slideATimer: ReturnType<typeof setInterval> | null = null
 
 function setSlideA(idx: number) {
@@ -1835,24 +1822,13 @@ function nextSlideA() {
 function startSlideATimer() {
   if (slideATimer) clearInterval(slideATimer)
   slideATimer = setInterval(() => {
-    if (!isHoveredSlideA.value) {
-      nextSlideA()
-    }
+    nextSlideA()
   }, 4200)
-}
-
-function pauseSlideA() {
-  isHoveredSlideA.value = true
-}
-
-function resumeSlideA() {
-  isHoveredSlideA.value = false
 }
 
 // ── SECTION B (MANAGE VISITORS & PAYMENTS) SLIDER ENGINE ──
 const activeSlideB = ref(1)
 const isExitingSlideB = ref(false)
-const isHoveredSlideB = ref(false)
 let slideBTimer: ReturnType<typeof setInterval> | null = null
 
 function setSlideB(idx: number) {
@@ -1872,24 +1848,13 @@ function nextSlideB() {
 function startSlideBTimer() {
   if (slideBTimer) clearInterval(slideBTimer)
   slideBTimer = setInterval(() => {
-    if (!isHoveredSlideB.value) {
-      nextSlideB()
-    }
+    nextSlideB()
   }, 4400)
-}
-
-function pauseSlideB() {
-  isHoveredSlideB.value = true
-}
-
-function resumeSlideB() {
-  isHoveredSlideB.value = false
 }
 
 // ── SECTION C (STAY AHEAD OF EVERY ENTRY) SLIDER ENGINE ──
 const activeSlideC = ref(1)
 const isExitingSlideC = ref(false)
-const isHoveredSlideC = ref(false)
 let slideCTimer: ReturnType<typeof setInterval> | null = null
 
 function setSlideC(idx: number) {
@@ -1909,18 +1874,8 @@ function nextSlideC() {
 function startSlideCTimer() {
   if (slideCTimer) clearInterval(slideCTimer)
   slideCTimer = setInterval(() => {
-    if (!isHoveredSlideC.value) {
-      nextSlideC()
-    }
+    nextSlideC()
   }, 4400)
-}
-
-function pauseSlideC() {
-  isHoveredSlideC.value = true
-}
-
-function resumeSlideC() {
-  isHoveredSlideC.value = false
 }
 // Set to true once verified real customer testimonials are collected from testing
 const showTestimonials = ref(false)
