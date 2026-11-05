@@ -2454,3 +2454,108 @@ footer {
 
 
 
+
+/* ── SECOND SECTION: BETTER PROPERTY MANAGEMENT ── */
+.bpm-section {
+  padding: 88px 0 96px;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.bpm-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.bpm-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 56px;
+}
+
+.bpm-visual-col {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.bpm-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.bpm-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bpm-image:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.bpm-content-col {
+  display: flex;
+  align-items: center;
+}
+
+.bpm-content-inner {
+  max-width: 540px;
+}
+
+.bpm-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: clamp(2.3rem, 4.2vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #064E3B;
+  margin-bottom: 24px;
+}
+
+.bpm-title-accent {
+  color: #E5A93C;
+  display: inline-block;
+}
+
+.bpm-description {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
+  line-height: 1.72;
+  color: #4A5568;
+  margin: 0;
+  font-weight: 450;
+}
+
+@media (max-width: 900px) {
+  .bpm-section {
+    padding: 56px 0 64px;
+  }
+  .bpm-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .bpm-visual-col {
+    justify-content: center;
+  }
+  .bpm-image-wrapper {
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .bpm-content-inner {
+    max-width: 100%;
+    text-align: left;
+  }
+  .bpm-title {
+    font-size: clamp(2rem, 7.5vw, 2.7rem);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+}

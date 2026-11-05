@@ -91,6 +91,8 @@ graph TD
 | **WEB-03** | Top-of-Page Navbar Reset | User reaches top of page (scrollY <= 40px) | Navbar resets cleanly to transparent hero style without flickering or stuck classes | UI Interaction | `PASS` ✅ |
 | **WEB-04** | Mobile Drawer Open Safety Guard | User opens mobile hamburger menu while scrolled down | Navbar remains visible and locked in position so navigation is never trapped | UI Interaction | `PASS` ✅ |
 | **WEB-05** | Page Navigation Reset | User clicks nav links (Features, Pricing, How It Works) | Page jumps smoothly to target and navbar re-appears in clean initial state | UI Interaction | `PASS` ✅ |
+| **WEB-06** | Better Property Management Section (Desktop) | Positioned immediately after hero stats matrix | Image on left occupying ~50% viewport width, headline on right with *"Starts Here"* in gold accent, GSAP scroll-triggered entrance | UI / Layout | `PASS` ✅ |
+| **WEB-07** | Better Property Management Responsive (Mobile) | Screen width <= 900px | Column switches to vertical stack, image above text, auto margin centering, fluid clamp typography | Responsive CSS | `PASS` ✅ |
 
 ---
 

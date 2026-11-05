@@ -306,3 +306,4 @@ class PropertyTopologyTest extends TestCase
         $this->assertSame('Flat A, House 1, Lane 1', $res['Lane 1']['House 1'][0]['flatAddress']);
     }
 }
+

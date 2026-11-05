@@ -150,6 +150,38 @@
     </div>
   </section>
 
+  <!-- SECOND SECTION: BETTER PROPERTY MANAGEMENT -->
+  <section class="bpm-section" id="property-management" data-reveal>
+    <div class="container bpm-container">
+      <div class="bpm-grid">
+        <!-- Left: Brand Visual Illustration (Aligned left, occupying almost half viewport) -->
+        <div class="bpm-visual-col" data-reveal="left">
+          <div class="bpm-image-wrapper">
+            <img
+              src="/assets/images/better-property-management.png"
+              alt="Better Property Management Starts Here - Checkpass"
+              class="bpm-image"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+        <!-- Right: Copy & Narrative -->
+        <div class="bpm-content-col" data-reveal="right">
+          <div class="bpm-content-inner">
+            <h2 class="bpm-title">
+              Better Property<br>
+              Management <span class="bpm-title-accent">Starts Here</span>
+            </h2>
+            <p class="bpm-description">
+              From residential estates and gated communities to offices and business premises, Check Pass makes it easier to manage occupants, coordinate visitor access, handle payments and oversee daily operations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- FLAGSHIP INSPIRATION PHONE SHOWCASE & FLOATING CARDS -->
   <section class="flagship-showcase-section" id="flagshipSection">
     <div class="flagship-sticky-wrapper">
