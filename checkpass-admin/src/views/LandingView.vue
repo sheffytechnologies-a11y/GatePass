@@ -526,7 +526,7 @@
 
   <!-- STAKEHOLDERS INTERACTIVE SHOWCASE (SITEASSIST MODEL - 3 SLIDES) -->
   <section class="features-showcase-section" id="stakeholder-showcase" style="padding-top:0">
-    <div class="container">
+    <div class="siteassist-showcase-container">
       <!-- Cinematic Full-Bleed Photographic Card Container -->
       <div class="siteassist-card" data-reveal id="siteassistContainer">
         <!-- 3 Photographic Background Slides -->
