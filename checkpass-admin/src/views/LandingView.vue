@@ -1483,8 +1483,7 @@
           <div class="contact-direct-info">
             <h4>Email Support</h4>
             <p>Direct inquiries & onboarding</p>
-            <a href="mailto:support@checkpass.ng">support@checkpass.ng</a><br>
-            <a href="mailto:sales@checkpass.ng" style="font-size:.82rem;color:var(--n400)">sales@checkpass.ng</a>
+            <a href="mailto:info@checkpass.ng">info@checkpass.ng</a>
           </div>
         </div>
 
@@ -1495,8 +1494,8 @@
           <div class="contact-direct-info">
             <h4>Phone & WhatsApp</h4>
             <p>Mon – Sat, 8am – 7pm</p>
-            <a href="tel:+2348002432572">+234 (0) 800 CHECKPASS</a><br>
-            <a href="https://wa.me/2348000000000" target="_blank" style="font-size:.82rem;color:#25D366;font-weight:700">Chat on WhatsApp &rarr;</a>
+            <a href="tel:+2348132489619">+234 813 248 9619</a><br>
+            <a href="https://wa.me/2348132489619" target="_blank" style="font-size:.82rem;color:#25D366;font-weight:700">Chat on WhatsApp &rarr;</a>
           </div>
         </div>
 
@@ -1628,11 +1627,10 @@
       <div class="footer-col footer-col-contact">
         <h5>Contact &amp; Support</h5>
         <ul>
-          <li><a href="mailto:support@checkpass.ng" class="footer-contact-link">support@checkpass.ng</a></li>
-          <li><a href="mailto:sales@checkpass.ng" class="footer-contact-link">sales@checkpass.ng</a></li>
-          <li><a href="tel:+2348002432572" class="footer-contact-link">+234 (0) 800 CHECKPASS</a></li>
+          <li><a href="mailto:info@checkpass.ng" class="footer-contact-link">info@checkpass.ng</a></li>
+          <li><a href="tel:+2348132489619" class="footer-contact-link">+234 813 248 9619</a></li>
           <li>
-            <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer" class="footer-whatsapp-link" style="display:inline-flex;align-items:center;gap:6px">
+            <a href="https://wa.me/2348132489619" target="_blank" rel="noopener noreferrer" class="footer-whatsapp-link" style="display:inline-flex;align-items:center;gap:6px">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="#00C97A"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.173 8.173 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.45 0-2.87-.38-4.12-1.1l-.3-.17-3.07.8 0.82-2.99-.19-.31c-.79-1.28-1.21-2.76-1.21-4.29 0-4.54 3.7-8.24 8.24-8.24zm4.52 10.3c-.25-.13-1.47-.73-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.65.81-.79.98-.15.17-.29.19-.54.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43l-.48-.01c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08 0 1.23.89 2.41 1.02 2.58.12.17 1.76 2.69 4.26 3.77.6.26 1.06.41 1.42.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
               <span>WhatsApp Chat</span>
             </a>
