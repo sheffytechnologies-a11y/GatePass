@@ -82,6 +82,27 @@ export const unitsApi = {
   create: (data: Record<string, unknown>) => client.post('/v1/admin/units', data),
 }
 
+export const propertiesApi = {
+  getAll: (estateId: number, params?: Record<string, unknown>) =>
+    client.get(`/v1/admin/estates/${estateId}/properties`, { params }),
+  getStats: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/properties/stats`),
+  getTopologyTree: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/properties/topology-tree`),
+  getStructure: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/property-structure`),
+  updateStructure: (estateId: number, data: Record<string, unknown>) =>
+    client.put(`/v1/admin/estates/${estateId}/property-structure`, data),
+  create: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/properties', data),
+  batchCreate: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/properties/batch', data),
+  update: (id: number, data: Record<string, unknown>) =>
+    client.put(`/v1/admin/properties/${id}`, data),
+  delete: (id: number) =>
+    client.delete(`/v1/admin/properties/${id}`),
+}
+
 export const notificationsApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/notifications', { params }),
   delete: (id: number) => client.delete(`/v1/admin/notifications/${id}`),

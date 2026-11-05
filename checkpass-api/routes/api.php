@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\AdminRegistrationController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\AccessPhraseController;
+use App\Http\Controllers\Api\PropertyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -193,6 +194,17 @@ Route::prefix('v1')->group(function () {
             Route::get('estates',                [AdminController::class, 'listEstates']);
             Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
             Route::post('units',                 [AdminController::class, 'createUnit']);
+
+            // Properties & Physical Topology Module
+            Route::get('estates/{id}/properties',               [PropertyController::class, 'index']);
+            Route::get('estates/{id}/properties/stats',         [PropertyController::class, 'stats']);
+            Route::get('estates/{id}/properties/topology-tree', [PropertyController::class, 'topologyTree']);
+            Route::get('estates/{id}/property-structure',       [PropertyController::class, 'getStructure']);
+            Route::put('estates/{id}/property-structure',       [PropertyController::class, 'updateStructure']);
+            Route::post('properties',                           [PropertyController::class, 'store']);
+            Route::post('properties/batch',                     [PropertyController::class, 'batchStore']);
+            Route::put('properties/{id}',                       [PropertyController::class, 'update']);
+            Route::delete('properties/{id}',                    [PropertyController::class, 'destroy']);
 
             // Fees
             Route::get('fees',                              [FeeController::class, 'index']);
