@@ -310,10 +310,13 @@
           <div class="section-a-content-inner">
             <h2 class="section-a-title">
               Take Charge of<br>
-              <span class="section-a-title-accent">Your Property</span>
+              Your <span class="section-a-title-accent">Property</span>
             </h2>
             <p class="section-a-description">
-              Whether it's a residential estate, gated community or workplace, manage occupants, assign responsibilities, organise payments and oversee daily operations from one dashboard.
+              Whether it's a residential estate, gated community or<br class="sec-a-sub-br">
+              workplace, manage occupants, assign responsibilities,<br class="sec-a-sub-br">
+              organise payments and oversee daily operations from<br class="sec-a-sub-br">
+              one dashboard.
             </p>
           </div>
         </div>

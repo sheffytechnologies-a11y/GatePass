@@ -2513,12 +2513,12 @@ footer {
 
 .bpm-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(2.3rem, 4.2vw, 3.5rem);
+  font-size: clamp(1.75rem, 2.45vw, 2.25rem);
   font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  line-height: 1.16;
+  letter-spacing: -0.022em;
   color: #064E3B;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .bpm-title-accent {
@@ -2528,12 +2528,12 @@ footer {
 
 .bpm-description {
   font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(1.02rem, 1.2vw, 1.12rem);
-  line-height: 1.68;
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
-  max-width: 480px;
+  max-width: 530px;
 }
 
 .bpm-sub-br {
@@ -2561,9 +2561,9 @@ footer {
   }
   .bpm-sub-br { display: none; }
   .bpm-title {
-    font-size: clamp(2rem, 7.5vw, 2.7rem);
-    line-height: 1.2;
-    margin-bottom: 16px;
+    font-size: clamp(1.65rem, 6.5vw, 2rem);
+    line-height: 1.18;
+    margin-bottom: 14px;
   }
 }
 
@@ -2879,12 +2879,12 @@ footer {
 
 .section-a-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(2.3rem, 4.2vw, 3.5rem);
+  font-size: clamp(1.75rem, 2.45vw, 2.25rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  line-height: 1.16;
+  letter-spacing: -0.022em;
   color: #064E3B;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .section-a-title-accent {
@@ -2894,11 +2894,16 @@ footer {
 
 .section-a-description {
   font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
-  line-height: 1.72;
+  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
+  max-width: 530px;
+}
+
+.sec-a-sub-br {
+  display: inline;
 }
 
 /* Responsive Breakpoint for Mobile (< 900px) */
@@ -2921,8 +2926,11 @@ footer {
     text-align: left;
   }
   .section-a-title {
-    font-size: clamp(2rem, 7.5vw, 2.7rem);
-    line-height: 1.2;
-    margin-bottom: 16px;
+    font-size: clamp(1.65rem, 6.5vw, 2rem);
+    line-height: 1.18;
+    margin-bottom: 14px;
+  }
+  .sec-a-sub-br {
+    display: none;
   }
 }
