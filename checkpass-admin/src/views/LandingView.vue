@@ -626,8 +626,7 @@
   <section class="faq">
     <div class="container">
       <div class="section-header centered" data-reveal>
-        <span class="badge badge-green label">Common Questions</span>
-        <h2 class="display-md" style="margin-top:12px">Before you ask</h2>
+        <h2 class="display-md">Before you ask</h2>
       </div>
       <div class="faq-list">
         <div class="faq-item" data-reveal data-delay="1">
