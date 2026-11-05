@@ -866,46 +866,13 @@
               <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
             </svg>
           </div>
-          <div class="how-stage-content">
-            <div class="how-step1-visual-wrap">
-              <!-- Main Resident App Phone -->
-              <div class="how-step1-main-phone">
-                <div class="phone-device-pro" style="width:235px;padding:6px;border-radius:34px">
-                  <div class="phone-dynamic-island" style="width:74px;height:22px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:3px;height:3px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:28px">
-                    <img class="phone-img-layer" src="/assets/app-screens/create-pass-screen.png" alt="CheckPass Resident App Create Pass Screen">
-                    <div class="phone-home-indicator" style="width:80px;bottom:5px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Overlapping Companion Phone: Item Declaration Manifest -->
-              <div class="how-step1-companion-phone">
-                <div class="phone-device-pro" style="width:190px;padding:5px;border-radius:28px">
-                  <div class="phone-dynamic-island" style="width:60px;height:18px;top:6px">
-                    <div class="island-camera-dot" style="width:5px;height:5px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:22px">
-                    <img class="phone-img-layer" src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration Screen">
-                    <div class="phone-home-indicator" style="width:65px;bottom:5px"></div>
-                  </div>
-                </div>
-                <div class="companion-phone-tag">
-                  <span>📦</span> Declared Manifest
-                </div>
-              </div>
-
-              <!-- Floating Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">🔑</span>
-                <div>
-                  <div class="badge-title">Pass Issued &bull; 11.4s</div>
-                  <div class="badge-sub">Unit 14B &bull; 1 Vehicle Logged</div>
-                </div>
+          <div class="how-stage-mockup-wrap">
+            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Resident Initiation & Move-Out Declaration" class="how-stage-mockup-img">
+            <div class="how-mockup-pill">
+              <span class="pill-icon">📱</span>
+              <div class="pill-body">
+                <div class="pill-title">Pass Issued in 11.4s</div>
+                <div class="pill-sub">Unit 14B &bull; Move-Out Manifest Logged</div>
               </div>
             </div>
           </div>
@@ -923,38 +890,13 @@
               <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
             </svg>
           </div>
-          <div class="how-stage-content">
-            <div class="how-step2-visual-wrap">
-              <!-- Main Visitor Pass Phone -->
-              <div class="phone-device-pro" style="width:235px;padding:6px;border-radius:34px">
-                <div class="phone-dynamic-island" style="width:74px;height:22px;top:7px">
-                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                  <div class="island-sensor-dot" style="width:3px;height:3px"></div>
-                </div>
-                <div class="phone-screen-pro" style="border-radius:28px">
-                  <img class="phone-img-layer" src="/assets/app-screens/pass-details-screen.png" alt="CheckPass Visitor Digital QR Permit">
-                  <div class="phone-home-indicator" style="width:80px;bottom:5px"></div>
-                </div>
-              </div>
-
-              <!-- Floating WhatsApp Notification Toast -->
-              <div class="how-whatsapp-toast">
-                <div class="how-whatsapp-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/></svg>
-                </div>
-                <div class="how-whatsapp-text">
-                  <strong>CheckPass Dispatch</strong>
-                  Entry permit #CP-9824 received from Unit 14B. Tap to display pass at gate.
-                </div>
-              </div>
-
-              <!-- Floating Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">📲</span>
-                <div>
-                  <div class="badge-title">Zero App Download</div>
-                  <div class="badge-sub">Runs natively in mobile browser</div>
-                </div>
+          <div class="how-stage-mockup-wrap">
+            <img src="/assets/features/mockup_whatsapp_pass.jpg" alt="Instant Visitor WhatsApp Dynamic Pass" class="how-stage-mockup-img">
+            <div class="how-mockup-pill">
+              <span class="pill-icon">📲</span>
+              <div class="pill-body">
+                <div class="pill-title">Zero App Download</div>
+                <div class="pill-sub">WhatsApp Pass #CP-9824 &bull; Dynamic QR</div>
               </div>
             </div>
           </div>
@@ -1086,43 +1028,13 @@
               <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
             </svg>
           </div>
-          <div class="how-stage-content">
-            <div class="how-step3-visual-wrap">
-              <!-- Handheld 1: Optical QR Scanner Reticle -->
-              <div class="how-step3-phone-scanner">
-                <div class="phone-device-pro" style="padding:6px;border-radius:32px">
-                  <div class="phone-dynamic-island" style="width:70px;height:19px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:25px">
-                    <img class="phone-img-layer" src="/assets/app-screens/mockup_phone_guard_scanner.png" alt="CheckPass Gate Scanner Terminal Viewfinder">
-                    <div class="phone-home-indicator" style="width:70px;bottom:5px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Handheld 2: Green Verified Access Granted -->
-              <div class="how-step3-phone-approval">
-                <div class="phone-device-pro" style="padding:6px;border-radius:32px;border-color:rgba(10,91,56,0.5)">
-                  <div class="phone-dynamic-island" style="width:70px;height:19px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:25px">
-                    <img class="phone-img-layer" src="/assets/app-screens/mockup_phone_guard_approval.png" alt="CheckPass Gate Guard Access Granted Modal">
-                    <div class="phone-home-indicator" style="width:70px;bottom:5px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Floating Security Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">🛡️</span>
-                <div>
-                  <div class="badge-title">Verified in 3.1 Seconds</div>
-                  <div class="badge-sub">Guard Musa &bull; Main Gate Barrier 1</div>
-                </div>
+          <div class="how-stage-mockup-wrap">
+            <img src="/assets/features/mockup_visitor_access.jpg" alt="Gate Security Optical Scan Clearance" class="how-stage-mockup-img">
+            <div class="how-mockup-pill">
+              <span class="pill-icon">🛡️</span>
+              <div class="pill-body">
+                <div class="pill-title">Verified in 3.1 Seconds</div>
+                <div class="pill-sub">Guard Musa &bull; Main Gate Barrier 1</div>
               </div>
             </div>
           </div>
@@ -1140,40 +1052,13 @@
               <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
             </svg>
           </div>
-          <div class="how-stage-content">
-            <div class="how-step4-visual-wrap">
-              <!-- MacBook Pro Chassis -->
-              <div class="how-step4-laptop">
-                <div class="laptop-chassis">
-                  <div class="laptop-screen">
-                    <div class="browser-tab-bar">
-                      <div class="browser-dots"><i></i><i></i><i></i></div>
-                      <div class="browser-address-bar">checkpass.estate/admin/dashboard</div>
-                    </div>
-                    <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Estate Admin Command Dashboard">
-                  </div>
-                </div>
-                <div class="laptop-base"></div>
-              </div>
-
-              <!-- Overlapping Pop-Out Window: Live Gate Audit Feed -->
-              <div class="how-step4-pop-window">
-                <div class="how-step4-pop-bar">
-                  <div class="how-step4-pop-title">
-                    <span style="color:#10B981">●</span> Live Gate Audit Log
-                  </div>
-                  <span style="font-size:10px;color:#64748B">SYNCED</span>
-                </div>
-                <img class="how-step4-pop-img" src="/assets/app-screens/mockup_laptop_gate_audit_feed.png" alt="CheckPass Live Gate Audit Feed">
-              </div>
-
-              <!-- Floating Metric Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">💻</span>
-                <div>
-                  <div class="badge-title">100% Immutable Audit Trail</div>
-                  <div class="badge-sub">Zero Unverified Gate Entries</div>
-                </div>
+          <div class="how-stage-mockup-wrap">
+            <img src="/assets/features/mockup_command_center.jpg" alt="Master Command Center & Live Gate Audit" class="how-stage-mockup-img">
+            <div class="how-mockup-pill">
+              <span class="pill-icon">💻</span>
+              <div class="pill-body">
+                <div class="pill-title">100% Immutable Audit Trail</div>
+                <div class="pill-sub">Zero Unverified Entries &bull; AGM Reconciled</div>
               </div>
             </div>
           </div>
@@ -1347,23 +1232,13 @@
               <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
             </svg>
           </div>
-          <div class="feature-stage-content">
-            <div class="feature-phone-wrap">
-              <div class="feature-phone-pro">
-                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                </div>
-                <div class="feature-phone-screen">
-                  <img src="/assets/app-screens/pass-details-screen.png" alt="Visitor Pass Details">
-                  <div class="feature-phone-pill">
-                    <span style="font-size:18px">🛡️</span>
-                    <div>
-                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Pass Verified &bull; Gate 1</div>
-                      <div style="font-size:.72rem;color:var(--n600)">Sub-4s Instant Gate Entry</div>
-                    </div>
-                  </div>
-                </div>
+          <div class="feature-stage-mockup-wrap">
+            <img src="/assets/features/mockup_visitor_access.jpg" alt="Instant Visitor Access Clearance" class="feature-stage-mockup-img">
+            <div class="feature-mockup-pill">
+              <span class="pill-icon">🛡️</span>
+              <div class="pill-body">
+                <div class="pill-title">Sub-4s Gate Clearance</div>
+                <div class="pill-sub">Optical QR Scan &bull; Barrier 1</div>
               </div>
             </div>
           </div>
@@ -1395,23 +1270,13 @@
               <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
             </svg>
           </div>
-          <div class="feature-stage-content">
-            <div class="feature-phone-wrap">
-              <div class="feature-phone-pro">
-                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                </div>
-                <div class="feature-phone-screen">
-                  <img src="/assets/ui screens/Resident Interface/Fees.png" alt="Service Charge and Estate Dues">
-                  <div class="feature-phone-pill">
-                    <span style="font-size:18px">💳</span>
-                    <div>
-                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Levy Reconciled</div>
-                      <div style="font-size:.72rem;color:var(--n600)">Digital Receipt Confirmed</div>
-                    </div>
-                  </div>
-                </div>
+          <div class="feature-stage-mockup-wrap">
+            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Estate Service Charges & Dues Reconciliation" class="feature-stage-mockup-img">
+            <div class="feature-mockup-pill">
+              <span class="pill-icon">💳</span>
+              <div class="pill-body">
+                <div class="pill-title">Levy Reconciled</div>
+                <div class="pill-sub">Automated Receipts &bull; Zero Dispute</div>
               </div>
             </div>
           </div>
@@ -1443,23 +1308,13 @@
               <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
             </svg>
           </div>
-          <div class="feature-stage-content">
-            <div class="feature-phone-wrap">
-              <div class="feature-phone-pro">
-                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                </div>
-                <div class="feature-phone-screen">
-                  <img src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration and Anti-Theft">
-                  <div class="feature-phone-pill">
-                    <span style="font-size:18px">📦</span>
-                    <div>
-                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Exit Inspected</div>
-                      <div style="font-size:.72rem;color:var(--n600)">Verified by Gate Guard</div>
-                    </div>
-                  </div>
-                </div>
+          <div class="feature-stage-mockup-wrap">
+            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Move-Out Asset Manifest & Anti-Theft Protection" class="feature-stage-mockup-img">
+            <div class="feature-mockup-pill">
+              <span class="pill-icon">📦</span>
+              <div class="pill-body">
+                <div class="pill-title">Move-Out Manifest Verified</div>
+                <div class="pill-sub">Photo Proof &bull; Guard Exit Inspection</div>
               </div>
             </div>
           </div>
@@ -1491,15 +1346,13 @@
               <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
             </svg>
           </div>
-          <div class="feature-stage-content laptop-stage">
-            <div class="feature-laptop-screen">
-              <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Admin Dashboard" style="width:100%;display:block">
-            </div>
-            <div class="feature-phone-pill laptop-pill">
-              <span style="font-size:18px">💻</span>
-              <div>
-                <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Executive Command</div>
-                <div style="font-size:.72rem;color:var(--n600)">Live Gate Audit &bull; Instant AGM Ledger</div>
+          <div class="feature-stage-mockup-wrap">
+            <img src="/assets/features/mockup_command_center.jpg" alt="Executive Central Governance & Live Gate Telemetry" class="feature-stage-mockup-img">
+            <div class="feature-mockup-pill">
+              <span class="pill-icon">💻</span>
+              <div class="pill-body">
+                <div class="pill-title">Executive Command</div>
+                <div class="pill-sub">Live Gate Audit &bull; Instant AGM Export</div>
               </div>
             </div>
           </div>
