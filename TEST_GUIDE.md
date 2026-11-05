@@ -82,6 +82,18 @@ graph TD
 
 ---
 
+### Suite E: Website Interactive Polish & Smart Auto-Hiding Navbar
+
+| Test ID | Test Case & Scenario | Preconditions / Input | Expected Result | Automated / Manual | Status |
+|---|---|---|---|---|---|
+| **WEB-01** | Navbar Disappears on Scroll Down | User scrolls down past hero threshold (> 70px) with delta > 6px | Navbar smoothly slides up offscreen (`transform: translateY(-100%)`) with zero layout shift | UI Interaction | `PASS` ✅ |
+| **WEB-02** | Navbar Appears on Scroll Up | User scrolls upwards at any point on the page | Navbar immediately glides into view (`transform: translateY(0)`) with frosted glass backdrop | UI Interaction | `PASS` ✅ |
+| **WEB-03** | Top-of-Page Navbar Reset | User reaches top of page (scrollY <= 40px) | Navbar resets cleanly to transparent hero style without flickering or stuck classes | UI Interaction | `PASS` ✅ |
+| **WEB-04** | Mobile Drawer Open Safety Guard | User opens mobile hamburger menu while scrolled down | Navbar remains visible and locked in position so navigation is never trapped | UI Interaction | `PASS` ✅ |
+| **WEB-05** | Page Navigation Reset | User clicks nav links (Features, Pricing, How It Works) | Page jumps smoothly to target and navbar re-appears in clean initial state | UI Interaction | `PASS` ✅ |
+
+---
+
 ## 4. Regression & Edge Case Safety Check
 
 - [x] **Zero Breaking Changes for Legacy Accounts**: Estates created before November 2026 without `property_structure` automatically inherit default 3-tier topology.
@@ -98,3 +110,4 @@ Whenever a new feature, endpoint, or configuration option is developed:
 2. **Execute Validation**: Run the automated test via PHPUnit or verify in UI.
 3. **Update Status**: Change status from `PENDING` ⏳ to `PASS` ✅ or `FAIL` ❌.
 4. **Log Changes**: Commit the updated `TEST_GUIDE.md` alongside the feature code in git so the entire team has visibility into QA progress.
+
