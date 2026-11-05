@@ -124,9 +124,38 @@ class PropertyController extends Controller
         ];
         $estate->save();
 
+        // Optional: Relabel existing units to align with updated tier names
+        $relabelledCount = 0;
+        if ($request->boolean('relabel_existing_units')) {
+            $levelNames = array_column($data['levels'], 'name');
+            $units = Unit::where('estate_id', $estateId)->get();
+            foreach ($units as $u) {
+                $rawVals = [];
+                if (! empty($u->hierarchy_data) && is_array($u->hierarchy_data)) {
+                    $rawVals = array_values($u->hierarchy_data);
+                } else {
+                    $rawVals = array_values(array_filter([$u->lane, $u->house, $u->flat]));
+                }
+
+                $newHierarchy = [];
+                foreach ($levelNames as $idx => $lvlName) {
+                    if (isset($rawVals[$idx])) {
+                        $newHierarchy[$lvlName] = $rawVals[$idx];
+                    }
+                }
+
+                if (! empty($newHierarchy)) {
+                    $u->hierarchy_data = $newHierarchy;
+                    $u->save();
+                    $relabelledCount++;
+                }
+            }
+        }
+
         return response()->json([
-            'structure' => $estate->property_structure,
-            'message'   => 'Property structure updated successfully.',
+            'structure'        => $estate->property_structure,
+            'relabelledCount'  => $relabelledCount,
+            'message'          => 'Property structure updated successfully.',
         ]);
     }
 
@@ -434,6 +463,16 @@ class PropertyController extends Controller
     {
         $activeResidents = $u->residents->filter(fn($r) => $r->is_active);
 
+        // Fallback for legacy units created before the topology module
+        $hierarchyData = $u->hierarchy_data;
+        if (empty($hierarchyData)) {
+            $hierarchyData = array_filter([
+                'Lane'  => $u->lane,
+                'House' => $u->house,
+                'Flat'  => $u->flat,
+            ]);
+        }
+
         return [
             'id'             => $u->id,
             'estateId'       => $u->estate_id,
@@ -442,7 +481,7 @@ class PropertyController extends Controller
             'lane'           => $u->lane,
             'house'          => $u->house,
             'flat'           => $u->flat,
-            'hierarchyData'  => $u->hierarchy_data,
+            'hierarchyData'  => ! empty($hierarchyData) ? $hierarchyData : null,
             'notes'          => $u->notes,
             'isActive'       => (bool) $u->is_active,
             'isOccupied'     => $activeResidents->isNotEmpty(),
@@ -476,3 +515,4 @@ class PropertyController extends Controller
         return $result;
     }
 }
+

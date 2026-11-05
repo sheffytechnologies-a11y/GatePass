@@ -91,6 +91,16 @@
       </div>
 
       <div class="filter-group">
+        <select
+          v-if="auth.estates && auth.estates.length > 1"
+          :value="activeEstateId"
+          class="form-select toolbar-select"
+          @change="onSwitchEstate(Number(($event.target as HTMLSelectElement).value))"
+        >
+          <option v-for="est in auth.estates" :key="est.id" :value="est.id">
+            🏡 {{ est.name }}
+          </option>
+        </select>
         <select v-model="occupancyFilter" class="form-select toolbar-select" @change="loadProperties">
           <option value="all">All Occupancy</option>
           <option value="occupied">Occupied Only</option>
@@ -152,7 +162,12 @@
         </div>
 
         <!-- Hierarchy Breakdown Tags -->
-        <div class="hierarchy-tags">
+        <div v-if="prop.hierarchyData" class="hierarchy-tags">
+          <span v-for="(val, key) in prop.hierarchyData" :key="key" class="h-tag">
+            <strong>{{ key }}:</strong> {{ val }}
+          </span>
+        </div>
+        <div v-else class="hierarchy-tags">
           <span v-if="prop.lane" class="h-tag"><strong>Lane:</strong> {{ prop.lane }}</span>
           <span v-if="prop.house" class="h-tag"><strong>House:</strong> {{ prop.house }}</span>
           <span v-if="prop.flat" class="h-tag"><strong>Flat:</strong> {{ prop.flat }}</span>
@@ -251,6 +266,16 @@
                 + Add Another Tier
               </button>
             </div>
+          </div>
+
+          <div class="form-group mt-3 relabel-box">
+            <label class="toggle-control">
+              <input type="checkbox" v-model="relabelExistingUnits" />
+              <span>
+                <strong>Apply to existing properties in this estate</strong>
+                <small class="d-block text-muted">Safely re-labels existing units with the new tier names while preserving resident assignments and gate pass history.</small>
+              </span>
+            </label>
           </div>
         </div>
 
@@ -558,6 +583,7 @@ const PRESETS = [
 ]
 
 // Topology Structure
+const relabelExistingUnits = ref(true)
 const structureModalOpen = ref(false)
 const structurePreset = ref('lane_house_flat')
 const structureLevels = ref<any[]>([
@@ -611,10 +637,17 @@ async function saveStructure() {
   if (!activeEstateId.value) return
   savingStructure.value = true
   try {
-    await propertiesApi.updateStructure(activeEstateId.value, {
+    const res = await propertiesApi.updateStructure(activeEstateId.value, {
       preset: structurePreset.value,
       levels: structureLevels.value,
+      relabel_existing_units: relabelExistingUnits.value,
     })
+    if (res.data?.relabelledCount > 0) {
+      showToast(`Topology updated and ${res.data.relabelledCount} properties re-labeled.`, 'success')
+    } else {
+      showToast('Topology structure updated successfully.', 'success')
+    }
+    await loadProperties()
     showToast('Topology structure updated successfully.', 'success')
     structureModalOpen.value = false
   } catch (err: any) {
@@ -872,6 +905,13 @@ async function loadStats() {
     }
   } catch (err) {
     // ignore
+  }
+}
+
+function onSwitchEstate(newId: number) {
+  const match = auth.estates.find((e: any) => e.id === newId)
+  if (match) {
+    auth.setActiveEstate(match)
   }
 }
 
@@ -1755,4 +1795,28 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
+
+.relabel-box {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.toggle-control {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #111827;
+}
+.toggle-control input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: #047857;
+  width: 16px;
+  height: 16px;
+}
+.d-block { display: block; }
+.text-muted { color: #6B7280; font-size: 11.5px; }
 </style>
+
