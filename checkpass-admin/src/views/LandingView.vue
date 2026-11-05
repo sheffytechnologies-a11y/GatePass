@@ -563,10 +563,18 @@
   <!-- STAKEHOLDERS INTERACTIVE SHOWCASE (SITEASSIST MODEL - 3 SLIDES) -->
   <section class="features-showcase-section" id="stakeholder-showcase" style="padding-top:40px">
     <div class="container">
-      <div class="features-showcase-header" data-reveal>
-        <div class="features-pill-badge">Who Uses CheckPass</div>
-        <h2>Built for the People Running and Living in Your Estate</h2>
-        <p>From the estate manager balancing the books to the security guard at the gate and the resident expecting a guest.</p>
+      <div class="stakeholder-header-grid" data-reveal>
+        <div class="stakeholder-header-col-left">
+          <h2 class="stakeholder-header-title">
+            The Right People.<br>
+            The Right Access.
+          </h2>
+        </div>
+        <div class="stakeholder-header-col-right">
+          <p class="stakeholder-header-desc">
+            Everything is easier when visitor access, dues, and updates are right on your pocket.
+          </p>
+        </div>
       </div>
 
       <!-- Cinematic Full-Bleed Photographic Card Container -->

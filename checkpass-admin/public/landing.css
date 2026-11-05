@@ -3462,3 +3462,57 @@ footer {
     width: fit-content;
   }
 }
+/* ==========================================================
+   STAKEHOLDER SHOWCASE 2-COLUMN HEADER (media_1793897121230_933b99ba)
+   ========================================================== */
+.stakeholder-header-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 44px;
+}
+
+.stakeholder-header-col-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.stakeholder-header-title {
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: clamp(2.3rem, 3.5vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  color: #005E34;
+  margin: 0;
+}
+
+.stakeholder-header-col-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 510px;
+}
+
+.stakeholder-header-desc {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  line-height: 1.62;
+  color: #2D3748;
+  margin: 0;
+  font-weight: 450;
+}
+
+@media (max-width: 900px) {
+  .stakeholder-header-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stakeholder-header-col-right {
+    max-width: 100%;
+  }
+}
