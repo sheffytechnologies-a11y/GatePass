@@ -687,23 +687,150 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
 .mini-cta p{color:rgba(255,255,255,.68);margin-bottom:22px;max-width:420px;margin-left:auto;margin-right:auto}
 
 /* ── FEATURES PAGE ── */
-.features-full{display:flex;flex-direction:column;gap:72px;padding:80px 0}
-.feature-row{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-.feature-row.reverse .feature-visual{order:-1}
-@media(max-width:900px){.feature-row,.feature-row.reverse{grid-template-columns:1fr;gap:36px}.feature-row.reverse .feature-visual{order:0}}
-.feature-visual{border-radius:var(--r-lg);overflow:hidden;background:var(--n50);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);position:relative}
-.feature-mockup{width:62%;aspect-ratio:9/16;max-width:170px;background:#fff;border-radius:14px;box-shadow:0 14px 36px rgba(0,0,0,.1);overflow:hidden;border:1px solid var(--border);display:flex;flex-direction:column}
-.mockup-bar{height:5px;background:var(--p)}
-.mockup-content{flex:1;padding:10px;display:flex;flex-direction:column;gap:7px}
-.mockup-line{height:7px;background:var(--n100);border-radius:3px}
-.mockup-line.short{width:58%}.mockup-line.med{width:78%}
-.mockup-btn{height:26px;background:var(--p);border-radius:var(--r-sm);margin-top:3px;opacity:.75}
-.feature-text .badge{margin-bottom:13px}
-.feature-text h2{font-size:clamp(1.5rem,3vw,2.3rem);margin-bottom:13px}
-.feature-text>p{margin-bottom:22px;font-size:1rem;line-height:1.75;color:#374038}
-.feature-perks{display:flex;flex-direction:column;gap:9px}
-.feature-perk{display:flex;align-items:center;gap:9px;font-size:.9rem;color:#374038}
-.perk-dot{width:6px;height:6px;border-radius:50%;background:var(--p);flex-shrink:0}
+/* ── FEATURES PAGE HARMONIZATION (SIGNATURE BRAND CONTAINERS) ── */
+.hero-mint-accent {
+  color: #82C9AA;
+}
+
+.feature-mint-text {
+  color: #82C9AA;
+}
+
+.features-full {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(72px, 8vw, 110px);
+  padding: 80px 0 100px;
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(48px, 6vw, 84px);
+  align-items: center;
+}
+
+.feature-row.reverse .feature-stage-card {
+  order: -1;
+}
+
+@media (max-width: 900px) {
+  .feature-row, .feature-row.reverse {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .feature-row.reverse .feature-stage-card {
+    order: 0;
+  }
+}
+
+.feature-text .badge {
+  margin-bottom: 16px;
+  display: inline-flex;
+}
+
+.feature-text h2 {
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.feature-text > p {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  line-height: 1.7;
+  color: var(--n700);
+  margin-bottom: 24px;
+}
+
+.feature-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-perk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: 0.93rem;
+  color: var(--dark);
+  line-height: 1.5;
+}
+
+.perk-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #005E34;
+  flex-shrink: 0;
+}
+
+/* Signature Brand Stage Card on Features Page */
+.feature-stage-card {
+  position: relative;
+  width: 100%;
+  max-width: 490px;
+  aspect-ratio: 1885 / 2013;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.feature-stage-bg-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 20px 48px rgba(10, 31, 23, 0.12));
+}
+
+.feature-stage-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.feature-stage-content {
+  position: relative;
+  z-index: 2;
+  width: 66%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-stage-content.laptop-stage {
+  width: 84%;
+  flex-direction: column;
+}
+
+.feature-laptop-screen {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0F172A;
+}
+
+.feature-phone-pill.laptop-pill {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  margin-top: 16px;
+  width: 90%;
+}
 
 /* ── ESTATES PAGE ── */
 .estates-types{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}

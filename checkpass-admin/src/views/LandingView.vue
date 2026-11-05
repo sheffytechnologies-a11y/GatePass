@@ -1222,39 +1222,57 @@
 <div class="page" id="page-features">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Features</span>
-      <h1>Everything you need to run<br>your estate properly</h1>
-      <p>Built for how real estates operate — not how software companies imagine they do.</p>
+      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Features &amp; Capabilities</span>
+      <h1>
+        Built for Total Control.<br>
+        <span class="hero-mint-accent">Engineered for Zero Downtime.</span>
+      </h1>
+      <p>From instant sub-4s gate verification to automated dues reconciliation, explore the four core pillars running modern residential communities.</p>
     </div>
   </div>
+
   <div class="container">
     <div class="features-full">
+      <!-- 01: VISITOR ACCESS -->
       <div class="feature-row" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Visitor Access</span>
-          <h2>Approve visitors in seconds</h2>
-          <p>Every visitor is pre-registered before arrival. Security scans a QR code and confirms in under five seconds. No calls. No waiting. No confusion about who's expected.</p>
+          <span class="badge badge-green label">01 · Visitor Access</span>
+          <h2>
+            <span class="feature-mint-text">Instant Clearance.</span><br>
+            Zero Gate Queues.
+          </h2>
+          <p>Every visitor is pre-registered before arrival. Security scans a dynamic QR code and confirms entry in under four seconds. No intercom calls, no manual logbooks, and no confusion about who is expected.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Resident creates a pass from the app</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Visitor shows QR code at the gate</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Guard scans and confirms instantly</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Entry logged with timestamp automatically</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Resident issues passes in two taps or via direct WhatsApp link</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Sub-4s camera scan with instant host and unit confirmation</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Offline cryptographic tokens verify even during network downtime</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Permanent timestamped gate entry log tied to resident profile</div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/app-screens/pass-details-screen.png" alt="Visitor Pass Details">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">🛡️</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Pass Verified &bull; Gate 1</div>
-                    <div style="font-size:.72rem;color:var(--n600)">Sub-4s Instant Gate Entry</div>
+
+        <div class="feature-stage-card" data-reveal="right">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#005E34"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
+            </svg>
+          </div>
+          <div class="feature-stage-content">
+            <div class="feature-phone-wrap">
+              <div class="feature-phone-pro">
+                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
+                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
+                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
+                </div>
+                <div class="feature-phone-screen">
+                  <img src="/assets/app-screens/pass-details-screen.png" alt="Visitor Pass Details">
+                  <div class="feature-phone-pill">
+                    <span style="font-size:18px">🛡️</span>
+                    <div>
+                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Pass Verified &bull; Gate 1</div>
+                      <div style="font-size:.72rem;color:var(--n600)">Sub-4s Instant Gate Entry</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1262,32 +1280,47 @@
           </div>
         </div>
       </div>
+
+      <!-- 02: PAYMENTS & DUES -->
       <div class="feature-row reverse" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Payments</span>
-          <h2>Stop chasing service charges</h2>
-          <p>Track payments, balances, and confirmations in one place. Residents upload proof directly in the app. You see who has paid, who hasn't, and the full history — no spreadsheets.</p>
+          <span class="badge badge-green label">02 · Financial Ledger</span>
+          <h2>
+            <span class="feature-mint-text">Collect Every Dues.</span><br>
+            Without Disputes.
+          </h2>
+          <p>Automate service charges, security dues, and diesel levies in one centralized ledger. Residents submit payments and upload bank receipts in-app, while managers approve with one tap—zero spreadsheets.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Track all service charge balances</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Residents upload payment receipts in-app</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Manager approves and confirms with one tap</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Complete payment history always available</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Real-time balance and levy breakdown for every residential unit</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Instant digital receipts issued immediately upon manager confirmation</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Automated dues reminders sent to occupants before deadlines</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Complete audit-ready ledger prepared for AGM presentation</div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/ui screens/Resident Interface/Fees.png" alt="Service Charge and Estate Dues">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">💳</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Levy Reconciled</div>
-                    <div style="font-size:.72rem;color:var(--n600)">Digital Receipt Confirmed</div>
+
+        <div class="feature-stage-card" data-reveal="left">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
+              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
+              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
+            </svg>
+          </div>
+          <div class="feature-stage-content">
+            <div class="feature-phone-wrap">
+              <div class="feature-phone-pro">
+                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
+                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
+                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
+                </div>
+                <div class="feature-phone-screen">
+                  <img src="/assets/ui screens/Resident Interface/Fees.png" alt="Service Charge and Estate Dues">
+                  <div class="feature-phone-pill">
+                    <span style="font-size:18px">💳</span>
+                    <div>
+                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Levy Reconciled</div>
+                      <div style="font-size:.72rem;color:var(--n600)">Digital Receipt Confirmed</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1295,32 +1328,47 @@
           </div>
         </div>
       </div>
+
+      <!-- 03: ITEM TRACKING & ASSET PROTECTION -->
       <div class="feature-row" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Item Tracking</span>
-          <h2>Avoid disputes and confusion</h2>
-          <p>All items entering or leaving the estate are declared and recorded. When something is disputed, the record is there — clear, timestamped, and tied to the resident's account.</p>
+          <span class="badge badge-green label">03 · Asset Protection</span>
+          <h2>
+            <span class="feature-mint-text">Track Every Asset</span><br>
+            Moving Out.
+          </h2>
+          <p>All high-value goods, corporate equipment, and tenant move-outs are declared and logged before reaching the gate. When discrepancies occur, your digital manifest provides verifiable proof tied to the host's account.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Residents declare items before moving</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Security confirms against the declaration</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Full item log accessible to management</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Eliminates disputes with verifiable records</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Residents declare departure assets with attached item photos</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Security cross-checks cargo against photo proof before exit clearance</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Tamper-proof digital gate pass prevents unauthorized removals</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Eliminates contractor disputes and move-out misunderstandings</div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration and Anti-Theft">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">📦</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Exit Inspected</div>
-                    <div style="font-size:.72rem;color:var(--n600)">2x Displays &bull; Verified by Guard</div>
+
+        <div class="feature-stage-card" data-reveal="right">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
+            </svg>
+          </div>
+          <div class="feature-stage-content">
+            <div class="feature-phone-wrap">
+              <div class="feature-phone-pro">
+                <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
+                  <div class="island-camera-dot" style="width:6px;height:6px"></div>
+                  <div class="island-sensor-dot" style="width:2px;height:2px"></div>
+                </div>
+                <div class="feature-phone-screen">
+                  <img src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration and Anti-Theft">
+                  <div class="feature-phone-pill">
+                    <span style="font-size:18px">📦</span>
+                    <div>
+                      <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Exit Inspected</div>
+                      <div style="font-size:.72rem;color:var(--n600)">Verified by Gate Guard</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1328,26 +1376,49 @@
           </div>
         </div>
       </div>
+
+      <!-- 04: CENTRAL ADMIN DASHBOARD -->
       <div class="feature-row reverse" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Admin Dashboard</span>
-          <h2>See everything clearly</h2>
-          <p>One view shows every resident, visitor, payment, and activity across your estate. Filter, search, and export. Stay fully informed without chasing anyone.</p>
+          <span class="badge badge-green label">04 · Central Governance</span>
+          <h2>
+            <span class="feature-mint-text">Total Oversight</span><br>
+            From One Screen.
+          </h2>
+          <p>One unified console gives executives, facility managers, and security commanders live visibility over all entrances, financial balances, and resident rosters across single or multi-gate estates.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Live visitor entry and exit log</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Payment status for every unit</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Resident directory and contact details</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Exportable reports for committee meetings</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Live synchronized gate audit stream across all terminals</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Searchable resident census and vehicle registration directory</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Role-based permissions protecting sensitive resident data</div>
+            <div class="feature-perk"><div class="perk-dot"></div>Instant AGM-ready financial reporting exported with one click</div>
           </div>
         </div>
-        <div class="feature-visual" style="background:#0F172A;padding:24px;border-radius:18px;display:flex;align-items:center;justify-content:center">
-          <div style="width:100%;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)">
-            <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Admin Dashboard" style="width:100%;display:block">
+
+        <div class="feature-stage-card" data-reveal="left">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#071F14"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#82C9AA"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
+            </svg>
+          </div>
+          <div class="feature-stage-content laptop-stage">
+            <div class="feature-laptop-screen">
+              <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Admin Dashboard" style="width:100%;display:block">
+            </div>
+            <div class="feature-phone-pill laptop-pill">
+              <span style="font-size:18px">💻</span>
+              <div>
+                <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Executive Command</div>
+                <div style="font-size:.72rem;color:var(--n600)">Live Gate Audit &bull; Instant AGM Ledger</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <section class="section-sm" style="background:var(--n50)">
     <div class="container-sm">
       <div class="mini-cta" data-reveal>
@@ -1358,7 +1429,6 @@
     </div>
   </section>
 </div>
-
 
 <!-- ==================== PRICING PAGE ==================== -->
 <div class="page" id="page-pricing">
