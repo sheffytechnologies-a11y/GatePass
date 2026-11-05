@@ -1157,7 +1157,6 @@ footer {
   box-shadow:0 0 12px rgba(0,201,122,.9);
   border-radius:3px;
   transition:width .05s linear;
-  will-change:width;
 }
 
 @keyframes saHeadlineFadeUp {
@@ -2932,5 +2931,73 @@ footer {
   }
   .sec-a-sub-br {
     display: none;
+  }
+}
+
+/* ── MOTION POLISH & TASTE SKILL MICRO-INTERACTIONS ── */
+
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-gold:active,
+.hero-btn:active {
+  transform: scale(0.97) translateY(1px) !important;
+  transition: transform 0.08s ease !important;
+}
+
+
+/* Hover Gating for Fine Pointers Only (Prevents sticky hover on touch devices) */
+@media (hover: hover) and (pointer: fine) {
+  .bpm-image:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  .indicator-item:hover .indicator-shape {
+    background: #4EA47A;
+  }
+  .indicator-item.active:hover .indicator-shape {
+    background: #005E34;
+  }
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION (WCAG 2.1 & TASTE SKILL HOUSE RULES) ── */
+@keyframes simpleFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .navbar {
+    transition: none !important;
+  }
+
+  .section-a-slide.active .shakara-elem,
+  .section-a-slide.active .after-delay-elem,
+  .section-a-slide.active .slide-hero-card,
+  .section-a-slide.active .slide2-total-residents,
+  .section-a-slide.active .slide4-collection-badge {
+    animation: simpleFadeIn 0.2s ease both !important;
+    transform: none !important;
+  }
+
+  .section-a-slides-viewport.is-exiting .section-a-slide.active .shakara-elem,
+  .section-a-slides-viewport.is-exiting .section-a-slide.active .after-delay-elem,
+  .section-a-slides-viewport.is-exiting .section-a-slide.active .slide-hero-card {
+    transition: opacity 0.15s ease !important;
+    transform: none !important;
+    opacity: 0 !important;
+  }
+
+  .stats-ticker-track {
+    animation: none !important;
+    transform: none !important;
   }
 }

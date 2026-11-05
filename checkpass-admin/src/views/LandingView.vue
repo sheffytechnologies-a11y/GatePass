@@ -2071,7 +2071,7 @@ function startSlideATimer() {
     if (!isHoveredSlideA.value) {
       nextSlideA()
     }
-  }, 5200)
+  }, 4200)
 }
 
 function pauseSlideA() {
@@ -2577,7 +2577,6 @@ onUnmounted(() => {
   box-shadow: 0 0 12px rgba(0, 201, 122, 0.9) !important;
   border-radius: 3px !important;
   transition: width 0.05s linear !important;
-  will-change: width !important;
 }
 
 @keyframes saHeadlineFadeUp {
