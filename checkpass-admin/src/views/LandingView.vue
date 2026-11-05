@@ -174,9 +174,10 @@
             Management <span class="bpm-title-accent">Starts Here</span>
           </h2>
             <p class="bpm-description">
-            From residential estates and gated communities to offices and business<br class="bpm-sub-br">
-            premises, Check Pass makes it easier to manage occupants, coordinate<br class="bpm-sub-br">
-            visitor access, handle payments and oversee daily operations.
+            From residential estates and gated communities<br class="bpm-sub-br">
+            to offices and business premises, Check Pass makes<br class="bpm-sub-br">
+            it easier to manage occupants, coordinate visitor access,<br class="bpm-sub-br">
+            handle payments and oversee daily operations.
           </p>
           </div>
         </div>
