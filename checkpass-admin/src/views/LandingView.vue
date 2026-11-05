@@ -531,13 +531,31 @@
     </section>
   </div>
 
-  <!-- CORE SYSTEM HEADER -->
-  <section class="features-showcase-section" id="core-systems" style="padding-bottom:20px">
+    <!-- CORE SYSTEM HEADER (2-Column Web View Layout) -->
+  <section class="core-control-section" id="core-systems">
     <div class="container">
-      <div class="features-showcase-header" data-reveal>
-        <div class="features-pill-badge">✨ Key System Capabilities</div>
-        <h2>Total Control Over Every Gate, Payment, and Resident Record</h2>
-        <p>CheckPass replaces phone calls, missing logbooks, and WhatsApp payment disputes with one reliable system that estate managers, security guards, and residents use every day.</p>
+      <div class="core-control-grid" data-reveal>
+        <!-- Left Column: Primary Green Heading -->
+        <div class="core-control-col-left">
+          <h2 class="core-control-title">
+            Total Control Over<br>
+            Every Gate, Payment,<br>
+            and Resident Record.
+          </h2>
+        </div>
+
+        <!-- Right Column: Subheader & Primary CTA -->
+        <div class="core-control-col-right">
+          <p class="core-control-desc">
+            Whether it's a residential estate, gated community, or workplace, manage occupants, assign responsibilities, organise payments, and oversee daily operations from one dashboard.
+          </p>
+          <a href="#how-it-works" class="core-control-btn" onclick="showPage('how-it-works');return false">
+            <span>See how it works</span>
+            <svg class="core-control-btn-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M3.75 9h10.5M9.75 4.5l4.5 4.5-4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
   </section>

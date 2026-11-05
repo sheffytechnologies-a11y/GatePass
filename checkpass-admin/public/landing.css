@@ -3351,3 +3351,114 @@ footer {
     transform: none !important;
   }
 }
+
+/* ==========================================================
+   CORE SYSTEM 2-COLUMN WEB VIEW HEADER (media_1793896751201_8d66f3ac)
+   ========================================================== */
+.core-control-section {
+  padding: 108px 0 64px;
+  background: #FFFFFF;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.core-control-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.core-control-col-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.core-control-title {
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: clamp(2.3rem, 3.5vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  color: #005E34;
+  margin: 0;
+}
+
+.core-control-col-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 510px;
+}
+
+.core-control-desc {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  line-height: 1.62;
+  color: #2D3748;
+  margin: 0 0 24px 0;
+  font-weight: 450;
+}
+
+.core-control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #005E34;
+  color: #FFFFFF;
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 13px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 94, 52, 0.18);
+  transition: background 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.core-control-btn .core-control-btn-arrow {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.core-control-btn:hover {
+  background: #004B2A;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 94, 52, 0.26);
+  color: #FFFFFF;
+}
+
+.core-control-btn:hover .core-control-btn-arrow {
+  transform: translateX(4px);
+}
+
+.core-control-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 900px) {
+  .core-control-section {
+    padding: 60px 0 36px;
+  }
+
+  .core-control-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .core-control-col-right {
+    max-width: 100%;
+  }
+
+  .core-control-btn {
+    width: fit-content;
+  }
+}
