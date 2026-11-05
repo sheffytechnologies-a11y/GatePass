@@ -337,18 +337,6 @@
 
     <!-- SECTION B: MANAGE VISITORS & PAYMENTS WITH EASE (OVERLAPS SECTION A ON SCROLL) -->
     <section class="section-b-feature" id="manage-visitors">
-      <!-- Decorative Mint Corner Accents -->
-      <div class="sec-b-corner-accent sec-b-accent-tr" aria-hidden="true">
-        <svg viewBox="0 0 326 326" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 126H198.7L199.57 325.995L325.65 325.446L325.32 248.168C325.02 180.086 270.82 124.843 203.32 122.695C201.52 54.6274 145.78 0 77.28 0H0V126Z" fill="#96D0B6"/>
-        </svg>
-      </div>
-      <div class="sec-b-corner-accent sec-b-accent-bl" aria-hidden="true">
-        <svg viewBox="0 0 522 522" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M521.584 320H203.341L201.946 0L0 0.88L0.539062 124.65C1.01402 233.69 87.826 322.18 195.932 325.62C198.81 434.64 288.091 522.13 397.809 522.13H521.584V320Z" fill="#96D0B6"/>
-        </svg>
-      </div>
-
       <div class="container section-b-container">
         <div class="section-b-grid">
           <!-- Left Column: Heading & Descriptive Copy -->
