@@ -170,15 +170,14 @@
         <div class="bpm-content-col" data-reveal="right">
           <div class="bpm-content-inner">
             <h2 class="bpm-title">
-              Better Property<br>
-              Management<br>
-              <span class="bpm-title-accent">Starts Here</span>
-            </h2>
+            Better Property<br>
+            Management <span class="bpm-title-accent">Starts Here</span>
+          </h2>
             <p class="bpm-description">
-              From residential estates and gated communities to offices and business<br class="bpm-sub-br">
-              premises, Check Pass makes it easier to manage occupants, coordinate<br class="bpm-sub-br">
-              visitor access, handle payments and oversee daily operations.
-            </p>
+            From residential estates and gated communities to offices and business<br class="bpm-sub-br">
+            premises, Check Pass makes it easier to manage occupants, coordinate<br class="bpm-sub-br">
+            visitor access, handle payments and oversee daily operations.
+          </p>
           </div>
         </div>
       </div>
@@ -229,16 +228,13 @@
 
               <!-- SLIDE 2: NEW RESIDENT ADDED + CENSUS -->
               <div v-show="activeSlideA === 2" class="section-a-slide slide-2" :class="{ active: activeSlideA === 2 }">
-                <!-- Top Row Badges -->
-                <div class="slide2-badges-row">
-                  <!-- New Resident Added with Shakara Pop -->
-                  <div class="slide2-new-resident shakara-elem" data-delay="0">
-                    <img src="/assets/images/section-a/slide2-new-resident.svg" alt="New Resident Added" />
-                  </div>
-                  <!-- Total Residents Badge -->
-                  <div class="slide2-total-residents after-delay-elem" data-delay="1">
-                    <img src="/assets/images/section-a/slide2-total-residents.svg" alt="Total Residents: 23" />
-                  </div>
+                <!-- New Resident Added with Shakara Pop -->
+                <div class="slide2-new-resident shakara-elem" data-delay="0">
+                  <img src="/assets/images/section-a/slide2-new-resident.svg" alt="New Resident Added" />
+                </div>
+                <!-- Total Residents Badge -->
+                <div class="slide2-total-residents after-delay-elem" data-delay="1">
+                  <img src="/assets/images/section-a/slide2-total-residents.svg" alt="Total Residents: 23" />
                 </div>
 
                 <!-- Michael James Floating Card -->
@@ -299,7 +295,7 @@
                 class="indicator-item"
                 :class="{ active: activeSlideA === idx }"
                 :aria-selected="activeSlideA === idx"
-                :aria-label="'Go to slide ' + idx"
+                :aria-label="`Go to slide ${idx}`"
                 @click="setSlideA(idx)"
               >
                 <span class="indicator-shape"></span>
@@ -2150,8 +2146,8 @@ if (typeof window !== 'undefined') {
 }
 
 onMounted(() => {
-  fetchPlatformStats()
   startSlideATimer()
+  fetchPlatformStats()
 
   let styleEl = document.getElementById('landing-styles') as HTMLLinkElement
   if (!styleEl) {
