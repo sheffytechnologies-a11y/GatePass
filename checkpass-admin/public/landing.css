@@ -2472,14 +2472,14 @@ footer {
 .bpm-grid {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
-  align-items: center;
+  align-items: end;
   gap: 56px;
 }
 
 .bpm-visual-col {
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-end;
   width: 100%;
 }
 
@@ -2503,7 +2503,8 @@ footer {
 
 .bpm-content-col {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  padding-bottom: 24px;
 }
 
 .bpm-content-inner {
@@ -2514,7 +2515,7 @@ footer {
   font-family: 'Cabinet Grotesk', sans-serif;
   font-size: clamp(2.3rem, 4.2vw, 3.5rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.12;
   letter-spacing: -0.025em;
   color: #064E3B;
   margin-bottom: 24px;
@@ -2527,11 +2528,16 @@ footer {
 
 .bpm-description {
   font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
-  line-height: 1.72;
+  font-size: clamp(1.02rem, 1.2vw, 1.12rem);
+  line-height: 1.68;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
+  max-width: 480px;
+}
+
+.bpm-sub-br {
+  display: inline;
 }
 
 @media (max-width: 900px) {
@@ -2553,6 +2559,7 @@ footer {
     max-width: 100%;
     text-align: left;
   }
+  .bpm-sub-br { display: none; }
   .bpm-title {
     font-size: clamp(2rem, 7.5vw, 2.7rem);
     line-height: 1.2;
