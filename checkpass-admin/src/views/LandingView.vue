@@ -502,9 +502,9 @@
         <!-- Left Column: Primary Green Heading -->
         <div class="core-control-col-left">
           <h2 class="core-control-title">
-            Total Control Over<br>
-            Every Gate, Payment,<br>
-            and Resident Record.
+            <span class="core-control-mint">Total Control Over</span><br>
+            <span class="core-control-mint">Every</span> Gate, Payment,<br>
+            <span class="core-control-mint">and</span> Resident Record.
           </h2>
         </div>
 

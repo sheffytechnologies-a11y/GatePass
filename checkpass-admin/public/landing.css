@@ -3355,6 +3355,10 @@ footer {
   margin: 0;
 }
 
+.core-control-mint {
+  color: #82C9AA;
+}
+
 .core-control-col-right {
   display: flex;
   flex-direction: column;
