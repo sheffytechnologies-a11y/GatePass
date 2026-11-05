@@ -79,122 +79,166 @@
     </div>
 
     <!-- ── TAB 1: ARTISANS DIRECTORY ── -->
-    <div v-if="activeAdminTab === 'directory'">
+    <div v-if="activeAdminTab === 'directory'" class="directory-tab-content">
       <!-- Filters & Search Toolbar -->
       <div class="filters-toolbar">
-      <div class="category-pills">
-        <button
-          v-for="cat in availableCategories"
-          :key="cat"
-          class="pill-btn"
-          :class="{ active: selectedCategory === cat }"
-          @click="selectedCategory = cat"
-        >
-          {{ cat }}
-        </button>
-      </div>
-
-      <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search artisan by name, trade or phone..."
-          class="search-input"
-        />
-      </div>
-    </div>
-
-    <!-- EMPTY STATE -->
-    <div v-if="simulateEmpty || filteredArtisans.length === 0" class="card empty-card">
-      <div class="empty-icon-wrap">🛠️</div>
-      <h3 class="empty-title">
-        {{ simulateEmpty ? 'No Artisans Listed' : (searchQuery ? 'No matching service providers' : 'No artisans in this category') }}
-      </h3>
-      <p class="empty-desc">
-        {{ simulateEmpty ? 'Your estate community marketplace is currently empty. Add trusted local plumbers, electricians, and cleaners so residents can easily find and review vetted help.' : 'Try adjusting your search query or selecting a different category filter.' }}
-      </p>
-      <div class="empty-actions">
-        <button v-if="simulateEmpty" class="btn btn-primary" @click="simulateEmpty = false">
-          Restore Sample Artisans
-        </button>
-        <button class="btn btn-secondary" @click="openCreateModal">
-          + Add First Artisan
-        </button>
-      </div>
-    </div>
-
-    <!-- FILLED STATE: ARTISANS GRID -->
-    <div v-else class="artisans-grid">
-      <div
-        v-for="artisan in filteredArtisans"
-        :key="artisan.id"
-        class="artisan-card card"
-      >
-        <div class="card-top-row">
-          <div class="artisan-identity">
-            <div class="avatar-badge" :style="{ background: artisan.avatarBg || '#0A5C38' }">
-              {{ artisan.initials || 'AR' }}
-            </div>
-            <div>
-              <h3 class="artisan-name">{{ artisan.name }}</h3>
-              <div class="artisan-trade">{{ artisan.trade }}</div>
-            </div>
-          </div>
-          <span class="status-badge" :class="artisan.status === 'Active' ? 'status-badge--active' : 'status-badge--inactive'">
-            {{ artisan.status || 'Active' }}
-          </span>
-        </div>
-
-        <div class="card-category-row">
-          <span class="cat-tag">{{ artisan.category }}</span>
-                    <div class="rating-box">
-            <span class="star-icon">★</span>
-            <span class="rating-num">{{ artisan.rating || 5.0 }}</span>
-            <span class="reviews-count">({{ (artisan.reviews && artisan.reviews.length) || 0 }})</span>
-          </div>
-        </div>
-
-        
-        <div class="contact-strip">
-          <div class="contact-item">
-            <span class="contact-lbl">Phone:</span>
-            <a :href="`tel:${artisan.phone}`" class="contact-val">{{ artisan.phone }}</a>
-          </div>
-          <div class="contact-item">
-            <span class="contact-lbl">WhatsApp:</span>
-            <a
-              :href="`https://wa.me/${artisan.whatsapp}`"
-              target="_blank"
-              class="contact-val contact-val--wa"
-            >
-              Chat on WA ↗
-            </a>
-          </div>
-        </div>
-
-        <!-- Action footer -->
-        <div class="card-footer">
-          <button class="btn-text" @click="openReviewsModal(artisan)">
-            Reviews ({{ (artisan.reviews && artisan.reviews.length) || 0 }})
+        <div class="category-pills">
+          <button
+            v-for="cat in availableCategories"
+            :key="cat"
+            class="pill-btn"
+            :class="{ active: selectedCategory === cat }"
+            @click="selectedCategory = cat"
+          >
+            {{ cat }}
           </button>
-          <div class="footer-btn-group">
-            <button class="btn btn-sm btn-secondary" @click="toggleArtisanStatus(artisan)">
-              {{ artisan.status === 'Active' ? 'Deactivate' : 'Activate' }}
-            </button>
-            <button class="btn btn-sm btn-secondary" @click="openEditModal(artisan)">
-              ✏️ Edit Profile
-            </button>
-            <button class="btn btn-sm btn-danger" @click="deleteArtisan(artisan.id)">
-              Remove
-            </button>
+        </div>
+
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search artisan by name, trade or phone..."
+            class="search-input"
+          />
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div v-if="simulateEmpty || filteredArtisans.length === 0" class="card empty-card">
+        <div class="empty-icon-wrap">🛠️</div>
+        <h3 class="empty-title">
+          {{ simulateEmpty ? 'No Artisans Listed' : (searchQuery ? 'No matching service providers' : 'No artisans in this category') }}
+        </h3>
+        <p class="empty-desc">
+          {{ simulateEmpty ? 'Your estate community marketplace is currently empty. Add trusted local plumbers, electricians, and cleaners so residents can easily find and review vetted help.' : 'Try adjusting your search query or selecting a different category filter.' }}
+        </p>
+        <div class="empty-actions">
+          <button v-if="simulateEmpty" class="btn btn-primary" @click="simulateEmpty = false">
+            Restore Sample Artisans
+          </button>
+          <button class="btn btn-secondary" @click="openCreateModal">
+            + Add First Artisan
+          </button>
+        </div>
+      </div>
+
+      <!-- FILLED STATE: ARTISANS GRID -->
+      <div v-else class="artisans-grid">
+        <div
+          v-for="artisan in filteredArtisans"
+          :key="artisan.id"
+          class="artisan-card card"
+          role="button"
+          tabindex="0"
+          @click="openReviewsModal(artisan)"
+          @keydown.enter="openReviewsModal(artisan)"
+        >
+          <!-- Top Row: Avatar + Name + Trade & Status Badge + 3-Dots Action Menu -->
+          <div class="card-top-row">
+            <div class="artisan-identity">
+              <div class="avatar-badge" :style="{ background: artisan.avatarBg || '#0A5C38' }">
+                {{ artisan.initials || 'AR' }}
+              </div>
+              <div class="artisan-meta">
+                <h3 class="artisan-name">{{ artisan.name }}</h3>
+                <div class="artisan-trade">{{ artisan.trade }}</div>
+              </div>
+            </div>
+
+            <div class="card-top-actions" @click.stop>
+              <span class="status-badge" :class="artisan.status === 'Active' ? 'status-badge--active' : 'status-badge--inactive'">
+                {{ artisan.status || 'Active' }}
+              </span>
+
+              <!-- 3-Dots Menu -->
+              <div class="action-menu-wrap" @click.stop>
+                <button
+                  class="btn-three-dots"
+                  type="button"
+                  title="More options"
+                  aria-label="More options"
+                  @click.stop="toggleActionMenu(artisan.id)"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2.2"></circle>
+                    <circle cx="12" cy="12" r="2.2"></circle>
+                    <circle cx="12" cy="19" r="2.2"></circle>
+                  </svg>
+                </button>
+
+                <transition name="menu-fade">
+                  <div v-if="openActionMenuId === artisan.id" class="action-dropdown" @click.stop>
+                    <button class="action-dropdown-item" type="button" @click="handleViewDetails(artisan)">
+                      <span class="action-item-icon">👁️</span>
+                      <span>View Details &amp; Reviews</span>
+                    </button>
+                    <button class="action-dropdown-item" type="button" @click="handleEdit(artisan)">
+                      <span class="action-item-icon">✏️</span>
+                      <span>Edit Profile</span>
+                    </button>
+                    <button class="action-dropdown-item" type="button" @click="handleToggleStatus(artisan)">
+                      <span class="action-item-icon">{{ artisan.status === 'Active' ? '⏸️' : '▶️' }}</span>
+                      <span>{{ artisan.status === 'Active' ? 'Deactivate Artisan' : 'Activate Artisan' }}</span>
+                    </button>
+                    <div class="action-dropdown-divider"></div>
+                    <button class="action-dropdown-item action-dropdown-item--danger" type="button" @click="handleDelete(artisan.id)">
+                      <span class="action-item-icon">🗑️</span>
+                      <span>Remove Artisan</span>
+                    </button>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category and Rating Tag Row -->
+          <div class="card-category-row">
+            <span class="cat-tag">{{ artisan.category }}</span>
+            <div class="rating-box">
+              <span class="star-icon">★</span>
+              <span class="rating-num">{{ artisan.rating || 5.0 }}</span>
+              <span class="reviews-count">({{ (artisan.reviews && artisan.reviews.length) || 0 }})</span>
+            </div>
+          </div>
+
+          <!-- Contact Strip -->
+          <div class="contact-strip" @click.stop>
+            <div class="contact-item">
+              <span class="contact-lbl">Phone:</span>
+              <a :href="`tel:${artisan.phone}`" class="contact-val" @click.stop>{{ artisan.phone }}</a>
+            </div>
+            <div class="contact-item">
+              <span class="contact-lbl">WhatsApp:</span>
+              <a
+                :href="`https://wa.me/${artisan.whatsapp}`"
+                target="_blank"
+                class="contact-val contact-val--wa"
+                @click.stop
+              >
+                Chat on WA ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Clean card footer -->
+          <div class="card-footer">
+            <div class="footer-reviews-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>{{ (artisan.reviews && artisan.reviews.length) || 0 }} {{ (artisan.reviews && artisan.reviews.length) === 1 ? 'review' : 'reviews' }}</span>
+            </div>
+            <span class="card-click-hint">
+              View details &rarr;
+            </span>
           </div>
         </div>
       </div>
-    </div>
     </div>
 
     <!-- ── TAB 2: RESIDENT REVIEWS & INQUIRIES ── -->
@@ -354,44 +398,93 @@
       </div>
     </div>
 
-    <!-- ── MODAL: REVIEWS DRAWER ── -->
+    <!-- ── MODAL: ARTISAN DETAILS & REVIEWS DRAWER ── -->
     <div v-if="activeReviewsArtisan" class="modal-overlay" @click.self="activeReviewsArtisan = null">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog--details">
         <div class="modal-header">
-          <div>
-            <h3>{{ activeReviewsArtisan.name }} — Resident Feedback</h3>
-            <p>{{ activeReviewsArtisan.trade }} &middot; {{ activeReviewsArtisan.category }}</p>
+          <div class="modal-artisan-profile">
+            <div class="avatar-badge avatar-badge--lg" :style="{ background: activeReviewsArtisan.avatarBg || '#0A5C38' }">
+              {{ activeReviewsArtisan.initials || 'AR' }}
+            </div>
+            <div>
+              <h3>{{ activeReviewsArtisan.name }}</h3>
+              <p class="modal-artisan-sub">
+                {{ activeReviewsArtisan.trade }} &middot; <span class="cat-tag-sm">{{ activeReviewsArtisan.category }}</span>
+              </p>
+            </div>
           </div>
           <button class="modal-close" @click="activeReviewsArtisan = null">&times;</button>
         </div>
 
-        <div class="modal-body">
-          <div v-if="!activeReviewsArtisan.reviews || activeReviewsArtisan.reviews.length === 0" class="no-reviews-note">
-            No resident reviews submitted yet for this service provider.
+        <div class="modal-body modal-body--details">
+          <!-- Overview Cards -->
+          <div class="details-overview-grid">
+            <div class="overview-box">
+              <span class="overview-lbl">Status</span>
+              <span class="status-badge" :class="activeReviewsArtisan.status === 'Active' ? 'status-badge--active' : 'status-badge--inactive'">
+                {{ activeReviewsArtisan.status || 'Active' }}
+              </span>
+            </div>
+            <div class="overview-box">
+              <span class="overview-lbl">Resident Rating</span>
+              <div class="rating-box">
+                <span class="star-icon">★</span>
+                <span class="rating-num">{{ activeReviewsArtisan.rating || 5.0 }}</span>
+                <span class="reviews-count">({{ (activeReviewsArtisan.reviews && activeReviewsArtisan.reviews.length) || 0 }})</span>
+              </div>
+            </div>
+            <div class="overview-box">
+              <span class="overview-lbl">Phone</span>
+              <a :href="`tel:${activeReviewsArtisan.phone}`" class="contact-val contact-val--link">
+                {{ activeReviewsArtisan.phone }} 📞
+              </a>
+            </div>
+            <div class="overview-box">
+              <span class="overview-lbl">WhatsApp</span>
+              <a :href="`https://wa.me/${activeReviewsArtisan.whatsapp}`" target="_blank" class="contact-val contact-val--wa">
+                Chat on WA ↗
+              </a>
+            </div>
           </div>
-          <div v-else class="reviews-list">
-            <div
-              v-for="rev in activeReviewsArtisan.reviews"
-              :key="rev.id"
-              class="review-item"
-            >
-              <div class="review-item-head">
-                <div>
-                  <strong>{{ rev.residentName }}</strong>
-                  <span class="review-unit"> ({{ rev.residentUnit }})</span>
+
+          <!-- Reviews list -->
+          <div class="details-reviews-block">
+            <h4 class="reviews-block-title">
+              Resident Reviews &amp; Feedback ({{ (activeReviewsArtisan.reviews && activeReviewsArtisan.reviews.length) || 0 }})
+            </h4>
+
+            <div v-if="!activeReviewsArtisan.reviews || activeReviewsArtisan.reviews.length === 0" class="no-reviews-note">
+              No resident reviews submitted yet for this service provider.
+            </div>
+            <div v-else class="reviews-list">
+              <div
+                v-for="rev in activeReviewsArtisan.reviews"
+                :key="rev.id"
+                class="review-item"
+              >
+                <div class="review-item-head">
+                  <div>
+                    <strong>{{ rev.residentName }}</strong>
+                    <span class="review-unit"> ({{ rev.residentUnit }})</span>
+                  </div>
+                  <span class="review-time">{{ rev.date }}</span>
                 </div>
-                <span class="review-time">{{ rev.date }}</span>
+                <div class="review-stars">
+                  <span v-for="s in 5" :key="s" class="star" :class="{ filled: s <= rev.rating }">★</span>
+                </div>
+                <p class="review-comment">{{ rev.comment }}</p>
               </div>
-              <div class="review-stars">
-                <span v-for="s in 5" :key="s" class="star" :class="{ filled: s <= rev.rating }">★</span>
-              </div>
-              <p class="review-comment">{{ rev.comment }}</p>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="activeReviewsArtisan = null">Close</button>
+        <div class="modal-footer modal-footer--between">
+          <button class="btn btn-secondary" @click="handleEditFromModal(activeReviewsArtisan)">
+            ✏️ Edit Profile
+          </button>
+          <button class="btn btn-primary" @click="activeReviewsArtisan = null">
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -491,7 +584,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useToast } from '@/composables/useToast'
 
 export interface ArtisanReview {
@@ -908,6 +1001,54 @@ const activeReviewsArtisan = ref<ArtisanItem | null>(null)
 function openReviewsModal(artisan: ArtisanItem) {
   activeReviewsArtisan.value = artisan
 }
+
+// ── 3-DOTS ACTION MENU & CARD INTERACTION ──
+const openActionMenuId = ref<string | null>(null)
+
+function toggleActionMenu(id: string) {
+  openActionMenuId.value = openActionMenuId.value === id ? null : id
+}
+
+function handleViewDetails(artisan: ArtisanItem) {
+  openActionMenuId.value = null
+  openReviewsModal(artisan)
+}
+
+function handleEdit(artisan: ArtisanItem) {
+  openActionMenuId.value = null
+  openEditModal(artisan)
+}
+
+function handleToggleStatus(artisan: ArtisanItem) {
+  openActionMenuId.value = null
+  toggleArtisanStatus(artisan)
+}
+
+function handleDelete(id: string) {
+  openActionMenuId.value = null
+  deleteArtisan(id)
+}
+
+function handleEditFromModal(artisan: ArtisanItem) {
+  activeReviewsArtisan.value = null
+  openEditModal(artisan)
+}
+
+function closeActionMenus(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (!target || !target.closest('.action-menu-wrap')) {
+    openActionMenuId.value = null
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', closeActionMenus)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeActionMenus)
+})
+
 </script>
 
 <style scoped>
@@ -1605,5 +1746,201 @@ function openReviewsModal(artisan: ArtisanItem) {
     top: 0;
     width: 100%;
   }
+}
+
+
+/* Directory Tab Content & Compact Spacing */
+.directory-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Card Top Actions & 3-Dots Menu */
+.card-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.action-menu-wrap {
+  position: relative;
+}
+.btn-three-dots {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #616F67;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+.btn-three-dots:hover {
+  background: #EEF3F0;
+  color: #0A5C38;
+  border-color: #D5DFD8;
+}
+.action-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 215px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8E4;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(10, 92, 56, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.action-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2D3748;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.action-dropdown-item:hover {
+  background: #F0FDF4;
+  color: #0A5C38;
+}
+.action-dropdown-item--danger {
+  color: #DC2626;
+}
+.action-dropdown-item--danger:hover {
+  background: #FEF2F2;
+  color: #B91C1C;
+}
+.action-dropdown-divider {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 4px 0;
+}
+.action-item-icon {
+  font-size: 14px;
+}
+
+/* Card click state & hint */
+.artisan-card {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.artisan-card:hover {
+  transform: translateY(-2px);
+  border-color: #0A5C38;
+  box-shadow: 0 8px 22px rgba(10, 92, 56, 0.08);
+}
+.footer-reviews-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A5C38;
+}
+.card-click-hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A5C38;
+  transition: transform 0.15s ease;
+}
+.artisan-card:hover .card-click-hint {
+  transform: translateX(3px);
+}
+
+/* Details Modal Styles */
+.modal-dialog--details {
+  max-width: 580px;
+}
+.modal-artisan-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.avatar-badge--lg {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  font-size: 17px;
+}
+.modal-artisan-sub {
+  font-size: 13.5px;
+  color: #616F67;
+  margin: 3px 0 0;
+}
+.cat-tag-sm {
+  background: #E8EFEA;
+  color: #0A5C38;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.modal-body--details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.details-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: #F8FAF9;
+  border: 1px solid #E2E8E4;
+  border-radius: 14px;
+  padding: 14px;
+}
+.overview-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.overview-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #718278;
+}
+.contact-val--link {
+  color: #0A5C38;
+  font-weight: 700;
+  text-decoration: none;
+}
+.details-reviews-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.reviews-block-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #112019;
+  margin: 0;
+}
+.modal-footer--between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
