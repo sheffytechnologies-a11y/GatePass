@@ -706,7 +706,7 @@
               </div>
               <div class="faq-a">
                 <div class="faq-a-inner">
-                  CheckPass centralizes your service charges, security dues, and diesel levies. Occupants receive automated reminders and instant payment receipts, giving executives a real-time audit ledger of paid versus defaulting flats ready for every AGM.
+                  CheckPass centralizes your service charges, security dues, and diesel levies with complete payment flexibility. Residents can settle dues via instant online payment (card or direct bank transfer) with automated digital receipting, or upload direct bank transfer receipts for 1-click admin approval. Automated reminders and live balances keep disputes at zero, giving executives a real-time audit ledger of paid versus defaulting flats ready for every AGM.
                 </div>
               </div>
             </div>
@@ -856,7 +856,7 @@
                 <div class="hiw-step-badge">3</div>
                 <h3 class="hiw-step-title">Residents Create Passes &amp; Pay Dues</h3>
                 <p class="hiw-step-desc">
-                  When residents log in, they can generate instant digital QR guest passes in two taps and share them via WhatsApp. They can also view pending estate dues, make digital payments directly, and receive instant verifiable payment receipts.
+                  When residents log in, they can generate instant digital QR guest passes in two taps and share them via WhatsApp. They can also view pending estate dues, settle via instant online checkout or by uploading bank transfer receipts for 1-click admin approval, and receive instant verifiable payment receipts.
                 </p>
               </div>
             </div>
@@ -997,7 +997,7 @@
             <span class="feature-mint-text">Collect Every Dues.</span><br>
             Without Disputes.
           </h2>
-          <p>Automate service charges, security dues, and diesel levies in one centralized ledger. Residents submit payments and upload bank receipts in-app, while managers approve with one tap—zero spreadsheets.</p>
+          <p>Automate service charges, security dues, and diesel levies in one centralized ledger. Residents choose between instant online checkout or uploading bank transfer receipts in-app, while managers approve with one tap—zero spreadsheets.</p>
           <div class="feature-perks">
             <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-wallet"></i></div>
@@ -1005,7 +1005,7 @@
             </div>
             <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-receipt"></i></div>
-              <span>Instant digital receipts issued immediately upon manager confirmation</span>
+              <span>Flexible payment options: instant online checkout or manual bank transfer receipt upload</span>
             </div>
             <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-bell-ringing"></i></div>
@@ -2189,7 +2189,7 @@ function getConciergeAnswer(query: string): string {
     return '✅ <strong>How 4-Second Gate Clearance Works:</strong><br>1. <strong>Resident invites guest:</strong> In two taps, the resident creates a digital pass and shares the link directly via WhatsApp.<br>2. <strong>Security scans QR code:</strong> The guard scans the guest\'s pass on their phone in under 4 seconds.<br>3. <strong>Instant gate approval:</strong> The screen immediately confirms the guest\'s name and host house address, so the barrier opens right away—no phone calls or paper logbooks.'
   }
   if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy')) {
-    return '💳 <strong>Zero-Dispute Dues & Collections:</strong><br>CheckPass automates estate service charges, security dues, and diesel levies. Residents pay securely in-app via Paystack (card, USSD, or bank transfer), with instant digital receipts generated. Estate managers track collection balances and resident payment status in real time on a centralized dashboard—completely eliminating manual spreadsheets.'
+    return '💳 <strong>Zero-Dispute Dues & Collections:</strong><br>CheckPass automates estate service charges, security dues, and diesel levies with two flexible payment methods:<br><br>1. <strong>Instant Online Payment:</strong> Residents pay securely in-app using debit cards, USSD, or direct bank transfer, receiving automated digital receipts immediately.<br>2. <strong>Bank Transfer & Receipt Upload:</strong> Residents who transfer directly to the estate\'s bank account can upload their payment receipt or teller in-app. Estate managers review and approve with one tap, instantly issuing the official estate receipt.<br><br>Estate executives track collection balances, pending verifications, and resident payment status live on a centralized dashboard—completely eliminating spreadsheets.'
   }
   if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
     return '📶 <strong>Works Even Without Internet:</strong><br>Security devices keep a secure offline copy of scheduled passes. Even during poor network or total internet downtime, guards can still scan QR passes and verify genuine visitors without any delay.'
@@ -2201,7 +2201,7 @@ function getConciergeAnswer(query: string): string {
     return '📅 <strong>Ready for a Live Walkthrough?</strong><br>Click <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">here to open our Demo Booking Form</a> or email us at <strong>hi@checkpass.ng</strong>. We configure a custom sandbox for your estate in under 48 hours!'
   }
   if (q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('tier') || q.includes('naira')) {
-    return '🏷️ <strong>Transparent Estate Pricing:</strong><br>&bull; <strong>Starter:</strong> ₦25,000/mo (up to 50 homes)<br>&bull; <strong>Growth:</strong> ₦55,000/mo (up to 200 homes)<br>&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>Includes free guard training, setup, and dedicated support.'
+    return '🏷️ <strong>Transparent Estate Pricing:</strong><br>&bull; <strong>Boutique:</strong> ₦35,000/mo (up to 50 homes)<br>&bull; <strong>Gated Community:</strong> ₦75,000/mo (up to 200 homes)<br>&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>Boutique and Gated plans include digital guard guides, self-serve onboarding, and dedicated operations support. Physical in-person guard drills are exclusive to Enterprise.'
   }
   return 'Thank you for reaching out! CheckPass is Nigeria\'s premier digital estate access and operations management platform. You can <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">book a 15-min walkthrough</a> or click <strong>Create Free Account</strong> at the top to explore the portal right now.'
 }
