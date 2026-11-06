@@ -763,431 +763,175 @@
     </div>
   </div>
 
-  <!-- SCROLLYTELLING JOURNEY WRAPPER -->
-  <div class="how-scroll-journey">
-    
-    <!-- Section Introduction Header (NO TAG ON TOP) -->
-    <div class="how-header" data-reveal>
-      <h2>How It Works from Start to Finish</h2>
-      <p>See how property owners, residents, and gate security teams interact every day without delays or paperwork.</p>
-    </div>
-
-    <!-- Sticky Step Navigation Pill Bar -->
-    <div class="how-step-nav-sticky">
-      <div class="how-step-nav-inner">
-        <button class="how-step-pill-btn active" id="pill-how-step-1" onclick="scrollToHowStep('how-step-1')">
-          <span class="pill-num">1</span> Account &amp; Property Setup
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-2" onclick="scrollToHowStep('how-step-2')">
-          <span class="pill-num">2</span> Add Residents &amp; Security
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-3" onclick="scrollToHowStep('how-step-3')">
-          <span class="pill-num">3</span> Resident Passes &amp; Dues
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-4" onclick="scrollToHowStep('how-step-4')">
-          <span class="pill-num">4</span> Gate Security Clearance
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-5" onclick="scrollToHowStep('how-step-5')">
-          <span class="pill-num">5</span> Central Admin Command
-        </button>
-      </div>
-    </div>
-
-    <div class="container how-timeline-container">
-    <div class="how-timeline-track">
-
-      <!-- STEP 01: ACCOUNT & PROPERTY CONFIGURATION (Content Left, Visual Right) -->
-      <section class="how-timeline-row" id="how-step-1">
-        <!-- Left: Narrative & Features -->
-        <div class="how-scroll-content" data-reveal="left">
-          <h3><span class="how-mint-text">Create Your Account.</span><br>Configure Your Property in Minutes.</h3>
-          <p>
-            Getting started takes just a few clicks. Property owners and estate managers register their organization, name their community, and set the physical street address and contact details.
-          </p>
-          <p>
-            From there, you configure your estate layout by adding houses, apartment blocks, units, and access gates. Whether you operate a single gated residential estate, multi-building complex, or commercial park, CheckPass organizes every unit with clear identifiers.
-          </p>
-
-          <div class="how-feature-checklist">
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🏢</div>
-              <div class="how-feature-text">
-                <h5>Fast Estate Setup</h5>
-                <p>Register your estate profile, designate entry gates, and set your management rules.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🏠</div>
-              <div class="how-feature-text">
-                <h5>House &amp; Unit Mapping</h5>
-                <p>Add houses, lanes, and apartment numbers so every occupant has an accurate home address.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🚪</div>
-              <div class="how-feature-text">
-                <h5>Multi-Gate Designation</h5>
-                <p>Define main gates, service entrances, and pedestrian points for coordinated security access.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">⚙️</div>
-              <div class="how-feature-text">
-                <h5>Customized Estate Bylaws</h5>
-                <p>Set visitor visiting hours, contractor entry curfews, and delivery guidelines tailored to your estate.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="how-dot-trail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
+  <div class="hiw-card-section">
+    <div class="container">
+      
+      <!-- MAIN INTERACTIVE CARD -->
+      <div class="hiw-main-card" id="hiwMainCard">
+        
+        <!-- Header -->
+        <div class="hiw-card-header">
+          <h2 class="hiw-card-title">How it All Works</h2>
         </div>
 
-        <!-- Center: Spine Step Node -->
-        <div class="how-spine-col">
-          <div class="how-spine-node">
-            <span class="how-spine-tag">STEP</span>
-            <span class="how-spine-num">01</span>
+        <!-- Vertical Timeline Flow -->
+        <div class="hiw-flow-container" id="hiwFlowContainer">
+          <!-- Central Spine Line with Active Blue Segment -->
+          <div class="hiw-spine-track" aria-hidden="true">
+            <div class="hiw-spine-base"></div>
+            <div class="hiw-spine-active" :style="activeSpineStyle"></div>
+            <div class="hiw-spine-dot" :style="activeDotStyle"></div>
           </div>
-        </div>
 
-        <!-- Right: Visual Stage in Signature Brand Container -->
-        <div class="how-stage-card" data-reveal="right">
-          <div class="how-stage-bg-frame">
-            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
-              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#005E34"/>
-              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
+          <!-- Step Rows (Alternating) -->
+          <div class="hiw-steps-list">
+            
+            <!-- STEP 1: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-1"
+              :class="{ 'is-active': activeHowStep === 1, 'is-disabled': activeHowStep !== 1 }"
+              @click="setHowStep(1)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-buildings hiw-phosphor-icon"></i>
+                </div>
+              </div>
+
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">1</div>
+                <h3 class="hiw-step-title">Create Account &amp; Configure Property</h3>
+                <p class="hiw-step-desc">
+                  Tell us about your estate and get set up in minutes. Configure your property by mapping house units, lanes, apartment blocks, and designated gate access barriers.
+                </p>
+              </div>
+            </div>
+
+            <!-- STEP 2: Left = Text, Right = Icon -->
+            <div
+              class="hiw-step-row step-even"
+              id="hiw-step-2"
+              :class="{ 'is-active': activeHowStep === 2, 'is-disabled': activeHowStep !== 2 }"
+              @click="setHowStep(2)"
+            >
+              <!-- Left Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">2</div>
+                <h3 class="hiw-step-title">Add Residents &amp; Security Personnel</h3>
+                <p class="hiw-step-desc">
+                  Add homeowners, tenants, and gate guards to your property. Both residents and security staff instantly receive automated SMS and email notifications with verified login credentials, a guide on how to download the mobile app, and instructions to access the web portal.
+                </p>
+              </div>
+
+              <!-- Right Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-users-three hiw-phosphor-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-3"
+              :class="{ 'is-active': activeHowStep === 3, 'is-disabled': activeHowStep !== 3 }"
+              @click="setHowStep(3)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-qr-code hiw-phosphor-icon"></i>
+                </div>
+              </div>
+
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">3</div>
+                <h3 class="hiw-step-title">Residents Create Passes &amp; Pay Dues</h3>
+                <p class="hiw-step-desc">
+                  When residents log in, they can generate instant digital QR guest passes in two taps and share them via WhatsApp. They can also view pending estate dues, make digital payments directly, and receive instant verifiable payment receipts.
+                </p>
+              </div>
+            </div>
+
+            <!-- STEP 4: Left = Text, Right = Icon -->
+            <div
+              class="hiw-step-row step-even"
+              id="hiw-step-4"
+              :class="{ 'is-active': activeHowStep === 4, 'is-disabled': activeHowStep !== 4 }"
+              @click="setHowStep(4)"
+            >
+              <!-- Left Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">4</div>
+                <h3 class="hiw-step-title">Security Scans &amp; Grants Access</h3>
+                <p class="hiw-step-desc">
+                  Security guards scan visitor QR codes or input pass codes on their mobile terminal. In under 4 seconds, identity and vehicle details are confirmed, access is granted, and the resident receives an immediate arrival notification.
+                </p>
+              </div>
+
+              <!-- Right Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-shield-check hiw-phosphor-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 5: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-5"
+              :class="{ 'is-active': activeHowStep === 5, 'is-disabled': activeHowStep !== 5 }"
+              @click="setHowStep(5)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-chart-line-up hiw-phosphor-icon"></i>
+                </div>
+              </div>
+
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">5</div>
+                <h3 class="hiw-step-title">Monitor Everything in Real Time</h3>
+                <p class="hiw-step-desc">
+                  All gate activities, visitor movements, dues collections, and emergency alerts are monitored live from the central admin dashboard with complete, immutable audit logs.
+                </p>
+              </div>
+            </div>
+
+          </div><!-- /hiw-steps-list -->
+        </div><!-- /hiw-flow-container -->
+
+        <!-- Bottom Link / Action -->
+        <div class="hiw-card-footer">
+          <button class="hiw-visit-link" onclick="showPage('contact')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
             </svg>
-          </div>
-          <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_command_center.jpg" alt="Property Configuration &amp; Unit Setup" class="how-stage-mockup-img">
-            <div class="how-mockup-pill">
-              <span class="pill-icon">🏢</span>
-              <div class="pill-body">
-                <div class="pill-title">Property Configured</div>
-                <div class="pill-sub">Units &amp; Gates Mapped &bull; Ready for Residents</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 02: ADD RESIDENTS & SECURITY (Visual Left, Content Right) -->
-      <section class="how-timeline-row reverse" id="how-step-2">
-        <!-- Left: Visual Stage in Signature Brand Container -->
-        <div class="how-stage-card" data-reveal="left">
-          <div class="how-stage-bg-frame">
-            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
-              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
-              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
-            </svg>
-          </div>
-          <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_whatsapp_pass.jpg" alt="Resident &amp; Security Invitation Notifications" class="how-stage-mockup-img">
-            <div class="how-mockup-pill">
-              <span class="pill-icon">📩</span>
-              <div class="pill-body">
-                <div class="pill-title">Invites Delivered Instantly</div>
-                <div class="pill-sub">Login Details &amp; App Download Guide Sent</div>
-              </div>
-            </div>
+            <span>Visit site &amp; Book Demo</span>
+          </button>
+          <div class="hiw-footer-sparkle" aria-hidden="true">
+            <i class="ph-duotone ph-sparkle" style="font-size:24px;"></i>
           </div>
         </div>
 
-        <!-- Center: Spine Step Node -->
-        <div class="how-spine-col">
-          <div class="how-spine-node">
-            <span class="how-spine-tag">STEP</span>
-            <span class="how-spine-num">02</span>
-          </div>
-        </div>
+      </div><!-- /hiw-main-card -->
 
-        <!-- Right: Narrative & Features -->
-        <div class="how-scroll-content" data-reveal="right">
-          <h3><span class="how-mint-text">Add Residents &amp; Security.</span><br>Instant Invites with Login Details &amp; App Guide.</h3>
-          <p>
-            Once setup is complete, you can begin adding residents to their respective houses and onboarding your security guards. Add occupants individually or upload an entire community directory in one go.
-          </p>
-          <p>
-            Both residents and security personnel automatically receive instant notifications via SMS and email. The message includes their verified login credentials, a direct link to download the mobile app, and a clear guide on how to access the portal from phone or web.
-          </p>
-
-          <div class="how-feature-checklist">
-            <div class="how-feature-item">
-              <div class="how-feature-icon">👥</div>
-              <div class="how-feature-text">
-                <h5>Unit-Linked Resident Profiles</h5>
-                <p>Assign landlords or tenants directly to their house or flat with their phone and email.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🛡️</div>
-              <div class="how-feature-text">
-                <h5>Dedicated Security Staff Accounts</h5>
-                <p>Provision guard logins with access to the gate scanner and real-time verification feed.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">📲</div>
-              <div class="how-feature-text">
-                <h5>Automated Welcome Notifications</h5>
-                <p>Sent via SMS and email with login credentials and direct mobile app download links.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">📖</div>
-              <div class="how-feature-text">
-                <h5>Frictionless Onboarding Guide</h5>
-                <p>Recipients follow straightforward steps to sign in on Android, iOS, or web in seconds.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="how-dot-trail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 03: RESIDENTS CREATE PASSES & PAY DUES (Content Left, Visual Right) -->
-      <section class="how-timeline-row" id="how-step-3">
-        <!-- Left: Narrative & Features -->
-        <div class="how-scroll-content" data-reveal="left">
-          <h3><span class="how-mint-text">Create Passes &amp; Pay Dues.</span><br>Convenient Resident Control on Mobile.</h3>
-          <p>
-            When residents log in, their personal portal makes everyday estate life simple. Need to invite a visitor, repair artisan, or delivery rider? Residents create guest passes in under 10 seconds&mdash;generating an encrypted QR code and access PIN that can be shared instantly via WhatsApp or SMS.
-          </p>
-          <p>
-            Residents also view all pending estate dues, security levies, and service charges in one place. They can make secure digital payments directly and download verifiable receipts, while pre-declaring move-out items or contractor tools before leaving the gate.
-          </p>
-
-          <div class="how-feature-checklist">
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🎟️</div>
-              <div class="how-feature-text">
-                <h5>Instant Guest Passes</h5>
-                <p>Create single-use or multi-day passes with time limits, visitor names, and vehicle plates.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">💬</div>
-              <div class="how-feature-text">
-                <h5>WhatsApp Pass Sharing</h5>
-                <p>Share passes directly to visitors with zero app download required for guests.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">💳</div>
-              <div class="how-feature-text">
-                <h5>Estate Dues &amp; Digital Receipts</h5>
-                <p>Check pending bills, pay online instantly, and keep an organized payment history.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">📦</div>
-              <div class="how-feature-text">
-                <h5>Move-Out &amp; Asset Clearance</h5>
-                <p>Pre-log outgoing furniture, equipment, or contractor items to prevent gate delays.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="how-dot-trail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-
-        <!-- Center: Spine Step Node -->
-        <div class="how-spine-col">
-          <div class="how-spine-node">
-            <span class="how-spine-tag">STEP</span>
-            <span class="how-spine-num">03</span>
-          </div>
-        </div>
-
-        <!-- Right: Visual Stage in Signature Brand Container -->
-        <div class="how-stage-card" data-reveal="right">
-          <div class="how-stage-bg-frame">
-            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
-              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
-              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
-            </svg>
-          </div>
-          <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Resident Guest Pass &amp; Estate Dues Payment" class="how-stage-mockup-img">
-            <div class="how-mockup-pill">
-              <span class="pill-icon">📱</span>
-              <div class="pill-body">
-                <div class="pill-title">Passes &amp; Payments Sorted</div>
-                <div class="pill-sub">Guest Pass Generated &bull; Service Due Cleared</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 04: GATE SECURITY CLEARANCE (Visual Left, Content Right) -->
-      <section class="how-timeline-row reverse" id="how-step-4">
-        <!-- Left: Visual Stage in Signature Brand Container -->
-        <div class="how-stage-card" data-reveal="left">
-          <div class="how-stage-bg-frame">
-            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
-              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
-              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
-            </svg>
-          </div>
-          <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_visitor_access.jpg" alt="Security Scanning QR Code at Gate" class="how-stage-mockup-img">
-            <div class="how-mockup-pill">
-              <span class="pill-icon">🛡️</span>
-              <div class="pill-body">
-                <div class="pill-title">Verified in Seconds</div>
-                <div class="pill-sub">Gate Barrier Granted &bull; Host Notified</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Center: Spine Step Node -->
-        <div class="how-spine-col">
-          <div class="how-spine-node">
-            <span class="how-spine-tag">STEP</span>
-            <span class="how-spine-num">04</span>
-          </div>
-        </div>
-
-        <!-- Right: Narrative & Features -->
-        <div class="how-scroll-content" data-reveal="right">
-          <h3><span class="how-mint-text">Scan &amp; Grant Access.</span><br>Fast Verification with Complete Gate Control.</h3>
-          <p>
-            When a visitor arrives at the gate, security guards use their dedicated scanner on phone or terminal to verify credentials in under 4 seconds. No manual logbooks, no phone calls back and forth, and no guessing.
-          </p>
-          <p>
-            Scanning the QR code or entering the visitor's pass code immediately confirms the host resident, house unit, authorized entry window, and vehicle license plate. Once confirmed, guards grant access, and the resident receives an instant arrival notification.
-          </p>
-
-          <div class="how-feature-checklist">
-            <div class="how-feature-item">
-              <div class="how-feature-icon">⚡</div>
-              <div class="how-feature-text">
-                <h5>Sub-4s Optical Scanning</h5>
-                <p>Instantly reads QR passes from visitor smartphone screens with first-time accuracy.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🔢</div>
-              <div class="how-feature-text">
-                <h5>Pass Code &amp; Phone Fallback</h5>
-                <p>Guards can quickly look up visitors by pass code or phone number if needed.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🚘</div>
-              <div class="how-feature-text">
-                <h5>Vehicle &amp; Identity Verification</h5>
-                <p>Check vehicle plate number, visitor identity, and host details before raising barriers.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🔔</div>
-              <div class="how-feature-text">
-                <h5>Instant Resident Arrival Ping</h5>
-                <p>The host receives a real-time push alert the exact moment security clears their visitor.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="how-dot-trail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 05: CENTRAL ADMIN DASHBOARD & MONITORING (Content Left, Visual Right) -->
-      <section class="how-timeline-row" id="how-step-5">
-        <!-- Left: Narrative & Features -->
-        <div class="how-scroll-content" data-reveal="left">
-          <h3><span class="how-mint-text">Monitor Everything in Real Time.</span><br>Total Operational Oversight from the Admin Dashboard.</h3>
-          <p>
-            All estate activities connect back to the central admin dashboard. Property owners and facility managers can see exactly who is on the premises, review live gate movements, and verify peak traffic hours in real time.
-          </p>
-          <p>
-            Oversee resident directories, track paid versus outstanding estate dues, manage security guard shifts, and inspect complete digital audit trails. Everything is organized, transparent, and audit-ready for community leadership meetings.
-          </p>
-
-          <div class="how-feature-checklist">
-            <div class="how-feature-item">
-              <div class="how-feature-icon">📊</div>
-              <div class="how-feature-text">
-                <h5>Live Gate Activity Feed</h5>
-                <p>Real-time log of all visitor entries, exits, and security verifications across every gate.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">👥</div>
-              <div class="how-feature-text">
-                <h5>Complete Resident &amp; Staff Census</h5>
-                <p>Maintain an accurate directory of occupied houses, active residents, and on-duty guards.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">💰</div>
-              <div class="how-feature-text">
-                <h5>Dues &amp; Financial Tracking</h5>
-                <p>Monitor collection rates, view pending balances, and export reconciliation summaries.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">📜</div>
-              <div class="how-feature-text">
-                <h5>Searchable Audit Logs</h5>
-                <p>Tamper-proof records of every pass, gate scan, and payment for complete transparency.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="how-dot-trail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-
-        <!-- Center: Spine Step Node -->
-        <div class="how-spine-col">
-          <div class="how-spine-node">
-            <span class="how-spine-tag">STEP</span>
-            <span class="how-spine-num">05</span>
-          </div>
-        </div>
-
-        <!-- Right: Visual Stage in Signature Brand Container -->
-        <div class="how-stage-card" data-reveal="right">
-          <div class="how-stage-bg-frame">
-            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#071F14"/>
-              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#82C9AA"/>
-              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
-            </svg>
-          </div>
-          <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Admin Command Dashboard &amp; Live Gate Stream" class="how-stage-mockup-img">
-            <div class="how-mockup-pill">
-              <span class="pill-icon">💻</span>
-              <div class="pill-body">
-                <div class="pill-title">Central Admin Command</div>
-                <div class="pill-sub">Live Gate Stream &bull; Census &amp; Financial Reports</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STRUCTURED ONBOARDING ROADMAP (NO TAG ON TOP) -->
-      <section class="how-timeline-row how-timeline-row-roadmap" id="how-step-roadmap">
+      <!-- Structured Deployment Roadmap -->
+      <section class="how-timeline-row-roadmap" id="how-step-roadmap" style="margin-top: 56px;">
         <div class="onboarding-roadmap-wrap" data-reveal style="width: 100%;">
           <div class="roadmap-header">
             <h3>How We Get Your Estate Live in 12 Days</h3>
@@ -1233,8 +977,6 @@
         </div>
       </section>
 
-    </div><!-- /how-timeline-track -->
-
       <!-- Bottom Mini-CTA -->
       <div class="mini-cta" style="margin-top:54px" data-reveal>
         <h2>Ready to see CheckPass deployed in your estate?</h2>
@@ -1243,7 +985,7 @@
       </div>
 
     </div><!-- /container -->
-  </div><!-- /how-scroll-journey -->
+  </div><!-- /hiw-card-section -->
 </div><!-- /page-how-it-works -->
 
 <!-- ==================== FEATURES PAGE ==================== -->
@@ -1941,7 +1683,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { publicApi } from '@/api'
 
@@ -2034,6 +1776,71 @@ function startSlideCTimer() {
   }, 4400)
 }
 // Set to true once verified real customer testimonials are collected from testing
+// ── HOW IT WORKS INTERACTIVE STEP ENGINE ──
+const activeHowStep = ref(1)
+
+function setHowStep(stepNum: number, smoothScroll = true) {
+  activeHowStep.value = stepNum
+  if (smoothScroll && typeof window !== 'undefined') {
+    const el = document.getElementById(`hiw-step-${stepNum}`)
+    if (el) {
+      const yOffset = -120
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: 'smooth' })
+    }
+  }
+}
+
+const activeSpineStyle = computed(() => {
+  const positions: Record<number, { top: string; height: string }> = {
+    1: { top: '2%', height: '18%' },
+    2: { top: '22%', height: '18%' },
+    3: { top: '42%', height: '18%' },
+    4: { top: '62%', height: '18%' },
+    5: { top: '80%', height: '18%' }
+  }
+  const pos = positions[activeHowStep.value] || positions[1]
+  return {
+    top: pos.top,
+    height: pos.height
+  }
+})
+
+const activeDotStyle = computed(() => {
+  const tops: Record<number, string> = {
+    1: '20%',
+    2: '40%',
+    3: '60%',
+    4: '80%',
+    5: '98%'
+  }
+  return {
+    top: tops[activeHowStep.value] || '20%'
+  }
+})
+
+function updateHowStepOnScroll() {
+  const steps = [1, 2, 3, 4, 5]
+  const viewportTrigger = window.innerHeight * 0.45
+  let closestStep = activeHowStep.value
+  let minDistance = Infinity
+
+  for (const stepNum of steps) {
+    const el = document.getElementById(`hiw-step-${stepNum}`)
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    const stepCenter = rect.top + rect.height * 0.5
+    const dist = Math.abs(stepCenter - viewportTrigger)
+    if (dist < minDistance) {
+      minDistance = dist
+      closestStep = stepNum
+    }
+  }
+  if (closestStep !== activeHowStep.value) {
+    activeHowStep.value = closestStep
+  }
+}
+
 const showTestimonials = ref(false)
 
 // Real-time Central Platform Stats (Live totals queried from database)
@@ -2106,6 +1913,16 @@ onMounted(() => {
   startSlideBTimer()
   startSlideCTimer()
   fetchPlatformStats()
+  window.addEventListener('scroll', updateHowStepOnScroll, { passive: true })
+  if (typeof window !== 'undefined') {
+    (window as any).setHowStep = setHowStep;
+    (window as any).scrollToHowStep = (id: string) => {
+      const num = parseInt(id.replace(/\D/g, '')) || 1;
+      setHowStep(num);
+    };
+  }
+  startSlideCTimer()
+  fetchPlatformStats()
 
   let styleEl = document.getElementById('landing-styles') as HTMLLinkElement
   if (!styleEl) {
@@ -2163,6 +1980,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('scroll', updateHowStepOnScroll)
   if (slideATimer) clearInterval(slideATimer)
   if (slideBTimer) clearInterval(slideBTimer)
   if (slideCTimer) clearInterval(slideCTimer)
