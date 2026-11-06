@@ -758,39 +758,37 @@
 <div class="page" id="page-how-it-works">
   <div class="page-hero page-hero-green">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">End-to-End Operational Lifecycle</span>
-      <h1>How CheckPass Works —<br>From Invite to Gate Verification</h1>
-      <p>Connecting residents, security guards, and estate managers into one synchronized ecosystem.</p>
+      <h1>How CheckPass Works &mdash;<br><span class="hero-mint-accent">A Simple, Connected Journey</span></h1>
+      <p>From initial estate setup and resident onboarding to gate clearance and central management&mdash;everything connects smoothly in one unified platform.</p>
     </div>
   </div>
 
   <!-- SCROLLYTELLING JOURNEY WRAPPER -->
   <div class="how-scroll-journey">
     
-    <!-- Section Introduction Header -->
+    <!-- Section Introduction Header (NO TAG ON TOP) -->
     <div class="how-header" data-reveal>
-      <span class="badge badge-green label" style="margin-bottom:14px;display:inline-flex">End-to-End Operational Lifecycle</span>
-      <h2>From Resident Invitation to Live Gate Audit</h2>
-      <p>Scroll through each operational phase below to see how the mobile app, gate security terminal, and admin command portal work in seamless real-time synchronization.</p>
+      <h2>How It Works from Start to Finish</h2>
+      <p>See how property owners, residents, and gate security teams interact every day without delays or paperwork.</p>
     </div>
 
     <!-- Sticky Step Navigation Pill Bar -->
     <div class="how-step-nav-sticky">
       <div class="how-step-nav-inner">
         <button class="how-step-pill-btn active" id="pill-how-step-1" onclick="scrollToHowStep('how-step-1')">
-          <span class="pill-num">1</span> Resident App &amp; Item Log
+          <span class="pill-num">1</span> Account &amp; Property Setup
         </button>
         <button class="how-step-pill-btn" id="pill-how-step-2" onclick="scrollToHowStep('how-step-2')">
-          <span class="pill-num">2</span> Visitor WhatsApp Pass
+          <span class="pill-num">2</span> Add Residents &amp; Security
         </button>
         <button class="how-step-pill-btn" id="pill-how-step-3" onclick="scrollToHowStep('how-step-3')">
-          <span class="pill-num">3</span> Sub-4s Gate Scan
+          <span class="pill-num">3</span> Resident Passes &amp; Dues
         </button>
         <button class="how-step-pill-btn" id="pill-how-step-4" onclick="scrollToHowStep('how-step-4')">
-          <span class="pill-num">4</span> Admin Command &amp; Dues
+          <span class="pill-num">4</span> Gate Security Clearance
         </button>
         <button class="how-step-pill-btn" id="pill-how-step-5" onclick="scrollToHowStep('how-step-5')">
-          <span class="pill-num">5</span> 2-Week Rollout Plan
+          <span class="pill-num">5</span> Central Admin Command
         </button>
       </div>
     </div>
@@ -798,48 +796,45 @@
     <div class="container how-timeline-container">
     <div class="how-timeline-track">
 
-      <!-- STEP 01: RESIDENT MOBILE APP -->
+      <!-- STEP 01: ACCOUNT & PROPERTY CONFIGURATION (Content Left, Visual Right) -->
       <section class="how-timeline-row" id="how-step-1">
         <!-- Left: Narrative & Features -->
         <div class="how-scroll-content" data-reveal="left">
-          <div class="how-step-kicker">
-            <span>📱</span> RESIDENT INITIATION
-          </div>
-          <h3><span class="how-mint-text">Issue a Gate Pass</span> in 12 Seconds &amp; Declare Move-Out Assets</h3>
+          <h3><span class="how-mint-text">Create Your Account.</span><br>Configure Your Property in Minutes.</h3>
           <p>
-            No more handwritten paper slips, intercom calls to the guardhouse, or missed deliveries. From the CheckPass mobile app, homeowners and verified tenants generate visitor passes in just two taps.
+            Getting started takes just a few clicks. Property owners and estate managers register their organization, name their community, and set the physical street address and contact details.
           </p>
           <p>
-            Moving household furniture, corporate equipment, or contractor materials? Residents attach tamper-evident item photos and serial numbers right in the app before the vehicle reaches the gate—preventing unauthorized removal of estate assets.
+            From there, you configure your estate layout by adding houses, apartment blocks, units, and access gates. Whether you operate a single gated residential estate, multi-building complex, or commercial park, CheckPass organizes every unit with clear identifiers.
           </p>
 
           <div class="how-feature-checklist">
             <div class="how-feature-item">
-              <div class="how-feature-icon">⏱️</div>
+              <div class="how-feature-icon">🏢</div>
               <div class="how-feature-text">
-                <h5>12-Second Generation</h5>
-                <p>Choose guest category, enter name, set validity from 2 hours to recurring.</p>
+                <h5>Fast Estate Setup</h5>
+                <p>Register your estate profile, designate entry gates, and set your management rules.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">📸</div>
+              <div class="how-feature-icon">🏠</div>
               <div class="how-feature-text">
-                <h5>Move-Out Photo Manifest</h5>
-                <p>Declare high-value items with photo evidence before departure.</p>
+                <h5>House &amp; Unit Mapping</h5>
+                <p>Add houses, lanes, and apartment numbers so every occupant has an accurate home address.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">🚗</div>
+              <div class="how-feature-icon">🚪</div>
               <div class="how-feature-text">
-                <h5>Vehicle Plate Indexing</h5>
-                <p>Pre-registers vehicle plate for instant gate boom barrier clearance.</p>
+                <h5>Multi-Gate Designation</h5>
+                <p>Define main gates, service entrances, and pedestrian points for coordinated security access.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">🔔</div>
+              <div class="how-feature-icon">⚙️</div>
               <div class="how-feature-text">
-                <h5>Real-Time Arrival Push</h5>
-                <p>Instant push ping the exact second your guest is scanned at the gate.</p>
+                <h5>Customized Estate Bylaws</h5>
+                <p>Set visitor visiting hours, contractor entry curfews, and delivery guidelines tailored to your estate.</p>
               </div>
             </div>
           </div>
@@ -867,19 +862,19 @@
             </svg>
           </div>
           <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Resident Initiation & Move-Out Declaration" class="how-stage-mockup-img">
+            <img src="/assets/features/mockup_command_center.jpg" alt="Property Configuration &amp; Unit Setup" class="how-stage-mockup-img">
             <div class="how-mockup-pill">
-              <span class="pill-icon">📱</span>
+              <span class="pill-icon">🏢</span>
               <div class="pill-body">
-                <div class="pill-title">Pass Issued in 11.4s</div>
-                <div class="pill-sub">Unit 14B &bull; Move-Out Manifest Logged</div>
+                <div class="pill-title">Property Configured</div>
+                <div class="pill-sub">Units &amp; Gates Mapped &bull; Ready for Residents</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- STEP 02: VISITOR ZERO-DOWNLOAD PASS -->
+      <!-- STEP 02: ADD RESIDENTS & SECURITY (Visual Left, Content Right) -->
       <section class="how-timeline-row reverse" id="how-step-2">
         <!-- Left: Visual Stage in Signature Brand Container -->
         <div class="how-stage-card" data-reveal="left">
@@ -891,12 +886,12 @@
             </svg>
           </div>
           <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_whatsapp_pass.jpg" alt="Instant Visitor WhatsApp Dynamic Pass" class="how-stage-mockup-img">
+            <img src="/assets/features/mockup_whatsapp_pass.jpg" alt="Resident &amp; Security Invitation Notifications" class="how-stage-mockup-img">
             <div class="how-mockup-pill">
-              <span class="pill-icon">📲</span>
+              <span class="pill-icon">📩</span>
               <div class="pill-body">
-                <div class="pill-title">Zero App Download</div>
-                <div class="pill-sub">WhatsApp Pass #CP-9824 &bull; Dynamic QR</div>
+                <div class="pill-title">Invites Delivered Instantly</div>
+                <div class="pill-sub">Login Details &amp; App Download Guide Sent</div>
               </div>
             </div>
           </div>
@@ -912,44 +907,41 @@
 
         <!-- Right: Narrative & Features -->
         <div class="how-scroll-content" data-reveal="right">
-          <div class="how-step-kicker">
-            <span>📲</span> ZERO-DOWNLOAD GUEST PASS
-          </div>
-          <h3><span class="how-mint-text">Instant WhatsApp Delivery</span> — Zero App Download Required</h3>
+          <h3><span class="how-mint-text">Add Residents &amp; Security.</span><br>Instant Invites with Login Details &amp; App Guide.</h3>
           <p>
-            Visitor access should never be friction-filled. Guests never have to install an app, create an account, or remember a password.
+            Once setup is complete, you can begin adding residents to their respective houses and onboarding your security guards. Add occupants individually or upload an entire community directory in one go.
           </p>
           <p>
-            The moment a resident confirms an invitation, CheckPass delivers an encrypted pass link directly via WhatsApp or SMS. With a single tap, visitors display an ultra-high-contrast dynamic QR pass in their standard browser, complete with driving directions to the host unit.
+            Both residents and security personnel automatically receive instant notifications via SMS and email. The message includes their verified login credentials, a direct link to download the mobile app, and a clear guide on how to access the portal from phone or web.
           </p>
 
           <div class="how-feature-checklist">
             <div class="how-feature-item">
-              <div class="how-feature-icon">⚡</div>
+              <div class="how-feature-icon">👥</div>
               <div class="how-feature-text">
-                <h5>Instant Browser Pass</h5>
-                <p>Works in Safari, Chrome, or Samsung Internet with zero friction.</p>
+                <h5>Unit-Linked Resident Profiles</h5>
+                <p>Assign landlords or tenants directly to their house or flat with their phone and email.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">💬</div>
+              <div class="how-feature-icon">🛡️</div>
               <div class="how-feature-text">
-                <h5>WhatsApp Integration</h5>
-                <p>Delivers personalized greeting, pass code, and estate guidelines.</p>
+                <h5>Dedicated Security Staff Accounts</h5>
+                <p>Provision guard logins with access to the gate scanner and real-time verification feed.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">🔐</div>
+              <div class="how-feature-icon">📲</div>
               <div class="how-feature-text">
-                <h5>Anti-Fraud Security</h5>
-                <p>Dynamic time-synced QR tokens prevent screenshot reuse.</p>
+                <h5>Automated Welcome Notifications</h5>
+                <p>Sent via SMS and email with login credentials and direct mobile app download links.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">🗺️</div>
+              <div class="how-feature-icon">📖</div>
               <div class="how-feature-text">
-                <h5>GPS Wayfinding</h5>
-                <p>Integrated turn-by-turn map directs guests straight to Unit 14B.</p>
+                <h5>Frictionless Onboarding Guide</h5>
+                <p>Recipients follow straightforward steps to sign in on Android, iOS, or web in seconds.</p>
               </div>
             </div>
           </div>
@@ -960,48 +952,45 @@
         </div>
       </section>
 
-      <!-- STEP 03: GATE SECURITY SCANNER -->
+      <!-- STEP 03: RESIDENTS CREATE PASSES & PAY DUES (Content Left, Visual Right) -->
       <section class="how-timeline-row" id="how-step-3">
         <!-- Left: Narrative & Features -->
         <div class="how-scroll-content" data-reveal="left">
-          <div class="how-step-kicker">
-            <span>🛡️</span> SECURITY GATE TERMINAL
-          </div>
-          <h3><span class="how-mint-text">Gate Clearance Under 4s</span> — 100% Offline-Resilient</h3>
+          <h3><span class="how-mint-text">Create Passes &amp; Pay Dues.</span><br>Convenient Resident Control on Mobile.</h3>
           <p>
-            Long gate queues create frustration and security vulnerabilities. With the CheckPass Gate Terminal, security guards scan the visitor's QR code in less than 4 seconds using ruggedized handhelds or smartphones.
+            When residents log in, their personal portal makes everyday estate life simple. Need to invite a visitor, repair artisan, or delivery rider? Residents create guest passes in under 10 seconds&mdash;generating an encrypted QR code and access PIN that can be shared instantly via WhatsApp or SMS.
           </p>
           <p>
-            Powered by local edge-replicated SQLite caching, verification completes instantaneously even during complete cellular network blackouts or estate generator switchovers. Guards immediately verify guest identity, vehicle plate, and declared move-out assets before triggering barriers.
+            Residents also view all pending estate dues, security levies, and service charges in one place. They can make secure digital payments directly and download verifiable receipts, while pre-declaring move-out items or contractor tools before leaving the gate.
           </p>
 
           <div class="how-feature-checklist">
             <div class="how-feature-item">
-              <div class="how-feature-icon">⚡</div>
+              <div class="how-feature-icon">🎟️</div>
               <div class="how-feature-text">
-                <h5>Sub-4s Optical Scan</h5>
-                <p>Reads dimmed, scratched, or high-glare phone screens effortlessly.</p>
+                <h5>Instant Guest Passes</h5>
+                <p>Create single-use or multi-day passes with time limits, visitor names, and vehicle plates.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">📶</div>
+              <div class="how-feature-icon">💬</div>
               <div class="how-feature-text">
-                <h5>100% Offline SQLite</h5>
-                <p>Zero gate stoppage during ISP outages or power switchovers.</p>
+                <h5>WhatsApp Pass Sharing</h5>
+                <p>Share passes directly to visitors with zero app download required for guests.</p>
+              </div>
+            </div>
+            <div class="how-feature-item">
+              <div class="how-feature-icon">💳</div>
+              <div class="how-feature-text">
+                <h5>Estate Dues &amp; Digital Receipts</h5>
+                <p>Check pending bills, pay online instantly, and keep an organized payment history.</p>
               </div>
             </div>
             <div class="how-feature-item">
               <div class="how-feature-icon">📦</div>
               <div class="how-feature-text">
-                <h5>Move-Out Manifest Check</h5>
-                <p>Visual verification of declared items before letting trucks exit.</p>
-              </div>
-            </div>
-            <div class="how-feature-item">
-              <div class="how-feature-icon">🚨</div>
-              <div class="how-feature-text">
-                <h5>Silent Panic Duress Alert</h5>
-                <p>One-tap emergency trigger dispatches armed patrol to the gate.</p>
+                <h5>Move-Out &amp; Asset Clearance</h5>
+                <p>Pre-log outgoing furniture, equipment, or contractor items to prevent gate delays.</p>
               </div>
             </div>
           </div>
@@ -1029,36 +1018,36 @@
             </svg>
           </div>
           <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_visitor_access.jpg" alt="Gate Security Optical Scan Clearance" class="how-stage-mockup-img">
+            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Resident Guest Pass &amp; Estate Dues Payment" class="how-stage-mockup-img">
             <div class="how-mockup-pill">
-              <span class="pill-icon">🛡️</span>
+              <span class="pill-icon">📱</span>
               <div class="pill-body">
-                <div class="pill-title">Verified in 3.1 Seconds</div>
-                <div class="pill-sub">Guard Musa &bull; Main Gate Barrier 1</div>
+                <div class="pill-title">Passes &amp; Payments Sorted</div>
+                <div class="pill-sub">Guest Pass Generated &bull; Service Due Cleared</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- STEP 04: ESTATE ADMIN COMMAND & DUES -->
+      <!-- STEP 04: GATE SECURITY CLEARANCE (Visual Left, Content Right) -->
       <section class="how-timeline-row reverse" id="how-step-4">
         <!-- Left: Visual Stage in Signature Brand Container -->
         <div class="how-stage-card" data-reveal="left">
           <div class="how-stage-bg-frame">
             <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#071F14"/>
-              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#82C9AA"/>
-              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
+              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
+              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
+              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
             </svg>
           </div>
           <div class="how-stage-mockup-wrap">
-            <img src="/assets/features/mockup_command_center.jpg" alt="Master Command Center & Live Gate Audit" class="how-stage-mockup-img">
+            <img src="/assets/features/mockup_visitor_access.jpg" alt="Security Scanning QR Code at Gate" class="how-stage-mockup-img">
             <div class="how-mockup-pill">
-              <span class="pill-icon">💻</span>
+              <span class="pill-icon">🛡️</span>
               <div class="pill-body">
-                <div class="pill-title">100% Immutable Audit Trail</div>
-                <div class="pill-sub">Zero Unverified Entries &bull; AGM Reconciled</div>
+                <div class="pill-title">Verified in Seconds</div>
+                <div class="pill-sub">Gate Barrier Granted &bull; Host Notified</div>
               </div>
             </div>
           </div>
@@ -1074,44 +1063,41 @@
 
         <!-- Right: Narrative & Features -->
         <div class="how-scroll-content" data-reveal="right">
-          <div class="how-step-kicker">
-            <span>💻</span> MASTER COMMAND CENTER
-          </div>
-          <h3><span class="how-mint-text">Live Gate Audit Feeds</span> &amp; Automated Service Dues Tracking</h3>
+          <h3><span class="how-mint-text">Scan &amp; Grant Access.</span><br>Fast Verification with Complete Gate Control.</h3>
           <p>
-            Complete transparency for Estate Facility Managers and Exco committees. Every single visitor entry and exit is logged permanently to an immutable, searchable digital ledger with exact timestamps and guard IDs.
+            When a visitor arrives at the gate, security guards use their dedicated scanner on phone or terminal to verify credentials in under 4 seconds. No manual logbooks, no phone calls back and forth, and no guessing.
           </p>
           <p>
-            Synchronized financial ledgers track service charges, diesel levies, and security dues, alerting gate guards to chronic defaulters while keeping estate accounts solvent and ready for AGM audits.
+            Scanning the QR code or entering the visitor's pass code immediately confirms the host resident, house unit, authorized entry window, and vehicle license plate. Once confirmed, guards grant access, and the resident receives an instant arrival notification.
           </p>
 
           <div class="how-feature-checklist">
             <div class="how-feature-item">
-              <div class="how-feature-icon">📊</div>
+              <div class="how-feature-icon">⚡</div>
               <div class="how-feature-text">
-                <h5>Real-Time Traffic Analytics</h5>
-                <p>Monitor peak arrival hours, active vehicles, and visitor volume.</p>
+                <h5>Sub-4s Optical Scanning</h5>
+                <p>Instantly reads QR passes from visitor smartphone screens with first-time accuracy.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">📜</div>
+              <div class="how-feature-icon">🔢</div>
               <div class="how-feature-text">
-                <h5>Immutable Audit Ledger</h5>
-                <p>Permanent searchable records for incident investigation.</p>
+                <h5>Pass Code &amp; Phone Fallback</h5>
+                <p>Guards can quickly look up visitors by pass code or phone number if needed.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">💳</div>
+              <div class="how-feature-icon">🚘</div>
               <div class="how-feature-text">
-                <h5>Automated Dues Tracking</h5>
-                <p>Auto-generate receipts, track diesel levies, and flag defaulters.</p>
+                <h5>Vehicle &amp; Identity Verification</h5>
+                <p>Check vehicle plate number, visitor identity, and host details before raising barriers.</p>
               </div>
             </div>
             <div class="how-feature-item">
-              <div class="how-feature-icon">👥</div>
+              <div class="how-feature-icon">🔔</div>
               <div class="how-feature-text">
-                <h5>Unified Resident Directory</h5>
-                <p>Centralized registry for units, domestic staff, and vehicles.</p>
+                <h5>Instant Resident Arrival Ping</h5>
+                <p>The host receives a real-time push alert the exact moment security clears their visitor.</p>
               </div>
             </div>
           </div>
@@ -1122,21 +1108,90 @@
         </div>
       </section>
 
-      <!-- STEP 05: STRUCTURED 1-2 WEEK ONBOARDING ROADMAP -->
-      <section class="how-timeline-row how-timeline-row-roadmap" id="how-step-5">
+      <!-- STEP 05: CENTRAL ADMIN DASHBOARD & MONITORING (Content Left, Visual Right) -->
+      <section class="how-timeline-row" id="how-step-5">
+        <!-- Left: Narrative & Features -->
+        <div class="how-scroll-content" data-reveal="left">
+          <h3><span class="how-mint-text">Monitor Everything in Real Time.</span><br>Total Operational Oversight from the Admin Dashboard.</h3>
+          <p>
+            All estate activities connect back to the central admin dashboard. Property owners and facility managers can see exactly who is on the premises, review live gate movements, and verify peak traffic hours in real time.
+          </p>
+          <p>
+            Oversee resident directories, track paid versus outstanding estate dues, manage security guard shifts, and inspect complete digital audit trails. Everything is organized, transparent, and audit-ready for community leadership meetings.
+          </p>
+
+          <div class="how-feature-checklist">
+            <div class="how-feature-item">
+              <div class="how-feature-icon">📊</div>
+              <div class="how-feature-text">
+                <h5>Live Gate Activity Feed</h5>
+                <p>Real-time log of all visitor entries, exits, and security verifications across every gate.</p>
+              </div>
+            </div>
+            <div class="how-feature-item">
+              <div class="how-feature-icon">👥</div>
+              <div class="how-feature-text">
+                <h5>Complete Resident &amp; Staff Census</h5>
+                <p>Maintain an accurate directory of occupied houses, active residents, and on-duty guards.</p>
+              </div>
+            </div>
+            <div class="how-feature-item">
+              <div class="how-feature-icon">💰</div>
+              <div class="how-feature-text">
+                <h5>Dues &amp; Financial Tracking</h5>
+                <p>Monitor collection rates, view pending balances, and export reconciliation summaries.</p>
+              </div>
+            </div>
+            <div class="how-feature-item">
+              <div class="how-feature-icon">📜</div>
+              <div class="how-feature-text">
+                <h5>Searchable Audit Logs</h5>
+                <p>Tamper-proof records of every pass, gate scan, and payment for complete transparency.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="how-dot-trail" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
         <!-- Center: Spine Step Node -->
-        <div class="how-spine-col" style="margin-bottom: 24px;">
-          <div class="how-spine-node how-spine-node-gold">
+        <div class="how-spine-col">
+          <div class="how-spine-node">
             <span class="how-spine-tag">STEP</span>
             <span class="how-spine-num">05</span>
           </div>
         </div>
 
+        <!-- Right: Visual Stage in Signature Brand Container -->
+        <div class="how-stage-card" data-reveal="right">
+          <div class="how-stage-bg-frame">
+            <svg class="how-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#071F14"/>
+              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#82C9AA"/>
+              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
+            </svg>
+          </div>
+          <div class="how-stage-mockup-wrap">
+            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Admin Command Dashboard &amp; Live Gate Stream" class="how-stage-mockup-img">
+            <div class="how-mockup-pill">
+              <span class="pill-icon">💻</span>
+              <div class="pill-body">
+                <div class="pill-title">Central Admin Command</div>
+                <div class="pill-sub">Live Gate Stream &bull; Census &amp; Financial Reports</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STRUCTURED ONBOARDING ROADMAP (NO TAG ON TOP) -->
+      <section class="how-timeline-row how-timeline-row-roadmap" id="how-step-roadmap">
         <div class="onboarding-roadmap-wrap" data-reveal style="width: 100%;">
           <div class="roadmap-header">
-            <span class="badge badge-gold label" style="margin-bottom:12px;display:inline-flex">Structured Deployment</span>
-            <h3>How We Get Your Estate Live in 1–2 Weeks</h3>
-            <p>A proven, hands-on onboarding methodology that configures your bylaws, sanitizes resident directories, and drills your gate security teams thoroughly.</p>
+            <h3>How We Get Your Estate Live in 12 Days</h3>
+            <p>A structured, hands-on onboarding methodology that configures estate bylaws, sanitizes resident registries, and trains gate security teams with zero downtime.</p>
           </div>
 
           <div class="roadmap-timeline">
@@ -1190,7 +1245,6 @@
     </div><!-- /container -->
   </div><!-- /how-scroll-journey -->
 </div><!-- /page-how-it-works -->
-
 
 <!-- ==================== FEATURES PAGE ==================== -->
 <div class="page" id="page-features">
