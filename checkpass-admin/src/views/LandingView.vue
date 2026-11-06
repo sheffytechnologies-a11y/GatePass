@@ -1154,101 +1154,166 @@
 <div class="page" id="page-pricing">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Tailored Estate Plans</span>
-      <h1>Custom Deployment For<br>Estates of Every Scale</h1>
-      <p>Every estate has distinct requirements—from private boutique closes to multi-gate residential CDAs. Contact our team for a tailored proposal and quote.</p>
+      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Transparent Estate Pricing</span>
+      <h1>Predictable Pricing For<br>Estates of Every Scale</h1>
+      <p>Zero hidden fees. Unlimited resident accounts. 4-second gate passes, automated dues reconciliation, and verified artisan access from ₦35,000/month.</p>
     </div>
   </div>
 
   <section class="pricing-section">
     <div class="container">
-      <!-- 3 Tailored Estate Packages Grid (No Prices - Consultation Based) -->
+      <!-- Billing Cycle Switcher -->
+      <div class="pricing-toggle-wrap" data-reveal>
+        <div class="pricing-toggle">
+          <button id="pricingToggleMonthly" class="pricing-toggle-btn active" onclick="setBillingCycle('monthly')">Monthly Billing</button>
+          <button id="pricingToggleAnnual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">Annual Billing <span style="background:#044B2B;color:#96D0B6;padding:2px 8px;border-radius:100px;font-size:.72rem;margin-left:6px;font-weight:800">Save 20% • 2 Months Free</span></button>
+        </div>
+      </div>
+
+      <!-- 3 Tier Pricing Cards Grid -->
       <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr)">
         <!-- Boutique Estate Tier -->
         <div class="pricing-consult-card" data-reveal data-delay="1">
           <div class="pricing-capacity-badge">Up to 50 Units</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Boutique Estate &amp; Closes</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">Ideal for private closes, luxury residential blocks, and compact communities seeking organized visitor entry.</p>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Boutique Estate &amp; Closes</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">Ideal for private closes, luxury residential blocks, and boutique courts seeking organized visitor entry.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceBoutiqueAmount">35,000</span>
+            <span class="pricing-period" id="priceBoutiquePeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceBoutiqueNote">Billed monthly • Cancel anytime with 30 days notice</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>Up to 50 Units</strong> (Up to 150 resident accounts)</span>
+              <span><strong>Up to 50 Units</strong> (Unlimited resident accounts)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Instant QR Visitor Passes (SMS &amp; WhatsApp)</span>
+              <span>Instant 4s QR Visitor Passes (SMS &amp; WhatsApp)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Dedicated Guard Scanner Web App (Sub-4s scan)</span>
+              <span>1 Dedicated Guard Scanner Web App (Works Offline)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Digital Service Charge &amp; Dues Ledger</span>
+              <span>Dual Dues Engine (Online Checkout + Bank Teller Upload)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Standard Security Personnel Onboarding &amp; Guide</span>
+              <span>1-Click Digital Receipts &amp; Real-Time Balance Ledger</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Move-Out Asset Clearance &amp; Departure Manifest</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Digital Guard Guides &amp; Remote Video Staff Onboarding</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Standard Email &amp; WhatsApp Operations Support</span>
             </div>
           </div>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showPage('contact', 'boutique')">Request Boutique Quote</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showPage('contact', 'boutique')">Get Started — ₦35k/mo</button>
         </div>
 
-        <!-- 50-300 Units Plan (Most Requested) -->
+        <!-- 50-200 Units Plan (Most Popular) -->
         <div class="pricing-consult-card featured" data-reveal data-delay="2">
-          <div class="popular-tag">⭐ Most Requested</div>
-          <div class="pricing-capacity-badge" style="background:#0A5B38;color:#fff">50 &ndash; 300 Units</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Gated Residential Communities</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">The complete operational system for established gated residential estates and CDAs with active gate traffic.</p>
+          <div class="popular-tag">⭐ Most Popular</div>
+          <div class="pricing-capacity-badge" style="background:#0A5B38;color:#fff">50 &ndash; 200 Units</div>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Gated Residential Communities</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">The complete operational system for established residential gated communities, CDAs, and estates.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceGatedAmount">75,000</span>
+            <span class="pricing-period" id="priceGatedPeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceGatedNote">Billed monthly • Most popular for organized CDAs</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>50 to 300 Units</strong> (Up to 900 resident profiles)</span>
+              <span><strong>50 to 200 Units</strong> (Unlimited resident profiles)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Multi-Gate Synchronization &amp; Live Audit Feed</span>
+              <span>Up to 3 Synchronized Gate Terminals (Multi-Lane &amp; Pedestrian)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Photo Item Exit Declaration &amp; Anti-Theft Checks</span>
+              <span><strong>Verified Artisan Directory</strong> (Credentialed domestic technicians)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Automated Dues Invoicing &amp; Digital Receipts</span>
+              <span>1-Tap SOS Emergency Panic Siren &amp; Gate Dispatch Pinpoint</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Hands-on Security Shift Drills &amp; On-Site Training</span>
+              <span>Automated Dues Reminders &amp; Optional Defaulter Access Rules</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Dedicated Sheffy Account Manager &amp; VIP Support</span>
+              <span>Complete AGM-Ready Financial Audit Ledger &amp; Reports</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Anti-Theft Move-Out Manifest with Photo Item Declarations</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Digital Guard Guides &amp; Remote Video Staff Certification</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Dedicated Sheffy Account Manager &amp; Priority SLA Support</span>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Request Proposal &amp; Quote</button>
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Start 14-Day Free Pilot</button>
         </div>
 
-        <!-- Master Planned Estate (300+ Units) -->
+        <!-- Master Planned Estate (200+ Units) -->
         <div class="pricing-consult-card" data-reveal data-delay="3">
-          <div class="pricing-capacity-badge">300+ Units / Enterprise</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Master Planned Estates &amp; CDAs</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">Enterprise-grade architecture for mega-estates with multiple perimeter gates, internal CDA zones, and amenities.</p>
+          <div class="pricing-capacity-badge">200+ Units / Enterprise</div>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Master Planned Estates &amp; CDAs</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">Enterprise architecture for mega-estates with multiple perimeter gates, internal CDA zones, and amenities.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceEnterpriseAmount">180,000+</span>
+            <span class="pricing-period" id="priceEnterprisePeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceEnterpriseNote">Custom multi-gate deployment • Billed quarterly or annually</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>300+ to 2,000+ Units</strong> (Custom capacity)</span>
+              <span><strong>200+ to 2,000+ Units</strong> (Custom capacity)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Multi-Zone Sub-Gate Routing &amp; Zone Permissions</span>
+              <span>Unlimited Gate Terminals &amp; Sub-Zone Fast-Pass Lanes</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Barrier Arm, Turnstile &amp; Hardware Integrations</span>
+              <span><strong>Hands-on Physical Guard Drills &amp; On-Site Gate Inspection</strong> (Enterprise Exclusive)</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Automatic Number Plate Recognition (ANPR) &amp; Boom Barrier APIs</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Multi-Zone Sub-Associations &amp; Dedicated FM Ledgers</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>White-Glove On-Site Deployment Specialist</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1273,12 +1338,12 @@
         <button class="btn btn-gold btn-lg" onclick="showPage('contact', 'enterprise')">Request Executive Proposal</button>
       </div>
 
-      <!-- Interactive Deployment Scope Planner (Replaces Price Calculator) -->
+      <!-- Interactive Deployment Scope & ROI Planner -->
       <div class="calculator-box" data-reveal>
         <div class="calculator-header">
-          <span class="badge badge-green label" style="margin-bottom:12px;display:inline-flex">Scope Estimator</span>
-          <h3>Estate Deployment &amp; Capacity Planner</h3>
-          <p>Adjust the slider to your estate's unit count to calculate recommended gate terminals, resident capacity, and deployment timeline.</p>
+          <span class="badge badge-green label" style="margin-bottom:12px;display:inline-flex">ROI &amp; Scope Estimator</span>
+          <h3>Estate Deployment &amp; Cost-Per-Home Planner</h3>
+          <p>Adjust the slider to your estate's unit count to calculate the recommended plan, per-home monthly investment, and dues protection value.</p>
         </div>
         <div class="calculator-grid">
           <div class="slider-container">
@@ -1290,29 +1355,28 @@
             <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--n400)">
               <span>15 Units</span>
               <span>50 Units</span>
-              <span>300 Units</span>
+              <span>200 Units</span>
               <span>1,000+ Units</span>
             </div>
           </div>
           <div class="calc-result-card">
-            <div class="calc-res-tier" id="calcTierBadge">Gated Residential Scope (120 Units)</div>
-            <div class="calc-res-label">Recommended Deployment Scope</div>
-            <div class="calc-res-amount" id="calcTotal" style="font-size:1.55rem;line-height:1.25">2 Gate Terminals + 1 Admin Portal</div>
-            <div class="calc-res-sub" id="calcAnnualSub">Includes 1–2 weeks managed onboarding, bulk resident directory ingestion, and security personnel physical drills.</div>
-            <button class="btn btn-gold btn-sm" id="calcActionBtn" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Request Custom Quote for 120 Units</button>
+            <div class="calc-res-tier" id="calcTierBadge">Gated Community Scope (120 Units)</div>
+            <div class="calc-res-label">Recommended Monthly Investment</div>
+            <div class="calc-res-amount" id="calcTotal" style="font-size:1.75rem;line-height:1.25">₦75,000 <span style="font-size:1rem;font-weight:600;color:var(--n600)">/ month</span></div>
+            <div class="calc-res-sub" id="calcAnnualSub"><strong>Estimated ₦625 per home/month</strong>. Protects ~₦3,600,000/mo in dues. Includes 2 Gate Terminals, vetted artisan directory, 1-tap SOS panic alerts, and remote video guard certification.</div>
+            <button class="btn btn-gold btn-sm" id="calcActionBtn" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Start 14-Day Free Pilot for 120 Units</button>
           </div>
         </div>
       </div>
 
       <div class="mini-cta" style="margin-top:40px" data-reveal>
-        <h2>Need transparent pricing for your estate?</h2>
+        <h2>Need a formal invoice or proposal for your executive committee?</h2>
         <p>Speak with our estate operations team to get a detailed breakdown tailored specifically to your gates, guards, and resident capacity.</p>
         <button class="btn btn-gold btn-lg" onclick="showPage('contact')">Speak With Our Estate Team</button>
       </div>
     </div>
   </section>
 </div>
-
 
 <!-- ==================== ESTATES PAGE ==================== -->
 <div class="page" id="page-estates">
@@ -2036,6 +2100,119 @@ onMounted(() => {
   window.addEventListener('scroll', updateHowStepOnScroll, { passive: true })
   if (typeof window !== 'undefined') {
     (window as any).setHowStep = setHowStep;
+
+    (window as any).setBillingCycle = function(cycle: 'monthly' | 'annual') {
+      (window as any).currentBillingCycle = cycle;
+      const monthlyBtn = document.getElementById('pricingToggleMonthly');
+      const annualBtn = document.getElementById('pricingToggleAnnual');
+      if (monthlyBtn && annualBtn) {
+        monthlyBtn.classList.toggle('active', cycle === 'monthly');
+        annualBtn.classList.toggle('active', cycle === 'annual');
+      }
+
+      const boutiqueAmount = document.getElementById('priceBoutiqueAmount');
+      const boutiquePeriod = document.getElementById('priceBoutiquePeriod');
+      const boutiqueNote = document.getElementById('priceBoutiqueNote');
+      if (boutiqueAmount && boutiquePeriod && boutiqueNote) {
+        if (cycle === 'annual') {
+          boutiqueAmount.textContent = '29,166';
+          boutiquePeriod.textContent = '/ month';
+          boutiqueNote.textContent = '₦350,000 billed annually (Save ₦70,000 • 2 Months Free!)';
+        } else {
+          boutiqueAmount.textContent = '35,000';
+          boutiquePeriod.textContent = '/ month';
+          boutiqueNote.textContent = 'Billed monthly • Cancel anytime with 30 days notice';
+        }
+      }
+
+      const gatedAmount = document.getElementById('priceGatedAmount');
+      const gatedPeriod = document.getElementById('priceGatedPeriod');
+      const gatedNote = document.getElementById('priceGatedNote');
+      if (gatedAmount && gatedPeriod && gatedNote) {
+        if (cycle === 'annual') {
+          gatedAmount.textContent = '62,500';
+          gatedPeriod.textContent = '/ month';
+          gatedNote.textContent = '₦750,000 billed annually (Save ₦150,000 • 2 Months Free!)';
+        } else {
+          gatedAmount.textContent = '75,000';
+          gatedPeriod.textContent = '/ month';
+          gatedNote.textContent = 'Billed monthly • Most popular for organized CDAs';
+        }
+      }
+
+      const entNote = document.getElementById('priceEnterpriseNote');
+      if (entNote) {
+        if (cycle === 'annual') {
+          entNote.textContent = 'Billed annually with dedicated SLA and custom milestone delivery';
+        } else {
+          entNote.textContent = 'Billed quarterly or annually based on gate & hardware volume';
+        }
+      }
+
+      const slider = document.getElementById('calcRange') as HTMLInputElement | null;
+      if (slider && typeof (window as any).updatePricingSlider === 'function') {
+        (window as any).updatePricingSlider(slider.value);
+      }
+    };
+
+    (window as any).updatePricingSlider = function(units: string | number) {
+      const count = parseInt(String(units));
+      const display = document.getElementById('sliderUnitCount');
+      const tierBadge = document.getElementById('calcTierBadge');
+      const totalDisplay = document.getElementById('calcTotal');
+      const annualSub = document.getElementById('calcAnnualSub');
+      const actionBtn = document.getElementById('calcActionBtn');
+      const maxResidents = count * 3;
+      const isAnnual = (window as any).currentBillingCycle === 'annual';
+
+      if (display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';
+
+      if (count <= 50) {
+        if (tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';
+        const monthlyCost = isAnnual ? '₦29,166' : '₦35,000';
+        const period = isAnnual ? '/mo (billed annually)' : '/month';
+        const perHome = Math.round((isAnnual ? 29166 : 35000) / count).toLocaleString();
+        if (totalDisplay) totalDisplay.innerHTML = monthlyCost + ' <span style="font-size:1rem;font-weight:600;color:var(--n600)">' + period + '</span>';
+        if (annualSub) annualSub.innerHTML = '<strong>Estimated ₦' + perHome + ' per home/month</strong>. Includes 1 Gate Terminal, 4s WhatsApp passes, automated dues reconciliation, and digital guard guides.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Get Started for ' + count + ' Units';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'boutique');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      } else if (count <= 200) {
+        const terminals = count <= 120 ? '2 Gate Terminals' : '3 Gate Terminals';
+        if (tierBadge) tierBadge.textContent = 'Gated Community Scope (' + count + ' Units)';
+        const monthlyCost = isAnnual ? '₦62,500' : '₦75,000';
+        const period = isAnnual ? '/mo (billed annually)' : '/month';
+        const perHome = Math.round((isAnnual ? 62500 : 75000) / count).toLocaleString();
+        const duesPool = (count * 30000).toLocaleString();
+        if (totalDisplay) totalDisplay.innerHTML = monthlyCost + ' <span style="font-size:1rem;font-weight:600;color:var(--n600)">' + period + '</span>';
+        if (annualSub) annualSub.innerHTML = '<strong>Estimated ₦' + perHome + ' per home/month</strong>. Protects ~₦' + duesPool + '/mo in dues. Includes ' + terminals + ', vetted artisan directory, 1-tap SOS panic alerts, and remote video guard certification.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Start 14-Day Free Pilot for ' + count + ' Units';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'residential');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      } else {
+        if (tierBadge) tierBadge.textContent = 'Enterprise / Master Planned (' + count + ' Units)';
+        if (totalDisplay) totalDisplay.innerHTML = 'Custom <span style="font-size:1rem;font-weight:600;color:var(--n600)">from ₦180k/month</span>';
+        if (annualSub) annualSub.innerHTML = 'Tailored for ' + count + '+ homes. Includes unlimited gate terminals, <strong>hands-on physical on-site guard shift drills</strong>, ANPR barrier APIs, multi-zone CDAs, and 24/7 dedicated SLA.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Contact Enterprise Team (' + count + ' Units)';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'enterprise');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      }
+    };
     (window as any).scrollToHowStep = (id: string) => {
       const num = parseInt(id.replace(/\D/g, '')) || 1;
       setHowStep(num);
