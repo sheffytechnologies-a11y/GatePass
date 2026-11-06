@@ -1704,7 +1704,7 @@
 
 <!-- AI Concierge Floating Dialog -->
 <transition name="cp-slide-up">
-  <div v-if="isConciergeOpen" class="cp-concierge-dialog" role="dialog" aria-modal="true" aria-label="CheckPass Assistant">
+  <div v-if="isConciergeOpen" class="cp-concierge-dialog" role="dialog" aria-modal="true" aria-label="CheckPass Support" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop @touchmove.stop>
     <!-- Header -->
     <div class="cp-concierge-header">
       <div class="cp-concierge-header-info">
@@ -1726,8 +1726,15 @@
       <button class="cp-concierge-close-btn" @click="closeConcierge" aria-label="Close dialog">&times;</button>
     </div>
 
-    <!-- Scrollable Messages Area -->
-    <div class="cp-concierge-messages" ref="conciergeScrollContainer">
+    <!-- Unified Single Scroll Body -->
+    <div
+      class="cp-concierge-messages"
+      ref="conciergeScrollContainer"
+      data-lenis-prevent
+      data-lenis-prevent-wheel
+      @wheel.stop
+      @touchmove.stop
+    >
       <div
         v-for="(msg, i) in conciergeMessages"
         :key="i"
@@ -1744,22 +1751,23 @@
           <span></span><span></span><span></span>
         </div>
       </div>
-    </div>
 
-    <!-- Quick Action Chips (Vertically Stacked) -->
-    <div class="cp-concierge-chips">
-      <div class="cp-concierge-chips-stacked">
-        <button
-          v-for="(chip, idx) in conciergeQuickChips"
-          :key="idx"
-          class="cp-chip-btn-stacked"
-          @click="selectConciergeChip(chip)"
-        >
-          <span>{{ chip.label }}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
+      <!-- Suggested Topics: Inline in the Single Scroll Flow -->
+      <div class="cp-concierge-chips-inline">
+        <div class="cp-chips-inline-heading">Quick Topics</div>
+        <div class="cp-concierge-chips-stacked">
+          <button
+            v-for="(chip, idx) in conciergeQuickChips"
+            :key="idx"
+            class="cp-chip-btn-stacked"
+            @click="selectConciergeChip(chip)"
+          >
+            <span>{{ chip.label }}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
