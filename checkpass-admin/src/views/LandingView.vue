@@ -914,20 +914,6 @@
           </div><!-- /hiw-steps-list -->
         </div><!-- /hiw-flow-container -->
 
-        <!-- Bottom Link / Action -->
-        <div class="hiw-card-footer">
-          <button class="hiw-visit-link" onclick="showPage('contact')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
-            <span>Visit site &amp; Book Demo</span>
-          </button>
-          <div class="hiw-footer-sparkle" aria-hidden="true">
-            <i class="ph-duotone ph-sparkle" style="font-size:24px;"></i>
-          </div>
-        </div>
-
       </div><!-- /hiw-main-card -->
 
       <!-- Bottom Mini-CTA -->
