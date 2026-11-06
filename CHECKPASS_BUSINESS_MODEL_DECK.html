@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CheckPass — Business Model & Investor Strategy Memo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@700;800&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 16mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page) " of " counter(pages);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 8pt;
+        color: #94A3B8;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1E293B;
+      background: #FFFFFF;
+      font-size: 9.5pt;
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+      padding-top: 10px;
+    }
+
+    /* Cover Page */
+    .cover {
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 10px 20px;
+    }
+
+    .cover-top {
+      border-bottom: 3px solid #0A5B38;
+      padding-bottom: 24px;
+    }
+
+    .brand-logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .logo-sq {
+      width: 44px;
+      height: 44px;
+    }
+
+    .brand-name {
+      font-size: 24pt;
+      font-weight: 800;
+      color: #071F14;
+      letter-spacing: -0.02em;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: #E6F2EC;
+      color: #0A5B38;
+      font-size: 8pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .cover-title {
+      font-size: 28pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #071F14;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .cover-title span {
+      color: #0A5B38;
+    }
+
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #475569;
+      line-height: 1.5;
+      max-width: 90%;
+    }
+
+    .cover-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .cover-stat-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-top: 3px solid #0A5B38;
+      padding: 16px;
+      border-radius: 8px;
+    }
+
+    .cover-stat-num {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #071F14;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .cover-stat-lbl {
+      font-size: 8pt;
+      color: #64748B;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .cover-footer {
+      border-top: 1px solid #E2E8F0;
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 8.5pt;
+      color: #64748B;
+    }
+
+    .cover-footer strong {
+      color: #0F172A;
+    }
+
+    /* Section Headings */
+    h2.section-header {
+      font-size: 14.5pt;
+      font-weight: 800;
+      color: #071F14;
+      margin: 20px 0 10px;
+      letter-spacing: -0.015em;
+      border-bottom: 1.5px solid #0A5B38;
+      padding-bottom: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h2.section-header .section-tag {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #0A5B38;
+      background: #E6F2EC;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    h3.sub-header {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #0A5B38;
+      margin: 12px 0 6px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: #334155;
+    }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 8.5pt;
+    }
+
+    table.data-table th {
+      background: #071F14;
+      color: #FFFFFF;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 8pt;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    table.data-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #E2E8F0;
+      color: #1E293B;
+    }
+
+    table.data-table tr:nth-child(even) td {
+      background: #F8FAFC;
+    }
+
+    table.data-table tr.highlight td {
+      background: #E6F2EC;
+      font-weight: 700;
+      color: #073D26;
+    }
+
+    .pill-green {
+      background: #E6F2EC;
+      color: #0A5B38;
+      padding: 2px 7px;
+      border-radius: 100px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    /* Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .card h4 {
+      font-size: 9.8pt;
+      font-weight: 800;
+      margin-bottom: 4px;
+      color: #071F14;
+    }
+
+    /* Chart Containers */
+    .chart-box {
+      border: 1px solid #E2E8F0;
+      background: #FFFFFF;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+
+    .chart-title {
+      font-size: 8.8pt;
+      font-weight: 700;
+      color: #071F14;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Bullet lists */
+    ul.check-list {
+      list-style: none;
+      margin: 6px 0 10px;
+    }
+
+    ul.check-list li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 5px;
+      font-size: 8.6pt;
+    }
+
+    ul.check-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #0A5B38;
+      font-weight: 800;
+      font-size: 9pt;
+    }
+
+    .highlight-banner {
+      background: #071F14;
+      color: #FFFFFF;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      border-left: 4px solid #34D399;
+    }
+
+    .highlight-banner h3 {
+      color: #34D399;
+      font-size: 11pt;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .highlight-banner p {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 8.8pt;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="brand-logo-lockup">
+        <svg class="logo-sq" viewBox="0 0 119 119" fill="none">
+          <path d="M75.71 0C87.405 0 96.923 9.324 97.234 20.944C108.739 21.335 117.971 30.758 118.021 42.369L118.079 55.565L96.548 55.659L96.399 21.532H62.513V0H75.71Z" fill="#0A5B38"/>
+          <path d="M118.079 62.608L118.021 75.805C117.971 87.416 108.738 96.839 97.232 97.229C96.922 108.849 87.405 118.174 75.709 118.174H62.513V96.642H96.398L96.547 62.515L118.079 62.608Z" fill="#0A5B38"/>
+          <path d="M21.681 96.642H55.567V118.174H42.37C30.675 118.174 21.157 108.849 20.846 97.229C9.34 96.839 0.108 87.416 0.058 75.805L0 62.608L21.532 62.515L21.681 96.642Z" fill="#0A5B38"/>
+          <path d="M55.567 21.532H21.681L21.532 55.659L0 55.565L0.058 42.369C0.108 30.758 9.34 21.334 20.846 20.944C21.157 9.324 30.675 0 42.37 0H55.567V21.532Z" fill="#0A5B38"/>
+        </svg>
+        <span class="brand-name">CheckPass</span>
+      </div>
+
+      <div class="cover-badge">Investor Confidential Memo &bull; Business Model &amp; Economics</div>
+      <h1 class="cover-title">The All-in-One Operating System for <span>Gated Estates in Africa</span></h1>
+      <p class="cover-subtitle">
+        Bridging mission-critical gate security, automated dues collection via Paystack, and verified resident artisan services across multi-billion Naira residential communities.
+      </p>
+    </div>
+
+    <div class="cover-stats-grid">
+      <div class="cover-stat-box">
+        <div class="cover-stat-num">85.4%</div>
+        <div class="cover-stat-lbl">Software Gross Margin</div>
+      </div>
+      <div class="cover-stat-box">
+        <div class="cover-stat-num">&lt; 1%</div>
+        <div class="cover-stat-lbl">Estimated Annual Churn</div>
+      </div>
+      <div class="cover-stat-box">
+        <div class="cover-stat-num">₦2.25B</div>
+        <div class="cover-stat-lbl">SAM ARR (Lagos &amp; Abuja)</div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div>
+        <strong>Sheffy Technologies Ltd.</strong><br>
+        Corporate Strategy, Unit Economics &amp; Investor Overview<br>
+        Lekki Phase 1, Lagos, Nigeria
+      </div>
+      <div style="text-align:right">
+        Document Version: <strong>2.4 (Executive Edition)</strong><br>
+        Date: <strong>November 2026</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: PROBLEM & SOLUTION ==================== -->
+  <div class="page-break">
+    <h2 class="section-header">
+      <span>1. The Market Opportunity &amp; Core Problem</span>
+      <span class="section-tag">Market Dynamics</span>
+    </h2>
+
+    <p>
+      In major urban centers across Sub-Saharan Africa (led by Lagos, Abuja, Port Harcourt, Accra, and Nairobi), municipal infrastructure gaps have forced middle- and upper-class populations into <strong>private gated residential estates</strong>. These estates operate as autonomous micro-governments: they hire private security forces, pave their own roads, generate electricity via shared industrial diesel plants, and levy mandatory service charges.
+    </p>
+
+    <div class="grid-2">
+      <div class="card" style="border-left: 3px solid #EF4444;">
+        <h4 style="color:#B91C1C">The Status Quo: Fragmented &amp; Broken</h4>
+        <ul class="check-list" style="margin-top:6px">
+          <li><strong>Paper Logbooks:</strong> 15-minute gate queues during rush hours; endless intercom calls to verify visitors.</li>
+          <li><strong>Dues Collection Crisis:</strong> Up to 35% of monthly diesel and security levies go unpaid due to manual bank transfer matching.</li>
+          <li><strong>Unchecked Move-Out Thefts:</strong> Rogue tenants and moving contractors cart away leased air conditioners and fixtures without authorization.</li>
+          <li><strong>Security Breaches:</strong> Unvetted external artisans (electricians, plumbers) enter unmonitored, driving estate burglaries.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-left: 3px solid #0A5B38;">
+        <h4 style="color:#0A5B38">The CheckPass Operating System</h4>
+        <ul class="check-list" style="margin-top:6px">
+          <li><strong>Sub-4s Optical QR Passes:</strong> Resident creates a pass in 2 taps; shares direct WhatsApp link. Security scans instantly.</li>
+          <li><strong>Integrated Paystack Dues Engine:</strong> Automated card, USSD, and bank transfer payments with instant digital receipt reconciliation.</li>
+          <li><strong>Photo Move-Out Clearance:</strong> Mandatory photo-verified departing manifest validated by security before barrier is lifted.</li>
+          <li><strong>Vetted Artisan Directory:</strong> Built-in community marketplace of screened local tradesmen with security audit trails.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">
+        <span>The 3 Pillars of Estate Operations</span>
+        <span style="color:#0A5B38;font-size:7.5pt">Integrated Architecture</span>
+      </div>
+      <!-- SVG 3-Pillar Diagram -->
+      <svg width="100%" height="110" viewBox="0 0 680 110" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="206" height="90" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+        <text x="25" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#065F46">PILLAR 1: GATE SECURITY</text>
+        <text x="25" y="54" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Sub-4s QR Clearance</text>
+        <text x="25" y="70" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Offline Cryptographic Tokens</text>
+        <text x="25" y="86" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Photo Asset Move-Out Manifest</text>
+
+        <rect x="236" y="10" width="206" height="90" rx="8" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1.5"/>
+        <text x="251" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#1E40AF">PILLAR 2: PAYSTACK FINTECH</text>
+        <text x="251" y="54" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Service Charges &amp; Diesel Dues</text>
+        <text x="251" y="70" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Instant Automated Digital Receipts</text>
+        <text x="251" y="86" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Zero-Spreadsheet Admin Ledger</text>
+
+        <rect x="462" y="10" width="208" height="90" rx="8" fill="#FDF4FF" stroke="#F0ABFC" stroke-width="1.5"/>
+        <text x="477" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#86198F">PILLAR 3: ARTISAN MARKET</text>
+        <text x="477" y="54" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Vetted Electricians &amp; Plumbers</text>
+        <text x="477" y="70" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Gate-Tracked Contractor Passes</text>
+        <text x="477" y="86" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" fill="#1E293B">• Resident Safety Rating System</text>
+      </svg>
+    </div>
+
+    <h3 class="sub-header">The "Trojan Horse" Go-To-Market Strategy</h3>
+    <p>
+      CheckPass enters an estate through the <strong>Gatehouse Access Control</strong> wedge—a high-friction, emotional daily pain point for homeowners and estate executives. Once gate adoption is entrenched, CheckPass becomes the mandatory communication bridge for every household, enabling frictionless expansion into <strong>recurrent dues processing</strong> and <strong>home maintenance marketplaces</strong>.
+    </p>
+  </div>
+
+  <!-- ==================== PAGE 3: PRICING & UNIT ECONOMICS ==================== -->
+  <div class="page-break">
+    <h2 class="section-header">
+      <span>2. Pricing Architecture &amp; Unit Economics</span>
+      <span class="section-tag">Financial Engine</span>
+    </h2>
+
+    <p>
+      CheckPass employs a high-conversion <strong>Tiered Baseline Subscription</strong> model. By establishing transparent baseline anchors, estate exco committees can immediately verify affordability within their monthly operating budgets without friction.
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Plan Tier</th>
+          <th>Target Estate Profile</th>
+          <th>Monthly Fee</th>
+          <th>Cost Per Home</th>
+          <th>Key Inclusions &amp; Guard Support</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Boutique</strong></td>
+          <td>Closes &amp; Small Courts (Up to 50 Units)</td>
+          <td><strong>₦35,000 / mo</strong></td>
+          <td>~₦700 / mo</td>
+          <td>1 Gate terminal, WhatsApp passes, Paystack dues, Digital Guard Guide</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Gated Community</strong> <span class="pill-green">Most Popular</span></td>
+          <td>Medium Residential Estates (50–200 Units)</td>
+          <td><strong>₦75,000 / mo</strong></td>
+          <td>~₦400 / mo</td>
+          <td>2 Gates, Photo move-out manifest, Artisan directory, Remote Assisted Training</td>
+        </tr>
+        <tr>
+          <td><strong>Enterprise Master</strong></td>
+          <td>Large CDAs &amp; Multi-Gate Estates (200+ Units)</td>
+          <td><strong>₦180,000+ / mo</strong></td>
+          <td>~₦280 / mo</td>
+          <td>Multi-gate sync, <strong>Dedicated On-Site Physical Guard Drills</strong>, Local Server</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="chart-box">
+      <div class="chart-title">
+        <span>CheckPass Monthly Unit Economics (Per Estate Breakdown)</span>
+        <span style="color:#0A5B38;font-size:7.5pt">85.4% Blended Gross Margin</span>
+      </div>
+      <!-- SVG Bar Chart Unit Economics -->
+      <svg width="100%" height="155" viewBox="0 0 680 155" xmlns="http://www.w3.org/2000/svg">
+        <!-- Axes -->
+        <line x1="120" y1="125" x2="650" y2="125" stroke="#CBD5E1" stroke-width="1.5"/>
+        <line x1="120" y1="10" x2="120" y2="125" stroke="#CBD5E1" stroke-width="1.5"/>
+
+        <!-- Labels Y -->
+        <text x="110" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#64748B" text-anchor="end">Enterprise (₦200k)</text>
+        <text x="110" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#64748B" text-anchor="end">Gated Comm (₦75k)</text>
+        <text x="110" y="112" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#64748B" text-anchor="end">Boutique (₦35k)</text>
+
+        <!-- Boutique Bar: Gross Rev ₦35k, COGS ₦6k -->
+        <rect x="120" y="100" width="160" height="18" rx="3" fill="#0A5B38"/>
+        <rect x="120" y="100" width="28" height="18" rx="3" fill="#EF4444"/>
+        <text x="290" y="113" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#0F172A">₦29k Margin (82.8%)</text>
+
+        <!-- Gated Comm Bar: Gross Rev ₦75k, COGS ₦11k -->
+        <rect x="120" y="60" width="340" height="18" rx="3" fill="#0A5B38"/>
+        <rect x="120" y="60" width="50" height="18" rx="3" fill="#EF4444"/>
+        <text x="470" y="73" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#0F172A">₦64k Margin (85.3%)</text>
+
+        <!-- Enterprise Bar: Gross Rev ₦200k, COGS ₦28k -->
+        <rect x="120" y="20" width="500" height="18" rx="3" fill="#0A5B38"/>
+        <rect x="120" y="20" width="70" height="18" rx="3" fill="#EF4444"/>
+        <text x="628" y="33" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#0F172A">₦172k (86.0%)</text>
+
+        <!-- Legend -->
+        <rect x="120" y="137" width="10" height="10" rx="2" fill="#0A5B38"/>
+        <text x="135" y="146" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#334155">Gross Margin Contribution</text>
+        <rect x="270" y="137" width="10" height="10" rx="2" fill="#EF4444"/>
+        <text x="285" y="146" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#334155">Direct Variable Cost (COGS &bull; Server, SMS/WhatsApp, Storage)</text>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Variable Cost Breakdown (COGS)</h4>
+        <p style="font-size:8.2pt;color:#64748B">Average per 100-home active estate:</p>
+        <table style="width:100%;font-size:8pt;margin-top:4px">
+          <tr><td>Cloud API &amp; Redis Cache</td><td style="text-align:right"><strong>₦3,000 / mo</strong></td></tr>
+          <tr><td>Move-out Photo S3 Storage</td><td style="text-align:right"><strong>₦800 / mo</strong></td></tr>
+          <tr><td>SMS &amp; WhatsApp Invites Fallback</td><td style="text-align:right"><strong>₦2,400 / mo</strong></td></tr>
+          <tr><td>Shared Operations Support</td><td style="text-align:right"><strong>₦4,800 / mo</strong></td></tr>
+          <tr style="border-top:1px solid #CBD5E1"><td><strong>Total Monthly COGS</strong></td><td style="text-align:right;color:#B91C1C"><strong>₦11,000 / mo</strong></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h4>Physical Guard Training (Enterprise Only)</h4>
+        <p style="font-size:8.2pt">
+          To maintain 85%+ software margins, <strong>in-person guard drills are strictly restricted to the Enterprise tier</strong>.
+        </p>
+        <p style="font-size:8.2pt;color:#64748B">
+          Field trainer allowance and materials cost ~₦35,000 one-off, amortized within month 1 of an Enterprise contract (₦180,000–₦250,000/mo). Lower tiers use interactive video modules and digital reference cards.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 4: MARKET SIZE & PROJECTIONS ==================== -->
+  <div class="page-break">
+    <h2 class="section-header">
+      <span>3. Market Sizing &amp; 3-Year Financial Forecast</span>
+      <span class="section-tag">TAM / SAM / SOM</span>
+    </h2>
+
+    <div class="grid-2" style="align-items:center;">
+      <!-- SVG TAM SAM SOM Pyramid -->
+      <div class="chart-box" style="margin:0">
+        <div class="chart-title">Addressable Market Hierarchy</div>
+        <svg width="100%" height="150" viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+          <!-- TAM -->
+          <polygon points="160,10 20,135 300,135" fill="#E6F2EC" stroke="#0A5B38" stroke-width="1.5"/>
+          <!-- SAM -->
+          <polygon points="160,45 60,135 260,135" fill="#A7F3D0" stroke="#0A5B38" stroke-width="1.5"/>
+          <!-- SOM -->
+          <polygon points="160,85 105,135 215,135" fill="#0A5B38"/>
+
+          <text x="160" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" font-weight="700" fill="#065F46" text-anchor="middle">TAM: 15,000+ Estates ($35M ARR &bull; West Africa)</text>
+          <text x="160" y="72" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" font-weight="700" fill="#064E3B" text-anchor="middle">SAM: 2,500 Estates (₦2.25B ARR &bull; Lagos/Abuja)</text>
+          <text x="160" y="118" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" font-weight="800" fill="#FFFFFF" text-anchor="middle">SOM: 450 Estates</text>
+          <text x="160" y="128" font-family="'Plus Jakarta Sans', sans-serif" font-size="6.5" fill="#A7F3D0" text-anchor="middle">₦420M ARR Year 2</text>
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="sub-header" style="margin-top:0">The Expansion Flywheel</h3>
+        <p style="font-size:8.5pt">
+          <strong>Lagos and Abuja alone contain over 2,500 organized gated estates</strong>. CheckPass leverages high density: when an estate on Admiralty Way, Lekki deploys CheckPass, neighboring exco committees immediately observe the streamlined gate flow and inquire.
+        </p>
+        <p style="font-size:8.5pt">
+          <strong>Near-Zero Churn (&lt; 1%):</strong> Once an estate committee configures resident profiles, dues ledgers, and gatehouse equipment, the platform becomes mission-critical infrastructure that is rarely replaced.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="sub-header">3-Year Pro Forma Financial Projections</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Metric (Annualized)</th>
+          <th>Year 1 (Foundation)</th>
+          <th>Year 2 (Expansion)</th>
+          <th>Year 3 (Scale &amp; Fintech)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Active Estates Under Management</td>
+          <td><strong>120 Estates</strong></td>
+          <td><strong>450 Estates</strong></td>
+          <td><strong>1,200 Estates</strong></td>
+        </tr>
+        <tr>
+          <td>Total Active Resident Households</td>
+          <td>14,400 Units</td>
+          <td>58,500 Units</td>
+          <td>168,000 Units</td>
+        </tr>
+        <tr>
+          <td>Average Revenue Per Estate (ARPU / Mo)</td>
+          <td>₦75,000 / mo</td>
+          <td>₦78,000 / mo</td>
+          <td>₦84,000 / mo</td>
+        </tr>
+        <tr style="background:#F0FDF4">
+          <td><strong>Annual Recurring SaaS Revenue (ARR)</strong></td>
+          <td style="color:#0A5B38"><strong>₦108,000,000</strong></td>
+          <td style="color:#0A5B38"><strong>₦421,200,000</strong></td>
+          <td style="color:#0A5B38"><strong>₦1,209,600,000</strong></td>
+        </tr>
+        <tr>
+          <td>Fintech Processing Volume (Paystack)</td>
+          <td>₦1.44B Dues Volume</td>
+          <td>₦5.85B Dues Volume</td>
+          <td>₦16.8B Dues Volume</td>
+        </tr>
+        <tr>
+          <td>Secondary Revenue (Paystack &amp; Artisans)</td>
+          <td>₦7,200,000</td>
+          <td>₦29,250,000</td>
+          <td>₦84,000,000</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Total Annual Net Revenue</strong></td>
+          <td><strong>₦115,200,000</strong></td>
+          <td><strong>₦450,450,000</strong></td>
+          <td><strong>₦1,293,600,000 (~$860k)</strong></td>
+        </tr>
+        <tr>
+          <td>Gross Profit Margin (%)</td>
+          <td>83.2%</td>
+          <td>85.4%</td>
+          <td>86.8%</td>
+        </tr>
+        <tr>
+          <td>EBITDA Margin (%)</td>
+          <td>24.5%</td>
+          <td>38.2%</td>
+          <td>48.6%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-banner">
+      <h3>The Seed Investment Ask: $200,000 (₦300 Million)</h3>
+      <p>
+        CheckPass is raising <strong>$200,000</strong> in Seed funding to scale B2B sales across 450 estates in Lagos and Abuja, deepen our Paystack automated dues reconciliation infrastructure, and expand the curated Artisan Directory into a high-margin community commerce engine.
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 5: COMPETITION & ROADMAP ==================== -->
+  <div class="page-break">
+    <h2 class="section-header">
+      <span>4. Competitive Matrix &amp; Strategic Moat</span>
+      <span class="section-tag">Market Positioning</span>
+    </h2>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Capability / Feature</th>
+          <th style="background:#0A5B38">CheckPass</th>
+          <th>EstateIQ</th>
+          <th>DEMS</th>
+          <th>MyNaijaEstate</th>
+          <th>Paper Logbook</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sub-4s QR Optical Verification</td>
+          <td style="background:#E6F2EC"><strong>✓ Native Web/Mobile</strong></td>
+          <td>✓ Supported</td>
+          <td>Limited</td>
+          <td>OTP Code Only</td>
+          <td>✗ 5–15 Mins</td>
+        </tr>
+        <tr>
+          <td>Offline Cryptographic Tokens</td>
+          <td style="background:#E6F2EC"><strong>✓ Zero Downtime</strong></td>
+          <td>✗ Needs Internet</td>
+          <td>✗ Cloud-Only</td>
+          <td>✗ Cloud-Only</td>
+          <td>✓ Offline</td>
+        </tr>
+        <tr>
+          <td>Photo Move-Out Asset Clearance</td>
+          <td style="background:#E6F2EC"><strong>✓ Built-in Moat</strong></td>
+          <td>✗ None</td>
+          <td>✗ None</td>
+          <td>✗ None</td>
+          <td>✗ Vulnerable</td>
+        </tr>
+        <tr>
+          <td>Integrated Paystack Online Dues</td>
+          <td style="background:#E6F2EC"><strong>✓ Instant Receipt</strong></td>
+          <td>Manual Invoice</td>
+          <td>✓ Supported</td>
+          <td>✗ None</td>
+          <td>✗ Manual Bank</td>
+        </tr>
+        <tr>
+          <td>Verified Artisan Marketplace</td>
+          <td style="background:#E6F2EC"><strong>✓ Management Vetted</strong></td>
+          <td>✗ None</td>
+          <td>Basic Directory</td>
+          <td>✗ None</td>
+          <td>✗ None</td>
+        </tr>
+        <tr>
+          <td>On-Site Physical Guard Drills</td>
+          <td style="background:#E6F2EC"><strong>✓ Enterprise Exclusive</strong></td>
+          <td>Extra Add-on</td>
+          <td>✗ None</td>
+          <td>✗ None</td>
+          <td>✗ None</td>
+        </tr>
+        <tr>
+          <td>Transparent Tiered Pricing</td>
+          <td style="background:#E6F2EC"><strong>✓ ₦35k / ₦75k / Ent</strong></td>
+          <td>✗ Hidden Quote</td>
+          <td>₦1k–₦2.6k / Unit</td>
+          <td>₦20 / Token</td>
+          <td>₦0 (Paper cost)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-header">Use of Funds ($200k Allocation)</h3>
+    <div class="grid-2">
+      <!-- SVG Pie / Donut Chart Allocation -->
+      <div class="chart-box" style="margin:0">
+        <div class="chart-title">Capital Deployment Allocation</div>
+        <svg width="100%" height="135" viewBox="0 0 320 135" xmlns="http://www.w3.org/2000/svg">
+          <!-- Donut segments -->
+          <circle cx="90" cy="65" r="48" fill="none" stroke="#E2E8F0" stroke-width="24"/>
+          <!-- Sales 40% (144 deg) -->
+          <circle cx="90" cy="65" r="48" fill="none" stroke="#0A5B38" stroke-width="24" stroke-dasharray="120 301" stroke-dashoffset="0"/>
+          <!-- Engineering 30% (90 deg) -->
+          <circle cx="90" cy="65" r="48" fill="none" stroke="#34D399" stroke-width="24" stroke-dasharray="90 301" stroke-dashoffset="-120"/>
+          <!-- Ops & Guard Drills 20% (60 deg) -->
+          <circle cx="90" cy="65" r="48" fill="none" stroke="#F4C84A" stroke-width="24" stroke-dasharray="60 301" stroke-dashoffset="-210"/>
+          <!-- Legal 10% (30 deg) -->
+          <circle cx="90" cy="65" r="48" fill="none" stroke="#64748B" stroke-width="24" stroke-dasharray="31 301" stroke-dashoffset="-270"/>
+
+          <text x="90" y="69" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#071F14" text-anchor="middle">$200K</text>
+
+          <!-- Legend -->
+          <rect x="180" y="24" width="10" height="10" rx="2" fill="#0A5B38"/>
+          <text x="196" y="33" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#1E293B">B2B Estate Sales (40%)</text>
+
+          <rect x="180" y="46" width="10" height="10" rx="2" fill="#34D399"/>
+          <text x="196" y="55" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#1E293B">Core Engineering (30%)</text>
+
+          <rect x="180" y="68" width="10" height="10" rx="2" fill="#F4C84A"/>
+          <text x="196" y="77" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#1E293B">Ops &amp; Guard Drills (20%)</text>
+
+          <rect x="180" y="90" width="10" height="10" rx="2" fill="#64748B"/>
+          <text x="196" y="99" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" fill="#1E293B">Legal &amp; Compliance (10%)</text>
+        </svg>
+      </div>
+
+      <div class="card" style="border-left:3px solid #0A5B38;">
+        <h4>Target Milestones (18-Month Runway)</h4>
+        <ul class="check-list">
+          <li><strong>Month 6:</strong> 120 onboarded estates across Lekki, Ikeja, and Abuja &bull; ₦9M MRR.</li>
+          <li><strong>Month 12:</strong> 300 estates &bull; Launch Automated Paystack Direct Debit for service charges.</li>
+          <li><strong>Month 18:</strong> 450 active estates &bull; ₦35M MRR (₦420M ARR) &bull; Series A readiness.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;text-align:center;border-top:1px solid #E2E8F0;padding-top:14px;">
+      <p style="font-size:8.5pt;color:#64748B">
+        For executive inquiries and investment correspondence: <strong>hi@checkpass.ng</strong> &bull; <strong>+234 813 248 9619</strong><br>
+        CheckPass is an operational platform by <strong>Sheffy Technologies Ltd.</strong> &bull; All Rights Reserved &copy; 2026.
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

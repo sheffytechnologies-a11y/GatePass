@@ -107,3 +107,4 @@ Whenever a new page, feature, or design pattern is approved:
 1. Update this guide with the approved CSS tokens, component structures, and copy patterns.
 2. Ensure new pages (Pricing, Contact, Demo Modals) reference these established standards.
 3. Maintain zero regression on existing verified sections.
+
