@@ -2178,7 +2178,7 @@ function getConciergeAnswer(query: string): string {
     return '✅ <strong>Sub-4s Instant Gate Clearance:</strong><br>1. Residents generate a secure QR pass in two taps (or send a direct WhatsApp link to their guest).<br>2. Security scans with any smartphone or handheld optical reader.<br>3. Instant audio-visual clearance with host confirmation—no paperwork, intercom calls, or gate bottlenecks.'
   }
   if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy')) {
-    return '💳 <strong>Zero-Dispute Dues & Receipts:</strong><br>CheckPass automates estate dues, security levies, and diesel fees. Residents pay in-app or upload bank transfer receipts. Estate managers verify receipts in one click with automated WhatsApp payment notifications sent to residents!'
+    return '💳 <strong>Zero-Dispute Dues & Collections:</strong><br>CheckPass automates estate service charges, security dues, and diesel levies. Residents pay securely in-app via Paystack (card, USSD, or bank transfer), with instant digital receipts generated. Estate managers track collection balances and resident payment status in real time on a centralized dashboard—completely eliminating manual spreadsheets.'
   }
   if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
     return '📶 <strong>Offline Cryptographic Verification:</strong><br>CheckPass stores local cryptographic tokens on security devices using encrypted local storage. Even during total broadband blackout or poor cellular reception, security guards can scan and authenticate legitimate visitor passes.'
