@@ -63,7 +63,7 @@
     <div class="hero-noise"></div>
     <div class="hero-content">
       <div class="hero-inner">
-        <h1 class="hero-animate" style="transition-delay:0ms">Smarter <span class="hero-accent">Access</span><br>Management</h1>
+        <h1 class="hero-animate" style="transition-delay:0ms; text-transform: none !important;">Smarter <span class="hero-accent">Access</span><br>Management</h1>
         <p class="hero-sub hero-animate" style="transition-delay:100ms">From resident-issued invites to secure verification, CheckPass<br>gives you full control over visitor access and many more.</p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="window.goToRegister()">
@@ -956,7 +956,7 @@
   <div class="container">
     <div class="features-full">
       <!-- 01: VISITOR ACCESS -->
-      <div class="feature-row" data-reveal>
+      <div class="feature-row feature-row-1" data-reveal>
         <div class="feature-text">
           <h2>
             <span class="feature-mint-text">Instant Clearance.</span><br>
@@ -1005,7 +1005,7 @@
       </div>
 
       <!-- 02: PAYMENTS & DUES -->
-      <div class="feature-row reverse" data-reveal>
+      <div class="feature-row reverse feature-row-2" data-reveal>
         <div class="feature-text">
           <h2>
             <span class="feature-mint-text">Collect Every Dues.</span><br>
@@ -1054,7 +1054,7 @@
       </div>
 
       <!-- 03: MOVE-OUT ASSET TRACKING -->
-      <div class="feature-row" data-reveal>
+      <div class="feature-row feature-row-3" data-reveal>
         <div class="feature-text">
           <h2>
             <span class="feature-mint-text">Stop Unauthorized</span><br>
@@ -1103,7 +1103,7 @@
       </div>
 
       <!-- 04: CENTRAL COMMAND -->
-      <div class="feature-row reverse" data-reveal>
+      <div class="feature-row reverse feature-row-4" data-reveal>
         <div class="feature-text">
           <h2>
             <span class="feature-mint-text">Total Oversight</span><br>
@@ -1676,6 +1676,134 @@
 
 
   </div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     AI CONCIERGE FLOATING ASSISTANT WIDGET (Matches user screenshot)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="cp-concierge-anchor">
+  <!-- Speech Bubble Prompt -->
+  <transition name="cp-fade">
+    <div
+      v-if="showConciergePrompt && !isConciergeOpen"
+      class="cp-concierge-bubble"
+      @click="openConcierge()"
+      role="button"
+      tabindex="0"
+    >
+      <button class="cp-concierge-bubble-close" @click.stop="dismissConciergePrompt" aria-label="Dismiss">&times;</button>
+      <div class="cp-concierge-bubble-title">Hey there!</div>
+      <div class="cp-concierge-bubble-sub">How can we help you?</div>
+      <div class="cp-concierge-bubble-arrow"></div>
+    </div>
+  </transition>
+
+  <!-- Circular Trigger Button with Badge -->
+  <button
+    class="cp-concierge-fab"
+    @click="toggleConcierge()"
+    aria-label="Open CheckPass AI Operations Assistant"
+  >
+    <span v-if="conciergeUnread > 0 && !isConciergeOpen" class="cp-concierge-badge">{{ conciergeUnread }}</span>
+    <svg v-if="!isConciergeOpen" class="cp-concierge-fab-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2.5" y="3.5" width="19" height="14" rx="3" stroke="#ffffff" stroke-width="2.2"/>
+      <path d="M7 8h10M7 12h6" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M6 17.5l-3 3.5v-3.5h3z" fill="#ffffff"/>
+    </svg>
+    <svg v-else class="cp-concierge-fab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>
+
+<!-- AI Concierge Floating Dialog -->
+<transition name="cp-slide-up">
+  <div v-if="isConciergeOpen" class="cp-concierge-dialog" role="dialog" aria-modal="true" aria-label="CheckPass Assistant">
+    <!-- Header -->
+    <div class="cp-concierge-header">
+      <div class="cp-concierge-header-info">
+        <div class="cp-concierge-avatar">
+          <svg width="22" height="22" viewBox="0 0 119 119" fill="none">
+            <path d="M75.71 0C87.405 0 96.923 9.324 97.234 20.944C108.739 21.335 117.971 30.758 118.021 42.369L118.079 55.565L96.548 55.659L96.399 21.532H62.513V0H75.71Z" fill="#10B981"/>
+            <path d="M118.079 62.608L118.021 75.805C117.971 87.416 108.738 96.839 97.232 97.229C96.922 108.849 87.405 118.174 75.709 118.174H62.513V96.642H96.398L96.547 62.515L118.079 62.608Z" fill="#10B981"/>
+            <path d="M21.681 96.642H55.567V118.174H42.37C30.675 118.174 21.157 108.849 20.846 97.229C9.34 96.839 0.108 87.416 0.058 75.805L0 62.608L21.532 62.515L21.681 96.642Z" fill="#10B981"/>
+            <path d="M55.567 21.532H21.681L21.532 55.659L0 55.565L0.058 42.369C0.108 30.758 9.34 21.334 20.846 20.944C21.157 9.324 30.675 0 42.37 0H55.567V21.532Z" fill="#10B981"/>
+          </svg>
+        </div>
+        <div>
+          <div class="cp-concierge-title-line">
+            <span class="cp-concierge-title">CheckPass AI Concierge</span>
+            <span class="cp-concierge-badge-live"><span class="cp-concierge-pulse"></span>Live</span>
+          </div>
+          <div class="cp-concierge-tagline">Estate Access &amp; Operations Specialist</div>
+        </div>
+      </div>
+      <button class="cp-concierge-close-btn" @click="closeConcierge" aria-label="Close dialog">&times;</button>
+    </div>
+
+    <!-- Scrollable Messages Area -->
+    <div class="cp-concierge-messages" ref="conciergeScrollContainer">
+      <div
+        v-for="(msg, i) in conciergeMessages"
+        :key="i"
+        class="cp-msg-row"
+        :class="msg.sender === 'user' ? 'cp-msg-row-user' : 'cp-msg-row-ai'"
+      >
+        <div class="cp-msg-balloon" v-html="msg.text"></div>
+        <div class="cp-msg-meta">{{ msg.time }}</div>
+      </div>
+
+      <!-- Thinking indicator -->
+      <div v-if="isConciergeThinking" class="cp-msg-row cp-msg-row-ai">
+        <div class="cp-msg-balloon cp-msg-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Chips -->
+    <div class="cp-concierge-chips">
+      <div class="cp-concierge-chips-slider">
+        <button
+          v-for="(chip, idx) in conciergeQuickChips"
+          :key="idx"
+          class="cp-chip-btn"
+          @click="selectConciergeChip(chip)"
+        >
+          {{ chip.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Footer -->
+    <div class="cp-concierge-footer">
+      <form class="cp-concierge-form" @submit.prevent="submitConciergeMessage">
+        <input
+          v-model="conciergeInput"
+          type="text"
+          placeholder="Ask a question about estate setup..."
+          class="cp-concierge-input"
+          maxlength="280"
+        />
+        <button
+          type="submit"
+          class="cp-concierge-send"
+          :disabled="!conciergeInput.trim() || isConciergeThinking"
+          aria-label="Send"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+      <div class="cp-concierge-subtext">
+        <span>Instant operational guidance</span> &bull; <a href="#" @click.prevent="triggerDemoModal(); closeConcierge()">Book 15-Min Walkthrough</a>
+      </div>
+    </div>
+  </div>
+</transition>
+
 </template>
 
 <script setup lang="ts">
@@ -1974,6 +2102,134 @@ onMounted(() => {
     }
   })
 })
+
+
+// ── AI Concierge Floating Assistant ──
+const isConciergeOpen = ref(false)
+const showConciergePrompt = ref(true)
+const conciergeUnread = ref(2)
+const isConciergeThinking = ref(false)
+const conciergeInput = ref('')
+const conciergeScrollContainer = ref<HTMLElement | null>(null)
+
+interface ConciergeMsg {
+  sender: 'ai' | 'user'
+  text: string
+  time: string
+}
+
+const conciergeMessages = ref<ConciergeMsg[]>([
+  {
+    sender: 'ai',
+    text: '👋 <strong>Welcome to CheckPass!</strong><br>I\'m your Estate Operations Assistant. Whether you manage 30 homes or 2,500 units, I can show you how gate passes, automated dues, or security workflows operate.',
+    time: 'Just now'
+  },
+  {
+    sender: 'ai',
+    text: 'Tap a quick topic below or type your question:',
+    time: 'Just now'
+  }
+])
+
+const conciergeQuickChips = ref([
+  { label: '⚡ How does 4s clearance work?', query: 'How does 4s clearance work?' },
+  { label: '💳 Automated dues & receipts', query: 'How do automated dues and receipts work?' },
+  { label: '📶 Poor security network?', query: 'Does it work offline when network is down?' },
+  { label: '🚚 Move-out asset tracking', query: 'How does move-out asset clearance work?' },
+  { label: '📅 Book a 15-min live demo', query: 'How can I schedule a demo for our estate?' }
+])
+
+function openConcierge() {
+  isConciergeOpen.value = true
+  conciergeUnread.value = 0
+  showConciergePrompt.value = false
+  scrollConciergeBottom()
+}
+
+function toggleConcierge() {
+  if (isConciergeOpen.value) {
+    isConciergeOpen.value = false
+  } else {
+    openConcierge()
+  }
+}
+
+function triggerDemoModal() {
+  if (typeof (window as any).openDemoModal === 'function') {
+    (window as any).openDemoModal()
+  }
+}
+
+function closeConcierge() {
+  isConciergeOpen.value = false
+}
+
+function dismissConciergePrompt() {
+  showConciergePrompt.value = false
+}
+
+function scrollConciergeBottom() {
+  nextTick(() => {
+    if (conciergeScrollContainer.value) {
+      conciergeScrollContainer.value.scrollTop = conciergeScrollContainer.value.scrollHeight
+    }
+  })
+}
+
+function getConciergeAnswer(query: string): string {
+  const q = query.toLowerCase()
+  if (q.includes('clearance') || q.includes('visitor') || q.includes('4s') || q.includes('gate') || q.includes('qr')) {
+    return '✅ <strong>Sub-4s Instant Gate Clearance:</strong><br>1. Residents generate a secure QR pass in two taps (or send a direct WhatsApp link to their guest).<br>2. Security scans with any smartphone or handheld optical reader.<br>3. Instant audio-visual clearance with host confirmation—no paperwork, intercom calls, or gate bottlenecks.'
+  }
+  if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy')) {
+    return '💳 <strong>Zero-Dispute Dues & Receipts:</strong><br>CheckPass automates estate dues, security levies, and diesel fees. Residents pay in-app or upload bank transfer receipts. Estate managers verify receipts in one click with automated WhatsApp payment notifications sent to residents!'
+  }
+  if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
+    return '📶 <strong>Offline Cryptographic Verification:</strong><br>CheckPass stores local cryptographic tokens on security devices using encrypted local storage. Even during total broadband blackout or poor cellular reception, security guards can scan and authenticate legitimate visitor passes.'
+  }
+  if (q.includes('move') || q.includes('asset') || q.includes('truck') || q.includes('furniture')) {
+    return '🚚 <strong>Move-Out Asset Verification:</strong><br>Tenants or moving contractors cannot leave without digital clearance. Residents register departing assets (appliances, furniture, machinery) with attached photos. Security validates the manifest item-by-item before lifting the barrier.'
+  }
+  if (q.includes('demo') || q.includes('walkthrough') || q.includes('meeting') || q.includes('call') || q.includes('contact')) {
+    return '📅 <strong>Ready for a Live Walkthrough?</strong><br>Click <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">here to open our Demo Booking Form</a> or email us at <strong>hi@checkpass.ng</strong>. We configure a custom sandbox for your estate in under 48 hours!'
+  }
+  if (q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('tier') || q.includes('naira')) {
+    return '🏷️ <strong>Transparent Estate Pricing:</strong><br>&bull; <strong>Starter:</strong> ₦25,000/mo (up to 50 homes)<br>&bull; <strong>Growth:</strong> ₦55,000/mo (up to 200 homes)<br>&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>Includes free guard training, setup, and dedicated support.'
+  }
+  return 'Thank you for reaching out! CheckPass is Nigeria\'s premier digital estate access and operations management platform. You can <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">book a 15-min walkthrough</a> or click <strong>Create Free Account</strong> at the top to explore the portal right now.'
+}
+
+function selectConciergeChip(chip: { label: string; query: string }) {
+  addUserMessage(chip.query)
+}
+
+function submitConciergeMessage() {
+  const text = conciergeInput.value.trim()
+  if (!text || isConciergeThinking.value) return
+  addUserMessage(text)
+  conciergeInput.value = ''
+}
+
+function addUserMessage(text: string) {
+  conciergeMessages.value.push({
+    sender: 'user',
+    text,
+    time: 'Just now'
+  })
+  scrollConciergeBottom()
+
+  isConciergeThinking.value = true
+  setTimeout(() => {
+    isConciergeThinking.value = false
+    const reply = getConciergeAnswer(text)
+    conciergeMessages.value.push({
+      sender: 'ai',
+      text: reply,
+      time: 'Just now'
+    })
+    scrollConciergeBottom()
+  }, 650)
+}
 
 onUnmounted(() => {
   window.removeEventListener('scroll', updateHowStepOnScroll)
