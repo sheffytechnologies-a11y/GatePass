@@ -119,11 +119,28 @@
                 </div>
               </div>
 
+              <!-- Authorization & Master Services Agreement Consent -->
+              <div class="community-terms-block">
+                <label class="community-terms-label">
+                  <input
+                    v-model="agreeCommunityTerms"
+                    type="checkbox"
+                    class="community-terms-checkbox"
+                    required
+                  />
+                  <span>
+                    I confirm I am an authorized representative of this property/community and agree to the
+                    <a href="#" @click.prevent="openLegal('agreement')">CheckPass Master Services Agreement &amp; DPA</a> and
+                    <a href="#" @click.prevent="openLegal('terms')">Terms of Use</a>.
+                  </span>
+                </label>
+              </div>
+
               <!-- Submit Button -->
               <button
                 type="submit"
                 class="submit-account-btn"
-                :disabled="loading || !name.trim()"
+                :disabled="loading || !name.trim() || !agreeCommunityTerms"
               >
                 <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
@@ -137,9 +154,58 @@
             <!-- NDPR Trust Footer -->
             <div class="form-trust-footer">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>Bank-grade 256-bit encryption &middot; NDPR &amp; ISO 27001 Compliant</span>
+              <span>Bank-grade 256-bit encryption &middot; NDPA 2023 &amp; GAID 2025 Compliant</span>
             </div>
-          </template>
+          
+    <!-- CheckPass Master Services Agreement Modal -->
+    <div v-if="legalModalOpen" class="estate-legal-modal-backdrop" @click.self="legalModalOpen = false">
+      <div class="estate-legal-modal-card">
+        <div class="estate-legal-header">
+          <div class="estate-legal-tabs">
+            <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'agreement' }" @click="legalTab = 'agreement'">Master Services Agreement (MSA &amp; DPA)</button>
+            <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'terms' }" @click="legalTab = 'terms'">Platform Terms</button>
+            <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'gaid' }" @click="legalTab = 'gaid'">NDPA &amp; GAID 2025</button>
+          </div>
+          <button type="button" class="estate-legal-close" @click="legalModalOpen = false">&times;</button>
+        </div>
+
+        <div class="estate-legal-body">
+          <div v-if="legalTab === 'agreement'" class="legal-flow">
+            <div class="dpa-badge">Regulated under NDP Act 2023 &amp; NDPC GAID 2025</div>
+            <h3>CheckPass Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</h3>
+            <p class="legal-sub">Between Sheffy Technologies Limited (RC 1928471) &amp; The Subscribing Client / Property Management</p>
+
+            <h4>1. Purpose &amp; Scope of Cloud Platform</h4>
+            <p>This Master Services Agreement governs access to the CheckPass access management, gatehouse verification, and facility operations system. CheckPass provides digital pass clearance, multi-channel pass distribution (WhatsApp, SMS, Email), automated dues reconciliation, and emergency dispatch tools.</p>
+
+            <h4>2. Data Controller vs. Data Processor (NDP Act 2023 Section 24 &amp; GAID 2025)</h4>
+            <p>The Subscribing Property/Client acts as the primary <strong>Data Controller</strong>, determining legitimate access rules and resident records. Sheffy Technologies Limited acts strictly as the <strong>Data Processor</strong>, processing visitor, resident, and movement telemetry solely on the Controller's instructions with zero third-party monetization.</p>
+
+            <h4>3. Bank-Grade Security &amp; Direct Dues Settlement</h4>
+            <p>All data at rest is protected with AES-256 bit encryption and TLS 1.3 in transit. All dues and service charges paid digitally or via direct bank transfer settlement go 100% directly into the designated bank account of the property.</p>
+
+            <h4>4. Data Portability &amp; 30-Day Exit Guarantee</h4>
+            <p>The Subscriber may terminate service with 30 days written notice with zero exit penalties. CheckPass will supply an encrypted, full CSV export of all resident rosters, dues ledgers, and audit history prior to secure data purging.</p>
+          </div>
+
+          <div v-else-if="legalTab === 'terms'" class="legal-flow">
+            <h3>Platform Terms of Use</h3>
+            <p>Authorized personnel must maintain confidentiality of gatehouse PINs and admin credentials. Automated local offline token caching ensures security guards can continue validating digital passes even during cellular internet downtime.</p>
+          </div>
+
+          <div v-else class="legal-flow">
+            <h3>NDP Act 2023 &amp; GAID 2025 Compliance Standards</h3>
+            <p>CheckPass adheres to the <strong>Nigeria Data Protection Act 2023</strong> and the <strong>General Application and Implementation Directive (GAID) 2025</strong> published by the Nigeria Data Protection Commission (NDPC). Visitor logs are purged after 180 days, personal phone numbers are masked on guard terminals, and full audit logs are archived for corporate governance.</p>
+          </div>
+        </div>
+
+        <div class="estate-legal-footer">
+          <button type="button" class="btn-legal-accept" @click="acceptLegal">Accept &amp; Continue Onboarding</button>
+        </div>
+      </div>
+    </div>
+
+</template>
 
           <!-- ACTIVATED SUCCESS PANEL -->
           <template v-else>
@@ -178,6 +244,19 @@ const name = ref('')
 const address = ref('')
 const city = ref('')
 const state = ref('')
+const agreeCommunityTerms = ref(false)
+const legalModalOpen = ref(false)
+const legalTab = ref<'agreement' | 'terms' | 'gaid'>('agreement')
+
+function openLegal(tab: 'agreement' | 'terms' | 'gaid') {
+  legalTab.value = tab
+  legalModalOpen.value = true
+}
+
+function acceptLegal() {
+  agreeCommunityTerms.value = true
+  legalModalOpen.value = false
+}
 const loading = ref(false)
 const error = ref('')
 const activated = ref(false)
@@ -608,5 +687,147 @@ function goToDashboard() {
   .hero-slider-section { display: none; }
   .form-interaction-section { width: 100%; min-height: 100vh; padding: 24px 16px; }
 }
+
+.community-terms-block {
+  margin: 14px 0 16px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+.community-terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #475569;
+  cursor: pointer;
+}
+.community-terms-checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: #0A5C38;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.community-terms-label a {
+  color: #0A5C38;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.estate-legal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 31, 20, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.estate-legal-modal-card {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.estate-legal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F8FAFC;
+}
+.estate-legal-tabs {
+  display: flex;
+  gap: 6px;
+  background: #E2E8F0;
+  padding: 3px;
+  border-radius: 8px;
+}
+.estate-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.estate-tab-btn.active {
+  background: #fff;
+  color: #0A5C38;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.estate-legal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748B;
+  cursor: pointer;
+}
+.estate-legal-body {
+  padding: 24px;
+  overflow-y: auto;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #334155;
+}
+.dpa-badge {
+  display: inline-block;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.legal-flow h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #071F14;
+  margin: 0 0 4px;
+}
+.legal-flow .legal-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0 0 16px;
+}
+.legal-flow h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #071F14;
+  margin: 16px 0 6px;
+}
+.estate-legal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  display: flex;
+  justify-content: flex-end;
+}
+.btn-legal-accept {
+  background: #0A5C38;
+  color: #fff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 </style>
 

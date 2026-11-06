@@ -6,7 +6,13 @@
       <p class="hero-copy">
         Monitor the gate feed, inspect flagged activity, and jump into pass records fast.
       </p>
-      <button class="btn btn-primary hero-button" @click="scannerOpen = true">Scan QR Pass</button>
+      <div class="guard-actions-row">
+        <button class="btn btn-primary hero-button" @click="scannerOpen = true">Scan QR Pass</button>
+        <button type="button" class="guard-compliance-pill" @click="guardCodeModalOpen = true">
+          <span class="pill-dot"></span>
+          {{ guardCodeAcknowledged ? "Gate Protocol: Verified (NDPA/GAID 2025)" : "Gate Protocol: Pending Acknowledgment" }}
+        </button>
+      </div>
     </section>
 
     <section class="stats-grid">
@@ -64,6 +70,77 @@
 
     <QrScannerSheet :open="scannerOpen" @close="scannerOpen = false" @scanned="handleScanned" />
   </div>
+
+    <!-- Guard Code of Conduct & Confidentiality Modal -->
+    <div v-if="guardCodeModalOpen" class="guard-modal-backdrop" @click.self="guardCodeAcknowledged ? guardCodeModalOpen = false : null">
+      <div class="guard-modal-card">
+        <div class="guard-modal-header">
+          <div class="guard-brand-lockup">
+            <span class="guard-shield-icon">🛡️</span>
+            <div>
+              <h3 class="guard-modal-title">Gate Security Code of Conduct &amp; Privacy Agreement</h3>
+              <p class="guard-modal-sub">Compliant with Nigeria Data Protection Act 2023 &amp; NDPC GAID 2025</p>
+            </div>
+          </div>
+          <button v-if="guardCodeAcknowledged" type="button" class="guard-modal-close" @click="guardCodeModalOpen = false">&times;</button>
+        </div>
+
+        <div class="guard-modal-body">
+          <div class="guard-notice-box">
+            <strong>Official Notice to Duty Security Officers:</strong>
+            As a gate security operator on CheckPass, you handle personal and vehicle data of residents and visitors. You are legally required to uphold strict confidentiality and operational discipline under Nigerian data protection laws.
+          </div>
+
+          <div class="guard-rules-stack">
+            <div class="guard-rule-item">
+              <span class="rule-num">1</span>
+              <div>
+                <strong>Zero Personal Device Recording:</strong>
+                <p>Never take photos, video, or screenshots of resident names, phone numbers, vehicle license plates, or gate records using your personal mobile phone. All on-screen data is strictly confidential.</p>
+              </div>
+            </div>
+
+            <div class="guard-rule-item">
+              <span class="rule-num">2</span>
+              <div>
+                <strong>Zero Cash Bribery &amp; Illegal Gate Tolls:</strong>
+                <p>Soliciting, collecting, or accepting cash tips, gate entry bribes, or unauthorized tolls from visitors, delivery couriers, or artisans is strictly prohibited and subject to immediate dismissal and legal action.</p>
+              </div>
+            </div>
+
+            <div class="guard-rule-item">
+              <span class="rule-num">3</span>
+              <div>
+                <strong>100% Digital Pass Verification:</strong>
+                <p>Every vehicle, pedestrian, or artisan must present a verified 6-character pass code or digital QR pass. Never wave unknown persons in based on verbal claims without scanning or validating in the system.</p>
+              </div>
+            </div>
+
+            <div class="guard-rule-item">
+              <span class="rule-num">4</span>
+              <div>
+                <strong>Move-Out Asset Clearance:</strong>
+                <p>For moving trucks, vans, or departing occupants, verify all declared appliances, furniture, and machinery item-by-item against the digital move-out manifest before lifting the exit barrier.</p>
+              </div>
+            </div>
+
+            <div class="guard-rule-item">
+              <span class="rule-num">5</span>
+              <div>
+                <strong>Emergency Calmness &amp; SOS Dispatch:</strong>
+                <p>In case of resident panic SOS alerts or perimeter disputes, maintain calm, press the emergency dispatch button on the terminal, and notify the Chief Security Officer immediately.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="guard-modal-footer">
+          <button type="button" class="btn-accept-guard-code" @click="acceptGuardCode">
+            I Acknowledge &amp; Accept Gate Security Protocol
+          </button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -89,6 +166,26 @@ const router = useRouter()
 const { showToast } = useToast()
 
 const scannerOpen = ref(false)
+const guardCodeModalOpen = ref(false)
+const guardCodeAcknowledged = ref(false)
+
+function checkGuardCompliance() {
+  if (typeof window !== "undefined") {
+    const ack = localStorage.getItem("checkpass_guard_code_acknowledged_at")
+    guardCodeAcknowledged.value = !!ack
+    if (!ack) {
+      guardCodeModalOpen.value = true
+    }
+  }
+}
+
+function acceptGuardCode() {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("checkpass_guard_code_acknowledged_at", new Date().toISOString())
+    guardCodeAcknowledged.value = true
+    guardCodeModalOpen.value = false
+  }
+}
 const loading = ref(true)
 const search = ref('')
 const statusFilter = ref('all')
@@ -210,7 +307,10 @@ function formatTime(value: string | null) {
   return new Date(value).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-onMounted(refresh)
+onMounted(() => {
+  refresh()
+  checkGuardCompliance()
+})
 </script>
 
 <style scoped>
@@ -256,5 +356,165 @@ onMounted(refresh)
 .flag-note { margin-top: 12px; color: var(--c-warning); font-size: 12px; font-weight: 700; }
 @media (max-width: 420px) {
   .stats-grid { grid-template-columns: 1fr; }
+}
+
+.guard-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.guard-compliance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 92, 56, 0.08);
+  border: 1px solid rgba(10, 92, 56, 0.2);
+  color: #0A5C38;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.guard-compliance-pill:hover {
+  background: rgba(10, 92, 56, 0.15);
+}
+.pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22C55E;
+  display: inline-block;
+}
+.guard-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 31, 20, 0.82);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.guard-modal-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 660px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+}
+.guard-modal-header {
+  padding: 18px 22px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.guard-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.guard-shield-icon {
+  font-size: 24px;
+}
+.guard-modal-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #071F14;
+  margin: 0;
+}
+.guard-modal-sub {
+  font-size: 11px;
+  color: #0A5C38;
+  font-weight: 600;
+  margin: 2px 0 0;
+}
+.guard-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748B;
+  cursor: pointer;
+}
+.guard-modal-body {
+  padding: 22px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+}
+.guard-notice-box {
+  background: #EFF6FF;
+  border-left: 4px solid #2563EB;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1E40AF;
+  margin-bottom: 18px;
+}
+.guard-rules-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.guard-rule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.rule-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0A5C38;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.guard-rule-item strong {
+  color: #071F14;
+  font-size: 13px;
+}
+.guard-rule-item p {
+  margin: 2px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.guard-modal-footer {
+  padding: 14px 22px;
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: flex-end;
+}
+.btn-accept-guard-code {
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-accept-guard-code:hover {
+  background: #07472A;
 }
 </style>
