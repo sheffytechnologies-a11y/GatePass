@@ -2132,8 +2132,10 @@ const conciergeMessages = ref<ConciergeMsg[]>([
 ])
 
 const conciergeQuickChips = ref([
+  { label: '🌟 What do I gain using CheckPass?', query: 'What do I gain using CheckPass?' },
   { label: '⚡ How does 4s clearance work?', query: 'How does 4s clearance work?' },
   { label: '💳 Automated dues & receipts', query: 'How do automated dues and receipts work?' },
+  { label: '🛠️ Vetted artisan directory', query: 'How does the vetted artisan directory work?' },
   { label: '📶 Poor security network?', query: 'Does it work offline when network is down?' },
   { label: '🚚 Move-out asset tracking', query: 'How does move-out asset clearance work?' },
   { label: '📅 Book a 15-min live demo', query: 'How can I schedule a demo for our estate?' }
@@ -2185,25 +2187,122 @@ function scrollConciergeBottom() {
 
 function getConciergeAnswer(query: string): string {
   const q = query.toLowerCase()
+
+  // 1. Core Value Proposition / Gains
+  if (q.includes('gain') || q.includes('benefit') || q.includes('why') || q.includes('value') || q.includes('advantage') || q.includes('help') || q.includes('solve') || q.includes('differen') || q.includes('better')) {
+    return "🌟 <strong>What You &amp; Your Estate Gain with CheckPass:</strong><br><br>" +
+      "<strong>1. 🛡️ For Estate Executives &amp; Excos:</strong><br>" +
+      "&bull; <strong>95%+ Dues Recovery:</strong> Eliminate defaults with online card/transfer payments and 1-click bank teller verification.<br>" +
+      "&bull; <strong>100% Gate Transparency:</strong> Immutable live logs of every visitor, vehicle, artisan, and delivery.<br>" +
+      "&bull; <strong>Zero Dues Disputes:</strong> Automated receipts and AGM-ready financial ledgers eliminate paper spreadsheet chaos.<br><br>" +
+      "<strong>2. 🏡 For Residents &amp; Landlords:</strong><br>" +
+      "&bull; <strong>Instant Guest Passes:</strong> Create 4-second QR passes in 2 taps and share via WhatsApp—no gate intercom calls.<br>" +
+      "&bull; <strong>Vetted Artisan Directory:</strong> Hire verified electricians, plumbers, and technicians straight from the app.<br>" +
+      "&bull; <strong>Move-Out Protection:</strong> Block unauthorized asset removal or tenant departures without digital clearance.<br><br>" +
+      "<strong>3. 👮 For Gate Security:</strong><br>" +
+      "&bull; <strong>4-Second Scan Clearance:</strong> Fast verification on standard smartphones, even during total internet downtime.<br><br>" +
+      "<a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">Book a 15-min walkthrough</a> or tap <strong>See Pricing</strong> below!"
+  }
+
+  // 2. Artisans & Domestic Services
+  if (q.includes('artisan') || q.includes('plumber') || q.includes('electrician') || q.includes('carpenter') || q.includes('technician') || q.includes('repair') || q.includes('handyman') || q.includes('directory')) {
+    return "🛠️ <strong>Verified Estate Artisan Directory:</strong><br>" +
+      "CheckPass solves the frustration of finding trusted domestic technicians inside residential estates:<br><br>" +
+      "&bull; <strong>Vetted &amp; Certified:</strong> Plumbers, electricians, and AC technicians are verified with valid ID and credentials.<br>" +
+      "&bull; <strong>Neighbor Ratings:</strong> Residents browse real reviews and job history before hiring.<br>" +
+      "&bull; <strong>Gate Accountability:</strong> Security automatically logs when an artisan enters your home and leaves the estate grounds.<br><br>" +
+      "Residents access the directory directly from their mobile portal with zero friction."
+  }
+
+  // 3. Resident Experience
+  if (q.includes('resident') || q.includes('tenant') || q.includes('occupant') || q.includes('landlord')) {
+    return "🏡 <strong>The CheckPass Resident Experience:</strong><br>" +
+      "Residents manage their estate life conveniently from any smartphone with zero mandatory app downloads:<br><br>" +
+      "1. <strong>Quick Passes:</strong> Issue visitor passes in under 10 seconds and share directly via WhatsApp.<br>" +
+      "2. <strong>Flexible Dues:</strong> Settle levies via online card/transfer or upload direct bank tellers for 1-click admin approval.<br>" +
+      "3. <strong>Vetted Artisans:</strong> Hire background-checked domestic technicians directly in-app.<br>" +
+      "4. <strong>1-Tap SOS Alert:</strong> Instantly notify gate security during medical, fire, or safety emergencies."
+  }
+
+  // 4. Guards, Gate Hardware & Devices
+  if (q.includes('device') || q.includes('hardware') || q.includes('phone') || q.includes('guard') || q.includes('scanner') || q.includes('barrier') || q.includes('turnstile')) {
+    return "👮 <strong>Gate Security &amp; Hardware Compatibility:</strong><br>" +
+      "&bull; <strong>Zero Proprietary Hardware Required:</strong> Security guards scan passes using standard Android or iOS smartphones or tablets.<br>" +
+      "&bull; <strong>Barrier Integration:</strong> Works seamlessly with manual gates, boom barriers, and pedestrian turnstiles.<br>" +
+      "&bull; <strong>Built for Nigerian Realities:</strong> Operates fully offline during cellular downtime, caching valid passes locally.<br>" +
+      "&bull; <strong>Guard Training:</strong> Digital visual guides are included on all plans; hands-on physical guard drills are included for Enterprise estates."
+  }
+
+  // 5. Estate Setup & Launch Time
+  if (q.includes('setup') || q.includes('onboard') || q.includes('how long') || q.includes('deploy') || q.includes('start') || q.includes('register') || q.includes('pilot')) {
+    return "⚡ <strong>Fast 48-Hour Estate Onboarding:</strong><br>" +
+      "Getting your estate live on CheckPass is completely turnkey:<br><br>" +
+      "1. <strong>Upload Resident List:</strong> Import your estate units and resident roster via CSV or self-serve links.<br>" +
+      "2. <strong>Gate Setup:</strong> Security guards receive digital visual training guides (or on-site drills for Enterprise).<br>" +
+      "3. <strong>Go-Live Sandbox:</strong> We run a 48-hour pilot simulation before opening the gate to live traffic.<br><br>" +
+      "<a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">Book a 15-min walkthrough</a> to get your estate sandbox configured!"
+  }
+
+  // 6. Emergency / Panic SOS
+  if (q.includes('panic') || q.includes('emergency') || q.includes('sos') || q.includes('fire') || q.includes('police') || q.includes('safety') || q.includes('alert')) {
+    return "🚨 <strong>1-Tap Instant Emergency SOS:</strong><br>" +
+      "&bull; <strong>Real-Time Gate Sirens:</strong> Residents tap SOS in-app to trigger high-priority alerts at the main gate terminal.<br>" +
+      "&bull; <strong>Exact Unit Identification:</strong> Guards instantly see the resident's unit number and emergency contact details.<br>" +
+      "&bull; <strong>Rapid Dispatch:</strong> Security can immediately direct patrol or emergency vehicles to the exact house address."
+  }
+
+  // 7. Gate Clearance
   if (q.includes('clearance') || q.includes('visitor') || q.includes('4s') || q.includes('gate') || q.includes('qr')) {
-    return '✅ <strong>How 4-Second Gate Clearance Works:</strong><br>1. <strong>Resident invites guest:</strong> In two taps, the resident creates a digital pass and shares the link directly via WhatsApp.<br>2. <strong>Security scans QR code:</strong> The guard scans the guest\'s pass on their phone in under 4 seconds.<br>3. <strong>Instant gate approval:</strong> The screen immediately confirms the guest\'s name and host house address, so the barrier opens right away—no phone calls or paper logbooks.'
+    return "✅ <strong>How 4-Second Gate Clearance Works:</strong><br>" +
+      "1. <strong>Resident invites guest:</strong> In two taps, the resident creates a digital pass and shares the link directly via WhatsApp.<br>" +
+      "2. <strong>Security scans QR code:</strong> The guard scans the guest's pass on their phone in under 4 seconds.<br>" +
+      "3. <strong>Instant gate approval:</strong> The screen immediately confirms the guest's name and host house address, so the barrier opens right away—no phone calls or paper logbooks."
   }
-  if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy')) {
-    return '💳 <strong>Zero-Dispute Dues & Collections:</strong><br>CheckPass automates estate service charges, security dues, and diesel levies with two flexible payment methods:<br><br>1. <strong>Instant Online Payment:</strong> Residents pay securely in-app using debit cards, USSD, or direct bank transfer, receiving automated digital receipts immediately.<br>2. <strong>Bank Transfer & Receipt Upload:</strong> Residents who transfer directly to the estate\'s bank account can upload their payment receipt or teller in-app. Estate managers review and approve with one tap, instantly issuing the official estate receipt.<br><br>Estate executives track collection balances, pending verifications, and resident payment status live on a centralized dashboard—completely eliminating spreadsheets.'
+
+  // 8. Dues & Payments
+  if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy') || q.includes('bank') || q.includes('teller')) {
+    return "💳 <strong>Zero-Dispute Dues &amp; Collections:</strong><br>" +
+      "CheckPass automates estate service charges, security dues, and diesel levies with two flexible payment methods:<br><br>" +
+      "1. <strong>Instant Online Payment:</strong> Residents pay securely in-app using debit cards, USSD, or direct bank transfer, receiving automated digital receipts immediately.<br>" +
+      "2. <strong>Bank Transfer &amp; Receipt Upload:</strong> Residents who transfer directly to the estate's bank account can upload their payment receipt or teller in-app. Estate managers review and approve with one tap, instantly issuing the official estate receipt.<br><br>" +
+      "Estate executives track collection balances, pending verifications, and resident payment status live on a centralized dashboard—completely eliminating spreadsheets."
   }
+
+  // 9. Offline / Network
   if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
-    return '📶 <strong>Works Even Without Internet:</strong><br>Security devices keep a secure offline copy of scheduled passes. Even during poor network or total internet downtime, guards can still scan QR passes and verify genuine visitors without any delay.'
+    return "📶 <strong>Works Even Without Internet:</strong><br>" +
+      "Security devices keep a secure offline copy of scheduled passes. Even during poor network or total internet downtime, guards can still scan QR passes and verify genuine visitors without any delay."
   }
+
+  // 10. Move-out
   if (q.includes('move') || q.includes('asset') || q.includes('truck') || q.includes('furniture')) {
-    return '🚚 <strong>Move-Out Asset Verification:</strong><br>Tenants or moving contractors cannot leave without digital clearance. Residents register departing assets (appliances, furniture, machinery) with attached photos. Security validates the manifest item-by-item before lifting the barrier.'
+    return "🚚 <strong>Move-Out Asset Verification:</strong><br>" +
+      "Tenants or moving contractors cannot leave without digital clearance. Residents register departing assets (appliances, furniture, machinery) with attached photos. Security validates the manifest item-by-item before lifting the barrier."
   }
-  if (q.includes('demo') || q.includes('walkthrough') || q.includes('meeting') || q.includes('call') || q.includes('contact')) {
-    return '📅 <strong>Ready for a Live Walkthrough?</strong><br>Click <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">here to open our Demo Booking Form</a> or email us at <strong>hi@checkpass.ng</strong>. We configure a custom sandbox for your estate in under 48 hours!'
+
+  // 11. Walkthrough / Demo / Contact
+  if (q.includes('demo') || q.includes('walkthrough') || q.includes('meeting') || q.includes('call') || q.includes('contact') || q.includes('sales')) {
+    return "📅 <strong>Ready for a Live Walkthrough?</strong><br>" +
+      "Click <a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">here to open our Demo Booking Form</a> or email us at <strong>hi@checkpass.ng</strong>. We configure a custom sandbox for your estate in under 48 hours!"
   }
-  if (q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('tier') || q.includes('naira')) {
-    return '🏷️ <strong>Transparent Estate Pricing:</strong><br>&bull; <strong>Boutique:</strong> ₦35,000/mo (up to 50 homes)<br>&bull; <strong>Gated Community:</strong> ₦75,000/mo (up to 200 homes)<br>&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>Boutique and Gated plans include digital guard guides, self-serve onboarding, and dedicated operations support. Physical in-person guard drills are exclusive to Enterprise.'
+
+  // 12. Pricing
+  if (q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('tier') || q.includes('naira') || q.includes('plan')) {
+    return "🏷️ <strong>Transparent Estate Pricing:</strong><br>" +
+      "&bull; <strong>Boutique:</strong> ₦35,000/mo (up to 50 homes)<br>" +
+      "&bull; <strong>Gated Community:</strong> ₦75,000/mo (up to 200 homes)<br>" +
+      "&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>" +
+      "Boutique and Gated plans include digital guard guides, self-serve onboarding, and dedicated operations support. Physical in-person guard drills are exclusive to Enterprise."
   }
-  return 'Thank you for reaching out! CheckPass is Nigeria\'s premier digital estate access and operations management platform. You can <a href="#" onclick="openDemoModal();return false;" style="color:#0A5B38;font-weight:700;text-decoration:underline">book a 15-min walkthrough</a> or click <strong>Create Free Account</strong> at the top to explore the portal right now.'
+
+  // 13. Smart Helpful Fallback with Clickable Options
+  return "Thank you for asking! CheckPass is Nigeria's premier digital estate access and operations management platform.<br><br>" +
+    "Explore common topics with one tap:<br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('What do I gain using CheckPass?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🌟 What you &amp; your estate gain</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How do automated dues and receipts work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">💳 Dues &amp; receipt verification</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does 4s clearance work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">⚡ 4-Second gate passes</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does the vetted artisan directory work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🛠️ Vetted artisan directory</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">📅 Book a 15-min live walkthrough</a>"
 }
 
 function selectConciergeChip(chip: { label: string; query: string }) {
