@@ -232,3 +232,4 @@ checkpass-admin/
 4. **Step 4: Landing Page Integration & Verification**
    - Integrated into `LandingView.vue`.
    - Built and verified with `vue-tsc && vite build`.
+
