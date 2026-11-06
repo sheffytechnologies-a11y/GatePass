@@ -2186,13 +2186,13 @@ function scrollConciergeBottom() {
 function getConciergeAnswer(query: string): string {
   const q = query.toLowerCase()
   if (q.includes('clearance') || q.includes('visitor') || q.includes('4s') || q.includes('gate') || q.includes('qr')) {
-    return '✅ <strong>Sub-4s Instant Gate Clearance:</strong><br>1. Residents generate a secure QR pass in two taps (or send a direct WhatsApp link to their guest).<br>2. Security scans with any smartphone or handheld optical reader.<br>3. Instant audio-visual clearance with host confirmation—no paperwork, intercom calls, or gate bottlenecks.'
+    return '✅ <strong>How 4-Second Gate Clearance Works:</strong><br>1. <strong>Resident invites guest:</strong> In two taps, the resident creates a digital pass and shares the link directly via WhatsApp.<br>2. <strong>Security scans QR code:</strong> The guard scans the guest\'s pass on their phone in under 4 seconds.<br>3. <strong>Instant gate approval:</strong> The screen immediately confirms the guest\'s name and host house address, so the barrier opens right away—no phone calls or paper logbooks.'
   }
   if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy')) {
     return '💳 <strong>Zero-Dispute Dues & Collections:</strong><br>CheckPass automates estate service charges, security dues, and diesel levies. Residents pay securely in-app via Paystack (card, USSD, or bank transfer), with instant digital receipts generated. Estate managers track collection balances and resident payment status in real time on a centralized dashboard—completely eliminating manual spreadsheets.'
   }
   if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
-    return '📶 <strong>Offline Cryptographic Verification:</strong><br>CheckPass stores local cryptographic tokens on security devices using encrypted local storage. Even during total broadband blackout or poor cellular reception, security guards can scan and authenticate legitimate visitor passes.'
+    return '📶 <strong>Works Even Without Internet:</strong><br>Security devices keep a secure offline copy of scheduled passes. Even during poor network or total internet downtime, guards can still scan QR passes and verify genuine visitors without any delay.'
   }
   if (q.includes('move') || q.includes('asset') || q.includes('truck') || q.includes('furniture')) {
     return '🚚 <strong>Move-Out Asset Verification:</strong><br>Tenants or moving contractors cannot leave without digital clearance. Residents register departing assets (appliances, furniture, machinery) with attached photos. Security validates the manifest item-by-item before lifting the barrier.'
