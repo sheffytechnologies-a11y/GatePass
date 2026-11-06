@@ -1718,10 +1718,9 @@
         </div>
         <div>
           <div class="cp-concierge-title-line">
-            <span class="cp-concierge-title">CheckPass AI Concierge</span>
-            <span class="cp-concierge-badge-live"><span class="cp-concierge-pulse"></span>Live</span>
+            <span class="cp-concierge-title">CheckPass Support</span>
           </div>
-          <div class="cp-concierge-tagline">Estate Access &amp; Operations Specialist</div>
+          <div class="cp-concierge-tagline">Estate Access &amp; Operations</div>
         </div>
       </div>
       <button class="cp-concierge-close-btn" @click="closeConcierge" aria-label="Close dialog">&times;</button>
