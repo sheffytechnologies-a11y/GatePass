@@ -2814,15 +2814,15 @@ footer {
 }
 
 .bpm-content-inner {
-  max-width: 540px;
+  max-width: 580px;
 }
 
 .bpm-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.75rem, 2.45vw, 2.25rem);
+  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
   font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.022em;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
   color: #064E3B;
   margin-bottom: 20px;
 }
@@ -3220,10 +3220,10 @@ footer {
 
 .section-a-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.75rem, 2.45vw, 2.25rem);
+  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
   font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.022em;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
   color: #064E3B;
   margin-bottom: 20px;
 }
@@ -3352,7 +3352,7 @@ footer {
 }
 
 .section-b-container {
-  max-width: 1240px;
+  max-width: 1180px;
   width: 100%;
   margin: 0 auto;
   padding: 0 24px;
@@ -3362,30 +3362,31 @@ footer {
 
 .section-b-grid {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 64px;
+  gap: 36px;
 }
 
 /* Left Column: Heading & Descriptive Copy */
 .section-b-content-col {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
   width: 100%;
 }
 
 .section-b-content-inner {
-  max-width: 520px;
+  max-width: 480px;
+  width: 100%;
 }
 
 .section-b-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(2rem, 3.2vw, 2.85rem);
+  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
   font-weight: 800;
-  line-height: 1.12;
+  line-height: 1.04;
   color: #ffffff;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   margin-bottom: 20px;
 }
 
@@ -3405,10 +3406,10 @@ footer {
   display: inline;
 }
 
-/* Right Visual Column & Stage */
+/* Right Visual Column & Stage (positioned compactly close to copy) */
 .section-b-visual-col {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   width: 100%;
 }
@@ -3416,9 +3417,9 @@ footer {
 .section-b-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: 530px;
+  max-width: 500px;
   aspect-ratio: 1885 / 2013;
-  margin: 0 auto;
+  margin: 0;
   user-select: none;
   cursor: pointer;
 }
@@ -3732,11 +3733,11 @@ footer {
 
 .section-c-title {
   font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(2rem, 3.2vw, 2.85rem);
+  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
   font-weight: 800;
-  line-height: 1.12;
+  line-height: 1.04;
   color: #ffffff;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   margin-bottom: 20px;
 }
 
@@ -3859,7 +3860,9 @@ footer {
     max-width: 100% !important;
     text-align: left !important;
   }
-  .section-a-title {
+  .section-a-title,
+  .section-b-title,
+  .section-c-title {
     font-size: clamp(1.65rem, 6.5vw, 2rem);
     line-height: 1.18;
     margin-bottom: 14px;
