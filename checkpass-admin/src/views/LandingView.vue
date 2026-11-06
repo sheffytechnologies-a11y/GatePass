@@ -930,53 +930,6 @@
 
       </div><!-- /hiw-main-card -->
 
-      <!-- Structured Deployment Roadmap -->
-      <section class="how-timeline-row-roadmap" id="how-step-roadmap" style="margin-top: 56px;">
-        <div class="onboarding-roadmap-wrap" data-reveal style="width: 100%;">
-          <div class="roadmap-header">
-            <h3>How We Get Your Estate Live in 12 Days</h3>
-            <p>A structured, hands-on onboarding methodology that configures estate bylaws, sanitizes resident registries, and trains gate security teams with zero downtime.</p>
-          </div>
-
-          <div class="roadmap-timeline">
-            <!-- Phase 1 -->
-            <div class="timeline-phase">
-              <div class="phase-badge">Phase 1 &bull; Days 1–3</div>
-              <h4>Estate Bylaw &amp; Boundary Mapping</h4>
-              <p>Executive alignment session with estate facility managers. Mapping estate bylaws, zone boundaries, multi-gate barrier protocols, and unit numbering.</p>
-            </div>
-
-            <!-- Phase 2 -->
-            <div class="timeline-phase">
-              <div class="phase-badge">Phase 2 &bull; Days 4–6</div>
-              <h4>Resident Directory Ingestion</h4>
-              <p>Data sanitization and bulk onboarding of homeowners, tenants, and domestic staff rosters with digital credentials and resident guidelines.</p>
-            </div>
-
-            <!-- Phase 3 -->
-            <div class="timeline-phase">
-              <div class="phase-badge">Phase 3 &bull; Days 7–9</div>
-              <h4>Security Guard Physical Drills</h4>
-              <p>Hands-on physical drills with gate security shift teams covering the sub-4s QR scanner, offline SQLite fallback codes, and outgoing item comparisons.</p>
-            </div>
-
-            <!-- Phase 4 -->
-            <div class="timeline-phase">
-              <div class="phase-badge">Phase 4 &bull; Days 10–11</div>
-              <h4>Dues Ledgers &amp; Calibration</h4>
-              <p>Configuration of custom estate dues categories (diesel levy, security, sanitation, maintenance) and test receipt reconciliation workflows.</p>
-            </div>
-
-            <!-- Phase 5 -->
-            <div class="timeline-phase active">
-              <div class="phase-badge" style="background:#0A5B38;color:#fff">Phase 5 &bull; Day 12+</div>
-              <h4>Managed Gate Go-Live</h4>
-              <p>Digital gate barrier activation with dedicated Sheffy field and remote operational support ensuring zero visitor traffic interruption.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Bottom Mini-CTA -->
       <div class="mini-cta" style="margin-top:54px" data-reveal>
         <h2>Ready to see CheckPass deployed in your estate?</h2>
