@@ -1747,16 +1747,19 @@
       </div>
     </div>
 
-    <!-- Quick Action Chips -->
+    <!-- Quick Action Chips (Vertically Stacked) -->
     <div class="cp-concierge-chips">
-      <div class="cp-concierge-chips-slider">
+      <div class="cp-concierge-chips-stacked">
         <button
           v-for="(chip, idx) in conciergeQuickChips"
           :key="idx"
-          class="cp-chip-btn"
+          class="cp-chip-btn-stacked"
           @click="selectConciergeChip(chip)"
         >
-          {{ chip.label }}
+          <span>{{ chip.label }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
         </button>
       </div>
     </div>

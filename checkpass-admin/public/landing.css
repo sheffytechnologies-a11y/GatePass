@@ -4859,38 +4859,72 @@ footer {
   40% { transform: scale(1); opacity: 1; }
 }
 
-/* Chips Carousel */
+/* Stacked Quick Prompts (No horizontal scroll) */
 .cp-concierge-chips {
-  padding: 10px 14px;
+  padding: 8px 14px 10px;
   background: #ffffff;
   border-top: 1px solid #EDF2F7;
-  overflow-x: auto;
+  max-height: 142px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-.cp-concierge-chips-slider {
+.cp-concierge-chips::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cp-concierge-chips::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cp-concierge-chips::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.cp-concierge-chips-stacked {
   display: flex;
-  gap: 8px;
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
 }
 
-.cp-chip-btn {
-  background: #F1F5F9;
+.cp-chip-btn-stacked {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
   border: 1px solid #E2E8F0;
   color: #1E293B;
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 100px;
+  font-family: inherit;
+  font-size: 0.81rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  box-sizing: border-box;
 }
 
-.cp-chip-btn:hover {
-  background: #E2E8F0;
-  border-color: #CBD5E1;
+.cp-chip-btn-stacked:hover {
+  background: #E6F2EC;
+  border-color: #0A5B38;
   color: #0A5B38;
+  transform: translateX(2px);
+}
+
+.cp-chip-btn-stacked svg {
+  color: #94A3B8;
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.cp-chip-btn-stacked:hover svg {
+  color: #0A5B38;
+  transform: translateX(2px);
 }
 
 /* Input Form Footer */
