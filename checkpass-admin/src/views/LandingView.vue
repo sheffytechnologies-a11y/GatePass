@@ -2102,8 +2102,12 @@ onMounted(() => {
 
 // ── AI Concierge Floating Assistant ──
 const isConciergeOpen = ref(false)
-const showConciergePrompt = ref(true)
-const conciergeUnread = ref(2)
+// Check persistent read/dismiss state from localStorage
+const isConciergeRead = typeof window !== 'undefined' && localStorage.getItem('checkpass_concierge_read') === 'true'
+const isPromptDismissed = typeof window !== 'undefined' && localStorage.getItem('checkpass_prompt_dismissed') === 'true'
+
+const showConciergePrompt = ref(!isPromptDismissed && !isConciergeRead)
+const conciergeUnread = ref(isConciergeRead ? 0 : 2)
 const isConciergeThinking = ref(false)
 const conciergeInput = ref('')
 const conciergeScrollContainer = ref<HTMLElement | null>(null)
@@ -2139,6 +2143,10 @@ function openConcierge() {
   isConciergeOpen.value = true
   conciergeUnread.value = 0
   showConciergePrompt.value = false
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('checkpass_concierge_read', 'true')
+    localStorage.setItem('checkpass_prompt_dismissed', 'true')
+  }
   scrollConciergeBottom()
 }
 
@@ -2162,6 +2170,9 @@ function closeConcierge() {
 
 function dismissConciergePrompt() {
   showConciergePrompt.value = false
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('checkpass_prompt_dismissed', 'true')
+  }
 }
 
 function scrollConciergeBottom() {
