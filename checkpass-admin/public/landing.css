@@ -770,25 +770,44 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
 .feature-perks {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .feature-perk {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: 0.93rem;
-  color: var(--dark);
+  font-size: 0.95rem;
+  color: #1E293B;
   line-height: 1.5;
 }
 
-.perk-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #005E34;
+.perk-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(0, 94, 52, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-row:hover .perk-icon-wrap {
+  background: rgba(0, 94, 52, 0.15);
+  transform: scale(1.06);
+}
+
+.perk-icon-wrap i {
+  font-size: 18px;
+  color: #005E34;
+  line-height: 1;
+}
+
+.feature-perk span {
+  flex: 1;
 }
 
 /* Signature Brand Stage Card on Features Page */

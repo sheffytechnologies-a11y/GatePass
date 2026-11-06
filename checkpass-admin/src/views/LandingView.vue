@@ -992,7 +992,6 @@
 <div class="page" id="page-features">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Features &amp; Capabilities</span>
       <h1>
         Built for Total Control.<br>
         <span class="hero-mint-accent">Engineered for Zero Downtime.</span>
@@ -1006,17 +1005,28 @@
       <!-- 01: VISITOR ACCESS -->
       <div class="feature-row" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">01 · Visitor Access</span>
           <h2>
             <span class="feature-mint-text">Instant Clearance.</span><br>
             Zero Gate Queues.
           </h2>
           <p>Every visitor is pre-registered before arrival. Security scans a dynamic QR code and confirms entry in under four seconds. No intercom calls, no manual logbooks, and no confusion about who is expected.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Resident issues passes in two taps or via direct WhatsApp link</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Sub-4s camera scan with instant host and unit confirmation</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Offline cryptographic tokens verify even during network downtime</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Permanent timestamped gate entry log tied to resident profile</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-device-mobile"></i></div>
+              <span>Resident issues passes in two taps or via direct WhatsApp link</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-qr-code"></i></div>
+              <span>Sub-4s camera scan with instant host and unit confirmation</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-shield-check"></i></div>
+              <span>Offline cryptographic tokens verify even during network downtime</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-clock-counter-clockwise"></i></div>
+              <span>Permanent timestamped gate entry log tied to resident profile</span>
+            </div>
           </div>
         </div>
 
@@ -1044,17 +1054,28 @@
       <!-- 02: PAYMENTS & DUES -->
       <div class="feature-row reverse" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">02 · Financial Ledger</span>
           <h2>
             <span class="feature-mint-text">Collect Every Dues.</span><br>
             Without Disputes.
           </h2>
           <p>Automate service charges, security dues, and diesel levies in one centralized ledger. Residents submit payments and upload bank receipts in-app, while managers approve with one tap—zero spreadsheets.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Real-time balance and levy breakdown for every residential unit</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Instant digital receipts issued immediately upon manager confirmation</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Automated dues reminders sent to occupants before deadlines</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Complete audit-ready ledger prepared for AGM presentation</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-wallet"></i></div>
+              <span>Real-time balance and levy breakdown for every residential unit</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-receipt"></i></div>
+              <span>Instant digital receipts issued immediately upon manager confirmation</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-bell-ringing"></i></div>
+              <span>Automated dues reminders sent to occupants before deadlines</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-file-text"></i></div>
+              <span>Complete audit-ready ledger prepared for AGM presentation</span>
+            </div>
           </div>
         </div>
 
@@ -1067,32 +1088,43 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Estate Service Charges & Dues Reconciliation" class="feature-stage-mockup-img">
+            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Estate Service Charges &amp; Dues Reconciliation" class="feature-stage-mockup-img">
             <div class="feature-mockup-pill">
               <span class="pill-icon">💳</span>
               <div class="pill-body">
-                <div class="pill-title">Levy Reconciled</div>
-                <div class="pill-sub">Automated Receipts &bull; Zero Dispute</div>
+                <div class="pill-title">Zero Ledger Gaps</div>
+                <div class="pill-sub">Unit 14B &bull; 100% Reconciled</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 03: ITEM TRACKING & ASSET PROTECTION -->
+      <!-- 03: MOVE-OUT ASSET TRACKING -->
       <div class="feature-row" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">03 · Asset Protection</span>
           <h2>
-            <span class="feature-mint-text">Track Every Asset</span><br>
-            Moving Out.
+            <span class="feature-mint-text">Stop Unauthorized</span><br>
+            Item Removals Before the Gate.
           </h2>
-          <p>All high-value goods, corporate equipment, and tenant move-outs are declared and logged before reaching the gate. When discrepancies occur, your digital manifest provides verifiable proof tied to the host's account.</p>
+          <p>Moving trucks and contractors can't just drive out. Residents pre-declare departing items—from laptops to furniture—with attached photo evidence. Guards verify the manifest at the gate before raising the barrier.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Residents declare departure assets with attached item photos</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Security cross-checks cargo against photo proof before exit clearance</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Tamper-proof digital gate pass prevents unauthorized removals</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Eliminates contractor disputes and move-out misunderstandings</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-package"></i></div>
+              <span>Residents declare departing appliances, furniture, and tools in-app</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-camera"></i></div>
+              <span>Upload photo evidence and serial numbers before clearance dispatch</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-clipboard-text"></i></div>
+              <span>Security verifies declared items on terminal against physical cargo</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-warning-circle"></i></div>
+              <span>Instant manager notification if unapproved equipment is detected</span>
+            </div>
           </div>
         </div>
 
@@ -1101,36 +1133,47 @@
             <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
               <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
-              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Move-Out Asset Manifest & Anti-Theft Protection" class="feature-stage-mockup-img">
+            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Item Declaration &amp; Move-Out Clearances" class="feature-stage-mockup-img">
             <div class="feature-mockup-pill">
               <span class="pill-icon">📦</span>
               <div class="pill-body">
-                <div class="pill-title">Move-Out Manifest Verified</div>
-                <div class="pill-sub">Photo Proof &bull; Guard Exit Inspection</div>
+                <div class="pill-title">Asset Clearance Logged</div>
+                <div class="pill-sub">Photo Manifest &bull; Gate Audit Match</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 04: CENTRAL ADMIN DASHBOARD -->
+      <!-- 04: CENTRAL COMMAND -->
       <div class="feature-row reverse" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">04 · Central Governance</span>
           <h2>
             <span class="feature-mint-text">Total Oversight</span><br>
             From One Screen.
           </h2>
           <p>One unified console gives executives, facility managers, and security commanders live visibility over all entrances, financial balances, and resident rosters across single or multi-gate estates.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Live synchronized gate audit stream across all terminals</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Searchable resident census and vehicle registration directory</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Role-based permissions protecting sensitive resident data</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Instant AGM-ready financial reporting exported with one click</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-broadcast"></i></div>
+              <span>Live synchronized gate audit stream across all terminals</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-identification-badge"></i></div>
+              <span>Searchable resident census and vehicle registration directory</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-lock-key"></i></div>
+              <span>Role-based permissions protecting sensitive resident data</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-file-arrow-down"></i></div>
+              <span>Instant AGM-ready financial reporting exported with one click</span>
+            </div>
           </div>
         </div>
 
@@ -1143,7 +1186,7 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_command_center.jpg" alt="Executive Central Governance & Live Gate Telemetry" class="feature-stage-mockup-img">
+            <img src="/assets/features/mockup_command_center.jpg" alt="Executive Central Governance &amp; Live Gate Telemetry" class="feature-stage-mockup-img">
             <div class="feature-mockup-pill">
               <span class="pill-icon">💻</span>
               <div class="pill-body">
