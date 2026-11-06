@@ -1411,8 +1411,10 @@ footer {
 @media(max-width:768px){.siteassist-card{aspect-ratio:auto;min-height:520px;border-radius:18px}}
 
 .siteassist-bg-layer{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:hidden}
-.siteassist-bg-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s cubic-bezier(0.16,1,0.3,1);transform:scale(1.02);transition:opacity .5s ease,transform 6s linear}
-.siteassist-bg-slide.active{opacity:1;transform:scale(1)}
+.siteassist-bg-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.14);transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform-origin:center center;pointer-events:none}
+.siteassist-bg-slide.active{opacity:1;animation:saZoomOut 6s cubic-bezier(0.2,0.6,0.3,1) forwards}
+.siteassist-card.is-paused .siteassist-bg-slide.active{animation-play-state:paused}
+@keyframes saZoomOut{0%{transform:scale(1.14)}100%{transform:scale(1.0)}}
 
 .siteassist-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,23,.72) 0%,rgba(11,31,23,.22) 40%,rgba(11,31,23,.88) 75%,#0B1F17 100%);z-index:2;pointer-events:none}
 @media(max-width:768px){
