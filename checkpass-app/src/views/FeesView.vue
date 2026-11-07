@@ -115,10 +115,10 @@ function goToPayment() {
 }
 
 const DEFAULT_FEES: FeeRow[] = [
-  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 35000, date: '2026-11-01', status: 'Due' },
-  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 20000, date: '2026-11-01', status: 'Due' },
-  { id: 'fee-103', title: 'Q3 Waste Management & Facility Fee', amount: 15000, date: '2026-10-15', status: 'Paid' },
-  { id: 'fee-104', title: 'Quarterly Estate Infrastructure Dues', amount: 50000, date: '2026-09-01', status: 'Paid' },
+  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-103', title: 'Q3 Waste Management & Facility Fee', amount: 9000, date: '2026-10-15', status: 'Paid' },
+  { id: 'fee-104', title: 'Quarterly Estate Infrastructure Dues', amount: 30000, date: '2026-09-01', status: 'Paid' },
 ]
 
 async function loadFees() {
@@ -175,8 +175,8 @@ onMounted(loadFees)
 .outstanding-amount {
   color: #fff;
   font-family: var(--w-font-display);
-  font-size: 29px;
-  line-height: 1.1;
+  font-size: 22px;
+  line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -265,10 +265,11 @@ onMounted(loadFees)
 }
 .fee-amount {
   color: #232833;
-  font-size: 31px;
-  line-height: 1;
+  font-size: 19px;
+  line-height: 1.2;
   font-family: var(--w-font-display);
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .status-pill {
   padding: 4px 10px;

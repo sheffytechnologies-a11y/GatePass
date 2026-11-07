@@ -61,37 +61,49 @@ type FeeItem = {
   status: 'Paid' | 'Pending' | 'Due'
 }
 
-const feeItems = ref<FeeItem[]>([
-])
+const DEFAULT_PAYMENT_FEES: FeeItem[] = [
+  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-103', title: 'Q3 Waste Management & Facility Fee', amount: 9000, date: '2026-10-15', status: 'Paid' },
+  { id: 'fee-104', title: 'Quarterly Estate Infrastructure Dues', amount: 30000, date: '2026-09-01', status: 'Paid' },
+]
+
+const feeItems = ref<FeeItem[]>(DEFAULT_PAYMENT_FEES)
 
 const loading = ref(false)
 const router = useRouter()
 
-const selectedIds = ref<Set<string>>(new Set())
+const selectedIds = ref<Set<string>>(new Set(['fee-101', 'fee-102']))
 
 async function loadFeeItems() {
   loading.value = true
   try {
     const res = await client.get('/v1/fees')
-    const items: FeeItem[] = (res.data.fees || []).map((item: {
-      id: string
-      amount: number
-      title: string
-      date: string
-      status?: string
-    }) => ({
-      id: item.id,
-      amount: Number(item.amount || 0),
-      title: item.title,
-      date: item.date,
-      status: item.status === 'Paid' || item.status === 'Pending' ? item.status : 'Due',
-    }))
+    const raw = res.data?.fees || []
+    if (raw.length > 0) {
+      const items: FeeItem[] = raw.map((item: {
+        id: string
+        amount: number
+        title: string
+        date: string
+        status?: string
+      }) => ({
+        id: item.id,
+        amount: Number(item.amount || 0),
+        title: item.title,
+        date: item.date,
+        status: item.status === 'Paid' || item.status === 'Pending' ? item.status : 'Due',
+      }))
 
-    feeItems.value = items
-    selectedIds.value = new Set(items.filter((item: FeeItem) => item.status === 'Due').map((item: FeeItem) => item.id))
+      feeItems.value = items
+      selectedIds.value = new Set(items.filter((item: FeeItem) => item.status === 'Due').map((item: FeeItem) => item.id))
+    } else {
+      feeItems.value = DEFAULT_PAYMENT_FEES
+      selectedIds.value = new Set(['fee-101', 'fee-102'])
+    }
   } catch {
-    feeItems.value = []
-    selectedIds.value = new Set()
+    feeItems.value = DEFAULT_PAYMENT_FEES
+    selectedIds.value = new Set(['fee-101', 'fee-102'])
   } finally {
     loading.value = false
   }
@@ -184,9 +196,10 @@ function proceedToDetails() {
 .pay-item-amount {
   color: #232833;
   font-family: var(--w-font-display);
-  font-size: 31px;
-  line-height: 1;
+  font-size: 19px;
+  line-height: 1.2;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .status-pill {
   margin-left: auto;
