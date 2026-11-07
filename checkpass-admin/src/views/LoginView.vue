@@ -437,13 +437,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api'
 
 type RoleType = 'admin' | 'guard' | 'resident'
 
 const router = useRouter()
+const route  = useRoute()
 const auth   = useAuthStore()
 
 // ─── 3 NARRATIVE MOMENTS (CONSISTENT WITH CREATE ACCOUNT SLIDER) ───
@@ -510,6 +511,16 @@ function resumeRotation() {
 
 onMounted(() => {
   startRotation()
+  if (route.query.email && typeof route.query.email === 'string') {
+    identifier.value = route.query.email
+    activeRole.value = 'admin'
+  }
+  if (route.query.forgot === '1') {
+    openForgotPassword()
+    if (route.query.email && typeof route.query.email === 'string') {
+      forgotIdentifier.value = route.query.email
+    }
+  }
 })
 
 onUnmounted(() => {

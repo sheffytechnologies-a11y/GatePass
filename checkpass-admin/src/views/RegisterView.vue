@@ -71,35 +71,135 @@
               <p class="form-subtitle">One portal to onboard residents, clear visitors at the gate, and keep every entry on record.</p>
             </div>
 
-          <!-- Smart Multi-Estate Disambiguation Card -->
-          <transition name="alert-slide">
-            <div v-if="emailTaken" class="smart-disambiguation-card">
-              <div class="sdc-header">
-                <div class="sdc-icon">🏢</div>
-                <div class="sdc-title-box">
-                  <div class="sdc-badge">EXISTING ACCOUNT FOUND</div>
-                  <div class="sdc-title">Welcome back, {{ name || 'Manager' }}!</div>
+          <!-- EXISTING ACCOUNT FOUND MODAL (SOLID BACKGROUND & REFINED UX) -->
+          <teleport to="body">
+            <transition name="modal-fade">
+              <div v-if="emailTaken" class="modal-backdrop-overlay" @click.self="dismissEmailTakenModal">
+                <div class="existing-account-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-existing-title">
+                  
+                  <!-- Close Button -->
+                  <button type="button" class="modal-close-icon-btn" @click="dismissEmailTakenModal" aria-label="Close modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+
+                  <!-- Top Brand / Icon Badge -->
+                  <div class="modal-brand-row">
+                    <div class="modal-icon-bubble">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="16" height="20" x="4" y="2" rx="2" ry="2"/>
+                        <path d="M9 22v-4h6v4"/>
+                        <path d="M8 6h.01"/>
+                        <path d="M16 6h.01"/>
+                        <path d="M12 6h.01"/>
+                        <path d="M12 10h.01"/>
+                        <path d="M12 14h.01"/>
+                        <path d="M16 10h.01"/>
+                        <path d="M16 14h.01"/>
+                        <path d="M8 10h.01"/>
+                        <path d="M8 14h.01"/>
+                      </svg>
+                    </div>
+                    <div class="modal-header-titles">
+                      <span class="modal-badge-tag">EXISTING ACCOUNT FOUND</span>
+                      <h3 id="modal-existing-title" class="modal-main-title">Welcome back, {{ name || 'Estate Manager' }}!</h3>
+                    </div>
+                  </div>
+
+                  <div class="modal-desc-text">
+                    An account for <strong class="email-highlight">{{ email }}</strong> already exists on CheckPass.
+                  </div>
+
+                  <!-- Value Callout -->
+                  <div class="multi-estate-notice-box">
+                    <div class="notice-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div class="notice-text">
+                      <strong>Multi-Estate Portfolio:</strong> In CheckPass, you don't need separate emails for each estate! You can manage multiple communities from this single login.
+                    </div>
+                  </div>
+
+                  <!-- Error Alert inside Modal if password incorrect -->
+                  <transition name="alert-slide">
+                    <div v-if="existingModalError" class="auth-alert modal-inner-alert">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                      <span>{{ existingModalError }}</span>
+                    </div>
+                  </transition>
+
+                  <!-- Primary Action: Enter password to attach new estate -->
+                  <div class="modal-action-card">
+                    <label class="modal-input-label" for="existing-acc-pwd">
+                      Enter your password to add this new estate:
+                    </label>
+                    <div class="input-wrapper">
+                      <span class="input-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      </span>
+                      <input
+                        id="existing-acc-pwd"
+                        v-model="existingAccountPassword"
+                        :type="showExistingPassword ? 'text' : 'password'"
+                        class="text-input with-toggle"
+                        placeholder="Enter your existing account password"
+                        @keyup.enter="handleLinkWithModalPassword"
+                      />
+                      <button
+                        type="button"
+                        class="password-toggle"
+                        @click="showExistingPassword = !showExistingPassword"
+                        aria-label="Toggle password visibility"
+                      >
+                        <svg v-if="!showExistingPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="modal-submit-btn"
+                      :disabled="loading || !existingAccountPassword"
+                      @click="handleLinkWithModalPassword"
+                    >
+                      <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
+                      <span v-else class="btn-text">
+                        Verify &amp; Add New Estate
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </span>
+                    </button>
+                  </div>
+
+                  <!-- Secondary Options -->
+                  <div class="modal-options-divider">
+                    <span>or choose an alternative</span>
+                  </div>
+
+                  <div class="modal-footer-actions">
+                    <router-link
+                      :to="`/login?email=${encodeURIComponent(email)}`"
+                      class="modal-secondary-btn"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                      Log In to Existing Dashboard
+                    </router-link>
+
+                    <button
+                      type="button"
+                      class="modal-tertiary-btn"
+                      @click="useDifferentEmail"
+                    >
+                      Use a Different Email Address
+                    </button>
+                  </div>
+
                 </div>
               </div>
-              <div class="sdc-body">
-                An account for <strong>{{ email }}</strong> already exists. In Checkpass, you don't need separate emails for each estate! You can manage multiple communities from a single login.
-              </div>
-              <div class="sdc-actions">
-                <button
-                  type="button"
-                  class="sdc-link-btn"
-                  :disabled="loading"
-                  @click="handleLinkNewEstate"
-                >
-                  <BrandSpinner v-if="loading" :size="18" color="#ffffff" />
-                  <span v-else>Enter Password to Add New Estate &rarr;</span>
-                </button>
-                <router-link :to="`/login?email=${encodeURIComponent(email)}`" class="sdc-signin-btn">
-                  Log in to existing dashboard
-                </router-link>
-              </div>
-            </div>
-          </transition>
+            </transition>
+          </teleport>
 
           <!-- Error Alert -->
           <transition name="alert-slide">
@@ -505,20 +605,38 @@ const canSubmit = computed(() => {
   )
 })
 
-async function handleLinkNewEstate() {
-  if (!password.value) {
-    error.value = 'Please enter your account password below to attach a new estate.'
-    document.getElementById('admin-pwd')?.focus()
+const existingAccountPassword = ref('')
+const showExistingPassword = ref(false)
+const existingModalError = ref('')
+
+function dismissEmailTakenModal() {
+  emailTaken.value = false
+  existingModalError.value = ''
+}
+
+function useDifferentEmail() {
+  emailTaken.value = false
+  existingModalError.value = ''
+  email.value = ''
+  setTimeout(() => {
+    document.getElementById('admin-email')?.focus()
+  }, 100)
+}
+
+async function handleLinkWithModalPassword() {
+  if (!existingAccountPassword.value) {
+    existingModalError.value = 'Please enter your account password to continue.'
     return
   }
   loading.value = true
-  error.value = ''
+  existingModalError.value = ''
   try {
-    await auth.loginAdmin(email.value, password.value)
+    await auth.loginAdmin(email.value.trim(), existingAccountPassword.value)
+    emailTaken.value = false
     router.push('/register/estate')
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
-    error.value = err.response?.data?.message || 'Incorrect password for this account. Please try again or use another email.'
+    existingModalError.value = err.response?.data?.message || 'Incorrect password for this account. Please try again or use another email.'
   } finally {
     loading.value = false
   }
@@ -545,6 +663,8 @@ async function handleRegister() {
     const emailErr = err.response?.data?.errors?.email?.[0] || ''
     if (emailErr.toLowerCase().includes('already been taken')) {
       emailTaken.value = true
+      existingAccountPassword.value = password.value
+      existingModalError.value = ''
       error.value = ''
       return
     }
@@ -1311,3 +1431,272 @@ async function handleRegister() {
 }
 
 </style>
+
+/* ── EXISTING ACCOUNT FOUND MODAL ── */
+.modal-backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.existing-account-modal-card {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.05);
+  border: 1px solid #E2E8F0;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  animation: modalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-sizing: border-box;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close-icon-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-close-icon-btn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+.modal-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.modal-icon-bubble {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #E6F4EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #C4E7D7;
+}
+
+.modal-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-badge-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0A5C38;
+  text-transform: uppercase;
+}
+
+.modal-main-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.modal-desc-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #475569;
+  margin-bottom: 16px;
+}
+
+.email-highlight {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.multi-estate-notice-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #334155;
+  margin-bottom: 20px;
+}
+
+.notice-icon {
+  color: #0A5C38;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.modal-inner-alert {
+  margin-bottom: 14px;
+}
+
+.modal-action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #F0FDF4;
+  border: 1.5px solid #BBF7D0;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-input-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.modal-submit-btn {
+  height: 44px;
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22);
+  transition: all 0.15s ease;
+}
+
+.modal-submit-btn:hover:not(:disabled) {
+  background: #084D2F;
+  transform: translateY(-1px);
+}
+
+.modal-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.modal-submit-btn .btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-options-divider {
+  position: relative;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+.modal-options-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #E2E8F0;
+  z-index: 1;
+}
+
+.modal-options-divider span {
+  position: relative;
+  z-index: 2;
+  background: #FFFFFF;
+  padding: 0 12px;
+  font-size: 12px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.modal-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-secondary-btn {
+  height: 42px;
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.modal-secondary-btn:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.modal-tertiary-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px;
+  transition: color 0.15s ease;
+}
+
+.modal-tertiary-btn:hover {
+  color: #0A5C38;
+  text-decoration: underline;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
