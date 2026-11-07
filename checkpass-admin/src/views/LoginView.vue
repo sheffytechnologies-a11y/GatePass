@@ -269,7 +269,7 @@
               </div>
             </transition>
 
-            <!-- STEP 1: REQUEST VERIFICATION CODE -->
+            <!-- STEP 1: REQUEST OTP -->
             <form v-if="forgotStep === 'request'" @submit.prevent="handleSendResetOtp" class="signin-form">
               <div class="input-block">
                 <label class="input-label" for="forgot-identifier">{{ forgotIdentifierLabel }}</label>
@@ -295,31 +295,62 @@
               >
                 <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
-                  Send 6-Digit Code
+                  Send 6-Digit OTP
                 </span>
               </button>
             </form>
 
-            <!-- STEP 2: VERIFY OTP AND SET NEW PASSWORD -->
-            <form v-else-if="forgotStep === 'verify'" @submit.prevent="handlePerformPasswordReset" class="signin-form">
+            <!-- STEP 2: VERIFY OTP FIRST -->
+            <form v-else-if="forgotStep === 'verify-otp'" @submit.prevent="handleVerifyResetOtp" class="signin-form">
               <div class="auth-info-banner">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span>Code dispatched to <strong>{{ forgotIdentifier }}</strong></span>
+                <span>OTP sent to <strong>{{ forgotIdentifier }}</strong></span>
               </div>
 
               <div class="input-block">
-                <label class="input-label" for="reset-otp">6-Digit Verification Code</label>
+                <div class="label-row">
+                  <label class="input-label" for="reset-otp">6-Digit OTP <span class="req">*</span></label>
+                  <button
+                    type="button"
+                    class="forgot-link-btn"
+                    :disabled="resendCooldown > 0 || forgotLoading"
+                    @click="handleSendResetOtp"
+                  >
+                    {{ resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP' }}
+                  </button>
+                </div>
                 <div class="input-wrapper">
                   <input
                     id="reset-otp"
                     v-model="resetOtp"
                     type="text"
+                    inputmode="numeric"
                     maxlength="6"
                     class="text-input otp-field"
                     placeholder="e.g. 123456"
                     required
+                    autocomplete="one-time-code"
                   />
                 </div>
+              </div>
+
+              <button
+                type="submit"
+                class="submit-signin-btn"
+                :disabled="forgotLoading || resetOtp.trim().length < 6"
+              >
+                <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
+                <span v-else class="btn-content">
+                  Verify OTP
+                </span>
+              </button>
+            </form>
+
+            <!-- STEP 3: SET NEW PASSWORD (ONLY AFTER OTP CONFIRMED) -->
+            <form v-else-if="forgotStep === 'new-password'" @submit.prevent="handlePerformPasswordReset" class="signin-form">
+              <div class="otp-verified-banner">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>OTP verified for <strong>{{ forgotIdentifier }}</strong></span>
               </div>
 
               <div class="input-block">
@@ -364,7 +395,7 @@
               <button
                 type="submit"
                 class="submit-signin-btn"
-                :disabled="forgotLoading || resetOtp.length < 6 || resetNewPassword.length < 8"
+                :disabled="forgotLoading || resetNewPassword.length < 8 || resetConfirmPassword.length < 8"
               >
                 <BrandSpinner v-if="forgotLoading" :size="18" color="#ffffff" />
                 <span v-else class="btn-content">
@@ -496,7 +527,7 @@ const residentLoggedIn = ref(false)
 
 // ─── FORGOT PASSWORD STATE (FOR ALL 3 ROLES) ───
 const showForgotView = ref(false)
-const forgotStep = ref<'request' | 'verify' | 'success'>('request')
+const forgotStep = ref<'request' | 'verify-otp' | 'new-password' | 'success'>('request')
 const forgotIdentifier = ref('')
 const resetOtp = ref('')
 const resetNewPassword = ref('')
@@ -504,6 +535,21 @@ const resetConfirmPassword = ref('')
 const showResetPassword = ref(false)
 const forgotLoading = ref(false)
 const forgotError = ref('')
+const resendCooldown = ref(0)
+let resendTimer: ReturnType<typeof setInterval> | null = null
+
+function startResendCooldown() {
+  resendCooldown.value = 45
+  if (resendTimer) clearInterval(resendTimer)
+  resendTimer = setInterval(() => {
+    if (resendCooldown.value > 0) {
+      resendCooldown.value--
+    } else {
+      if (resendTimer) clearInterval(resendTimer)
+      resendTimer = null
+    }
+  }, 1000)
+}
 
 function openForgotPassword() {
   showForgotView.value = true
@@ -519,16 +565,26 @@ function closeForgotPassword() {
   resetOtp.value = ''
   resetNewPassword.value = ''
   resetConfirmPassword.value = ''
+  if (resendTimer) {
+    clearInterval(resendTimer)
+    resendTimer = null
+  }
 }
 
 const forgotGuideText = computed(() => {
+  if (forgotStep.value === 'verify-otp') {
+    return 'We sent a 6-digit OTP to your registered address. Enter the code below to verify your account.'
+  }
+  if (forgotStep.value === 'new-password') {
+    return 'OTP verified successfully. Now create a new secure password for your account.'
+  }
   if (activeRole.value === 'admin') {
-    return 'Enter your official administrator email address. We will dispatch a 6-digit verification code to reset your password.'
+    return 'Enter your official administrator email address to receive a 6-digit OTP.'
   }
   if (activeRole.value === 'guard') {
-    return 'Enter your registered guard phone number or email to receive a 6-digit verification code.'
+    return 'Enter your registered guard phone number or email to receive a 6-digit OTP.'
   }
-  return 'Enter your registered phone number or email address to receive your 6-digit verification code.'
+  return 'Enter your registered phone number or email address to receive your 6-digit OTP.'
 })
 
 const forgotIdentifierLabel = computed(() => {
@@ -551,10 +607,29 @@ async function handleSendResetOtp() {
     if (res.data && res.data.debugOtp) {
       resetOtp.value = String(res.data.debugOtp)
     }
-    forgotStep.value = 'verify'
+    forgotStep.value = 'verify-otp'
+    startResendCooldown()
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
-    forgotError.value = err.response?.data?.message || 'Could not dispatch verification code. Please check your details.'
+    forgotError.value = err.response?.data?.message || 'Could not send OTP. Please check your details.'
+  } finally {
+    forgotLoading.value = false
+  }
+}
+
+async function handleVerifyResetOtp() {
+  forgotError.value = ''
+  if (resetOtp.value.trim().length !== 6) {
+    forgotError.value = 'Please enter a valid 6-digit OTP.'
+    return
+  }
+  forgotLoading.value = true
+  try {
+    await authApi.verifyResetOtp(forgotIdentifier.value.trim(), resetOtp.value.trim())
+    forgotStep.value = 'new-password'
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } }
+    forgotError.value = err.response?.data?.message || 'The 6-digit OTP is incorrect or has expired. Please try again.'
   } finally {
     forgotLoading.value = false
   }
@@ -577,7 +652,7 @@ async function handlePerformPasswordReset() {
     forgotStep.value = 'success'
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
-    forgotError.value = err.response?.data?.message || 'The verification code is invalid or has expired. Please try again.'
+    forgotError.value = err.response?.data?.message || 'Failed to update password. Please try again.'
   } finally {
     forgotLoading.value = false
   }
@@ -987,6 +1062,19 @@ async function handleLogin() {
   padding: 12px 14px;
   border-radius: 12px;
   font-size: 13.5px;
+}
+
+.otp-verified-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
 }
 
 .resident-success-card {
