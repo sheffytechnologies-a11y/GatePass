@@ -16,18 +16,20 @@
           :class="{ 'is-active': activeTab === 'home' }"
         >
           <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
-            <PhHouse :size="24" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+            <PhHouse :size="20" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+            <span class="tab-label">Home</span>
           </div>
         </ion-tab-button>
 
-        <!-- 2. Fees -->
+        <!-- 2. Fees / Dues -->
         <ion-tab-button
           tab="fees"
           href="/tabs/fees"
           :class="{ 'is-active': activeTab === 'fees' }"
         >
           <div class="tab-pill" :class="{ 'pill-active': activeTab === 'fees' }">
-            <PhCreditCard :size="24" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
+            <PhCreditCard :size="20" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
+            <span class="tab-label">Dues</span>
           </div>
         </ion-tab-button>
 
@@ -37,6 +39,7 @@
           href="/tabs/create"
           class="tab-create"
           :class="{ 'is-active': activeTab === 'create' }"
+          aria-label="Create Pass"
         >
           <div class="create-fab">
             <PhPlus :size="24" weight="bold" />
@@ -50,7 +53,8 @@
           :class="{ 'is-active': activeTab === 'emergency' }"
         >
           <div class="tab-pill" :class="{ 'pill-active': activeTab === 'emergency' }">
-            <PhWarningCircle :size="24" :weight="activeTab === 'emergency' ? 'fill' : 'regular'" />
+            <PhWarningCircle :size="20" :weight="activeTab === 'emergency' ? 'fill' : 'regular'" />
+            <span class="tab-label">Emergency</span>
           </div>
         </ion-tab-button>
 
@@ -61,7 +65,8 @@
           :class="{ 'is-active': activeTab === 'profile' }"
         >
           <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
-            <PhUser :size="24" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+            <PhUser :size="20" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+            <span class="tab-label">Profile</span>
           </div>
         </ion-tab-button>
 
@@ -120,14 +125,14 @@ const activeTab = computed(() => {
   --background: transparent;
   --border-color: transparent;
   position: fixed;
-  bottom: calc(var(--ion-safe-area-bottom, 0px) + 14px);
+  bottom: calc(var(--ion-safe-area-bottom, 0px) + 12px);
   left: 16px;
   right: 16px;
   width: calc(100% - 32px) !important;
   max-width: 420px !important;
   margin: 0 auto;
-  height: 60px;
-  background: rgba(238, 241, 239, 0.95) !important;
+  height: 64px;
+  background: rgba(238, 241, 239, 0.96) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.9) !important;
@@ -136,7 +141,7 @@ const activeTab = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  padding: 0 6px;
+  padding: 0 4px;
   contain: none !important;
   overflow: visible !important;
   z-index: 999;
@@ -144,7 +149,7 @@ const activeTab = computed(() => {
 
 ion-tab-button {
   --background: transparent;
-  --color: #8C9991;
+  --color: #7B8B82;
   --color-selected: var(--w-primary, #0A5C38);
   --padding-top: 0px;
   --padding-bottom: 0px;
@@ -164,17 +169,21 @@ ion-tab-button {
 /* Inactive / Base Pill Wrapper */
 .tab-pill {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  width: 58px;
-  border-radius: 9999px;
-  color: #8C9991;
+  gap: 2px;
+  height: 50px;
+  width: 100%;
+  max-width: 66px;
+  padding: 4px 2px;
+  border-radius: 18px;
+  color: #7B8B82;
   background: transparent;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Active Pill Wrapper: Elevated white capsule with green filled icon */
+/* Active Pill Wrapper: Elevated white capsule with green filled icon & label */
 .tab-pill.pill-active {
   background: #FFFFFF;
   color: var(--w-primary, #0A5C38);
@@ -183,6 +192,22 @@ ion-tab-button {
 
 .tab-pill:active {
   transform: scale(0.92);
+}
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: inherit;
+  white-space: nowrap;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, sans-serif;
+  transition: font-weight 0.18s ease, color 0.18s ease;
+}
+
+.tab-pill.pill-active .tab-label {
+  font-weight: 700;
+  color: var(--w-primary, #0A5C38);
 }
 
 /* Center FAB button */
