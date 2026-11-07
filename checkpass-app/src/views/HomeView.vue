@@ -398,12 +398,17 @@
                       >
                         <!-- Cover Image Banner -->
                         <div class="artisan-cover-wrap">
+                          <div class="artisan-cover-placeholder">
+                            <span>{{ getCategoryIcon(artisan.category) }}</span>
+                          </div>
                           <img
                             :src="artisan.imageUrl || getCategoryCover(artisan.category)"
                             :alt="artisan.name"
                             class="artisan-cover-img"
                             loading="lazy"
+                            @error="(e) => (e.target as HTMLElement).style.opacity = '0'"
                           />
+                          <span class="artisan-category-chip-floating">{{ artisan.category }}</span>
                         </div>
 
                         <!-- Card Body: Name on top, Rating & Reviews together at the bottom of the name -->
@@ -485,20 +490,27 @@
     />
 
     <!-- Artisan Details & Reviews Modal -->
-    <ion-modal
-      :is-open="!!selectedArtisan"
-      class="artisan-sheet-modal"
-      @didDismiss="closeArtisanModal"
-    >
-      <div v-if="selectedArtisan" class="sheet-modal-shell artisan-sheet-content">
-        <!-- Top Header -->
-        <div class="sheet-modal-header">
-          <div>
-            <div class="sheet-header-tag">Estate Verified Service</div>
-            <h2 class="sheet-header-title">{{ selectedArtisan.name }}</h2>
-          </div>
-          <button class="modal-close-btn" @click="closeArtisanModal">&times;</button>
-        </div>
+    <Teleport to="body">
+      <Transition name="sheet-modal">
+        <div
+          v-if="selectedArtisan"
+          class="custom-sheet-overlay"
+          @click.self="closeArtisanModal"
+        >
+          <div class="custom-sheet-container artisan-custom-sheet">
+            <!-- Grab handle -->
+            <div class="sheet-drag-handle-bar" @click="closeArtisanModal">
+              <div class="sheet-drag-handle" />
+            </div>
+
+            <!-- Top Header -->
+            <div class="sheet-modal-header">
+              <div>
+                <div class="sheet-header-tag">Estate Verified Service</div>
+                <h2 class="sheet-header-title">{{ selectedArtisan.name }}</h2>
+              </div>
+              <button class="modal-close-btn" @click="closeArtisanModal" aria-label="Close">&times;</button>
+            </div>
 
         <div class="sheet-modal-body artisan-sheet-scroll">
           <!-- Artisan Profile Header -->
@@ -647,22 +659,31 @@
           </div>
         </div>
       </div>
-    </ion-modal>
+    </div>
+  </Transition>
+</Teleport>
 
     <!-- News Article Detail Modal -->
-    <ion-modal
-      :is-open="!!selectedNewsItem"
-      class="news-modal-sheet"
-      @didDismiss="selectedNewsItem = null"
-    >
-      <div v-if="selectedNewsItem" class="sheet-modal-shell news-sheet-content">
-        <div class="sheet-modal-header">
-          <div>
-            <div class="sheet-header-tag">Estate Announcement</div>
-            <h2 class="sheet-header-title">{{ selectedNewsItem.title }}</h2>
-          </div>
-          <button class="modal-close-btn" @click="selectedNewsItem = null">&times;</button>
-        </div>
+    <Teleport to="body">
+      <Transition name="sheet-modal">
+        <div
+          v-if="selectedNewsItem"
+          class="custom-sheet-overlay"
+          @click.self="selectedNewsItem = null"
+        >
+          <div class="custom-sheet-container news-custom-sheet">
+            <!-- Grab handle -->
+            <div class="sheet-drag-handle-bar" @click="selectedNewsItem = null">
+              <div class="sheet-drag-handle" />
+            </div>
+
+            <div class="sheet-modal-header">
+              <div>
+                <div class="sheet-header-tag">Estate Announcement</div>
+                <h2 class="sheet-header-title">{{ selectedNewsItem.title }}</h2>
+              </div>
+              <button class="modal-close-btn" @click="selectedNewsItem = null">&times;</button>
+            </div>
 
         <div class="sheet-modal-body news-sheet-scroll" id="newsModalScrollBody">
           <div class="news-sheet-meta">
@@ -753,7 +774,9 @@
           </div>
         </div>
       </div>
-    </ion-modal>
+    </div>
+  </Transition>
+</Teleport>
   </ion-page>
 </template>
 
@@ -762,7 +785,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   IonPage, IonContent,
-  IonRefresher, IonRefresherContent, IonSkeletonText, IonModal,
+  IonRefresher, IonRefresherContent, IonSkeletonText,
 } from '@ionic/vue'
 // import type { Notification } from '@/types'
 import { useAuthStore } from '@/stores/auth'
@@ -1129,6 +1152,18 @@ function getCategoryCover(category: string): string {
       return 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80'
     default:
       return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+  }
+}
+
+function getCategoryIcon(category: string): string {
+  switch (category) {
+    case 'Electrician': return '⚡'
+    case 'Plumber': return '🔧'
+    case 'AC Repair': return '❄️'
+    case 'Cleaning': return '✨'
+    case 'Carpentry': return '🪚'
+    case 'Buy & Sell': return '🛍️'
+    default: return '🛠️'
   }
 }
 
@@ -1794,15 +1829,45 @@ onMounted(() => {
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: #F1F4F2;
+  background: linear-gradient(135deg, #0A5C38, #113824);
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.artisan-cover-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  background: linear-gradient(135deg, #0A5C38 0%, #15803D 100%);
+  color: #FFFFFF;
 }
 .artisan-cover-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.25s ease;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.artisan-category-chip-floating {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  z-index: 2;
+  background: rgba(17, 32, 25, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
 }
 .artisan-card:hover .artisan-cover-img {
   transform: scale(1.03);
@@ -1855,14 +1920,91 @@ onMounted(() => {
   text-overflow: ellipsis;
 }
 
-/* ── ARTISAN & NEWS SHEET MODALS ── */
-ion-modal.artisan-sheet-modal,
-ion-modal.news-modal-sheet {
-  --height: 90%;
-  --border-radius: 24px 24px 0 0;
-  --backdrop-opacity: 0.65;
+/* ── TELEPORT BOTTOM SHEET MODALS (Services Artisan & Estate Announcements) ── */
+.custom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(10, 20, 15, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
   align-items: flex-end;
+  justify-content: center;
 }
+
+.custom-sheet-container {
+  width: 100%;
+  max-width: 520px;
+  height: 88vh;
+  max-height: 88vh;
+  background: #FFFFFF;
+  border-radius: 28px 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
+  animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sheet-drag-handle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 4px;
+  cursor: pointer;
+  touch-action: none;
+  background: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.sheet-drag-handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: #D1D5DB;
+  transition: background 0.15s ease;
+}
+
+.sheet-drag-handle-bar:hover .sheet-drag-handle {
+  background: #9CA3AF;
+}
+
+/* Vue Transition */
+.sheet-modal-enter-active,
+.sheet-modal-leave-active {
+  transition: opacity 0.25s ease;
+}
+.sheet-modal-enter-from,
+.sheet-modal-leave-to {
+  opacity: 0;
+}
+.sheet-modal-enter-active .custom-sheet-container {
+  animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.sheet-modal-leave-active .custom-sheet-container {
+  animation: sheetSlideDown 0.22s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* ── ARTISAN & NEWS SHEET MODALS ── */
 .sheet-modal-shell {
   display: flex;
   flex-direction: column;
