@@ -173,11 +173,11 @@ ion-tab-button {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: 50px;
+  height: 52px;
   width: 100%;
-  max-width: 66px;
-  padding: 4px 2px;
-  border-radius: 18px;
+  max-width: 64px;
+  padding: 4px 6px;
+  border-radius: 9999px !important;
   color: #7B8B82;
   background: transparent;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -187,7 +187,8 @@ ion-tab-button {
 .tab-pill.pill-active {
   background: #FFFFFF;
   color: var(--w-primary, #0A5C38);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-radius: 9999px !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .tab-pill:active {

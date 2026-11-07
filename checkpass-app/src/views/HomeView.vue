@@ -1540,9 +1540,15 @@ function initials(name: string) {
 }
 
 function avatarColor(name: string) {
-  const colors = ['#F08A00', '#0E9F24', '#6D17E6', '#E5007E', '#1A3F8F']
-  const idx = (name.charCodeAt(0) || 0) % colors.length
-  return colors[idx]
+  const gradients = [
+    'linear-gradient(135deg, #0A5C38, #00C97A)',
+    'linear-gradient(135deg, #1A3F8F, #4A90D9)',
+    'linear-gradient(135deg, #7C3AED, #A855F7)',
+    'linear-gradient(135deg, #D97706, #FBBF24)',
+    'linear-gradient(135deg, #0284C7, #38BDF8)',
+  ]
+  const idx = (name.charCodeAt(0) || 0) % gradients.length
+  return gradients[idx]
 }
 
 function statusClass(status: string) {
@@ -3273,23 +3279,25 @@ ion-modal.news-modal-sheet {
   transform: scale(0.98);
 }
 .pass-mini-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 24px;
-  font-weight: 700;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 .pass-mini-body { flex: 1; min-width: 0; }
 .pass-mini-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: #22252b;
-  line-height: 1.2;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
