@@ -990,6 +990,10 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
 .social-row{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
 .social-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;color:#374038;font-size:.82rem;transition:all var(--t)}
 .social-btn:hover{border-color:var(--p);color:var(--p);transform:translateY(-1px)}
+.social-btn.icon-only-btn{width:42px;height:42px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#07261A;border:1px solid rgba(10,92,56,.25);color:#FFFFFF;box-shadow:0 2px 6px rgba(7,38,26,.12);transition:all .22s cubic-bezier(.16,1,.3,1)}
+.social-btn.icon-only-btn:hover{background:#0A5C38;border-color:#0A5C38;transform:translateY(-2px);box-shadow:0 6px 16px rgba(10,92,56,.3)}
+.social-btn.icon-only-btn svg{display:block;transition:transform .2s ease}
+.social-btn.icon-only-btn:hover svg{transform:scale(1.08)}
 .contact-form-card{background:#fff;border-radius:var(--r-lg);padding:36px;border:1px solid var(--border)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
