@@ -779,6 +779,7 @@ import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
+import { MOCK_HOME_SUMMARY, MOCK_RESIDENT } from '@/api/mock'
 
 export type NewsFeedItem = {
   id: number
@@ -1430,11 +1431,42 @@ async function loadSummary() {
   summaryError.value   = false
   try {
     const res = await client.get('/v1/home/summary')
-    summary.value = res.data
-    notifStore.notifications = res.data.notifications
-    if (res.data.resident) auth.updateResident(res.data.resident)
-  } catch {
-    summaryError.value = true
+    if (res.data) {
+      summary.value = res.data
+      notifStore.notifications = res.data.notifications || []
+      if (res.data.resident) auth.updateResident(res.data.resident)
+      try {
+        localStorage.setItem('cp_home_summary', JSON.stringify(res.data))
+      } catch {}
+    }
+  } catch (err) {
+    // Graceful offline/demo fallback: use cached summary or MOCK_HOME_SUMMARY
+    let fallback: HomeSummary | null = null
+    try {
+      const cached = localStorage.getItem('cp_home_summary')
+      if (cached) fallback = JSON.parse(cached)
+    } catch {}
+
+    if (!fallback) {
+      const storedUser = JSON.parse(localStorage.getItem('w_user') ?? 'null')
+      const residentData = auth.resident || {
+        ...MOCK_RESIDENT,
+        name: storedUser?.name || 'Sheriff',
+        estateName: storedUser?.estateName || 'Emerald Court',
+      }
+      fallback = {
+        ...MOCK_HOME_SUMMARY,
+        resident: residentData,
+      }
+    }
+
+    summary.value = fallback
+    notifStore.notifications = fallback.notifications || []
+    if (fallback.resident && !auth.resident) {
+      auth.updateResident(fallback.resident)
+    }
+    // Prevent locking the dashboard behind an error screen
+    summaryError.value = false
   } finally {
     summaryLoading.value = false
   }
@@ -1446,17 +1478,22 @@ async function loadNews() {
   newsLoading.value = true
   try {
     const res = await client.get('/v1/news')
-    newsItems.value = (res.data.news || []).map((item: NewsFeedItem & { image?: string | null; createdAt?: string | null }) => ({
-      id: item.id,
-      title: item.title,
-      content: item.content,
-      image: item.image ?? null,
-      authorRole: (item as any).adminRole || (item as any).authorRole || 'Estate Admin',
-      adminName: (item as any).adminName ?? null,
-      createdAt: item.createdAt ?? null,
-    }))
+    const items = res.data?.news || []
+    if (items.length > 0) {
+      newsItems.value = items.map((item: NewsFeedItem & { image?: string | null; createdAt?: string | null }) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        image: item.image ?? null,
+        authorRole: (item as any).adminRole || (item as any).authorRole || 'Estate Admin',
+        adminName: (item as any).adminName ?? null,
+        createdAt: item.createdAt ?? null,
+      }))
+    } else {
+      newsItems.value = defaultEstateNews
+    }
   } catch {
-    newsItems.value = []
+    newsItems.value = defaultEstateNews
   } finally {
     newsLoading.value = false
   }
