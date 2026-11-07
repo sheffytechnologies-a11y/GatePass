@@ -531,8 +531,27 @@ async function showResidentAccessInfo() {
   padding: 13px 14px;
   font-size: 14.5px;
   background: transparent;
+  border-radius: inherit;
   color: #112019;
   font-family: inherit;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus,
+.input-wrap input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #112019 !important;
+  caret-color: #112019 !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrap:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
+  box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
 }
 
 .input-wrap input::placeholder {

@@ -542,6 +542,7 @@ function goToDashboard() {
   background: #F8FAFC;
   border: 1.5px solid #E2E8F0;
   border-radius: 12px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -558,6 +559,7 @@ function goToDashboard() {
   align-items: center;
   color: #94A3B8;
   pointer-events: none;
+  z-index: 2;
 }
 
 .text-input {
@@ -566,9 +568,28 @@ function goToDashboard() {
   padding: 0 14px 0 42px;
   border: none;
   background: transparent;
+  border-radius: 12px;
   font-size: 14.5px;
   color: #0F172A;
   outline: none;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.text-input:-webkit-autofill,
+.text-input:-webkit-autofill:hover,
+.text-input:-webkit-autofill:focus,
+.text-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: 12px !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrapper:not(:focus-within) .text-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+  box-shadow: 0 0 0 1000px #F8FAFC inset !important;
 }
 
 .text-input::placeholder {

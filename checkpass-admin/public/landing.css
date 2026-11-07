@@ -5254,3 +5254,30 @@ footer {
     height: 520px;
   }
 }
+
+
+/* ── Universal Input Autofill & Rounded Corner Reset ── */
+.form-group, .login-form-group, .input-wrapper, .input-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.form-group input, .form-group select, .form-group textarea,
+.login-form-group input, .login-form-group select,
+.input-wrapper input, .input-wrap input {
+  border-radius: inherit !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

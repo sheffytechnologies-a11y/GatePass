@@ -877,6 +877,7 @@ async function handleRegister() {
   background: #F8FAFC;
   border: 1.5px solid #E2E8F0;
   border-radius: 14px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -893,6 +894,7 @@ async function handleRegister() {
   display: flex;
   align-items: center;
   pointer-events: none;
+  z-index: 2;
 }
 
 .text-input {
@@ -900,10 +902,29 @@ async function handleRegister() {
   height: 44px;
   border: none;
   background: transparent;
+  border-radius: 14px;
   padding: 0 14px 0 42px;
   font-size: 14px;
   color: #0F172A;
   outline: none;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.text-input:-webkit-autofill,
+.text-input:-webkit-autofill:hover,
+.text-input:-webkit-autofill:focus,
+.text-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: 14px !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrapper:not(:focus-within) .text-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+  box-shadow: 0 0 0 1000px #F8FAFC inset !important;
 }
 
 .text-input::placeholder {

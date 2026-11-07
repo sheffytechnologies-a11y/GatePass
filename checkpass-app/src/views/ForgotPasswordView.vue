@@ -449,6 +449,7 @@ function goBack() {
   background: #F8FAFC;
   border: 1.5px solid #E2E8F0;
   border-radius: 14px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -465,6 +466,7 @@ function goBack() {
   align-items: center;
   color: #94A3B8;
   pointer-events: none;
+  z-index: 2;
 }
 
 .input-wrap input {
@@ -473,9 +475,28 @@ function goBack() {
   padding: 0 16px 0 42px;
   border: none;
   background: transparent;
+  border-radius: 14px;
   font-size: 15px;
   color: #0F172A;
   outline: none;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus,
+.input-wrap input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: 14px !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrap:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+  box-shadow: 0 0 0 1000px #F8FAFC inset !important;
 }
 
 .otp-input-wrap input {

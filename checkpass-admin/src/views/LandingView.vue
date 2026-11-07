@@ -1610,15 +1610,15 @@
         <h5>Company</h5>
         <ul>
           <li><a href="#" onclick="showPage('contact');return false">Contact Us</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Security Overview</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('privacy')">Privacy Policy</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('terms')">Terms of Service</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('agreement')">Security Overview</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <p>&copy; 2026 CheckPass &middot; Sheffy Technologies. All rights reserved.</p>
-      <div class="footer-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+      <div class="footer-legal"><a href="#" @click.prevent="openLegalModal('privacy')">Privacy Policy</a><a href="#" @click.prevent="openLegalModal('terms')">Terms of Service</a><a href="#" @click.prevent="openLegalModal('agreement')">Estate Agreement &amp; DPA</a></div>
     </div>
   </div>
 </footer>
