@@ -23,11 +23,11 @@
             </div>
 
             <div class="pay-meta-row">
-              <div class="pay-meta">
+              <div class="pay-meta pay-meta-title">
                 <ion-icon :icon="cardOutline" />
                 <span>{{ item.title }}</span>
               </div>
-              <div class="pay-meta">
+              <div class="pay-meta pay-meta-date">
                 <ion-icon :icon="calendarOutline" />
                 <span>{{ item.date }}</span>
               </div>
@@ -232,7 +232,8 @@ function proceedToDetails() {
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
 }
 .pay-meta {
   display: flex;
@@ -242,7 +243,24 @@ function proceedToDetails() {
   font-size: 13px;
   font-family: var(--w-font-body);
 }
-.pay-meta ion-icon { font-size: 14px; }
+.pay-meta-title {
+  flex: 1;
+  min-width: 0;
+}
+.pay-meta-title span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pay-meta-date {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 12.5px;
+}
+.pay-meta ion-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
 
 .total-row {
   margin-top: 14px;
