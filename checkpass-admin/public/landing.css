@@ -2820,44 +2820,44 @@ footer {
 
 /* ── CheckPass Legal & Compliance Modal ── */
 .landing-legal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(7, 31, 20, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(7, 31, 20, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
 
 .landing-legal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .landing-legal-box {
-  background: #FFFFFF;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 900px;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 24px 60px rgba(7, 31, 20, 0.35);
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(10, 92, 56, 0.12);
+  background: #FFFFFF !important;
+  border-radius: 20px !important;
+  width: 100% !important;
+  max-width: 900px !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 24px 60px rgba(7, 31, 20, 0.45) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  border: 1px solid rgba(10, 92, 56, 0.18) !important;
   transform: translateY(20px) scale(0.98);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .landing-legal-overlay.open .landing-legal-box {
-  transform: translateY(0) scale(1);
+  transform: translateY(0) scale(1) !important;
 }
 
 .landing-legal-header {

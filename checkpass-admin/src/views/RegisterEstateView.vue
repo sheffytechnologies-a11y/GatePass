@@ -130,8 +130,9 @@
                   />
                   <span>
                     I confirm I am an authorized representative of this property/community and agree to the
-                    <a href="#" @click.prevent="openLegal('agreement')">CheckPass Master Services Agreement &amp; DPA</a> and
-                    <a href="#" @click.prevent="openLegal('terms')">Terms of Use</a>.
+                    <a href="#" @click.prevent="openLegal('agreement')" onclick="window.openEstateLegal && window.openEstateLegal('agreement'); return false;">CheckPass Master Services Agreement &amp; DPA</a>,
+                    <a href="#" @click.prevent="openLegal('terms')" onclick="window.openEstateLegal && window.openEstateLegal('terms'); return false;">Terms of Use</a> &amp;
+                    <a href="#" @click.prevent="openLegal('privacy')" onclick="window.openEstateLegal && window.openEstateLegal('privacy'); return false;">Privacy Policy</a>.
                   </span>
                 </label>
               </div>
@@ -156,15 +157,42 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               <span>Bank-grade 256-bit encryption &middot; NDPA 2023 &amp; GAID 2025 Compliant</span>
             </div>
-          
-    <!-- CheckPass Master Services Agreement Modal -->
+
+          </template>
+
+          <!-- ACTIVATED SUCCESS PANEL -->
+          <template v-else>
+            <div class="success-panel">
+              <div class="success-icon-badge">&check;</div>
+              <h1 class="success-title">Your Free Trial Is Live!</h1>
+              <p class="success-desc">
+                <strong>{{ estateName }}</strong> is ready. Your community has access to up to
+                <strong>3 units</strong> and <strong>3 residents per unit</strong>, forever free.
+              </p>
+              <button class="submit-account-btn" @click="goToDashboard">
+                <span class="btn-content">
+                  Open Admin Dashboard
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </button>
+            </div>
+          </template>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CheckPass Master Services Agreement & DPA Modal (Teleported to Body) -->
+  <Teleport to="body">
     <div v-if="legalModalOpen" class="estate-legal-modal-backdrop" @click.self="legalModalOpen = false">
       <div class="estate-legal-modal-card">
         <div class="estate-legal-header">
           <div class="estate-legal-tabs">
             <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'agreement' }" @click="legalTab = 'agreement'">Master Services Agreement (MSA &amp; DPA)</button>
             <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'terms' }" @click="legalTab = 'terms'">Platform Terms</button>
-            <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'gaid' }" @click="legalTab = 'gaid'">NDPA &amp; GAID 2025</button>
+            <button type="button" class="estate-tab-btn" :class="{ active: legalTab === 'privacy' }" @click="legalTab = 'privacy'">NDPA 2023 &amp; GAID 2025</button>
           </div>
           <button type="button" class="estate-legal-close" @click="legalModalOpen = false">&times;</button>
         </div>
@@ -204,32 +232,7 @@
         </div>
       </div>
     </div>
-
-</template>
-
-          <!-- ACTIVATED SUCCESS PANEL -->
-          <template v-else>
-            <div class="success-panel">
-              <div class="success-icon-badge">&check;</div>
-              <h1 class="success-title">Your Free Trial Is Live!</h1>
-              <p class="success-desc">
-                <strong>{{ estateName }}</strong> is ready. Your community has access to up to
-                <strong>3 units</strong> and <strong>3 residents per unit</strong>, forever free.
-              </p>
-              <button class="submit-account-btn" @click="goToDashboard">
-                <span class="btn-content">
-                  Open Admin Dashboard
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </span>
-              </button>
-            </div>
-          </template>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -246,11 +249,15 @@ const city = ref('')
 const state = ref('')
 const agreeCommunityTerms = ref(false)
 const legalModalOpen = ref(false)
-const legalTab = ref<'agreement' | 'terms' | 'gaid'>('agreement')
+const legalTab = ref<'agreement' | 'terms' | 'privacy'>('agreement')
 
-function openLegal(tab: 'agreement' | 'terms' | 'gaid') {
+function openLegal(tab: 'agreement' | 'terms' | 'privacy') {
   legalTab.value = tab
   legalModalOpen.value = true
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).openEstateLegal = openLegal
 }
 
 function acceptLegal() {
@@ -739,26 +746,28 @@ function goToDashboard() {
   text-decoration: underline;
 }
 .estate-legal-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(7, 31, 20, 0.75);
-  backdrop-filter: blur(6px);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(7, 31, 20, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
 }
 .estate-legal-modal-card {
-  background: #fff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 760px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  background: #ffffff !important;
+  border-radius: 18px !important;
+  width: 100% !important;
+  max-width: 780px !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4) !important;
+  border: 1px solid #E2E8F0 !important;
 }
 .estate-legal-header {
   padding: 16px 20px;

@@ -122,7 +122,17 @@
             </button>
             <button class="menu-row" @click="showPrivacy">
               <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" />
-              <span class="menu-label">Privacy Policy</span>
+              <span class="menu-label">Privacy Policy (NDPA 2023)</span>
+              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
+            </button>
+            <button class="menu-row" @click="showTerms">
+              <ion-icon :icon="documentTextOutline" class="menu-icon" />
+              <span class="menu-label">Terms of Service</span>
+              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
+            </button>
+            <button class="menu-row" @click="showAgreement">
+              <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" />
+              <span class="menu-label">Master Services Agreement (MSA &amp; DPA)</span>
               <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
             </button>
           </div>
@@ -417,6 +427,7 @@ import {
   personOutline, lockClosedOutline, notificationsOutline, notificationsOffOutline,
   enterOutline, timeOutline, helpCircleOutline, shieldCheckmarkOutline,
   chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline, callOutline,
+  documentTextOutline,
 } from 'ionicons/icons'
 import ResidentPassCard from '@/components/ResidentPassCard.vue'
 import { generateResidentPassImage } from '@/utils/inviteCardRenderer'
@@ -761,8 +772,29 @@ async function showFaq() {
 
 async function showPrivacy() {
   const alert = await alertController.create({
-    header: 'Privacy & Security',
-    message: 'Checkpass stores encrypted pass records strictly for estate perimeter safety and audit clearance. Data is never sold or shared with 3rd parties.',
+    header: 'Privacy & Security (NDPA 2023)',
+    subHeader: 'Regulated under Nigeria Data Protection Act 2023 & NDPC GAID 2025',
+    message: 'Checkpass stores encrypted pass records strictly for estate perimeter safety and audit clearance. Data is encrypted with AES-256 at rest, TLS 1.3 in transit, and is never sold or shared with 3rd parties.',
+    buttons: ['Got it'],
+  })
+  await alert.present()
+}
+
+async function showTerms() {
+  const alert = await alertController.create({
+    header: 'CheckPass Terms of Service',
+    subHeader: 'Platform Use & Pass Authorization',
+    message: 'CheckPass provides digital gate access and proptech tools. Physical admission remains governed by your Estate HOA and security bylaws. Passes must be issued for lawful visitors with prior consent.',
+    buttons: ['Understood'],
+  })
+  await alert.present()
+}
+
+async function showAgreement() {
+  const alert = await alertController.create({
+    header: 'Master Services Agreement & DPA',
+    subHeader: 'B2B Estate Cloud Agreement',
+    message: 'CheckPass operates under a dual-role framework: your community HOA is the Data Controller, and Sheffy Technologies Limited is strictly the Data Processor. All dues route 100% to estate accounts with 30-day exit portability.',
     buttons: ['Got it'],
   })
   await alert.present()

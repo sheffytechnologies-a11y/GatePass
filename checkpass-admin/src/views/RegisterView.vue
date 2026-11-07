@@ -353,7 +353,7 @@
             <div class="terms-row">
               <label class="terms-label">
                 <input v-model="agreeTerms" type="checkbox" class="terms-checkbox" required />
-                <span>I agree to the <a href="#" @click.prevent="openLegal('terms')">Terms of Service</a> &amp; <a href="#" @click.prevent="openLegal('privacy')">Privacy Policy</a></span>
+                <span>I agree to the <a href="#" @click.prevent="openLegal('terms')" onclick="window.openRegisterLegal && window.openRegisterLegal('terms'); return false;">Terms of Service</a>, <a href="#" @click.prevent="openLegal('privacy')" onclick="window.openRegisterLegal && window.openRegisterLegal('privacy'); return false;">Privacy Policy</a> &amp; <a href="#" @click.prevent="openLegal('agreement')" onclick="window.openRegisterLegal && window.openRegisterLegal('agreement'); return false;">Master Services Agreement (MSA &amp; DPA)</a></span>
               </label>
             </div>
 
@@ -386,88 +386,118 @@
         </div>
       </div>
 
-    <!-- Legal Modal Dialog (Terms & Privacy) -->
-    <div v-if="legalModalOpen" class="legal-modal-backdrop" @click.self="legalModalOpen = false">
-      <div class="legal-modal-card">
-        <div class="legal-modal-header">
-          <div class="legal-tabs">
-            <button
-              type="button"
-              class="legal-tab-btn"
-              :class="{ active: legalTab === 'terms' }"
-              @click="legalTab = 'terms'"
-            >
-              Terms of Service
+    <!-- Legal Modal Dialog (Terms, Privacy & Master Services Agreement) -->
+    <Teleport to="body">
+      <div v-if="legalModalOpen" class="legal-modal-backdrop" @click.self="legalModalOpen = false">
+        <div class="legal-modal-card">
+          <div class="legal-modal-header">
+            <div class="legal-tabs">
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'terms' }"
+                @click="legalTab = 'terms'"
+              >
+                Terms of Service
+              </button>
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'privacy' }"
+                @click="legalTab = 'privacy'"
+              >
+                Privacy Policy
+              </button>
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'agreement' }"
+                @click="legalTab = 'agreement'"
+              >
+                Master Services Agreement (MSA &amp; DPA)
+              </button>
+            </div>
+            <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
+          </div>
+
+          <div class="legal-modal-body">
+            <!-- Terms Tab -->
+            <div v-if="legalTab === 'terms'" class="legal-text-flow">
+              <h3>Checkpass Terms of Service</h3>
+              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (Nigeria)</p>
+              
+              <h4>1. Definitions &amp; Role Framework</h4>
+              <p>These Terms govern your access to the Checkpass Platform. Under Section 24 of the Nigeria Data Protection Act 2023 (NDPA), the Estate Homeowners Association (HOA) acts as the Data Controller, while Checkpass acts as the Data Processor providing digital access management, visitor passes, and estate infrastructure.</p>
+
+              <h4>2. Platform Nature &amp; Estate Authority</h4>
+              <p>Checkpass is an independent proptech platform. Checkpass is NOT a private security firm, law enforcement body, or emergency first responder. Physical admission into any estate remains governed exclusively by estate bylaws and gate security personnel.</p>
+
+              <h4>3. Account Registration &amp; Administration</h4>
+              <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
+
+              <h4>4. Visitor Passes &amp; Host Warranty</h4>
+              <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
+
+              <h4>5. Estate Levies &amp; Payment Processing</h4>
+              <p>All estate dues and subscription fees are processed through PCI-DSS certified payment processors (Paystack Payments Limited). Checkpass never touches or stores raw credit or debit card numbers.</p>
+
+              <h4>6. Emergency &amp; Panic Alerts Disclaimer</h4>
+              <p>The panic alert feature is an informational digital relay alerting security guards. Checkpass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
+
+              <h4>7. Limitation of Liability &amp; Governing Law</h4>
+              <p>To the maximum extent permitted by Nigerian law, Checkpass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div v-else-if="legalTab === 'privacy'" class="legal-text-flow">
+              <h3>Checkpass Privacy Policy</h3>
+              <p class="legal-date">NDPA 2023 &amp; NDPC GAID 2025 Certified &middot; Bank-Grade Data Protection</p>
+
+              <h4>1. Data Controller vs. Data Processor</h4>
+              <p>For resident rosters, unit assignments, and gate logs, your Estate HOA is the primary Data Controller. Checkpass acts as Data Processor providing cloud hosting, cryptographic pass tokens, and administrative consoles under Section 24 of the NDP Act 2023 and GAID 2025 Directive 15.</p>
+
+              <h4>2. Data We Process</h4>
+              <p>We process only data essential for gated perimeter integrity: (a) Administrator and resident names, phone numbers, and unit addresses; (b) Visitor full name, phone number, vehicle plate, and gate timestamp; (c) Pass access logs and security audit entries.</p>
+
+              <h4>3. Legal Bases for Processing</h4>
+              <p>Data processing is conducted under Contractual Necessity (Section 25 NDPA) to issue access passes, and Legitimate Interest to safeguard community perimeter security.</p>
+
+              <h4>4. Financial &amp; Cardholder Security</h4>
+              <p>Checkpass does NOT collect or store full credit/debit card numbers or CVVs. All payment transactions are securely tokenized and handled directly by Paystack (PCI-DSS Level 1 certified).</p>
+
+              <h4>5. Data Subject Rights &amp; Retention</h4>
+              <p>In accordance with the NDPA 2023 and NDPC GAID 2025, visitor movement telemetry is automatically anonymized or purged after 180 days. Users retain the right to inspect access logs associated with their profile or request data rectification through their Estate Administration.</p>
+            </div>
+
+            <!-- Master Services Agreement & DPA Tab -->
+            <div v-else-if="legalTab === 'agreement'" class="legal-text-flow">
+              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:12px 16px;border-radius:10px;margin-bottom:14px">
+                <strong style="color:#166534;font-size:13px">📄 Standard Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
+                <p style="font-size:12px;color:#15803D;margin:2px 0 0">Universal proptech service contract for Estates, CDAs, Facilities, and Corporate Parks.</p>
+              </div>
+
+              <h3>Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</h3>
+              <p class="legal-date">Between Sheffy Technologies Limited (RC 1928471) &amp; The Subscribing Client / Property Board</p>
+
+              <h4>PART 1 &middot; COMMERCIAL TERMS &amp; CLOUD SLA</h4>
+              <p><strong>1. Scope of Cloud Services:</strong> CheckPass grants non-exclusive cloud access to: (a) 4-Second QR Gate Pass Verification; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, Email); (c) Automated Dues Invoicing &amp; Direct Bank Settlement; (d) Anti-Theft Move-Out Manifest; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
+              <p><strong>2. Direct Dues Settlement:</strong> 100% of resident dues, service levies, and utility charges paid via card or direct bank transfer settle directly into the subscribing property's bank account.</p>
+              <p><strong>3. Zero Hardware Lock-in:</strong> Guard terminals run on standard Android or iOS devices with automatic offline cryptographic token verification during network outages.</p>
+
+              <h4>PART 2 &middot; NDPA 2023 / GAID 2025 DATA PROCESSING ADDENDUM</h4>
+              <p><strong>4. Statutory Roles:</strong> Under Section 24 of the NDP Act 2023 and NDPC GAID 2025, Subscriber is Data Controller; CheckPass is Data Processor. CheckPass enforces AES-256 bit encryption at rest, TLS 1.3 in transit, and strictly never monetizes or sells resident data.</p>
+              <p><strong>5. 30-Day Exit &amp; Data Portability:</strong> The Subscriber may terminate service with thirty (30) days notice without exit penalty. Upon termination, CheckPass shall deliver an encrypted CSV export of all resident archives and ledgers.</p>
+            </div>
+          </div>
+
+          <div class="legal-modal-footer">
+            <button type="button" class="legal-accept-btn" @click="acceptLegal">
+              I Understand &amp; Agree
             </button>
-            <button
-              type="button"
-              class="legal-tab-btn"
-              :class="{ active: legalTab === 'privacy' }"
-              @click="legalTab = 'privacy'"
-            >
-              Privacy Policy
-            </button>
           </div>
-          <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
-        </div>
-
-        <div class="legal-modal-body">
-          <!-- Terms Tab -->
-          <div v-if="legalTab === 'terms'" class="legal-text-flow">
-            <h3>Checkpass Terms of Service</h3>
-            <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (Nigeria)</p>
-            
-            <h4>1. Definitions &amp; Role Framework</h4>
-            <p>These Terms govern your access to the Checkpass Platform. Under Section 24 of the Nigeria Data Protection Act 2023 (NDPA), the Estate Homeowners Association (HOA) acts as the Data Controller, while Checkpass acts as the Data Processor providing digital access management, visitor passes, and estate infrastructure.</p>
-
-            <h4>2. Platform Nature &amp; Estate Authority</h4>
-            <p>Checkpass is an independent proptech platform. Checkpass is NOT a private security firm, law enforcement body, or emergency first responder. Physical admission into any estate remains governed exclusively by estate bylaws and gate security personnel.</p>
-
-            <h4>3. Account Registration &amp; Administration</h4>
-            <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
-
-            <h4>4. Visitor Passes &amp; Host Warranty</h4>
-            <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
-
-            <h4>5. Estate Levies &amp; Payment Processing</h4>
-            <p>All estate dues and subscription fees are processed through PCI-DSS certified payment processors (Paystack Payments Limited). Checkpass never touches or stores raw credit or debit card numbers.</p>
-
-            <h4>6. Emergency &amp; Panic Alerts Disclaimer</h4>
-            <p>The panic alert feature is an informational digital relay alerting security guards. Checkpass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
-
-            <h4>7. Limitation of Liability &amp; Governing Law</h4>
-            <p>To the maximum extent permitted by Nigerian law, Checkpass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
-          </div>
-
-          <!-- Privacy Tab -->
-          <div v-else class="legal-text-flow">
-            <h3>Checkpass Privacy Policy</h3>
-            <p class="legal-date">NDPA 2023 &amp; NDPR Certified &middot; Bank-Grade Data Protection</p>
-
-            <h4>1. Data Controller vs. Data Processor</h4>
-            <p>For resident rosters, unit assignments, and gate logs, your Estate HOA is the primary Data Controller. Checkpass acts as Data Processor providing cloud hosting, cryptographic pass tokens, and administrative consoles.</p>
-
-            <h4>2. Data We Process</h4>
-            <p>We process only data essential for gated perimeter integrity: (a) Administrator and resident names, phone numbers, and unit addresses; (b) Visitor full name, phone number, vehicle plate, and gate timestamp; (c) Pass access logs and security audit entries.</p>
-
-            <h4>3. Legal Bases for Processing</h4>
-            <p>Data processing is conducted under Contractual Necessity (Section 25 NDPA) to issue access passes, and Legitimate Interest to safeguard community perimeter security.</p>
-
-            <h4>4. Financial &amp; Cardholder Security</h4>
-            <p>Checkpass does NOT collect or store full credit/debit card numbers or CVVs. All payment transactions are securely tokenized and handled directly by Paystack (PCI-DSS Level 1 certified).</p>
-
-            <h4>5. Data Subject Rights &amp; Retention</h4>
-            <p>In accordance with the NDPA 2023, users retain the right to inspect access logs associated with their profile or request data rectification through their Estate Administration.</p>
-          </div>
-        </div>
-
-        <div class="legal-modal-footer">
-          <button type="button" class="legal-accept-btn" @click="acceptLegal">
-            I Understand &amp; Agree
-          </button>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     </div>
   </div>
@@ -577,11 +607,15 @@ const password = ref('')
 const confirmPassword = ref('')
 const agreeTerms = ref(false)
 const legalModalOpen = ref(false)
-const legalTab = ref<'terms' | 'privacy'>('terms')
+const legalTab = ref<'terms' | 'privacy' | 'agreement'>('terms')
 
-function openLegal(tab: 'terms' | 'privacy') {
+function openLegal(tab: 'terms' | 'privacy' | 'agreement') {
   legalTab.value = tab
   legalModalOpen.value = true
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).openRegisterLegal = openLegal
 }
 
 function acceptLegal() {
@@ -1145,27 +1179,28 @@ async function handleRegister() {
 
 /* Legal Modal Dialog */
 .legal-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(15, 23, 42, 0.72) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
 }
 .legal-modal-card {
-  background: #ffffff;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 620px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  width: 100% !important;
+  max-width: 720px !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35) !important;
+  overflow: hidden !important;
+  border: 1px solid #e2e8f0 !important;
 }
 .legal-modal-header {
   display: flex;
@@ -1174,17 +1209,20 @@ async function handleRegister() {
   padding: 16px 20px;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .legal-tabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 .legal-tab-btn {
-  padding: 8px 16px;
-  border-radius: 10px;
+  padding: 7px 14px;
+  border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #64748b;
   cursor: pointer;
@@ -1194,7 +1232,7 @@ async function handleRegister() {
   background: #ffffff;
   color: #0a5c38;
   border-color: #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 .legal-close-btn {
   width: 32px;

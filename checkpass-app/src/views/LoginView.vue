@@ -83,7 +83,7 @@
               <router-link to="/forgot-password" class="forgot-link">Forgot your Password?</router-link>
             </div>
 
-            <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
+            <!-- Terms of Service, Privacy Policy & MSA DPA Checkbox (Always unchecked by default) -->
             <div class="terms-consent-row">
               <label class="terms-checkbox-label" for="agreeTermsCheck">
                 <input
@@ -95,7 +95,7 @@
                 />
               </label>
               <div class="terms-text">
-                I agree to the <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button>
+                I agree to the <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button>, <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button> &amp; <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('agreement')">Master Services Agreement (MSA &amp; DPA)</button>
               </div>
             </div>
 
@@ -184,7 +184,7 @@
                 :class="{ active: legalTab === 'terms' }"
                 @click="legalTab = 'terms'"
               >
-                Terms of Service
+                Terms
               </button>
               <button
                 type="button"
@@ -193,6 +193,14 @@
                 @click="legalTab = 'privacy'"
               >
                 Privacy Policy
+              </button>
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'agreement' }"
+                @click="legalTab = 'agreement'"
+              >
+                MSA &amp; DPA
               </button>
             </div>
             <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
@@ -227,7 +235,7 @@
             </div>
 
             <!-- Privacy Tab -->
-            <div v-else class="legal-text-flow">
+            <div v-else-if="legalTab === 'privacy'" class="legal-text-flow">
               <h3>Checkpass Privacy Framework &amp; NDPA Compliance</h3>
               <p class="legal-date">NDPA 2023 &amp; NDPR Certified &middot; Bank-Grade Data Protection</p>
 
@@ -245,6 +253,21 @@
 
               <h4>5. Data Subject Rights &amp; Retention</h4>
               <p>In accordance with the NDPA 2023, you have the right to inspect visitor logs linked to your residence, request data rectification, or request account closure through your Estate Administration office.</p>
+            </div>
+
+            <!-- Agreement Tab -->
+            <div v-else-if="legalTab === 'agreement'" class="legal-text-flow">
+              <h3>Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</h3>
+              <p class="legal-date">Regulated under NDP Act 2023 &middot; NDPC GAID 2025 Directive</p>
+
+              <h4>1. Parties &amp; Cloud Platform Scope</h4>
+              <p>Executed between Sheffy Technologies Limited and the Subscribing Client/Community. Governs access to CheckPass QR visitor clearance, dues ledgers, gatehouse offline verification, and incident management.</p>
+
+              <h4>2. NDPA 2023 Statutory Roles &amp; Data Security</h4>
+              <p>The Subscriber is the Data Controller; CheckPass is the Data Processor. All resident records are protected with AES-256 bit encryption at rest and TLS 1.3 in transit. Personal data is never sold, leased, or disclosed to third parties.</p>
+
+              <h4>3. Direct Dues Routing &amp; 30-Day Exit</h4>
+              <p>100% of resident dues collected settle directly to the estate's bank account. Communities may cancel service with 30 days notice with full, encrypted data export portability.</p>
             </div>
           </div>
 
@@ -280,9 +303,9 @@ const showPassword    = ref(false)
 const fieldError      = ref({ login: '', password: '' })
 const agreeTerms      = ref(false)
 const legalModalOpen  = ref(false)
-const legalTab        = ref<'terms' | 'privacy'>('terms')
+const legalTab        = ref<'terms' | 'privacy' | 'agreement'>('terms')
 
-function openLegalModal(tab: 'terms' | 'privacy') {
+function openLegalModal(tab: 'terms' | 'privacy' | 'agreement') {
   legalTab.value = tab
   legalModalOpen.value = true
 }
