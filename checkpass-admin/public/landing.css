@@ -6276,3 +6276,681 @@ select:-webkit-autofill {
   justify-content: center;
   white-space: nowrap;
 }
+
+
+/* ── REFINED TASTE-SKILL BENTO SLIDER CARD STYLES (Features 1, 2, 3, 4) ── */
+
+/* Integrated In-Card Navigation Bar */
+.bento-card-nav {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  background: rgba(4, 18, 11, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 4px 6px;
+  border-radius: 100px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  max-width: 92%;
+}
+
+.bento-nav-dot {
+  background: transparent;
+  border: none;
+  font-family: 'Cabinet Grotesk', -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 4px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.bento-nav-dot:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bento-nav-dot.active {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.nav-dot-bar {
+  width: 18px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.nav-dot-progress {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #82C9AA;
+  border-radius: 2px;
+  transition: width 0.05s linear;
+}
+
+.bento-nav-dot.active .nav-dot-progress {
+  background: #79F3BA;
+}
+
+/* Feature 01 Specific Adjustment to Card Navigation */
+#f1Nav .nav-dot-progress {
+  background: #25D366;
+}
+
+/* ── FEATURE 02 BENTO SLIDES (DUES & FINANCIAL RECONCILIATION) ── */
+.bento-f2-slide-0 {
+  background: radial-gradient(circle at 80% 20%, #063C24 0%, #032114 75%, #01140B 100%);
+}
+
+.bento-ledger-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 8px 14px;
+  color: #FFFFFF;
+}
+
+.bento-ledger-unit {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bento-ledger-unit span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #82C9AA;
+}
+
+.bento-ledger-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #79F3BA;
+  background: rgba(121, 243, 186, 0.15);
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+.bento-ledger-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: auto 0;
+}
+
+.bento-ledger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: #FFFFFF;
+}
+
+.bento-ledger-item {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.bento-ledger-amount {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #79F3BA;
+}
+
+.bento-ledger-total-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.bento-ledger-total-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-ledger-total-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.bento-ledger-total-num {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #044B2B;
+}
+
+.bento-ledger-total-status {
+  background: #DCFCE7;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+/* Feature 02 Slide 1: Bank Receipt Match */
+.bento-receipt-card {
+  margin-top: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 14px;
+  color: #FFFFFF;
+}
+
+.bento-receipt-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.16);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.bento-receipt-bank {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #79F3BA;
+}
+
+.bento-receipt-ref {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.bento-receipt-match-box {
+  background: rgba(121, 243, 186, 0.12);
+  border: 1px solid rgba(121, 243, 186, 0.28);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bento-receipt-match-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #79F3BA;
+  color: #062817;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.bento-receipt-match-text {
+  font-size: 0.82rem;
+  color: #FFFFFF;
+}
+
+.bento-receipt-btn {
+  width: 100%;
+  background: #005E34;
+  color: #FFFFFF;
+  border: 1px solid #79F3BA;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 94, 52, 0.35);
+}
+
+/* Feature 02 Slide 2: Direct Settlement Telemetry */
+.bento-settle-diagram {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bento-settle-node {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFFFFF;
+}
+
+.bento-settle-node-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bento-settle-node-icon {
+  font-size: 1.1rem;
+  color: #79F3BA;
+}
+
+.bento-settle-arrow {
+  text-align: center;
+  color: #79F3BA;
+  font-size: 14px;
+  margin: -6px 0;
+}
+
+.bento-settle-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: rgba(121, 243, 186, 0.2);
+  color: #79F3BA;
+}
+
+/* Feature 02 Slide 3: AGM-Ready Export */
+.bento-agm-card {
+  margin-top: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 16px;
+  color: #FFFFFF;
+}
+
+.bento-agm-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+
+.bento-agm-stat-box {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bento-agm-stat-val {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #79F3BA;
+}
+
+.bento-agm-stat-lbl {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.bento-agm-btn {
+  width: 100%;
+  background: #FFFFFF;
+  color: #044B2B;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* ── FEATURE 03 BENTO SLIDES (MOVE-OUT ASSET TRACKING) ── */
+.bento-f3-slide-0 {
+  background: radial-gradient(circle at 80% 20%, #084054 0%, #032533 75%, #01141C 100%);
+}
+
+.bento-manifest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 8px 14px;
+  color: #FFFFFF;
+}
+
+.bento-manifest-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: auto 0;
+}
+
+.bento-manifest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: #FFFFFF;
+}
+
+.bento-manifest-tag {
+  background: rgba(80, 179, 213, 0.2);
+  color: #50B3D5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Feature 03 Slide 1: Photo & Serial HUD */
+.bento-photo-hud {
+  margin: auto 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(80, 179, 213, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-photo-reticle {
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(80, 179, 213, 0.4);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.bento-photo-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.bento-photo-sn {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #50B3D5;
+  background: rgba(80, 179, 213, 0.12);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* Feature 03 Slide 2: Dual Approval Seals */
+.bento-dual-seals {
+  margin: auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bento-seal-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(80, 179, 213, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.bento-seal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(80, 179, 213, 0.2);
+  color: #50B3D5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin: 0 auto 8px;
+}
+
+.bento-seal-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.bento-seal-status {
+  font-size: 0.72rem;
+  color: #79F3BA;
+  font-weight: 700;
+}
+
+/* Feature 03 Slide 3: Departure Checkpoint */
+.bento-checkpoint-card {
+  margin: auto 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(80, 179, 213, 0.25);
+  border-radius: 14px;
+  padding: 16px;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.bento-checkpoint-truck {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #50B3D5;
+  margin-bottom: 6px;
+}
+
+.bento-checkpoint-barrier {
+  background: #005E34;
+  color: #FFFFFF;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  box-shadow: 0 4px 14px rgba(0, 94, 52, 0.3);
+}
+
+/* ── FEATURE 04 BENTO SLIDES (CENTRAL COMMAND & LIVE TELEMETRY) ── */
+.bento-f4-slide-0 {
+  background: radial-gradient(circle at 80% 20%, #104C33 0%, #071F14 75%, #020C07 100%);
+}
+
+.bento-gates-grid {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 36px;
+}
+
+.bento-gate-row {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFFFFF;
+}
+
+.bento-gate-name {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bento-gate-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #79F3BA;
+  font-weight: 700;
+}
+
+.bento-gate-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #25D366;
+  box-shadow: 0 0 8px #25D366;
+}
+
+/* Feature 04 Slide 1: Census & Vehicle Search */
+.bento-census-search {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.bento-search-box {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+}
+
+.bento-search-box span {
+  font-family: monospace;
+  color: #79F3BA;
+}
+
+.bento-search-result {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #071F14;
+}
+
+.bento-search-result-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.bento-search-result-sub {
+  font-size: 0.75rem;
+  color: #64748B;
+}
+
+/* Feature 04 Slide 2: 1-Tap Emergency SOS Dispatcher */
+.bento-sos-card {
+  margin: auto 0;
+  background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.25) 0%, rgba(0,0,0,0.4) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.bento-sos-badge {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulse 1.8s infinite;
+}
+
+.bento-sos-unit {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 10px 0 4px;
+}
+
+.bento-sos-timer {
+  font-size: 0.8rem;
+  color: #FCA5A5;
+}
+
+/* Feature 04 Slide 3: Executive Governance KPI */
+.bento-kpi-grid {
+  margin: auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 36px;
+}
+
+.bento-kpi-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  color: #FFFFFF;
+}
+
+.bento-kpi-num {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #79F3BA;
+}
+
+.bento-kpi-lbl {
+  font-size: 0.72rem;
+  color: #94A3B8;
+}

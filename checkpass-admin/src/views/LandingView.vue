@@ -962,54 +962,27 @@
             Zero Gate Queues.
           </h2>
           <p>Every visitor is pre-registered before arrival. Security scans a dynamic QR code and confirms entry in under four seconds. No intercom calls, no manual logbooks, and no confusion about who is expected.</p>
-          <div class="feature-bento-selectors" id="f1Selectors">
-            <button class="feature-bento-selector active" type="button" data-f1-index="0" onclick="window.switchFeature1Slide(0)">
+          <div class="feature-perks">
+            <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-paper-plane-tilt"></i></div>
-              <div class="selector-content">
-                <div class="selector-title">Instant Resident &amp; WhatsApp Passes</div>
-                <div class="selector-desc">Resident issues guest pass in two taps; instant secure WhatsApp link with live directions.</div>
-              </div>
-              <div class="selector-progress-track">
-                <div class="selector-progress-bar" id="f1Bar-0"></div>
-              </div>
-            </button>
-
-            <button class="feature-bento-selector" type="button" data-f1-index="1" onclick="window.switchFeature1Slide(1)">
+              <span>Resident issues passes in two taps or via direct WhatsApp link</span>
+            </div>
+            <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-qr-code"></i></div>
-              <div class="selector-content">
-                <div class="selector-title">Sub-4s Optical Scanner HUD</div>
-                <div class="selector-desc">Guards scan dynamic rotating QR codes with laser guide, auto-confirming host &amp; unit.</div>
-              </div>
-              <div class="selector-progress-track">
-                <div class="selector-progress-bar" id="f1Bar-1"></div>
-              </div>
-            </button>
-
-            <button class="feature-bento-selector" type="button" data-f1-index="2" onclick="window.switchFeature1Slide(2)">
+              <span>Sub-4s optical camera scan with instant host &amp; unit confirmation</span>
+            </div>
+            <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-shield-check"></i></div>
-              <div class="selector-content">
-                <div class="selector-title">Offline Cryptographic Engine</div>
-                <div class="selector-desc">AES-256 local verification keeps the gate clearing visitors even during zero-internet outages.</div>
-              </div>
-              <div class="selector-progress-track">
-                <div class="selector-progress-bar" id="f1Bar-2"></div>
-              </div>
-            </button>
-
-            <button class="feature-bento-selector" type="button" data-f1-index="3" onclick="window.switchFeature1Slide(3)">
+              <span>Offline cryptographic tokens verify access during total cellular downtime</span>
+            </div>
+            <div class="feature-perk">
               <div class="perk-icon-wrap"><i class="ph-duotone ph-clock-counter-clockwise"></i></div>
-              <div class="selector-content">
-                <div class="selector-title">Live Gate Audit Stream</div>
-                <div class="selector-desc">Immutable real-time audit ledger logging entries, vehicles, plates, and resident verification.</div>
-              </div>
-              <div class="selector-progress-track">
-                <div class="selector-progress-bar" id="f1Bar-3"></div>
-              </div>
-            </button>
+              <span>Permanent timestamped gate entry log tied to resident profiles</span>
+            </div>
           </div>
         </div>
 
-        <div class="feature-stage-card" data-reveal="right">
+        <div class="feature-stage-card" data-reveal="right" id="f1StageCard">
           <div class="feature-stage-bg-frame">
             <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
@@ -1018,10 +991,30 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f1Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature1Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-0"></span></span>
+                <span>01 WhatsApp</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-1"></span></span>
+                <span>02 Scanner</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-2"></span></span>
+                <span>03 Offline</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-3"></span></span>
+                <span>04 Audit</span>
+              </button>
+            </div>
+
             <div class="bento-stage-viewport" id="f1BentoViewport">
               <!-- Slide 0: WhatsApp 2-Tap Invite -->
               <div class="bento-slide bento-slide-0 active" id="f1Slide-0">
-                <div class="bento-wa-header">
+                <div class="bento-wa-header" style="margin-top:36px">
                   <div class="bento-wa-profile">
                     <div class="bento-wa-avatar">
                       <i class="ph-bold ph-whatsapp-logo"></i>
@@ -1059,7 +1052,7 @@
 
               <!-- Slide 1: Optical Scanner HUD -->
               <div class="bento-slide bento-slide-1" id="f1Slide-1">
-                <div class="bento-scanner-viewport">
+                <div class="bento-scanner-viewport" style="margin-top:36px">
                   <div class="bento-scanner-reticle">
                     <i class="ph-duotone ph-qr-code"></i>
                     <div class="bento-scanner-beam"></div>
@@ -1083,7 +1076,7 @@
 
               <!-- Slide 2: Offline Cryptographic Engine -->
               <div class="bento-slide bento-slide-2" id="f1Slide-2">
-                <div class="bento-telemetry-row">
+                <div class="bento-telemetry-row" style="margin-top:36px">
                   <span class="bento-telemetry-pill offline">
                     <i class="ph-bold ph-wifi-slash"></i> Offline Mode Active
                   </span>
@@ -1109,7 +1102,7 @@
 
               <!-- Slide 3: Live Gate Audit Stream -->
               <div class="bento-slide bento-slide-3" id="f1Slide-3">
-                <div class="bento-feed-header">
+                <div class="bento-feed-header" style="margin-top:36px">
                   <div class="bento-feed-title">Gate 1 Live Stream</div>
                   <div class="bento-feed-live">
                     <span class="bento-feed-live-dot"></span> LIVE AUDIT
@@ -1198,7 +1191,7 @@
           </div>
         </div>
 
-        <div class="feature-stage-card" data-reveal="left">
+        <div class="feature-stage-card" data-reveal="left" id="f2StageCard">
           <div class="feature-stage-bg-frame">
             <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
@@ -1207,12 +1200,134 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_financial_ledger.jpg" alt="Estate Service Charges &amp; Dues Reconciliation" class="feature-stage-mockup-img">
-            <div class="feature-mockup-pill">
-              <span class="pill-icon">💳</span>
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f2Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature2Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-0"></span></span>
+                <span>01 Ledger</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-1"></span></span>
+                <span>02 Teller Match</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-2"></span></span>
+                <span>03 Routing</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-3"></span></span>
+                <span>04 AGM Export</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f2BentoViewport">
+              <!-- Slide 0: Automated Dues Ledger -->
+              <div class="bento-slide bento-f2-slide-0 active" id="f2Slide-0">
+                <div class="bento-ledger-header">
+                  <div class="bento-ledger-unit">
+                    <i class="ph-duotone ph-buildings"></i> Villa 4B <span>&bull; Chief Adeleke</span>
+                  </div>
+                  <div class="bento-ledger-badge">100% Settled</div>
+                </div>
+
+                <div class="bento-ledger-rows">
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Estate Service Charge (Oct)</span>
+                    <span class="bento-ledger-amount">₦35,000</span>
+                  </div>
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Security &amp; Perimeter Patrol</span>
+                    <span class="bento-ledger-amount">₦15,000</span>
+                  </div>
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Generator &amp; Diesel Levy</span>
+                    <span class="bento-ledger-amount">₦25,000</span>
+                  </div>
+                </div>
+
+                <div class="bento-ledger-total-card">
+                  <div class="bento-ledger-total-left">
+                    <span class="bento-ledger-total-label">Total Monthly Dues</span>
+                    <span class="bento-ledger-total-num">₦75,000</span>
+                  </div>
+                  <span class="bento-ledger-total-status"><i class="ph-bold ph-check"></i> Cleared &bull; Oct 01</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Bank Teller Receipt OCR -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-1">
+                <div class="bento-receipt-card">
+                  <div class="bento-receipt-top">
+                    <span class="bento-receipt-bank">Stanbic IBTC Bank</span>
+                    <span class="bento-receipt-ref">Ref: STB-883190-TX</span>
+                  </div>
+                  <div class="bento-receipt-match-box">
+                    <div class="bento-receipt-match-icon"><i class="ph-bold ph-check"></i></div>
+                    <div class="bento-receipt-match-text">
+                      <strong>₦75,000.00 Exact Match</strong><br>
+                      Payer: Chief Adeleke &bull; Villa 4B
+                    </div>
+                  </div>
+                  <button type="button" class="bento-receipt-btn">
+                    <i class="ph-bold ph-check-circle"></i> 1-Click Reconcile &amp; Issue Receipt
+                  </button>
+                </div>
+              </div>
+
+              <!-- Slide 2: Direct Settlement Routing -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-2">
+                <div class="bento-settle-diagram" style="margin-top:36px">
+                  <div class="bento-settle-node">
+                    <div class="bento-settle-node-left">
+                      <i class="ph-duotone ph-user bento-settle-node-icon"></i>
+                      <span>Resident Card / Bank App</span>
+                    </div>
+                    <span class="bento-settle-badge">Source</span>
+                  </div>
+                  <div class="bento-settle-arrow">↓ PCI-DSS Central Bank Switch</div>
+                  <div class="bento-settle-node">
+                    <div class="bento-settle-node-left">
+                      <i class="ph-duotone ph-bank bento-settle-node-icon"></i>
+                      <span>First Bank: Greenview HOA</span>
+                    </div>
+                    <span class="bento-settle-badge" style="background:#25D366;color:#062817">Direct Deposit</span>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-shield-check"></i>
+                  <span>Zero intermediary escrow &bull; 100% direct property settlement</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: AGM-Ready Financial Export -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-3">
+                <div class="bento-agm-card">
+                  <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1rem;color:#FFFFFF">
+                    October 2026 Financial Audit
+                  </div>
+                  <div class="bento-agm-stats">
+                    <div class="bento-agm-stat-box">
+                      <div class="bento-agm-stat-val">₦18.45M</div>
+                      <div class="bento-agm-stat-lbl">Total Collected (98.2%)</div>
+                    </div>
+                    <div class="bento-agm-stat-box">
+                      <div class="bento-agm-stat-val" style="color:#FBBF24">₦340K</div>
+                      <div class="bento-agm-stat-lbl">Pending (3 Units)</div>
+                    </div>
+                  </div>
+                  <button type="button" class="bento-agm-btn">
+                    <i class="ph-bold ph-download-simple"></i> Download AGM-Ready CSV &amp; PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f2BottomPill">
+              <span class="pill-icon" id="f2PillIcon">💳</span>
               <div class="pill-body">
-                <div class="pill-title">Zero Ledger Gaps</div>
-                <div class="pill-sub">Unit 14B &bull; 100% Reconciled</div>
+                <div class="pill-title" id="f2PillTitle">Automated Unit Ledger</div>
+                <div class="pill-sub" id="f2PillSub">Real-time balances &bull; 100% Reconciled</div>
               </div>
             </div>
           </div>
@@ -1247,7 +1362,7 @@
           </div>
         </div>
 
-        <div class="feature-stage-card" data-reveal="right">
+        <div class="feature-stage-card" data-reveal="right" id="f3StageCard">
           <div class="feature-stage-bg-frame">
             <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
@@ -1256,12 +1371,112 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_move_out_tracking.jpg" alt="Item Declaration &amp; Move-Out Clearances" class="feature-stage-mockup-img">
-            <div class="feature-mockup-pill">
-              <span class="pill-icon">📦</span>
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f3Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature3Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-0"></span></span>
+                <span>01 Manifest</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-1"></span></span>
+                <span>02 Photo HUD</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-2"></span></span>
+                <span>03 Approval</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-3"></span></span>
+                <span>04 Barrier</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f3BentoViewport">
+              <!-- Slide 0: Digital Move-Out Manifest -->
+              <div class="bento-slide bento-f3-slide-0 active" id="f3Slide-0">
+                <div class="bento-manifest-header">
+                  <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:0.92rem">
+                    Manifest #MO-2026-771
+                  </div>
+                  <span class="bento-manifest-tag">3 Declared Items</span>
+                </div>
+
+                <div class="bento-manifest-items">
+                  <div class="bento-manifest-item">
+                    <span>3x Samsung Inverter ACs (1.5HP)</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
+                  </div>
+                  <div class="bento-manifest-item">
+                    <span>1x 15kVA Mikano Soundproof Gen</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
+                  </div>
+                  <div class="bento-manifest-item">
+                    <span>2x 65" LG OLED 4K Smart TVs</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
+                  </div>
+                </div>
+
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-check-circle" style="color:#50B3D5"></i>
+                  <span>Host resident declaration timestamped &bull; Ready for gate check</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Photo & Serial HUD -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-1">
+                <div class="bento-photo-hud" style="margin-top:36px">
+                  <div class="bento-photo-reticle"></div>
+                  <div class="bento-photo-title">Optical Serial Match Verified</div>
+                  <div class="bento-photo-sn">SN: SAM-INV-889104-NG</div>
+                  <div style="font-size:0.75rem;color:#CBD5E1">
+                    Terminal camera scan confirmed against item declaration.
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-shield-check" style="color:#50B3D5"></i>
+                  <span>Guard Officer S. Oronimo &bull; Cargo Inspection Complete</span>
+                </div>
+              </div>
+
+              <!-- Slide 2: Dual Approval Seals -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-2">
+                <div class="bento-dual-seals" style="margin-top:36px">
+                  <div class="bento-seal-box">
+                    <div class="bento-seal-icon"><i class="ph-bold ph-house-line"></i></div>
+                    <div class="bento-seal-title">Landlord / Host</div>
+                    <div class="bento-seal-status">APPROVED ✓</div>
+                  </div>
+                  <div class="bento-seal-box">
+                    <div class="bento-seal-icon"><i class="ph-bold ph-seal-check"></i></div>
+                    <div class="bento-seal-title">HOA Executive</div>
+                    <div class="bento-seal-status">SIGNED ✓</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-lock-key" style="color:#50B3D5"></i>
+                  <span>HMAC-SHA256 Cryptographic Manifest Signature Valid</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: Departure Checkpoint Barrier -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-3">
+                <div class="bento-checkpoint-card" style="margin-top:36px">
+                  <div style="font-size:0.75rem;color:#94A3B8;text-transform:uppercase;font-weight:700">Clearance Verified</div>
+                  <div class="bento-checkpoint-truck">Moving Van: KJA-918-BD</div>
+                  <div style="font-size:0.82rem;color:#E2E8F0">All cargo items verified against digital clearance.</div>
+                  <div class="bento-checkpoint-barrier">
+                    <i class="ph-bold ph-check"></i> EXIT BARRIER LIFTED
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f3BottomPill">
+              <span class="pill-icon" id="f3PillIcon">📦</span>
               <div class="pill-body">
-                <div class="pill-title">Asset Clearance Logged</div>
-                <div class="pill-sub">Photo Manifest &bull; Gate Audit Match</div>
+                <div class="pill-title" id="f3PillTitle">Digital Move-Out Manifest</div>
+                <div class="pill-sub" id="f3PillSub">Itemized cargo &bull; Dual-Signoff verified</div>
               </div>
             </div>
           </div>
@@ -1296,7 +1511,7 @@
           </div>
         </div>
 
-        <div class="feature-stage-card" data-reveal="left">
+        <div class="feature-stage-card" data-reveal="left" id="f4StageCard">
           <div class="feature-stage-bg-frame">
             <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#071F14"/>
@@ -1305,12 +1520,108 @@
             </svg>
           </div>
           <div class="feature-stage-mockup-wrap">
-            <img src="/assets/features/mockup_command_center.jpg" alt="Executive Central Governance &amp; Live Gate Telemetry" class="feature-stage-mockup-img">
-            <div class="feature-mockup-pill">
-              <span class="pill-icon">💻</span>
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f4Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature4Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-0"></span></span>
+                <span>01 Gates</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-1"></span></span>
+                <span>02 Census</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-2"></span></span>
+                <span>03 SOS Alert</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-3"></span></span>
+                <span>04 KPI</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f4BentoViewport">
+              <!-- Slide 0: Multi-Barrier Gates -->
+              <div class="bento-slide bento-f4-slide-0 active" id="f4Slide-0">
+                <div class="bento-gates-grid">
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-shield-check"></i> Main Gate (Entrance)</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 142 Passes Today</div>
+                  </div>
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-truck"></i> Cargo &amp; Service Gate</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 18 Trucks Cleared</div>
+                  </div>
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-car"></i> Residents Fast-Track</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 310 RFID Scans</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-check-circle" style="color:#79F3BA"></i>
+                  <span>All 3 perimeter gates synchronized in real-time</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Resident Census & Vehicle Search -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-1">
+                <div class="bento-census-search">
+                  <div class="bento-search-box">
+                    <i class="ph-bold ph-magnifying-glass"></i> Search Plate: <span>LND-492-AA</span>
+                  </div>
+                  <div class="bento-search-result">
+                    <div class="bento-search-result-title">Chief Adeleke (Villa 4B, Phase 2)</div>
+                    <div class="bento-search-result-sub">Black Toyota Land Cruiser Prado &bull; Authorized Resident</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-identification-card" style="color:#79F3BA"></i>
+                  <span>648 Active Occupants &bull; 412 Verified Vehicles</span>
+                </div>
+              </div>
+
+              <!-- Slide 2: 1-Tap Emergency SOS Alert -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-2">
+                <div class="bento-sos-card" style="margin-top:36px">
+                  <div class="bento-sos-badge"><i class="ph-bold ph-warning"></i> RESIDENT SOS TRIGGERED</div>
+                  <div class="bento-sos-unit">Villa 4B &bull; Phase 2</div>
+                  <div class="bento-sos-timer">Guard Terminal Acknowledged in 4.2s &bull; Patrol Dispatched</div>
+                </div>
+                <div class="bento-feed-toast" style="border-color:rgba(239,68,68,0.3)">
+                  <i class="ph-bold ph-broadcast" style="color:#EF4444"></i>
+                  <span>Instant digital alert broadcasted to all gate terminals</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: Executive Governance KPI -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-3">
+                <div class="bento-kpi-grid">
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">99.8%</div>
+                    <div class="bento-kpi-lbl">On-Time Gate Clearance</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">0</div>
+                    <div class="bento-kpi-lbl">Unresolved Incidents</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">1,420</div>
+                    <div class="bento-kpi-lbl">Monthly Passes Verified</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">100%</div>
+                    <div class="bento-kpi-lbl">Direct Dues Reconciled</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f4BottomPill">
+              <span class="pill-icon" id="f4PillIcon">💻</span>
               <div class="pill-body">
-                <div class="pill-title">Executive Command</div>
-                <div class="pill-sub">Live Gate Audit &bull; Instant AGM Export</div>
+                <div class="pill-title" id="f4PillTitle">Multi-Gate Central HUD</div>
+                <div class="pill-sub" id="f4PillSub">All 3 gates online &bull; Live telemetry stream</div>
               </div>
             </div>
           </div>
@@ -2467,6 +2778,18 @@ if (typeof window !== 'undefined') {
   (window as any).openLoginModal = goToLogin;
   (window as any).toggleMobileNav = toggleMobileNav;
   (window as any).closeMobileNav = closeMobileNav;
+  (window as any).showPage = (id: string) => {
+    const next = document.getElementById('page-' + id);
+    if (!next) return;
+    document.querySelectorAll('.page').forEach(p => { if (p !== next) p.classList.remove('active', 'entering'); });
+    next.classList.add('active', 'entering');
+    setTimeout(() => next.classList.remove('entering'), 420);
+    const links = document.querySelectorAll('.nav-links .nav-link');
+    const map: Record<string, number> = {'how-it-works': 0, 'features': 1, 'pricing': 2, 'contact': 3};
+    links.forEach(l => l.classList.remove('active-nav'));
+    if (map[id] !== undefined && links[map[id]]) links[map[id]].classList.add('active-nav');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 }
 
 onMounted(() => {
@@ -2478,123 +2801,131 @@ onMounted(() => {
   if (typeof window !== 'undefined') {
     (window as any).setHowStep = setHowStep;
 
-  // ── Feature 01 Bento Interactive Cycle ──
-  let f1ActiveIdx = 0
-  f1Interval = null
-  let f1Progress = 0
-  let isF1Paused = false
-  const F1_DURATION = 4000
-  const F1_STEP = 50
+  // ── Universal Bento Card Cycle Engine (Features 1, 2, 3, 4) ──
+  function setupBentoCycle(prefix: string, pillData: Array<{ icon: string; title: string; sub: string }>) {
+    let activeIdx = 0
+    let progress = 0
+    let isPaused = false
+    let interval: any = null
+    const DURATION = 4000
+    const STEP = 50
 
-  const f1PillData = [
-    { icon: '📱', title: 'Instant WhatsApp Passes', sub: 'Resident issues in 2 taps • Pre-cleared' },
-    { icon: '⚡', title: 'Sub-4s Optical Scanner', sub: 'Camera HUD scan • Auto host confirmation' },
-    { icon: '🛡️', title: 'Zero-Downtime Cryptography', sub: 'AES-256 local verification • No outage lag' },
-    { icon: '📋', title: 'Live Gate Audit Stream', sub: 'Real-time timestamped gate ledger • 100% trace' }
-  ]
-
-  function switchFeature1Slide(idx: number) {
-    f1ActiveIdx = idx
-    f1Progress = 0
-
-    const selectors = document.querySelectorAll('.feature-bento-selector')
-    selectors.forEach((btn, i) => {
-      btn.classList.toggle('active', i === idx)
-    })
-
-    for (let i = 0; i < 4; i++) {
-      const bar = document.getElementById('f1Bar-' + i)
-      if (bar && i !== idx) bar.style.width = '0%'
+    function cleanup() {
+      if (interval) clearInterval(interval)
     }
+    void cleanup
 
-    for (let i = 0; i < 4; i++) {
-      const slide = document.getElementById('f1Slide-' + i)
-      if (slide) {
-        if (i === idx) {
-          slide.classList.remove('active')
-          void slide.offsetWidth
-          slide.classList.add('active')
-        } else {
-          slide.classList.remove('active')
+    function switchSlide(idx: number) {
+      activeIdx = idx
+      progress = 0
+
+      // Update in-card nav dots
+      const navWrap = document.getElementById(prefix + 'Nav')
+      if (navWrap) {
+        const dots = navWrap.querySelectorAll('.bento-nav-dot')
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === idx))
+      }
+
+      // Reset progress bars
+      for (let i = 0; i < 4; i++) {
+        const bar = document.getElementById(prefix + 'Bar-' + i)
+        if (bar && i !== idx) bar.style.width = '0%'
+      }
+
+      // Update slides
+      for (let i = 0; i < 4; i++) {
+        const slide = document.getElementById(prefix + 'Slide-' + i)
+        if (slide) {
+          if (i === idx) {
+            slide.classList.remove('active')
+            void slide.offsetWidth
+            slide.classList.add('active')
+          } else {
+            slide.classList.remove('active')
+          }
         }
+      }
+
+      // Update bottom status pill
+      const p = pillData[idx]
+      if (p) {
+        const iconEl = document.getElementById(prefix + 'PillIcon')
+        const titleEl = document.getElementById(prefix + 'PillTitle')
+        const subEl = document.getElementById(prefix + 'PillSub')
+        if (iconEl) iconEl.textContent = p.icon
+        if (titleEl) titleEl.textContent = p.title
+        if (subEl) subEl.textContent = p.sub
       }
     }
 
-    const pData = f1PillData[idx]
-    if (pData) {
-      const iconEl = document.getElementById('f1PillIcon')
-      const titleEl = document.getElementById('f1PillTitle')
-      const subEl = document.getElementById('f1PillSub')
-      if (iconEl) iconEl.textContent = pData.icon
-      if (titleEl) titleEl.textContent = pData.title
-      if (subEl) subEl.textContent = pData.sub
-    }
-  }
-
-  function initFeature1BentoCycle() {
-    if (f1Interval) clearInterval(f1Interval)
-    f1Progress = 0
-
-    const selectorsWrap = document.getElementById('f1Selectors')
-    const bentoViewport = document.getElementById('f1BentoViewport')
-
-    if (selectorsWrap && !(selectorsWrap as any).__f1EventsBound) {
-      (selectorsWrap as any).__f1EventsBound = true
-      selectorsWrap.addEventListener('mouseenter', () => { isF1Paused = true })
-      selectorsWrap.addEventListener('mouseleave', () => { isF1Paused = false })
-    }
-
-    if (bentoViewport && !(bentoViewport as any).__f1EventsBound) {
-      (bentoViewport as any).__f1EventsBound = true
-      bentoViewport.addEventListener('mouseenter', () => { isF1Paused = true })
-      bentoViewport.addEventListener('mouseleave', () => { isF1Paused = false })
+    const stageCard = document.getElementById(prefix + 'StageCard')
+    if (stageCard && !(stageCard as any).__bound) {
+      ;(stageCard as any).__bound = true
+      stageCard.addEventListener('mouseenter', () => { isPaused = true })
+      stageCard.addEventListener('mouseleave', () => { isPaused = false })
 
       let touchStartX = 0
-      let touchStartY = 0
-      bentoViewport.addEventListener('touchstart', (e: TouchEvent) => {
-        if (e.touches && e.touches[0]) {
-          touchStartX = e.touches[0].clientX
-          touchStartY = e.touches[0].clientY
-        }
+      stageCard.addEventListener('touchstart', (e: TouchEvent) => {
+        if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX
       }, { passive: true })
-
-      bentoViewport.addEventListener('touchend', (e: TouchEvent) => {
+      stageCard.addEventListener('touchend', (e: TouchEvent) => {
         if (e.changedTouches && e.changedTouches[0]) {
           const dx = e.changedTouches[0].clientX - touchStartX
-          const dy = e.changedTouches[0].clientY - touchStartY
-          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-            if (dx < 0) {
-              switchFeature1Slide((f1ActiveIdx + 1) % 4)
-            } else {
-              switchFeature1Slide((f1ActiveIdx + 3) % 4)
-            }
+          if (Math.abs(dx) > 35) {
+            switchSlide(dx < 0 ? (activeIdx + 1) % 4 : (activeIdx + 3) % 4)
           }
         }
       }, { passive: true })
     }
 
-    for (let i = 0; i < 4; i++) {
-      const bar = document.getElementById('f1Bar-' + i)
-      if (bar) bar.style.width = '0%'
-    }
-
-    f1Interval = setInterval(() => {
-      if (isF1Paused) return
-      f1Progress += (F1_STEP / F1_DURATION) * 100
-
-      const bar = document.getElementById('f1Bar-' + f1ActiveIdx)
-      if (bar) bar.style.width = Math.min(f1Progress, 100) + '%'
-
-      if (f1Progress >= 100) {
-        f1Progress = 0
-        switchFeature1Slide((f1ActiveIdx + 1) % 4)
+    interval = setInterval(() => {
+      if (isPaused) return
+      progress += (STEP / DURATION) * 100
+      const bar = document.getElementById(prefix + 'Bar-' + activeIdx)
+      if (bar) bar.style.width = Math.min(progress, 100) + '%'
+      if (progress >= 100) {
+        progress = 0
+        switchSlide((activeIdx + 1) % 4)
       }
-    }, F1_STEP)
+    }, STEP)
+
+    return switchSlide
   }
 
-  ;(window as any).initFeature1BentoCycle = initFeature1BentoCycle;
-  ;(window as any).switchFeature1Slide = switchFeature1Slide;
-  initFeature1BentoCycle();
+  const f1Pills = [
+    { icon: '📱', title: 'Instant WhatsApp Passes', sub: 'Resident issues in 2 taps • Pre-cleared' },
+    { icon: '⚡', title: 'Sub-4s Optical Scanner', sub: 'Camera HUD scan • Auto host confirmation' },
+    { icon: '🛡️', title: 'Zero-Downtime Cryptography', sub: 'AES-256 local verification • No outage lag' },
+    { icon: '📋', title: 'Live Gate Audit Stream', sub: 'Real-time timestamped gate ledger • 100% trace' }
+  ]
+  const f2Pills = [
+    { icon: '💳', title: 'Automated Unit Ledger', sub: 'Real-time balances • 100% Reconciled' },
+    { icon: '🧾', title: '1-Click Teller Match', sub: 'Stanbic IBTC verified • Receipt issued' },
+    { icon: '🏦', title: 'Direct Bank Settlement', sub: '100% Routed to Estate Account • Paystack Switch' },
+    { icon: '📊', title: 'AGM-Ready Financial Export', sub: '₦18.45M Collected • One-click CSV & PDF' }
+  ]
+  const f3Pills = [
+    { icon: '📦', title: 'Digital Move-Out Manifest', sub: 'Itemized cargo • Dual-Signoff verified' },
+    { icon: '📸', title: 'Photo & Serial HUD', sub: 'SN: SAM-INV-889104 • 100% Verified Match' },
+    { icon: '🛡️', title: 'Dual Sign-Off Approval', sub: 'Host Landlord + HOA Executive Seals' },
+    { icon: '🚧', title: 'Gate Departure Barrier', sub: 'Truck KJA-918-BD • Exit Barrier Lifted' }
+  ]
+  const f4Pills = [
+    { icon: '💻', title: 'Multi-Gate Central HUD', sub: 'All 3 gates online • Live telemetry stream' },
+    { icon: '🔍', title: 'Census & Vehicle Directory', sub: 'Plate match: LND-492-AA • Chief Adeleke' },
+    { icon: '🚨', title: '1-Tap Emergency SOS', sub: 'Unit 14B Alert • Guard acknowledged in 4.2s' },
+    { icon: '📈', title: 'Executive Governance KPI', sub: '99.8% On-time • 1,420 Passes Verified' }
+  ]
+
+  const switchF1 = setupBentoCycle('f1', f1Pills)
+  const switchF2 = setupBentoCycle('f2', f2Pills)
+  const switchF3 = setupBentoCycle('f3', f3Pills)
+  const switchF4 = setupBentoCycle('f4', f4Pills)
+
+  ;(window as any).switchFeature1Slide = switchF1;
+  ;(window as any).switchFeature2Slide = switchF2;
+  ;(window as any).switchFeature3Slide = switchF3;
+  ;(window as any).switchFeature4Slide = switchF4;
 
 
     (window as any).setBillingCycle = function(cycle: 'monthly' | 'annual') {
@@ -2764,7 +3095,7 @@ onMounted(() => {
       if (existingScript) existingScript.remove()
       const script = document.createElement('script')
       script.id = 'landing-inline-script'
-      script.textContent = "\r\ngsap.registerPlugin(ScrollTrigger);\r\n\r\n// Fluid Lenis Smooth Scroll Engine\r\nlet lenisInstance = null;\r\nif (typeof Lenis !== 'undefined') {\r\n  try {\r\n    if (window.__lenis) { window.__lenis.destroy(); window.__lenis = null; }\r\n    lenisInstance = new Lenis({\r\n      duration: 1.15,\r\n      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),\r\n      smoothWheel: true,\r\n      touchMultiplier: 1.0,\r\n      wheelMultiplier: 0.95,\r\n    });\r\n    lenisInstance.on('scroll', ScrollTrigger.update);\r\n    gsap.ticker.add((time) => {\r\n      lenisInstance.raf(time * 1000);\r\n    });\r\n    gsap.ticker.lagSmoothing(0);\r\n    window.__lenis = lenisInstance;\r\n  } catch(e) { console.warn('Lenis init error:', e); }\r\n}\r\nlet activePage='home',heroVideoFadeMs=450,heroVideoCycleStarted=false,heroVideoIndex=0,heroVideoTransitioning=false;\r\nlet currentBillingCycle = 'monthly';\r\nlet currentLoginRole = 'manager';\r\n\r\nfunction showPage(id, plan){\r\n  const next=document.getElementById('page-'+id);\r\n  if(!next)return;\r\n  document.querySelectorAll('.page').forEach(p => { if(p !== next) p.classList.remove('active', 'entering'); });\r\n  next.classList.add('active','entering');\r\n  setTimeout(()=>next.classList.remove('entering'),420);\r\n  activePage=id;\r\n  if(window.__lenis){ window.__lenis.scrollTo(0, {immediate:true}); } else { window.scrollTo({top:0,behavior:'instant'}); }\r\n  updateNavStyle(id);setActiveNavLink(id);\r\n  setTimeout(()=>initReveal(),80);\r\n  if(id==='home')setTimeout(initHeroAnim,60);if(id==='features' && typeof window.initFeature1BentoCycle==='function')setTimeout(window.initFeature1BentoCycle,60);\r\n  if(id==='contact' && plan){\r\n    const ps = document.getElementById('contactPlanSelect');\r\n    if(ps && ps.querySelector(`option[value=\\\"${plan}\\\"]`)){\r\n      ps.value = plan;\r\n    }\r\n  }\r\n  closeMobileNav();\r\n}\r\n\r\nfunction setActiveNavLink(id){\r\n  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));\r\n  const map={'how-it-works':0,'features':1,'pricing':2,'contact':3};\r\n  const idx=map[id];\r\n  if(idx!==undefined){const links=document.querySelectorAll('.nav-links .nav-link');if(links[idx])links[idx].classList.add('active-nav');}\r\n}\r\n\r\nfunction updateNavStyle(pid){\r\n  const nav=document.getElementById('navbar');\r\n  if(!nav)return;\r\n  nav.classList.remove('nav-hidden','hero-nav','dark-nav','scrolled');\r\n  nav.classList.add(window.scrollY>60?'scrolled':pid==='home'?'hero-nav':'dark-nav');\r\n}\r\n\r\nlet lastScrollY = window.pageYOffset || document.documentElement.scrollTop;\r\nlet navScrollTicking = false;\r\nconst NAV_SCROLL_DELTA = 6;\r\n\r\nfunction handleSmartNavScroll(){\r\n  const nav = document.getElementById('navbar');\r\n  if(!nav) return;\r\n  const currentY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop);\r\n  const mobileNav = document.getElementById('mobileNav');\r\n  const isMobileOpen = mobileNav && mobileNav.classList.contains('open');\r\n\r\n  nav.classList.remove('nav-hidden');\r\n  if(isMobileOpen || currentY > 40){\r\n    nav.classList.remove('hero-nav','dark-nav');\r\n    nav.classList.add('scrolled');\r\n  } else {\r\n    nav.classList.remove('scrolled');\r\n    nav.classList.add(activePage === 'home' ? 'hero-nav' : 'dark-nav');\r\n  }\r\n  lastScrollY = currentY;\r\n}\r\n\r\nwindow.addEventListener('scroll', ()=>{\r\n  if(!navScrollTicking){\r\n    window.requestAnimationFrame(()=>{\r\n      handleSmartNavScroll();\r\n      navScrollTicking = false;\r\n    });\r\n    navScrollTicking = true;\r\n  }\r\n}, {passive:true});\r\n\r\nfunction toggleMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.toggle('open');if(h)h.classList.toggle('open');}\r\nfunction closeMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.remove('open');if(h)h.classList.remove('open');}\r\n\r\nfunction initReveal(){\r\n  ScrollTrigger.getAll().forEach(t=>t.kill());\r\n  const page=document.querySelector('.page.active');\r\n  if(!page)return;\r\n\r\n  // Text Reveal Scroll Animation (Framer Motion style scrub)\r\n  const revealWords = page.querySelectorAll('#textRevealParagraph .reveal-word');\r\n  if(revealWords.length && typeof gsap !== 'undefined'){\r\n    gsap.fromTo(revealWords, { opacity: 0.22, color: '#CBD5E1' }, { opacity: 1, color: '#071F14', stagger: 0.08, ease: 'none', scrollTrigger: { trigger: '#text-reveal-section', start: 'top 78%', end: 'bottom 45%', scrub: 0.5 } });\r\n  }\r\n    // HIW steps: staggered group entrance\r\n  const hiwSteps=page.querySelectorAll('.hiw-step');\r\n  if(hiwSteps.length){\r\n    const hiwWrap=page.querySelector('.hiw-steps');\r\n    gsap.fromTo(hiwSteps,{opacity:0,y:32},{opacity:1,y:0,duration:.7,stagger:.15,ease:'power3.out',scrollTrigger:{trigger:hiwWrap||hiwSteps[0],start:'top 82%',once:true}});\r\n  }\r\n  // General section reveals\r\n  page.querySelectorAll('[data-reveal]').forEach(el=>{\r\n    if(el.classList.contains('hiw-step'))return;\r\n    const dir=el.dataset.reveal;const d=(parseInt(el.dataset.delay||'0'))*0.12;\r\n    const base={duration:.65,delay:d,ease:'power3.out'};\r\n    let from,to;\r\n    if(dir==='left'){from={opacity:0,x:-28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='right'){from={opacity:0,x:28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='scale'){from={opacity:0,scale:.95};to={...base,opacity:1,scale:1};}\r\n    else{from={opacity:0,y:24};to={...base,opacity:1,y:0};}\r\n    gsap.fromTo(el,from,{...to,scrollTrigger:{trigger:el,start:'top 88%',once:true}});\r\n  });\r\n  // HIW connector line draw\r\n  const conn=page.querySelector('.hiw-connector');\r\n  if(conn)gsap.fromTo(conn,{scaleX:0},{scaleX:1,duration:.9,ease:'power2.inOut',transformOrigin:'left center',scrollTrigger:{trigger:conn,start:'top 85%',once:true}});\r\n  ScrollTrigger.refresh();\r\n}\r\n\r\nfunction animateCounter(el){\r\n  const raw=el.dataset.count;if(!raw)return;\r\n  const target=parseInt(raw);const suffix=raw.replace(String(target),'');\r\n  const dur=1800;const t0=performance.now();\r\n  (function tick(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target)+suffix;if(p<1)requestAnimationFrame(tick);})(t0);\r\n}\r\nwindow.animateCounter = animateCounter;\r\nwindow.initCounters = function initCounters(){\r\n  const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animateCounter(e.target);io.unobserve(e.target);}});},{threshold:0.5});\r\n  document.querySelectorAll('[data-count]').forEach(el=>io.observe(el));\r\n}\r\n\r\nfunction toggleFaq(el){\r\n  const item=el.closest('.faq-item');const was=item.classList.contains('open');\r\n  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));\r\n  if(!was)item.classList.add('open');\r\n}\r\n\r\nfunction handleFormSubmit(e){\r\n  e.preventDefault();\r\n  document.getElementById('contactForm').style.display='none';\r\n  document.getElementById('formSuccess').style.display='block';\r\n}\r\n\r\nfunction initHeroAnim(){\r\n  const home=document.getElementById('page-home');\r\n  if(!home||!home.classList.contains('active'))return;\r\n  const items=home.querySelectorAll('.hero-animate');\r\n  items.forEach(i=>i.classList.remove('is-visible'));\r\n  requestAnimationFrame(()=>items.forEach(i=>i.classList.add('is-visible')));\r\n}\r\n\r\nfunction setupHeroVideoSequence(){\r\n  if(heroVideoCycleStarted)return;\r\n  const videos=[document.getElementById('heroVideo1'),document.getElementById('heroVideo2')].filter(Boolean);\r\n  if(videos.length!==2)return;\r\n  videos.forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');});\r\n  const play=i=>{const v=videos[i];if(!v)return;v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});};\r\n  const nextVid=()=>{\r\n    if(heroVideoTransitioning)return;heroVideoTransitioning=true;\r\n    const cur=videos[heroVideoIndex];const ni=(heroVideoIndex+1)%videos.length;const nxt=videos[ni];\r\n    if(!cur||!nxt){heroVideoTransitioning=false;return;}\r\n    nxt.currentTime=0;const p=nxt.play();if(p&&p.catch)p.catch(()=>{});\r\n    nxt.classList.add('is-active');cur.classList.remove('is-active');\r\n    setTimeout(()=>{cur.pause();cur.currentTime=0;heroVideoIndex=ni;heroVideoTransitioning=false;},heroVideoFadeMs);\r\n  };\r\n  videos.forEach((v,i)=>{\r\n    v.addEventListener('timeupdate',()=>{if(i!==heroVideoIndex||heroVideoTransitioning||!v.duration)return;if(v.duration-v.currentTime<=heroVideoFadeMs/1000+0.05)nextVid();});\r\n    v.addEventListener('ended',()=>{if(i===heroVideoIndex)nextVid();});\r\n  });\r\n  play(0);heroVideoCycleStarted=true;\r\n}\r\n\r\n/* Scrollytelling How It Works: Smooth Scroll & Active Scroll-Spy */\r\nfunction scrollToHowStep(stepId){\r\n  const el = document.getElementById(stepId);\r\n  if(el){\r\n    const yOffset = -140; // account for navbar + sticky pill bar\r\n    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;\r\n    window.scrollTo({top: y, behavior: 'smooth'});\r\n  }\r\n}\r\n\r\n// Backwards-compatible helper\r\nfunction goToHowStep(step){\r\n  scrollToHowStep('how-step-' + step);\r\n}\r\n\r\nfunction setHowMode(mode){\r\n  const map = { lifecycle: 'how-step-1', resident: 'how-step-1', guard: 'how-step-3', admin: 'how-step-4' };\r\n  if(map[mode]) scrollToHowStep(map[mode]);\r\n}\r\n\r\n// Scroll-Spy to dynamically highlight active step in sticky progress bar\r\nwindow.addEventListener('scroll', () => {\r\n  if(typeof activePage !== 'undefined' && activePage !== 'how-it-works') return;\r\n  const steps = ['how-step-1', 'how-step-2', 'how-step-3', 'how-step-4', 'how-step-5'];\r\n  const scrollPos = window.scrollY + 220;\r\n\r\n  for(let i = steps.length - 1; i >= 0; i--){\r\n    const sec = document.getElementById(steps[i]);\r\n    if(sec && sec.offsetTop <= scrollPos){\r\n      document.querySelectorAll('.how-step-pill-btn').forEach(btn => btn.classList.remove('active'));\r\n      const activeBtn = document.getElementById('pill-' + steps[i]);\r\n      if(activeBtn) activeBtn.classList.add('active');\r\n      break;\r\n    }\r\n  }\r\n}, {passive: true});\r\n\r\n/* Estate Deployment & Scope Planner (Consultation Model) */\r\nfunction updatePricingSlider(units){\r\n  const count = parseInt(units);\r\n  const display = document.getElementById('sliderUnitCount');\r\n  const tierBadge = document.getElementById('calcTierBadge');\r\n  const totalDisplay = document.getElementById('calcTotal');\r\n  const annualSub = document.getElementById('calcAnnualSub');\r\n  const actionBtn = document.getElementById('calcActionBtn');\r\n  const maxResidents = count * 3;\r\n\r\n  if(display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';\r\n\r\n  if(count <= 50){\r\n    if(tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = '1 Gate Terminal + 1 Admin Portal';\r\n    if(annualSub) annualSub.textContent = 'Recommended for private closes & courts. Includes 1-week managed onboarding, guard orientation, and visitor pass setup.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Quote for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'boutique');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else if(count <= 300){\r\n    const terminals = count <= 150 ? '2 Gate Terminals' : '3 Gate Terminals';\r\n    if(tierBadge) tierBadge.textContent = 'Gated Residential Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = terminals + ' + Multi-Zone Sync';\r\n    if(annualSub) annualSub.textContent = 'Includes automated dues ledger, anti-theft item tracking, and dedicated guard physical drills.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Proposal for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'residential');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else {\r\n    if(tierBadge) tierBadge.textContent = 'Master Planned Estate (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = 'Multi-Gate Network + Turnstile Integration';\r\n    if(annualSub) annualSub.textContent = 'Includes executive AGM reporting, SLA guarantee, and custom multi-zone security hierarchy.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Speak with Enterprise Team (' + count + ' Units)';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'enterprise');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  }\r\n}\r\n\r\n/* Demo Video Modal Functions */\r\nfunction openDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n    if(video){\r\n      video.currentTime = 0;\r\n      video.play().catch(()=>{});\r\n    }\r\n  }\r\n}\r\n\r\nfunction closeDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    if(video) video.pause();\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\n/* Login Modal Functions */\r\nfunction openLoginModal(role){\r\n  if(role) setLoginRole(role);\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n  }\r\n}\r\n\r\nfunction closeLoginModal(){\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\nfunction setLoginRole(role){\r\n  currentLoginRole = role;\r\n  const tM = document.getElementById('roleTabManager');\r\n  const tR = document.getElementById('roleTabResident');\r\n  const tS = document.getElementById('roleTabSecurity');\r\n  const uLbl = document.getElementById('loginUserLabel');\r\n  const pLbl = document.getElementById('loginPassLabel');\r\n  const idInput = document.getElementById('loginIdentifier');\r\n  const passInput = document.getElementById('loginPassword');\r\n  const submitBtn = document.getElementById('loginSubmitBtn');\r\n\r\n  [tM, tR, tS].forEach(t => t && t.classList.remove('active'));\r\n\r\n  if(role === 'manager'){\r\n    if(tM) tM.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Admin Email Address';\r\n    if(pLbl) pLbl.textContent = 'Password';\r\n    if(idInput) { idInput.placeholder = 'manager@estate.ng'; idInput.value = 'admin@estate.ng'; }\r\n    if(passInput) passInput.value = 'password123';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Manager Portal →';\r\n  } else if(role === 'resident'){\r\n    if(tR) tR.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Phone Number or Email';\r\n    if(pLbl) pLbl.textContent = '4-Digit Resident PIN';\r\n    if(idInput) { idInput.placeholder = '08012345678 or name@email.com'; idInput.value = '08023456789'; }\r\n    if(passInput) passInput.value = '4821';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In as Resident →';\r\n  } else if(role === 'security'){\r\n    if(tS) tS.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Officer Username / Badge ID';\r\n    if(pLbl) pLbl.textContent = 'Gate Access PIN';\r\n    if(idInput) { idInput.placeholder = 'e.g. GUARD-GATE-01'; idInput.value = 'GUARD-MAIN-GATE'; }\r\n    if(passInput) passInput.value = '1122';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Gate Scanner →';\r\n  }\r\n}\r\n\r\nfunction fillLoginDemo(role){\r\n  setLoginRole(role);\r\n}\r\n\r\nfunction handleLoginSubmit(e){\r\n  e.preventDefault();\r\n  const form = document.getElementById('loginForm');\r\n  const notice = document.getElementById('loginSuccessNotice');\r\n  const title = document.getElementById('loginSuccessTitle');\r\n  const desc = document.getElementById('loginSuccessDesc');\r\n\r\n  if(form) form.style.display = 'none';\r\n  if(notice) notice.style.display = 'block';\r\n\r\n  if(currentLoginRole === 'manager'){\r\n    if(title) title.textContent = 'Manager Portal Connected!';\r\n    if(desc) desc.textContent = 'Authenticated: Estate Admin. Dashboard active.';\r\n  } else if(currentLoginRole === 'resident'){\r\n    if(title) title.textContent = 'Welcome, Sarah O. (Flat 12B)';\r\n    if(desc) desc.textContent = 'Active Invites & Service charge receipts synced.';\r\n  } else {\r\n    if(title) title.textContent = 'Gate Scanner Active';\r\n    if(desc) desc.textContent = 'Main Gate Terminal verified and online.';\r\n  }\r\n\r\n  setTimeout(()=>{\r\n    closeLoginModal();\r\n    if(form) form.style.display = 'block';\r\n    if(notice) notice.style.display = 'none';\r\n  }, 2200);\r\n}\r\n\r\n/* SiteAssist Stakeholders Interactive Loader & Auto-Switch (3 Slides) */\r\nconst siteAssistFeatures = [\r\n  {\r\n    num: '01',\r\n    kicker: 'ESTATE MANAGERS & EXCO',\r\n    title: 'Run Your Estate Without Missing Records or Payment Disputes',\r\n    body: 'Create service charges and diesel levies in seconds, track paid versus defaulting units in real time, and export clean financial reports ready for your next AGM.'\r\n  },\r\n  {\r\n    num: '02',\r\n    kicker: 'SECURITY GUARDS & GATE TEAMS',\r\n    title: 'Clear Visitors in Seconds Without Endless Phone Calls',\r\n    body: 'Scan QR passes directly on your phone to verify guests instantly, log vehicles without paper logbooks, and inspect moving items with photo proof before opening the gate.'\r\n  },\r\n  {\r\n    num: '03',\r\n    kicker: 'RESIDENTS & HOMEOWNERS',\r\n    title: 'Invite Guests in Two Taps and Keep Receipts in One Place',\r\n    body: 'Share instant entry passes via WhatsApp, SMS, or Email that get your visitors through the gate without delays, pay estate dues with instant receipts, and trigger emergency SOS if you ever need help.'\r\n  }\r\n];\r\n\r\nlet activeSiteAssistIdx = 0;\r\nlet siteAssistInterval = null;\r\nlet siteAssistProgress = 0;\r\nlet isSiteAssistPaused = false;\r\nconst SA_DURATION = 6000;\r\nconst SA_STEP = 50;\r\n\r\nfunction initSiteAssistAutoCycle(){\r\n  if(siteAssistInterval) clearInterval(siteAssistInterval);\r\n  siteAssistProgress = 0;\r\n  \r\n  const tabsNav = document.querySelector('.siteassist-tabs-nav');\r\n  if(tabsNav && !tabsNav.__saEventsBound){\r\n    tabsNav.__saEventsBound = true;\r\n    const card = document.getElementById('siteassistContainer');\r\n    tabsNav.addEventListener('mouseenter', () => { isSiteAssistPaused = true; if(card) card.classList.add('is-paused'); });\r\n    tabsNav.addEventListener('mouseleave', () => { isSiteAssistPaused = false; if(card) card.classList.remove('is-paused'); });\r\n  }\r\n  const container = document.getElementById('siteassistContainer');\r\n  if(container && !container.__saEventsBound){\r\n    container.__saEventsBound = true;\r\n    let saTouchStartX = 0;\r\n    let saTouchStartY = 0;\r\n    container.addEventListener('touchstart', (e) => { if(e.touches && e.touches[0]){ saTouchStartX = e.touches[0].clientX; saTouchStartY = e.touches[0].clientY; } }, {passive: true});\r\n    container.addEventListener('touchend', (e) => { if(e.changedTouches && e.changedTouches[0]){ const dx = e.changedTouches[0].clientX - saTouchStartX; const dy = e.changedTouches[0].clientY - saTouchStartY; if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ if(dx < 0){ switchSiteAssistTab((activeSiteAssistIdx + 1) % 3); } else { switchSiteAssistTab((activeSiteAssistIdx + 2) % 3); } } } }, {passive: true});\r\n  }\r\n\r\n  for(let i = 0; i < 3; i++){\r\n    const fill = document.getElementById('saFill-' + i);\r\n    if(fill) fill.style.width = '0%';\r\n  }\r\n\r\n  siteAssistInterval = setInterval(()=>{\r\n    if(isSiteAssistPaused) return;\r\n    siteAssistProgress += (SA_STEP / SA_DURATION) * 100;\r\n    \r\n    const fill = document.getElementById('saFill-' + activeSiteAssistIdx);\r\n    if(fill) fill.style.width = Math.min(siteAssistProgress, 100) + '%';\r\n    \r\n    if(siteAssistProgress >= 100){\r\n      siteAssistProgress = 0;\r\n      switchSiteAssistTab((activeSiteAssistIdx + 1) % 3, true);\r\n    }\r\n  }, SA_STEP);\r\n}\r\n\r\nfunction switchSiteAssistTab(idx, isAuto){\r\n  activeSiteAssistIdx = idx;\r\n  siteAssistProgress = 0;\r\n  \r\n  const item = siteAssistFeatures[idx];\r\n  const kickerEl = document.getElementById('saKicker');\r\n  const counterEl = document.getElementById('saCounter');\r\n  const titleEl = document.getElementById('saTitle');\r\n  const bodyEl = document.getElementById('saBody');\r\n  \r\n  if(kickerEl){\r\n    kickerEl.textContent = item.kicker;\r\n    kickerEl.style.animation = 'none';\r\n    kickerEl.offsetHeight;\r\n    kickerEl.style.animation = 'saKickerFade 0.45s ease forwards';\r\n  }\r\n  if(counterEl){\r\n    counterEl.textContent = item.num;\r\n    counterEl.style.animation = 'none';\r\n    counterEl.offsetHeight;\r\n    counterEl.style.animation = 'saKickerFade .38s ease forwards';\r\n  }\r\n  if(titleEl){\r\n    titleEl.textContent = item.title;\r\n    titleEl.style.animation = 'none';\r\n    titleEl.offsetHeight;\r\n    titleEl.style.animation = 'saHeadlineFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards';\r\n  }\r\n  if(bodyEl){\r\n    bodyEl.textContent = item.body;\r\n    bodyEl.style.animation = 'none';\r\n    bodyEl.offsetHeight;\r\n    bodyEl.style.animation = 'saBodyFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both';\r\n  }\r\n\r\n  // Update background slides & tabs\r\n  for(let i = 0; i < 3; i++){\r\n    const slide = document.getElementById('saSlide-' + i);\r\n    const fill = document.getElementById('saFill-' + i);\r\n    const btns = document.querySelectorAll('.siteassist-tab-btn');\r\n    \r\n    if(slide){\r\n      if(i === idx){\r\n        slide.classList.remove('active');\r\n        void slide.offsetWidth;\r\n        slide.classList.add('active');\r\n      } else {\r\n        slide.classList.remove('active');\r\n      }\r\n    }\r\n    if(btns[i]) btns[i].classList.toggle('active', i === idx);\r\n    if(fill && i !== idx) fill.style.width = '0%';\r\n  }\r\n}\r\n\r\ndocument.addEventListener('click',e=>{\r\n  const btn=e.target.closest('.btn');if(!btn)return;\r\n  const r=document.createElement('span');const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);\r\n  r.style.cssText=`position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:ripple .5s ease;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;pointer-events:none`;\r\n  if(getComputedStyle(btn).position==='static')btn.style.position='relative';\r\n  btn.style.overflow='hidden';btn.appendChild(r);setTimeout(()=>r.remove(),550);\r\n});\r\nconst rs=document.createElement('style');rs.textContent='@keyframes ripple{to{transform:scale(2.5);opacity:0}}';document.head.appendChild(rs);\r\n\r\nfunction bootLanding(){\r\n  updateNavStyle('home');\r\n  if(typeof initReveal === 'function') initReveal();\r\n  if(typeof initCounters === 'function') initCounters();\r\n  if(typeof updatePricingSlider === 'function') updatePricingSlider(60);\r\n  initSiteAssistAutoCycle();\r\n}\r\nif(document.readyState === 'loading'){\r\n  document.addEventListener('DOMContentLoaded', bootLanding);\r\n}else{\r\n  bootLanding();\r\n}\r\nwindow.initSiteAssistAutoCycle = initSiteAssistAutoCycle;\r\nwindow.switchSiteAssistTab = switchSiteAssistTab;\r\n"
+      script.textContent = "\r\ngsap.registerPlugin(ScrollTrigger);\r\n\r\n// Fluid Lenis Smooth Scroll Engine\r\nlet lenisInstance = null;\r\nif (typeof Lenis !== 'undefined') {\r\n  try {\r\n    if (window.__lenis) { window.__lenis.destroy(); window.__lenis = null; }\r\n    lenisInstance = new Lenis({\r\n      duration: 1.15,\r\n      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),\r\n      smoothWheel: true,\r\n      touchMultiplier: 1.0,\r\n      wheelMultiplier: 0.95,\r\n    });\r\n    lenisInstance.on('scroll', ScrollTrigger.update);\r\n    gsap.ticker.add((time) => {\r\n      lenisInstance.raf(time * 1000);\r\n    });\r\n    gsap.ticker.lagSmoothing(0);\r\n    window.__lenis = lenisInstance;\r\n  } catch(e) { console.warn('Lenis init error:', e); }\r\n}\r\nlet activePage='home',heroVideoFadeMs=450,heroVideoCycleStarted=false,heroVideoIndex=0,heroVideoTransitioning=false;\r\nlet currentBillingCycle = 'monthly';\r\nlet currentLoginRole = 'manager';\r\n\r\nfunction showPage(id, plan){\r\n  const next=document.getElementById('page-'+id);\r\n  if(!next)return;\r\n  document.querySelectorAll('.page').forEach(p => { if(p !== next) p.classList.remove('active', 'entering'); });\r\n  next.classList.add('active','entering');\r\n  setTimeout(()=>next.classList.remove('entering'),420);\r\n  activePage=id;\r\n  if(window.__lenis){ window.__lenis.scrollTo(0, {immediate:true}); } else { window.scrollTo({top:0,behavior:'instant'}); }\r\n  updateNavStyle(id);setActiveNavLink(id);\r\n  setTimeout(()=>initReveal(),80);\r\n  if(id==='home')setTimeout(initHeroAnim,60);if(id==='features' && typeof window.initFeature1BentoCycle==='function')setTimeout(window.initFeature1BentoCycle,60);\r\n  if(id==='contact' && plan){\r\n    const ps = document.getElementById('contactPlanSelect');\r\n    if(ps && ps.querySelector(`option[value=\\\"${plan}\\\"]`)){\r\n      ps.value = plan;\r\n    }\r\n  }\r\n  closeMobileNav();\r\n}\r\n\r\nfunction setActiveNavLink(id){\r\n  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));\r\n  const map={'how-it-works':0,'features':1,'pricing':2,'contact':3};\r\n  const idx=map[id];\r\n  if(idx!==undefined){const links=document.querySelectorAll('.nav-links .nav-link');if(links[idx])links[idx].classList.add('active-nav');}\r\n}\r\n\r\nfunction updateNavStyle(pid){\r\n  const nav=document.getElementById('navbar');\r\n  if(!nav)return;\r\n  nav.classList.remove('nav-hidden','hero-nav','dark-nav','scrolled');\r\n  nav.classList.add(window.scrollY>60?'scrolled':pid==='home'?'hero-nav':'dark-nav');\r\n}\r\n\r\nlet lastScrollY = window.pageYOffset || document.documentElement.scrollTop;\r\nlet navScrollTicking = false;\r\nconst NAV_SCROLL_DELTA = 6;\r\n\r\nfunction handleSmartNavScroll(){\r\n  const nav = document.getElementById('navbar');\r\n  if(!nav) return;\r\n  const currentY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop);\r\n  const mobileNav = document.getElementById('mobileNav');\r\n  const isMobileOpen = mobileNav && mobileNav.classList.contains('open');\r\n\r\n  nav.classList.remove('nav-hidden');\r\n  if(isMobileOpen || currentY > 40){\r\n    nav.classList.remove('hero-nav','dark-nav');\r\n    nav.classList.add('scrolled');\r\n  } else {\r\n    nav.classList.remove('scrolled');\r\n    nav.classList.add(activePage === 'home' ? 'hero-nav' : 'dark-nav');\r\n  }\r\n  lastScrollY = currentY;\r\n}\r\n\r\nwindow.addEventListener('scroll', ()=>{\r\n  if(!navScrollTicking){\r\n    window.requestAnimationFrame(()=>{\r\n      handleSmartNavScroll();\r\n      navScrollTicking = false;\r\n    });\r\n    navScrollTicking = true;\r\n  }\r\n}, {passive:true});\r\n\r\nfunction toggleMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.toggle('open');if(h)h.classList.toggle('open');}\r\nfunction closeMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.remove('open');if(h)h.classList.remove('open');}\r\n\r\nfunction initReveal(){\r\n  ScrollTrigger.getAll().forEach(t=>t.kill());\r\n  const page=document.querySelector('.page.active');\r\n  if(!page)return;\r\n\r\n  // Text Reveal Scroll Animation (Framer Motion style scrub)\r\n  const revealWords = page.querySelectorAll('#textRevealParagraph .reveal-word');\r\n  if(revealWords.length && typeof gsap !== 'undefined'){\r\n    gsap.fromTo(revealWords, { opacity: 0.22, color: '#CBD5E1' }, { opacity: 1, color: '#071F14', stagger: 0.08, ease: 'none', scrollTrigger: { trigger: '#text-reveal-section', start: 'top 78%', end: 'bottom 45%', scrub: 0.5 } });\r\n  }\r\n    // HIW steps: staggered group entrance\r\n  const hiwSteps=page.querySelectorAll('.hiw-step');\r\n  if(hiwSteps.length){\r\n    const hiwWrap=page.querySelector('.hiw-steps');\r\n    gsap.fromTo(hiwSteps,{opacity:0,y:32},{opacity:1,y:0,duration:.7,stagger:.15,ease:'power3.out',scrollTrigger:{trigger:hiwWrap||hiwSteps[0],start:'top 82%',once:true}});\r\n  }\r\n  // General section reveals\r\n  page.querySelectorAll('[data-reveal]').forEach(el=>{\r\n    if(el.classList.contains('hiw-step'))return;\r\n    const dir=el.dataset.reveal;const d=(parseInt(el.dataset.delay||'0'))*0.12;\r\n    const base={duration:.65,delay:d,ease:'power3.out'};\r\n    let from,to;\r\n    if(dir==='left'){from={opacity:0,x:-28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='right'){from={opacity:0,x:28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='scale'){from={opacity:0,scale:.95};to={...base,opacity:1,scale:1};}\r\n    else{from={opacity:0,y:24};to={...base,opacity:1,y:0};}\r\n    gsap.fromTo(el,from,{...to,scrollTrigger:{trigger:el,start:'top 88%',once:true}});\r\n  });\r\n  // HIW connector line draw\r\n  const conn=page.querySelector('.hiw-connector');\r\n  if(conn)gsap.fromTo(conn,{scaleX:0},{scaleX:1,duration:.9,ease:'power2.inOut',transformOrigin:'left center',scrollTrigger:{trigger:conn,start:'top 85%',once:true}});\r\n  ScrollTrigger.refresh();\r\n}\r\n\r\nfunction animateCounter(el){\r\n  const raw=el.dataset.count;if(!raw)return;\r\n  const target=parseInt(raw);const suffix=raw.replace(String(target),'');\r\n  const dur=1800;const t0=performance.now();\r\n  (function tick(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target)+suffix;if(p<1)requestAnimationFrame(tick);})(t0);\r\n}\r\nwindow.animateCounter = animateCounter;\r\nwindow.initCounters = function initCounters(){\r\n  const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animateCounter(e.target);io.unobserve(e.target);}});},{threshold:0.5});\r\n  document.querySelectorAll('[data-count]').forEach(el=>io.observe(el));\r\n}\r\n\r\nfunction toggleFaq(el){\r\n  const item=el.closest('.faq-item');const was=item.classList.contains('open');\r\n  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));\r\n  if(!was)item.classList.add('open');\r\n}\r\n\r\nfunction handleFormSubmit(e){\r\n  e.preventDefault();\r\n  document.getElementById('contactForm').style.display='none';\r\n  document.getElementById('formSuccess').style.display='block';\r\n}\r\n\r\nfunction initHeroAnim(){\r\n  const home=document.getElementById('page-home');\r\n  if(!home||!home.classList.contains('active'))return;\r\n  const items=home.querySelectorAll('.hero-animate');\r\n  items.forEach(i=>i.classList.remove('is-visible'));\r\n  requestAnimationFrame(()=>items.forEach(i=>i.classList.add('is-visible')));\r\n}\r\n\r\nfunction setupHeroVideoSequence(){\r\n  if(heroVideoCycleStarted)return;\r\n  const videos=[document.getElementById('heroVideo1'),document.getElementById('heroVideo2')].filter(Boolean);\r\n  if(videos.length!==2)return;\r\n  videos.forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');});\r\n  const play=i=>{const v=videos[i];if(!v)return;v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});};\r\n  const nextVid=()=>{\r\n    if(heroVideoTransitioning)return;heroVideoTransitioning=true;\r\n    const cur=videos[heroVideoIndex];const ni=(heroVideoIndex+1)%videos.length;const nxt=videos[ni];\r\n    if(!cur||!nxt){heroVideoTransitioning=false;return;}\r\n    nxt.currentTime=0;const p=nxt.play();if(p&&p.catch)p.catch(()=>{});\r\n    nxt.classList.add('is-active');cur.classList.remove('is-active');\r\n    setTimeout(()=>{cur.pause();cur.currentTime=0;heroVideoIndex=ni;heroVideoTransitioning=false;},heroVideoFadeMs);\r\n  };\r\n  videos.forEach((v,i)=>{\r\n    v.addEventListener('timeupdate',()=>{if(i!==heroVideoIndex||heroVideoTransitioning||!v.duration)return;if(v.duration-v.currentTime<=heroVideoFadeMs/1000+0.05)nextVid();});\r\n    v.addEventListener('ended',()=>{if(i===heroVideoIndex)nextVid();});\r\n  });\r\n  play(0);heroVideoCycleStarted=true;\r\n}\r\n\r\n/* Scrollytelling How It Works: Smooth Scroll & Active Scroll-Spy */\r\nfunction scrollToHowStep(stepId){\r\n  const el = document.getElementById(stepId);\r\n  if(el){\r\n    const yOffset = -140; // account for navbar + sticky pill bar\r\n    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;\r\n    window.scrollTo({top: y, behavior: 'smooth'});\r\n  }\r\n}\r\n\r\n// Backwards-compatible helper\r\nfunction goToHowStep(step){\r\n  scrollToHowStep('how-step-' + step);\r\n}\r\n\r\nfunction setHowMode(mode){\r\n  const map = { lifecycle: 'how-step-1', resident: 'how-step-1', guard: 'how-step-3', admin: 'how-step-4' };\r\n  if(map[mode]) scrollToHowStep(map[mode]);\r\n}\r\n\r\n// Scroll-Spy to dynamically highlight active step in sticky progress bar\r\nwindow.addEventListener('scroll', () => {\r\n  if(typeof activePage !== 'undefined' && activePage !== 'how-it-works') return;\r\n  const steps = ['how-step-1', 'how-step-2', 'how-step-3', 'how-step-4', 'how-step-5'];\r\n  const scrollPos = window.scrollY + 220;\r\n\r\n  for(let i = steps.length - 1; i >= 0; i--){\r\n    const sec = document.getElementById(steps[i]);\r\n    if(sec && sec.offsetTop <= scrollPos){\r\n      document.querySelectorAll('.how-step-pill-btn').forEach(btn => btn.classList.remove('active'));\r\n      const activeBtn = document.getElementById('pill-' + steps[i]);\r\n      if(activeBtn) activeBtn.classList.add('active');\r\n      break;\r\n    }\r\n  }\r\n}, {passive: true});\r\n\r\n/* Estate Deployment & Scope Planner (Consultation Model) */\r\nfunction updatePricingSlider(units){\r\n  const count = parseInt(units);\r\n  const display = document.getElementById('sliderUnitCount');\r\n  const tierBadge = document.getElementById('calcTierBadge');\r\n  const totalDisplay = document.getElementById('calcTotal');\r\n  const annualSub = document.getElementById('calcAnnualSub');\r\n  const actionBtn = document.getElementById('calcActionBtn');\r\n  const maxResidents = count * 3;\r\n\r\n  if(display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';\r\n\r\n  if(count <= 50){\r\n    if(tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = '1 Gate Terminal + 1 Admin Portal';\r\n    if(annualSub) annualSub.textContent = 'Recommended for private closes & courts. Includes 1-week managed onboarding, guard orientation, and visitor pass setup.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Quote for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'boutique');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else if(count <= 300){\r\n    const terminals = count <= 150 ? '2 Gate Terminals' : '3 Gate Terminals';\r\n    if(tierBadge) tierBadge.textContent = 'Gated Residential Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = terminals + ' + Multi-Zone Sync';\r\n    if(annualSub) annualSub.textContent = 'Includes automated dues ledger, anti-theft item tracking, and dedicated guard physical drills.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Proposal for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'residential');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else {\r\n    if(tierBadge) tierBadge.textContent = 'Master Planned Estate (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = 'Multi-Gate Network + Turnstile Integration';\r\n    if(annualSub) annualSub.textContent = 'Includes executive AGM reporting, SLA guarantee, and custom multi-zone security hierarchy.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Speak with Enterprise Team (' + count + ' Units)';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'enterprise');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  }\r\n}\r\n\r\n/* Demo Video Modal Functions */\r\nfunction openDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n    if(video){\r\n      video.currentTime = 0;\r\n      video.play().catch(()=>{});\r\n    }\r\n  }\r\n}\r\n\r\nfunction closeDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    if(video) video.pause();\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\n/* Login Modal Functions */\r\nfunction openLoginModal(role){\r\n  if(role) setLoginRole(role);\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n  }\r\n}\r\n\r\nfunction closeLoginModal(){\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\nfunction setLoginRole(role){\r\n  currentLoginRole = role;\r\n  const tM = document.getElementById('roleTabManager');\r\n  const tR = document.getElementById('roleTabResident');\r\n  const tS = document.getElementById('roleTabSecurity');\r\n  const uLbl = document.getElementById('loginUserLabel');\r\n  const pLbl = document.getElementById('loginPassLabel');\r\n  const idInput = document.getElementById('loginIdentifier');\r\n  const passInput = document.getElementById('loginPassword');\r\n  const submitBtn = document.getElementById('loginSubmitBtn');\r\n\r\n  [tM, tR, tS].forEach(t => t && t.classList.remove('active'));\r\n\r\n  if(role === 'manager'){\r\n    if(tM) tM.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Admin Email Address';\r\n    if(pLbl) pLbl.textContent = 'Password';\r\n    if(idInput) { idInput.placeholder = 'manager@estate.ng'; idInput.value = 'admin@estate.ng'; }\r\n    if(passInput) passInput.value = 'password123';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Manager Portal →';\r\n  } else if(role === 'resident'){\r\n    if(tR) tR.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Phone Number or Email';\r\n    if(pLbl) pLbl.textContent = '4-Digit Resident PIN';\r\n    if(idInput) { idInput.placeholder = '08012345678 or name@email.com'; idInput.value = '08023456789'; }\r\n    if(passInput) passInput.value = '4821';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In as Resident →';\r\n  } else if(role === 'security'){\r\n    if(tS) tS.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Officer Username / Badge ID';\r\n    if(pLbl) pLbl.textContent = 'Gate Access PIN';\r\n    if(idInput) { idInput.placeholder = 'e.g. GUARD-GATE-01'; idInput.value = 'GUARD-MAIN-GATE'; }\r\n    if(passInput) passInput.value = '1122';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Gate Scanner →';\r\n  }\r\n}\r\n\r\nfunction fillLoginDemo(role){\r\n  setLoginRole(role);\r\n}\r\n\r\nfunction handleLoginSubmit(e){\r\n  e.preventDefault();\r\n  const form = document.getElementById('loginForm');\r\n  const notice = document.getElementById('loginSuccessNotice');\r\n  const title = document.getElementById('loginSuccessTitle');\r\n  const desc = document.getElementById('loginSuccessDesc');\r\n\r\n  if(form) form.style.display = 'none';\r\n  if(notice) notice.style.display = 'block';\r\n\r\n  if(currentLoginRole === 'manager'){\r\n    if(title) title.textContent = 'Manager Portal Connected!';\r\n    if(desc) desc.textContent = 'Authenticated: Estate Admin. Dashboard active.';\r\n  } else if(currentLoginRole === 'resident'){\r\n    if(title) title.textContent = 'Welcome, Sarah O. (Flat 12B)';\r\n    if(desc) desc.textContent = 'Active Invites & Service charge receipts synced.';\r\n  } else {\r\n    if(title) title.textContent = 'Gate Scanner Active';\r\n    if(desc) desc.textContent = 'Main Gate Terminal verified and online.';\r\n  }\r\n\r\n  setTimeout(()=>{\r\n    closeLoginModal();\r\n    if(form) form.style.display = 'block';\r\n    if(notice) notice.style.display = 'none';\r\n  }, 2200);\r\n}\r\n\r\n/* SiteAssist Stakeholders Interactive Loader & Auto-Switch (3 Slides) */\r\nconst siteAssistFeatures = [\r\n  {\r\n    num: '01',\r\n    kicker: 'ESTATE MANAGERS & EXCO',\r\n    title: 'Run Your Estate Without Missing Records or Payment Disputes',\r\n    body: 'Create service charges and diesel levies in seconds, track paid versus defaulting units in real time, and export clean financial reports ready for your next AGM.'\r\n  },\r\n  {\r\n    num: '02',\r\n    kicker: 'SECURITY GUARDS & GATE TEAMS',\r\n    title: 'Clear Visitors in Seconds Without Endless Phone Calls',\r\n    body: 'Scan QR passes directly on your phone to verify guests instantly, log vehicles without paper logbooks, and inspect moving items with photo proof before opening the gate.'\r\n  },\r\n  {\r\n    num: '03',\r\n    kicker: 'RESIDENTS & HOMEOWNERS',\r\n    title: 'Invite Guests in Two Taps and Keep Receipts in One Place',\r\n    body: 'Share instant entry passes via WhatsApp, SMS, or Email that get your visitors through the gate without delays, pay estate dues with instant receipts, and trigger emergency SOS if you ever need help.'\r\n  }\r\n];\r\n\r\nlet activeSiteAssistIdx = 0;\r\nlet siteAssistInterval = null;\r\nlet siteAssistProgress = 0;\r\nlet isSiteAssistPaused = false;\r\nconst SA_DURATION = 6000;\r\nconst SA_STEP = 50;\r\n\r\nfunction initSiteAssistAutoCycle(){\r\n  if(siteAssistInterval) clearInterval(siteAssistInterval);\r\n  siteAssistProgress = 0;\r\n  \r\n  const tabsNav = document.querySelector('.siteassist-tabs-nav');\r\n  if(tabsNav && !tabsNav.__saEventsBound){\r\n    tabsNav.__saEventsBound = true;\r\n    const card = document.getElementById('siteassistContainer');\r\n    tabsNav.addEventListener('mouseenter', () => { isSiteAssistPaused = true; if(card) card.classList.add('is-paused'); });\r\n    tabsNav.addEventListener('mouseleave', () => { isSiteAssistPaused = false; if(card) card.classList.remove('is-paused'); });\r\n  }\r\n  const container = document.getElementById('siteassistContainer');\r\n  if(container && !container.__saEventsBound){\r\n    container.__saEventsBound = true;\r\n    let saTouchStartX = 0;\r\n    let saTouchStartY = 0;\r\n    container.addEventListener('touchstart', (e) => { if(e.touches && e.touches[0]){ saTouchStartX = e.touches[0].clientX; saTouchStartY = e.touches[0].clientY; } }, {passive: true});\r\n    container.addEventListener('touchend', (e) => { if(e.changedTouches && e.changedTouches[0]){ const dx = e.changedTouches[0].clientX - saTouchStartX; const dy = e.changedTouches[0].clientY - saTouchStartY; if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ if(dx < 0){ switchSiteAssistTab((activeSiteAssistIdx + 1) % 3); } else { switchSiteAssistTab((activeSiteAssistIdx + 2) % 3); } } } }, {passive: true});\r\n  }\r\n\r\n  for(let i = 0; i < 3; i++){\r\n    const fill = document.getElementById('saFill-' + i);\r\n    if(fill) fill.style.width = '0%';\r\n  }\r\n\r\n  siteAssistInterval = setInterval(()=>{\r\n    if(isSiteAssistPaused) return;\r\n    siteAssistProgress += (SA_STEP / SA_DURATION) * 100;\r\n    \r\n    const fill = document.getElementById('saFill-' + activeSiteAssistIdx);\r\n    if(fill) fill.style.width = Math.min(siteAssistProgress, 100) + '%';\r\n    \r\n    if(siteAssistProgress >= 100){\r\n      siteAssistProgress = 0;\r\n      switchSiteAssistTab((activeSiteAssistIdx + 1) % 3, true);\r\n    }\r\n  }, SA_STEP);\r\n}\r\n\r\nfunction switchSiteAssistTab(idx, isAuto){\r\n  activeSiteAssistIdx = idx;\r\n  siteAssistProgress = 0;\r\n  \r\n  const item = siteAssistFeatures[idx];\r\n  const kickerEl = document.getElementById('saKicker');\r\n  const counterEl = document.getElementById('saCounter');\r\n  const titleEl = document.getElementById('saTitle');\r\n  const bodyEl = document.getElementById('saBody');\r\n  \r\n  if(kickerEl){\r\n    kickerEl.textContent = item.kicker;\r\n    kickerEl.style.animation = 'none';\r\n    kickerEl.offsetHeight;\r\n    kickerEl.style.animation = 'saKickerFade 0.45s ease forwards';\r\n  }\r\n  if(counterEl){\r\n    counterEl.textContent = item.num;\r\n    counterEl.style.animation = 'none';\r\n    counterEl.offsetHeight;\r\n    counterEl.style.animation = 'saKickerFade .38s ease forwards';\r\n  }\r\n  if(titleEl){\r\n    titleEl.textContent = item.title;\r\n    titleEl.style.animation = 'none';\r\n    titleEl.offsetHeight;\r\n    titleEl.style.animation = 'saHeadlineFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards';\r\n  }\r\n  if(bodyEl){\r\n    bodyEl.textContent = item.body;\r\n    bodyEl.style.animation = 'none';\r\n    bodyEl.offsetHeight;\r\n    bodyEl.style.animation = 'saBodyFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both';\r\n  }\r\n\r\n  // Update background slides & tabs\r\n  for(let i = 0; i < 3; i++){\r\n    const slide = document.getElementById('saSlide-' + i);\r\n    const fill = document.getElementById('saFill-' + i);\r\n    const btns = document.querySelectorAll('.siteassist-tab-btn');\r\n    \r\n    if(slide){\r\n      if(i === idx){\r\n        slide.classList.remove('active');\r\n        void slide.offsetWidth;\r\n        slide.classList.add('active');\r\n      } else {\r\n        slide.classList.remove('active');\r\n      }\r\n    }\r\n    if(btns[i]) btns[i].classList.toggle('active', i === idx);\r\n    if(fill && i !== idx) fill.style.width = '0%';\r\n  }\r\n}\r\n\r\ndocument.addEventListener('click',e=>{\r\n  const btn=e.target.closest('.btn');if(!btn)return;\r\n  const r=document.createElement('span');const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);\r\n  r.style.cssText=`position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:ripple .5s ease;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;pointer-events:none`;\r\n  if(getComputedStyle(btn).position==='static')btn.style.position='relative';\r\n  btn.style.overflow='hidden';btn.appendChild(r);setTimeout(()=>r.remove(),550);\r\n});\r\nconst rs=document.createElement('style');rs.textContent='@keyframes ripple{to{transform:scale(2.5);opacity:0}}';document.head.appendChild(rs);\r\n\r\nfunction bootLanding(){\r\n  updateNavStyle('home');\r\n  if(typeof initReveal === 'function') initReveal();\r\n  if(typeof initCounters === 'function') initCounters();\r\n  if(typeof updatePricingSlider === 'function') updatePricingSlider(60);\r\n  initSiteAssistAutoCycle();\r\n}\r\nif(document.readyState === 'loading'){\r\n  document.addEventListener('DOMContentLoaded', bootLanding);\r\n}else{\r\n  bootLanding();\r\n}\r\nwindow.initSiteAssistAutoCycle = initSiteAssistAutoCycle;\r\nwindow.switchSiteAssistTab = switchSiteAssistTab;\r\nwindow.showPage = showPage;\r\n"
       document.body.appendChild(script)
     } catch (err) {
       console.warn('Landing script init error:', err)
