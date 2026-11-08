@@ -771,7 +771,7 @@
 <div class="page" id="page-how-it-works">
   <div class="page-hero page-hero-green">
     <div class="container">
-      <h1>How CheckPass Works &mdash;<br><span class="hero-mint-accent">A Simple, Connected Journey</span></h1>
+      <h1>A Simple, Connected Journey</h1>
       <p>From initial estate setup and resident onboarding to gate clearance and central management&mdash;everything connects smoothly in one unified platform.</p>
     </div>
   </div>
