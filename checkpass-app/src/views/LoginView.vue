@@ -8,7 +8,7 @@
           <div class="primary-header">
             <div class="header-content">
               <!-- White Checkpass Logo - Reduced Size, Clean & Isolated -->
-              <img src="/logo-dark.png" alt="Checkpass" class="brand-logo-white" />
+              <img src="/checkpass-logo-white.svg" alt="Checkpass" class="brand-logo-white" />
             </div>
           </div>
 
@@ -39,7 +39,7 @@
                 <input
                   v-model="loginIdentifier"
                   :type="isEmail ? 'email' : 'text'"
-                  placeholder="e.g. 0813 248 9619 or name@email.com"
+                  placeholder="e.g. 0803 000 0000 or name@email.com"
                   autocomplete="username"
                   required
                 />
@@ -83,19 +83,20 @@
               <router-link to="/forgot-password" class="forgot-link">Forgot your Password?</router-link>
             </div>
 
-            <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
+            <!-- Terms of Service, Privacy Policy & MSA DPA Checkbox (Always unchecked by default) -->
             <div class="terms-consent-row">
-              <label class="terms-checkbox-label">
+              <label class="terms-checkbox-label" for="agreeTermsCheck">
                 <input
+                  id="agreeTermsCheck"
                   v-model="agreeTerms"
                   type="checkbox"
                   class="terms-checkbox-input"
                   required
                 />
-                <span class="terms-text">
-                  I agree to the <button type="button" class="legal-link-btn" @click="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click="openLegalModal('privacy')">Privacy Policy</button>
-                </span>
               </label>
+              <div class="terms-text">
+                I agree to the <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button>, <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button> &amp; <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('agreement')">Master Services Agreement (MSA &amp; DPA)</button>
+              </div>
             </div>
 
             <!-- Primary Action Button -->
@@ -167,8 +168,10 @@
 
       </div>
 
-      <!-- Centered Brand Loading Popup Overlay -->
-      <BrandLoadingOverlay :visible="loading" :size="96" color="#FFFFFF" />
+    </ion-content>
+
+    <!-- Centered Brand Loading Popup Overlay -->
+    <BrandLoadingOverlay :visible="loading" :size="96" color="#FFFFFF" />
 
       <!-- Legal Modal Sheet (Terms & Privacy Viewer) -->
       <ion-modal :is-open="legalModalOpen" @didDismiss="legalModalOpen = false" class="legal-sheet-modal">
@@ -181,7 +184,7 @@
                 :class="{ active: legalTab === 'terms' }"
                 @click="legalTab = 'terms'"
               >
-                Terms of Service
+                Terms
               </button>
               <button
                 type="button"
@@ -190,6 +193,14 @@
                 @click="legalTab = 'privacy'"
               >
                 Privacy Policy
+              </button>
+              <button
+                type="button"
+                class="legal-tab-btn"
+                :class="{ active: legalTab === 'agreement' }"
+                @click="legalTab = 'agreement'"
+              >
+                MSA &amp; DPA
               </button>
             </div>
             <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
@@ -224,7 +235,7 @@
             </div>
 
             <!-- Privacy Tab -->
-            <div v-else class="legal-text-flow">
+            <div v-else-if="legalTab === 'privacy'" class="legal-text-flow">
               <h3>Checkpass Privacy Framework &amp; NDPA Compliance</h3>
               <p class="legal-date">NDPA 2023 &amp; NDPR Certified &middot; Bank-Grade Data Protection</p>
 
@@ -243,6 +254,21 @@
               <h4>5. Data Subject Rights &amp; Retention</h4>
               <p>In accordance with the NDPA 2023, you have the right to inspect visitor logs linked to your residence, request data rectification, or request account closure through your Estate Administration office.</p>
             </div>
+
+            <!-- Agreement Tab -->
+            <div v-else-if="legalTab === 'agreement'" class="legal-text-flow">
+              <h3>Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</h3>
+              <p class="legal-date">Regulated under NDP Act 2023 &middot; NDPC GAID 2025 Directive</p>
+
+              <h4>1. Parties &amp; Cloud Platform Scope</h4>
+              <p>Executed between Sheffy Technologies Limited and the Subscribing Client/Community. Governs access to CheckPass QR visitor clearance, dues ledgers, gatehouse offline verification, and incident management.</p>
+
+              <h4>2. NDPA 2023 Statutory Roles &amp; Data Security</h4>
+              <p>The Subscriber is the Data Controller; CheckPass is the Data Processor. All resident records are protected with AES-256 bit encryption at rest and TLS 1.3 in transit. Personal data is never sold, leased, or disclosed to third parties.</p>
+
+              <h4>3. Direct Dues Routing &amp; 30-Day Exit</h4>
+              <p>100% of resident dues collected settle directly to the estate's bank account. Communities may cancel service with 30 days notice with full, encrypted data export portability.</p>
+            </div>
           </div>
 
           <div class="legal-modal-footer">
@@ -252,7 +278,6 @@
           </div>
         </div>
       </ion-modal>
-    </ion-content>
   </ion-page>
 </template>
 
@@ -278,9 +303,9 @@ const showPassword    = ref(false)
 const fieldError      = ref({ login: '', password: '' })
 const agreeTerms      = ref(false)
 const legalModalOpen  = ref(false)
-const legalTab        = ref<'terms' | 'privacy'>('terms')
+const legalTab        = ref<'terms' | 'privacy' | 'agreement'>('terms')
 
-function openLegalModal(tab: 'terms' | 'privacy') {
+function openLegalModal(tab: 'terms' | 'privacy' | 'agreement') {
   legalTab.value = tab
   legalModalOpen.value = true
 }
@@ -414,7 +439,7 @@ async function showResidentAccessInfo() {
   max-width: 170px;
   object-fit: contain;
   display: block;
-  filter: brightness(0) invert(1);
+  /* vector logo */
   transition: transform 0.2s ease;
 }
 
@@ -529,8 +554,27 @@ async function showResidentAccessInfo() {
   padding: 13px 14px;
   font-size: 14.5px;
   background: transparent;
+  border-radius: inherit;
   color: #112019;
   font-family: inherit;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus,
+.input-wrap input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #112019 !important;
+  caret-color: #112019 !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrap:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
+  box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
 }
 
 .input-wrap input::placeholder {
@@ -762,11 +806,20 @@ async function showResidentAccessInfo() {
   padding: 0 4px;
 }
 
-.terms-checkbox-label {
+.terms-consent-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  margin: 14px 0 6px;
+  padding: 0 4px;
+}
+
+.terms-checkbox-label {
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
   user-select: none;
 }
 
@@ -906,4 +959,13 @@ async function showResidentAccessInfo() {
   cursor: pointer;
 }
 
+</style>
+
+<style>
+ion-modal.legal-sheet-modal {
+  --height: 85%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.65;
+  align-items: flex-end;
+}
 </style>

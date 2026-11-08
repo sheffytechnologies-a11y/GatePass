@@ -14,18 +14,15 @@
       <div class="time">{{ timeLabel }}</div>
     </div>
 
-    <!-- Status + chevron -->
+    <!-- Status -->
     <div class="right">
       <StatusBadge :status="displayStatus" />
-      <ion-icon :icon="chevronForwardOutline" class="chevron" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { IonIcon } from '@ionic/vue'
-import { chevronForwardOutline } from 'ionicons/icons'
 import StatusBadge from './StatusBadge.vue'
 import type { Pass } from '@/types'
 
@@ -75,10 +72,11 @@ function fmtTime(iso: string | null) {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--w-surface);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--w-radius-md);
   padding: 14px 16px;
-  box-shadow: var(--w-shadow-sm);
+  box-shadow: none;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -95,7 +93,6 @@ function fmtTime(iso: string | null) {
 .meta { font-size: 13px; color: var(--w-muted); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
 .time { font-size: 12px; color: var(--w-muted); margin-top: 3px; }
 .right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-.chevron { font-size: 16px; color: var(--w-muted); }
 .recurring-chip {
   background: var(--w-info-light);
   color: var(--w-info);

@@ -1,5 +1,13 @@
 <template>
   <div class="landing-wrapper">
+    <!-- Full-Screen Brand Loading Cover -->
+    <Transition name="fade-landing-loader">
+      <div v-if="pageLoading" class="landing-screen-loader">
+        <div class="landing-loader-center">
+          <BrandSpinner :size="72" color="#0A5C38" />
+        </div>
+      </div>
+    </Transition>
 
 
 <!-- NAVBAR -->
@@ -7,32 +15,30 @@
   <div class="nav-inner">
     <div class="nav-logo" onclick="showPage('home')">
       <span class="nav-logo-lockup" aria-label="CheckPass">
-        <img class="logo-dark" src="/assets/logo/for white background.png" alt="CheckPass">
-        <img class="logo-light" src="/assets/logo/for dark background.png" alt="">
+        <img class="logo-dark" src="/checkpass-logo.svg" alt="Checkpass">
+        <img class="logo-light" src="/checkpass-logo-white.svg" alt="Checkpass">
       </span>
     </div>
     <div class="nav-links">
       <a class="nav-link" href="#" onclick="showPage('how-it-works');return false">How It Works</a>
       <a class="nav-link" href="#" onclick="showPage('features');return false">Features</a>
       <a class="nav-link" href="#" onclick="showPage('pricing');return false">Pricing</a>
-      <a class="nav-link" href="#" onclick="showPage('estates');return false">Estates</a>
       <a class="nav-link" href="#" onclick="showPage('contact');return false">Contact</a>
     </div>
-    <div class="nav-cta" style="display:flex;align-items:center;gap:10px">
+    <div class="nav-cta">
       <button class="btn btn-login" onclick="window.goToLogin()">Log In</button>
-      <button class="btn btn-primary btn-sm" onclick="window.goToRegister()">Create Free Account</button>
+      <button class="btn btn-primary" onclick="window.goToRegister()">Create Free Account</button>
     </div>
-    <div class="nav-hamburger" id="hamburger" onclick="toggleMobileNav()">
+    <div class="nav-hamburger" id="hamburger" @click="toggleMobileNav" onclick="toggleMobileNav()" :class="{ open: isMobileNavOpen }" aria-label="Toggle Menu">
       <span></span><span></span><span></span>
     </div>
   </div>
 </nav>
 
-<div class="nav-mobile" id="mobileNav">
+<div class="nav-mobile" id="mobileNav" :class="{ open: isMobileNavOpen }">
   <a class="nav-link" href="#" onclick="showPage('how-it-works');closeMobileNav();return false">How It Works</a>
   <a class="nav-link" href="#" onclick="showPage('features');closeMobileNav();return false">Features</a>
   <a class="nav-link" href="#" onclick="showPage('pricing');closeMobileNav();return false">Pricing</a>
-  <a class="nav-link" href="#" onclick="showPage('estates');closeMobileNav();return false">Estates</a>
   <a class="nav-link" href="#" onclick="showPage('contact');closeMobileNav();return false">Contact</a>
   <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
     <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="window.goToLogin()">Log In to Portal</button>
@@ -57,16 +63,16 @@
     <div class="hero-noise"></div>
     <div class="hero-content">
       <div class="hero-inner">
-        <h1 class="hero-animate" style="transition-delay:0ms">Smarter <span class="hero-accent">access</span><br>management</h1>
-        <p class="hero-sub hero-animate" style="transition-delay:100ms">From resident-issued invites to secure verification,<br>CheckPass gives you full control over visitor access and movement.</p>
+        <h1 class="hero-animate" style="transition-delay:0ms; text-transform: none !important;">Smarter <span class="hero-accent">Access</span><br>Management</h1>
+        <p class="hero-sub hero-animate" style="transition-delay:100ms">From resident-issued invites to secure verification, CheckPass gives you full control over visitor access and many more.</p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="window.goToRegister()">
             Create Free Account
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button class="btn btn-outline" onclick="openDemoModal()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px"><path d="M8 5v14l11-7z"/></svg>
             Watch Demo
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-left:6px"><path d="M8 5v14l11-7z"/></svg>
           </button>
         </div>
         <div class="hero-trust">
@@ -91,343 +97,451 @@
     </div>
   </section>
 
-  <!-- STATS STRIP -->
-  <div class="stats-strip">
-    <div class="container">
-      <p class="stats-eyebrow">Live data from active deployment</p>
-      <div class="stats-inner">
-        <div class="stat-item"><div class="stat-num" data-count="1">0</div><div class="stat-label">Property onboarded</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="120+">0+</div><div class="stat-label">Active residents</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="350+">0+</div><div class="stat-label">Passes created</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="500+">0+</div><div class="stat-label">Entries verified</div></div>
-        <div class="stat-item"><div class="stat-num" data-count="80+">0+</div><div class="stat-label">Items declared</div></div>
+  <!-- STATS STRIP (STATIC CENTERED ON WEB, SMOOTH SLIDE ON MOBILE) -->
+  <section class="stats-strip" aria-label="Deployment statistics">
+    <div class="stats-ticker-outer">
+      <div class="stats-ticker-track">
+        <!-- Group 1 -->
+        <div class="stats-ticker-group">
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
+            <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
+            <div class="stat-label">Active residents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
+            <div class="stat-label">Passes created</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
+            <div class="stat-label">Entries verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
+            <div class="stat-label">Items declared</div>
+          </div>
+        </div>
+
+        <!-- Group 2 (Duplicate for continuous seamless infinite loop on mobile) -->
+        <div class="stats-ticker-group" aria-hidden="true">
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.propertiesOnboarded">{{ platformStats.propertiesOnboarded }}</div>
+            <div class="stat-label">{{ platformStats.propertiesOnboarded === 1 ? 'Property onboarded' : 'Properties onboarded' }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.activeResidents">{{ platformStats.activeResidents }}</div>
+            <div class="stat-label">Active residents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.passesCreated">{{ platformStats.passesCreated }}</div>
+            <div class="stat-label">Passes created</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.entriesVerified">{{ platformStats.entriesVerified }}</div>
+            <div class="stat-label">Entries verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" :data-count="platformStats.itemsDeclared">{{ platformStats.itemsDeclared }}</div>
+            <div class="stat-label">Items declared</div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
+
+  <!-- FIRST SECTION: TEXT REVEAL STATEMENT -->
+  <section class="text-reveal-section" id="text-reveal-section">
+    <div class="container text-reveal-container">
+      <h2 class="text-reveal-statement" id="textRevealParagraph">
+        <span class="reveal-word">Control</span>
+        <span class="reveal-word">who</span>
+        <span class="reveal-word">comes</span>
+        <span class="reveal-word">in,</span>
+        <span class="reveal-word">track</span>
+        <span class="reveal-word">daily</span>
+        <span class="reveal-word">activity,</span>
+        <span class="reveal-word">and</span>
+        <span class="reveal-word">manage</span>
+        <span class="reveal-word">operations</span>
+        <span class="reveal-word">without</span>
+        <span class="reveal-word">manual</span>
+        <span class="reveal-word">processes</span>
+        <span class="reveal-word">or</span>
+        <span class="reveal-word">guesswork.</span>
+      </h2>
+    </div>
+  </section>
+
+  <!-- SECOND SECTION: BETTER PROPERTY MANAGEMENT -->
+  <section class="bpm-section" id="property-management" data-reveal>
+    <div class="container bpm-container">
+      <div class="bpm-grid">
+        <!-- Left: Brand Visual Illustration (Aligned left, occupying almost half viewport) -->
+        <div class="bpm-visual-col" data-reveal="left">
+          <div class="bpm-image-wrapper">
+            <img
+              src="/assets/images/better-property-management.png"
+              alt="Better Property Management Starts Here - Checkpass"
+              class="bpm-image"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+        <!-- Right: Copy & Narrative -->
+        <div class="bpm-content-col" data-reveal="right">
+          <div class="bpm-content-inner">
+            <h2 class="bpm-title">
+              Better Property Management<br>
+              <span class="bpm-title-accent">Starts Here</span>
+            </h2>
+            <p class="bpm-description">
+              From residential estates and gated communities to offices and business premises, Check Pass makes it easier to manage occupants, coordinate visitor access, handle payments and oversee daily operations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERLAPPING FEATURES SCENE (SECTION A PINNED AT CENTER + SECTION B OVERLAPS ON SCROLL) -->
+  <div class="features-overlap-scene" id="featuresOverlapScene">
+    <!-- SECTION A: TAKE CHARGE OF YOUR PROPERTY (AFTER-DELAY AUTO SLIDER) -->
+    <section class="section-a-feature" id="take-charge">
+      <div class="container section-a-container">
+        <div class="section-a-grid">
+          <!-- Left Column: Interactive Visual Animation Stage -->
+          <div class="section-a-visual-col" data-reveal="left">
+            <div class="section-a-stage-wrapper">
+              <!-- Background Frame SVG -->
+              <div class="section-a-bg-frame">
+                <svg class="section-a-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
+                  <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#005E34"/>
+                  <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
+                </svg>
+              </div>
+
+              <!-- Slides Viewport Layer -->
+              <div class="section-a-slides-viewport" :class="{ 'is-exiting': isExitingSlideA }">
+                
+                <!-- SLIDE 1: ESTATE CREATION / CHECK -->
+                <div v-show="activeSlideA === 1" class="section-a-slide slide-1" :class="{ active: activeSlideA === 1 }">
+                  <!-- Check Icon with Shakara Swagger Tilt -->
+                  <div class="slide1-check-wrapper shakara-elem" data-delay="0">
+                    <svg class="slide1-check-svg" viewBox="0 0 283 283" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M282.5 141.25C282.5 178.712 267.618 214.639 241.129 241.129C214.639 267.618 178.712 282.5 141.25 282.5C103.788 282.5 67.8607 267.618 41.3712 241.129C14.8817 214.639 0 178.712 0 141.25C0 103.788 14.8817 67.8607 41.3712 41.3712C67.8607 14.8817 103.788 0 141.25 0C178.712 0 214.639 14.8817 241.129 41.3712C267.618 67.8607 282.5 103.788 282.5 141.25ZM212.405 87.7516C211.143 86.4948 209.642 85.5052 207.989 84.8421C206.337 84.1789 204.568 83.8559 202.788 83.8921C201.008 83.9284 199.253 84.3232 197.629 85.0531C196.005 85.783 194.545 86.8329 193.336 88.14L132.016 166.269L95.0612 129.297C92.551 126.958 89.2308 125.684 85.8001 125.745C82.3695 125.805 79.0963 127.195 76.6701 129.621C74.2439 132.047 72.8542 135.321 72.7936 138.751C72.7331 142.182 74.0065 145.502 76.3456 148.012L123.064 194.748C124.323 196.005 125.821 196.995 127.471 197.659C129.12 198.324 130.887 198.649 132.665 198.616C134.443 198.583 136.196 198.193 137.819 197.467C139.443 196.742 140.904 195.697 142.115 194.395L212.599 106.291C215.002 103.792 216.329 100.451 216.296 96.985C216.263 93.5188 214.872 90.2037 212.422 87.7516H212.405Z" fill="#0C8D53"/>
+                    </svg>
+                  </div>
+
+                  <!-- Greenview Estate Card -->
+                  <div class="slide1-card-wrapper after-delay-elem" data-delay="1">
+                    <img 
+                      src="/assets/images/section-a/slide1-estate.png" 
+                      alt="Greenview Estate" 
+                      class="slide-hero-card"
+                    />
+                  </div>
+                </div>
+
+                <!-- SLIDE 2: NEW RESIDENT ADDED + CENSUS -->
+                <div v-show="activeSlideA === 2" class="section-a-slide slide-2" :class="{ active: activeSlideA === 2 }">
+                  <!-- New Resident Added with Shakara Pop -->
+                  <div class="slide2-new-resident shakara-elem" data-delay="0">
+                    <img src="/assets/images/section-a/slide2-new-resident.svg" alt="New Resident Added" />
+                  </div>
+                  <!-- Total Residents Badge -->
+                  <div class="slide2-total-residents after-delay-elem" data-delay="1">
+                    <img src="/assets/images/section-a/slide2-total-residents.svg" alt="Total Residents: 23" />
+                  </div>
+
+                  <!-- Michael James Floating Card -->
+                  <div class="slide2-card-wrapper after-delay-elem" data-delay="2">
+                    <img 
+                      src="/assets/images/section-a/slide2-michael-james.png" 
+                      alt="Michael James - Unit B204" 
+                      class="slide-hero-card"
+                    />
+                  </div>
+                </div>
+
+                <!-- SLIDE 3: ADMIN & SECURITY TEAMS -->
+                <div v-show="activeSlideA === 3" class="section-a-slide slide-3" :class="{ active: activeSlideA === 3 }">
+                  <!-- Slide 3 Admin Card -->
+                  <div class="slide3-admin-card shakara-elem" data-delay="0">
+                    <img 
+                      src="/assets/images/section-a/slide3-admin.png" 
+                      alt="Admin Assigned - Property Administrator" 
+                      class="slide-hero-card"
+                    />
+                  </div>
+
+                  <!-- Slide 3 Security Card -->
+                  <div class="slide3-security-card after-delay-elem" data-delay="1">
+                    <img 
+                      src="/assets/images/section-a/slide3-security.png" 
+                      alt="Security Added - Gate Verification" 
+                      class="slide-hero-card"
+                    />
+                  </div>
+                </div>
+
+                <!-- SLIDE 4: PAYMENTS & DUES RECONCILIATION -->
+                <div v-show="activeSlideA === 4" class="section-a-slide slide-4" :class="{ active: activeSlideA === 4 }">
+                  <!-- Collection in Progress Badge -->
+                  <div class="slide4-collection-badge shakara-elem" data-delay="0">
+                    <img src="/assets/images/section-a/slide4-collection.svg" alt="Collection in progress" />
+                  </div>
+
+                  <!-- Payment Overview Card -->
+                  <div class="slide4-card-wrapper after-delay-elem" data-delay="1">
+                    <img 
+                      src="/assets/images/section-a/slide4-payment-overview.svg" 
+                      alt="Payment Overview" 
+                      class="slide-hero-card"
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Slide Indicator Dots -->
+              <div class="section-a-indicator" role="tablist" aria-label="Section A Slide Navigation">
+                <button
+                  v-for="idx in 4"
+                  :key="idx"
+                  type="button"
+                  class="indicator-item"
+                  :class="{ active: activeSlideA === idx }"
+                  :aria-selected="activeSlideA === idx"
+                  :aria-label="`Go to slide ${idx}`"
+                  @click="setSlideA(idx)"
+                >
+                  <span class="indicator-shape"></span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right Column: Heading & Descriptive Copy -->
+          <div class="section-a-content-col" data-reveal="right">
+            <div class="section-a-content-inner">
+              <h2 class="section-a-title">
+                Take Charge of<br>
+                Your <span class="section-a-title-accent">Property</span>
+              </h2>
+              <p class="section-a-description">
+                Whether it's a residential estate, gated community or workplace, manage occupants, assign responsibilities, organise payments and oversee daily operations from one dashboard.
+              </p>
+              <a href="#features" class="section-cta-link sec-a-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION B: MANAGE VISITORS & PAYMENTS WITH EASE (OVERLAPS SECTION A ON SCROLL) -->
+    <section class="section-b-feature" id="manage-visitors">
+      <div class="container section-b-container">
+        <div class="section-b-grid">
+          <!-- Left Column: Heading & Descriptive Copy -->
+          <div class="section-b-content-col" data-reveal="left">
+            <div class="section-b-content-inner">
+              <h2 class="section-b-title">
+                Manage Visitors<br>
+                &amp; Payments<br>
+                With <span class="section-b-title-accent">Ease</span>
+              </h2>
+              <p class="section-b-description">
+                From inviting visitors and managing access passes to paying estate dues and receiving important updates, everything is easier when it's right on your phone.
+              </p>
+              <a href="#features" class="section-cta-link sec-b-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right Column: Interactive Visual Animation Stage -->
+          <div class="section-b-visual-col" data-reveal="right">
+            <div class="section-b-stage-wrapper">
+              <!-- Background Frame SVG -->
+              <div class="section-b-bg-frame">
+                <svg class="section-b-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
+                  <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
+                  <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
+                </svg>
+              </div>
+
+              <!-- Slides Viewport Layer -->
+              <div class="section-b-slides-viewport" :class="{ 'is-exiting': isExitingSlideB }">
+                <!-- SLIDE 1: VISITOR QR SCAN -->
+                <div v-show="activeSlideB === 1" class="section-b-slide slide-1" :class="{ active: activeSlideB === 1 }">
+                  <img 
+                    src="/assets/images/section-b/slider-1.png" 
+                    alt="Security Scanning Visitor QR Code" 
+                    class="section-b-slide-img"
+                  />
+                </div>
+
+                <!-- SLIDE 2: RESIDENT PASS & PHONE APP -->
+                <div v-show="activeSlideB === 2" class="section-b-slide slide-2" :class="{ active: activeSlideB === 2 }">
+                  <img 
+                    src="/assets/images/section-b/slider-2.png" 
+                    alt="Resident Managing Passes on Phone" 
+                    class="section-b-slide-img"
+                  />
+                </div>
+              </div>
+
+              <!-- Slide Indicator (Exact proportions and colors from slider indicaroe.svg: 207 x 60) -->
+              <div class="section-b-indicator" role="tablist" aria-label="Section B Slide Navigation">
+                <button
+                  v-for="idx in 2"
+                  :key="idx"
+                  type="button"
+                  class="indicator-b-item"
+                  :class="{ active: activeSlideB === idx }"
+                  :aria-selected="activeSlideB === idx"
+                  :aria-label="`Go to slide ${idx}`"
+                  @click="setSlideB(idx)"
+                >
+                  <span class="indicator-b-shape"></span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION C: STAY AHEAD OF EVERY ENTRY (OVERLAPS SECTION B ON SCROLL) -->
+    <section class="section-c-feature" id="stay-ahead">
+      <div class="container section-c-container">
+        <div class="section-c-grid">
+          <!-- Left Column: Interactive Visual Animation Stage -->
+          <div class="section-c-visual-col" data-reveal="left">
+            <div class="section-c-stage-wrapper">
+              <!-- Background Frame SVG -->
+              <div class="section-c-bg-frame">
+                <svg class="section-c-bg-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
+                  <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
+                  <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
+                </svg>
+              </div>
+
+              <!-- Slides Viewport Layer -->
+              <div class="section-c-slides-viewport" :class="{ 'is-exiting': isExitingSlideC }">
+                <!-- SLIDE 1: SECURITY GATE ENTRY PASS -->
+                <div v-show="activeSlideC === 1" class="section-c-slide slide-1" :class="{ active: activeSlideC === 1 }">
+                  <img 
+                    src="/assets/images/section-c/slider-1.png" 
+                    alt="Security Gate Verification" 
+                    class="section-c-slide-img"
+                  />
+                </div>
+
+                <!-- SLIDE 2: ACCESS RECORDS & MOVEMENT LOG -->
+                <div v-show="activeSlideC === 2" class="section-c-slide slide-2" :class="{ active: activeSlideC === 2 }">
+                  <img 
+                    src="/assets/images/section-c/slider-2.png" 
+                    alt="Access Granted Movement Records" 
+                    class="section-c-slide-img"
+                  />
+                </div>
+              </div>
+
+              <!-- Slide Indicator (Exact proportions and colors from Slider indicator.svg: 207 x 60) -->
+              <div class="section-c-indicator" role="tablist" aria-label="Section C Slide Navigation">
+                <button
+                  v-for="idx in 2"
+                  :key="idx"
+                  type="button"
+                  class="indicator-c-item"
+                  :class="{ active: activeSlideC === idx }"
+                  :aria-selected="activeSlideC === idx"
+                  :aria-label="`Go to slide ${idx}`"
+                  @click="setSlideC(idx)"
+                >
+                  <span class="indicator-c-shape"></span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right Column: Heading & Descriptive Copy -->
+          <div class="section-c-content-col" data-reveal="right">
+            <div class="section-c-content-inner">
+              <h2 class="section-c-title">
+                Stay Ahead of<br>
+                Every <span class="section-c-title-accent">Entry.</span>
+              </h2>
+              <p class="section-c-description">
+                Give your security team a reliable way to check visitor passes, confirm authorised access and keep records of movement in and out of your premises.
+              </p>
+              <a href="#features" class="section-cta-link sec-c-cta" onclick="showPage('features');return false">
+                <span>Learn more</span>
+                <svg class="cta-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </div>
 
-  <!-- FLAGSHIP INSPIRATION PHONE SHOWCASE & FLOATING CARDS -->
-  <section class="flagship-showcase-section" id="flagshipSection">
-    <div class="flagship-sticky-wrapper">
-      <div class="container flagship-container">
-        <!-- Minimal Stepper Progress Bar (No bulky tabs, purely shows active stage & progress) -->
-        <div class="flagship-stepper-wrap">
-          <div class="flagship-stepper">
-            <button class="flagship-step-btn active" id="stepBtn0" onclick="goToFlagshipSlide(0)" aria-label="Step 1: Gate Verification">
-              <span class="step-num">01</span>
-              <span class="step-title">Gate Verification</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine0"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn1" onclick="goToFlagshipSlide(1)" aria-label="Step 2: Visitor Pass">
-              <span class="step-num">02</span>
-              <span class="step-title">Visitor Pass &amp; QR</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine1"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn2" onclick="goToFlagshipSlide(2)" aria-label="Step 3: Exit Declarations">
-              <span class="step-num">03</span>
-              <span class="step-title">Exit Item Declaration</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine2"></span></span>
-            </button>
-            <button class="flagship-step-btn" id="stepBtn3" onclick="goToFlagshipSlide(3)" aria-label="Step 4: Estate Dues">
-              <span class="step-num">04</span>
-              <span class="step-title">Estate Dues &amp; Ledger</span>
-              <span class="step-line"><span class="step-line-fill" id="stepLine3"></span></span>
-            </button>
-          </div>
+    <!-- CORE SYSTEM HEADER (2-Column Web View Layout) -->
+  <section class="core-control-section" id="core-systems">
+    <div class="core-control-container">
+      <div class="core-control-grid" data-reveal>
+        <!-- Left Column: Primary Green Heading -->
+        <div class="core-control-col-left">
+          <h2 class="core-control-title">
+            <span class="core-control-mint">Total Control Over</span><br>
+            <span class="core-control-mint">Every</span> Gate, Payment,<br>
+            <span class="core-control-mint">and</span> Resident Record.
+          </h2>
         </div>
 
-        <!-- Split Showcase Grid (Header & Sub-header only, No CTA | Right: Centered Phone Visual) -->
-        <div class="flagship-split-grid">
-          
-          <!-- Left Column: Pure Header & Sub-header Copy Slides (No CTA) -->
-          <div class="flagship-info-col">
-            <div class="flagship-slides-container">
-              <!-- Slide 0: Gate Verification -->
-              <div class="flagship-slide-item active" data-slide="0">
-                <span class="flagship-badge-pill">🛡️ Gate Verification</span>
-                <h2 class="flagship-heading">Sub-4-Second Gate Clearance That Keeps Estate Traffic Moving</h2>
-                <p class="flagship-desc">Equip your security officers with instant optical verification. CheckPass Gate Scanner verifies visitor identity, host authorization, and vehicle plates in under 4 seconds—powered by 100% offline edge caching that never fails during network cuts or power outages.</p>
-              </div>
-
-              <!-- Slide 1: Visitor Pass & QR -->
-              <div class="flagship-slide-item" data-slide="1">
-                <span class="flagship-badge-pill">🔑 Visitor Passes</span>
-                <h2 class="flagship-heading">Instant Digital Passes via WhatsApp — Zero App Download</h2>
-                <p class="flagship-desc">Guests never need to download an application or register an account. Residents generate visitor permits in 12 seconds, and CheckPass automatically delivers an encrypted, high-contrast QR pass directly via WhatsApp and SMS.</p>
-              </div>
-
-              <!-- Slide 2: Exit Item Declaration -->
-              <div class="flagship-slide-item" data-slide="2">
-                <span class="flagship-badge-pill">📦 Exit Declarations</span>
-                <h2 class="flagship-heading">Tamper-Proof Exit Manifests That Prevent Asset Theft</h2>
-                <p class="flagship-desc">Moving out furniture or contractor equipment? Residents attach serialized photo manifests directly in the app before the vehicle reaches the gate, eliminating disputes and preventing unauthorized property exit.</p>
-              </div>
-
-              <!-- Slide 3: Estate Dues & Ledger -->
-              <div class="flagship-slide-item" data-slide="3">
-                <span class="flagship-badge-pill">💳 Estate Dues</span>
-                <h2 class="flagship-heading">Automate Service Charges &amp; Stop Chasing Defaulters</h2>
-                <p class="flagship-desc">Track diesel levies, security dues, and waste management charges in real time. Residents upload payment receipts in-app with automated reconciliation, digital receipts, and gate clearance defaulting alerts.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Visual Stage with Organic Tinted Backdrop -->
-          <div class="flagship-visual-col">
-            <div class="flagship-organic-stage">
-              <div class="phone-device-pro" id="flagshipPhoneDevice">
-                <!-- Dynamic Island -->
-                <div class="phone-dynamic-island">
-                  <div class="island-camera-dot"></div>
-                  <div class="island-sensor-dot"></div>
-                </div>
-
-                <!-- Status Bar -->
-                <div class="phone-status-bar">
-                  <span style="font-weight:700">9:41</span>
-                  <div class="phone-status-icons">
-                    <svg width="15" height="11" viewBox="0 0 17 11" fill="currentColor"><path d="M1 8h2v2H1V8zm4-3h2v5H5V5zm4-3h2v8H9V2zm4-2h2v10h-2V0z"/></svg>
-                    <svg width="14" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5c2.8 0 5.3 1.1 7.1 3L16 4.6C13.9 2.3 11.1 1 8 1 4.9 1 2.1 2.3 0 4.6l.9.9c1.8-1.9 4.3-3 7.1-3zm0 4c1.7 0 3.3.7 4.4 1.9l.9-.9C12 6.1 10.1 5.3 8 5.3s-4 .8-5.3 2.2l.9.9C4.7 7.2 6.3 6.5 8 6.5zm0 4c.8 0 1.5.3 2.1.9l.9-.9C10.2 9.8 9.2 9.3 8 9.3s-2.2.5-3 1.2l.9.9c.6-.6 1.3-.9 2.1-.9z"/></svg>
-                    <svg width="22" height="11" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="1" width="19" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="3" y="3" width="14" height="6" rx="1.5" fill="currentColor"/><path d="M22 4.5v3a1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5z"/></svg>
-                  </div>
-                </div>
-
-                <!-- Phone Screen (Stacked 4 Screens with Smooth Crossfade) -->
-                <div class="phone-screen-pro">
-                  <img class="phone-screen-img active" data-phone-slide="0" src="/assets/app-screens/mockup_phone_guard_approval.png" alt="Gate Verification">
-                  <img class="phone-screen-img" data-phone-slide="1" src="/assets/app-screens/pass-details-screen.png" alt="Visitor Pass">
-                  <img class="phone-screen-img" data-phone-slide="2" src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration">
-                  <img class="phone-screen-img" data-phone-slide="3" src="/assets/ui screens/Resident Interface/Fees.png" alt="Estate Fees">
-                  <div class="phone-bottom-fade"></div>
-                  <div class="phone-home-indicator"></div>
-                </div>
-
-                <!-- Floating Pop-out Cards (Pre-rendered for seamless slide swap) -->
-                <div class="phone-floating-cards" id="flagshipFloatingCards">
-                  <!-- Group 0: Gate -->
-                  <div class="phone-floating-cards-group active" data-pop-slide="0">
-                    <div class="pop-card-mid">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#E8F5EE;color:#0A5B38">🛡️</div>
-                        <div>
-                          <div class="pop-card-title">Main Gate Terminal 1</div>
-                          <div class="pop-card-sub">Pass #CP-8842 &bull; 3.2s Verification</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status">Verified Entry</div>
-                        <div class="pop-micro-bar">
-                          <div class="pop-micro-fill" style="width:100%;background:linear-gradient(90deg,#0A5B38 75%,#22C55E 100%)"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pop-card-front">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#F6F8F7">🚗</div>
-                        <div>
-                          <div class="pop-card-title">Visitor Access Cleared</div>
-                          <div class="pop-card-sub">Engr. Farouk Al-Mansur &bull; Flat 12B</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status" style="color:#0A5B38">Access Granted</div>
-                        <div class="pop-card-sub" style="color:#22C55E;font-weight:700">Approved by Resident</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Group 1: Pass -->
-                  <div class="phone-floating-cards-group" data-pop-slide="1">
-                    <div class="pop-card-mid">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#E8F5EE;color:#0A5B38">🔑</div>
-                        <div>
-                          <div class="pop-card-title">1-Day Digital Visitor Pass</div>
-                          <div class="pop-card-sub">Valid Today until 11:59 PM</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status">Active Pass</div>
-                        <div class="pop-micro-bar">
-                          <div class="pop-micro-fill" style="width:100%;background:linear-gradient(90deg,#0A5B38 90%,#22C55E 100%)"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pop-card-front">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#F6F8F7">📲</div>
-                        <div>
-                          <div class="pop-card-title">Instant WhatsApp QR Invite</div>
-                          <div class="pop-card-sub">Delivered to Guest &bull; Zero App Download</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status" style="color:#0A5B38">Pass #8842</div>
-                        <div class="pop-card-sub" style="color:#22C55E;font-weight:700">Cryptographic QR</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Group 2: Item -->
-                  <div class="phone-floating-cards-group" data-pop-slide="2">
-                    <div class="pop-card-mid">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#FFF9E6;color:#B45309">📸</div>
-                        <div>
-                          <div class="pop-card-title">Photo Item Declaration</div>
-                          <div class="pop-card-sub">Serialized Equipment Registered</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status">Logged to Gate</div>
-                        <div class="pop-micro-bar">
-                          <div class="pop-micro-fill" style="width:100%;background:linear-gradient(90deg,#F4C84A 70%,#0A5B38 100%)"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pop-card-front">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#F6F8F7">📦</div>
-                        <div>
-                          <div class="pop-card-title">Exit Inspection Cleared</div>
-                          <div class="pop-card-sub">2x LG 27" Displays &bull; Verified at Barrier</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status" style="color:#0A5B38">Anti-Theft Ok</div>
-                        <div class="pop-card-sub" style="color:#22C55E;font-weight:700">Signed by Resident</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Group 3: Fees -->
-                  <div class="phone-floating-cards-group" data-pop-slide="3">
-                    <div class="pop-card-mid">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#E8F5EE;color:#0A5B38">💳</div>
-                        <div>
-                          <div class="pop-card-title">Service Dues Reconciliation</div>
-                          <div class="pop-card-sub">Security, Sanitation & Diesel Levy</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status">Receipt Verified</div>
-                        <div class="pop-micro-bar">
-                          <div class="pop-micro-fill" style="width:100%;background:linear-gradient(90deg,#22C55E 85%,#0A5B38 100%)"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pop-card-front">
-                      <div class="pop-card-left">
-                        <div class="pop-card-avatar" style="background:#F6F8F7">🧾</div>
-                        <div>
-                          <div class="pop-card-title">Automated Digital Receipt</div>
-                          <div class="pop-card-sub">Flat 12B &bull; 2026 Q3 Estate Dues</div>
-                        </div>
-                      </div>
-                      <div class="pop-card-right">
-                        <div class="pop-badge-status" style="color:#0A5B38">Paid in Full</div>
-                        <div class="pop-card-sub" style="color:#22C55E;font-weight:700">Verified by Admin</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CORE SYSTEM HEADER -->
-  <section class="features-showcase-section" id="core-systems" style="padding-bottom:20px">
-    <div class="container">
-      <div class="features-showcase-header" data-reveal>
-        <div class="features-pill-badge">✨ Key System Capabilities</div>
-        <h2>Total Control Over Every Gate, Payment, and Resident Record</h2>
-        <p>CheckPass replaces phone calls, missing logbooks, and WhatsApp payment disputes with one reliable system that estate managers, security guards, and residents use every day.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CORE SYSTEM SPLIT -->
-  <section class="split-section">
-    <div class="container">
-      <div class="split-inner">
-        <div class="split-img-wrap" data-reveal="left">
-          <img src="/assets/images/2.png" alt="Security guard verifying visitor" class="split-img">
-        </div>
-        <div class="split-content" data-reveal="right">
-          <h2 class="display-md">Core System</h2>
-          <div class="split-list">
-            <div class="split-list-item">
-              <strong>Controlled access</strong>
-              <p>Every visitor is approved before arrival and verified on entry.</p>
-            </div>
-            <div class="split-list-item">
-              <strong>Central management</strong>
-              <p>Handle residents, security activity, and operations from one place.</p>
-            </div>
-            <div class="split-list-item">
-              <strong>Verified records</strong>
-              <p>Entries, exits, and actions are logged with time and status.</p>
-            </div>
-            <div class="split-list-item">
-              <strong>Item declaration and tracking</strong>
-              <p>Items moving in or out are declared, checked, and recorded.</p>
-            </div>
-          </div>
-          <button class="btn btn-ghost" onclick="showPage('features')">
-            Learn More
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ADDITIONAL CAPABILITIES SPLIT -->
-  <section class="split-section split-section-alt">
-    <div class="container">
-      <div class="split-inner sf-reverse">
-        <div class="split-content" data-reveal="left">
-          <h2 class="display-md">Additional capabilities</h2>
-          <div class="split-list">
-            <div class="split-list-item">
-              <strong>Service charge management</strong>
-              <p>Track payments and confirm status with clear records.</p>
-            </div>
-            <div class="split-list-item">
-              <strong>Community marketplace</strong>
-              <p>Manage trusted service providers within your property.</p>
-            </div>
-            <div class="split-list-item">
-              <strong>Announcements</strong>
-              <p>Send updates and keep residents informed from a central point.</p>
-            </div>
-          </div>
-          <button class="btn btn-ghost" onclick="showPage('how-it-works')">
-            See how it works
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <div class="split-img-wrap" data-reveal="right">
-          <img src="/assets/images/3.png" alt="Resident using CheckPass mobile app" class="split-img">
+        <!-- Right Column: Subheader & Primary CTA -->
+        <div class="core-control-col-right">
+          <p class="core-control-desc">
+            Whether it's a residential estate, gated community, or workplace, manage occupants, assign responsibilities, organise payments, and oversee daily operations from one dashboard.
+          </p>
+          <a href="#how-it-works" class="core-control-btn" onclick="showPage('how-it-works');return false">
+            <span>See how it works</span>
+            <svg class="core-control-btn-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M3.75 9h10.5M9.75 4.5l4.5 4.5-4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- STAKEHOLDERS INTERACTIVE SHOWCASE (SITEASSIST MODEL - 3 SLIDES) -->
-  <section class="features-showcase-section" id="stakeholder-showcase" style="padding-top:40px">
-    <div class="container">
-      <div class="features-showcase-header" data-reveal>
-        <div class="features-pill-badge">Who Uses CheckPass</div>
-        <h2>Built for the People Running and Living in Your Estate</h2>
-        <p>From the estate manager balancing the books to the security guard at the gate and the resident expecting a guest.</p>
-      </div>
-
+  <section class="features-showcase-section" id="stakeholder-showcase" style="padding-top:0">
+    <div class="siteassist-showcase-container">
       <!-- Cinematic Full-Bleed Photographic Card Container -->
       <div class="siteassist-card" data-reveal id="siteassistContainer">
         <!-- 3 Photographic Background Slides -->
@@ -445,7 +559,7 @@
           <!-- Top Row: Kicker & Counter -->
           <div class="siteassist-top-bar">
             <div class="siteassist-kicker" id="saKicker">ESTATE MANAGERS &amp; EXCO</div>
-            <div class="siteassist-counter" id="saCounter">01</div>
+            
           </div>
 
           <!-- Lower Right Floating Content Card -->
@@ -457,15 +571,18 @@
           <!-- Bottom Nav Strip with Horizontal Progress Loaders -->
           <div class="siteassist-tabs-nav">
             <button class="siteassist-tab-btn active" onclick="switchSiteAssistTab(0)">
-              <span>For Estate Managers</span>
+              <span class="tab-lbl-desktop">For Estate Managers</span>
+              <span class="tab-lbl-mobile">Managers</span>
               <div class="siteassist-progress-track"><div class="siteassist-progress-bar" id="saFill-0"></div></div>
             </button>
             <button class="siteassist-tab-btn" onclick="switchSiteAssistTab(1)">
-              <span>For Security Guards</span>
+              <span class="tab-lbl-desktop">For Security Guards</span>
+              <span class="tab-lbl-mobile">Guards</span>
               <div class="siteassist-progress-track"><div class="siteassist-progress-bar" id="saFill-1"></div></div>
             </button>
             <button class="siteassist-tab-btn" onclick="switchSiteAssistTab(2)">
-              <span>For Residents</span>
+              <span class="tab-lbl-desktop">For Residents</span>
+              <span class="tab-lbl-mobile">Residents</span>
               <div class="siteassist-progress-track"><div class="siteassist-progress-bar" id="saFill-2"></div></div>
             </button>
           </div>
@@ -476,152 +593,10 @@
 
 
 
-  <!-- S8: TRUST — INFRASTRUCTURE SECTION (WITH LAPTOP MOCKUP) -->
-  <section class="trust-section">
-    <div class="container">
-      <div class="trust-split-grid">
-        <!-- Left: Text & Key Capabilities -->
-        <div class="trust-header" data-reveal="left">
-          <span class="badge badge-white label">Built to Be Relied On</span>
-          <h2>Infrastructure for estates that cannot afford to operate on guesswork</h2>
-          <p>CheckPass is engineered to run the access, payment, and accountability operations of real estates with zero downtime and complete audit trails.</p>
 
-          <div class="trust-cards-stack">
-            <div class="trust-mini-card">
-              <div class="trust-mini-icon">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4.5v4c0 3.5 2.5 6.2 6 7 3.5-.8 6-3.5 6-7v-4L8 1.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </div>
-              <div>
-                <h4>Every action is permanently recorded</h4>
-                <p>From visitor entry to payment confirmation, every event is timestamped and tied to a responsible user.</p>
-              </div>
-            </div>
 
-            <div class="trust-mini-card">
-              <div class="trust-mini-icon">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </div>
-              <div>
-                <h4>Strict role-based boundaries</h4>
-                <p>Residents, guards, and managers each have dedicated interfaces. No unauthorized data exposure.</p>
-              </div>
-            </div>
-
-            <div class="trust-mini-card">
-              <div class="trust-mini-icon">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="6" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 6V4.5a3 3 0 016 0V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </div>
-              <div>
-                <h4>Configured specifically for your estate</h4>
-                <p>Custom setup for your exact unit count, gate barriers, and management bylaws before going live.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="trust-tags">
-            <span class="trust-tag">Gated Communities</span>
-            <span class="trust-tag">Residential Estates</span>
-            <span class="trust-tag">Blocks of Flats</span>
-            <span class="trust-tag">Multi-Gate Estates</span>
-            <span class="trust-tag">Mixed-Use Developments</span>
-          </div>
-        </div>
-
-        <!-- Right: Sleek Operations Laptop Mockup -->
-        <div class="trust-laptop-wrap" data-reveal="right">
-          <div class="trust-laptop-glow"></div>
-          <div class="laptop-frame">
-            <!-- Screen & Bezel -->
-            <div class="laptop-screen-bezel">
-              <div class="laptop-camera"></div>
-              <div class="laptop-display">
-                <!-- App Top Navigation Bar -->
-                <div class="laptop-ui-nav">
-                  <div class="laptop-ui-estate">
-                    <span class="laptop-status-dot"></span>
-                    <span>Royal Palm Estate &middot; Admin Portal</span>
-                  </div>
-                  <span class="laptop-ui-badge">4 Gates Online</span>
-                </div>
-
-                <!-- App Dashboard Body -->
-                <div class="laptop-ui-body">
-                  <!-- KPI Stat Cards -->
-                  <div class="laptop-kpi-row">
-                    <div class="laptop-kpi-card">
-                      <div class="laptop-kpi-val" style="color:#4ADE80">&#8358;14.8M</div>
-                      <div class="laptop-kpi-lbl">Q3 Dues (98.6%)</div>
-                    </div>
-                    <div class="laptop-kpi-card">
-                      <div class="laptop-kpi-val" style="color:#38BDF8">142</div>
-                      <div class="laptop-kpi-lbl">Visitors Today</div>
-                    </div>
-                    <div class="laptop-kpi-card">
-                      <div class="laptop-kpi-val" style="color:#FBBF24">0</div>
-                      <div class="laptop-kpi-lbl">Unresolved SOS</div>
-                    </div>
-                  </div>
-
-                  <!-- Live Gate Traffic Table -->
-                  <div class="laptop-table-wrap">
-                    <div class="laptop-table-hdr">
-                      <span>Live Gate Audit Feed</span>
-                      <span style="color:#22C55E">Auto-Syncing</span>
-                    </div>
-
-                    <div class="laptop-table-row">
-                      <div class="laptop-row-meta">
-                        <span class="laptop-row-time">14:32</span>
-                        <strong>Main Gate</strong>
-                        <span>&middot; Unit 12B (Sarah O.)</span>
-                      </div>
-                      <span class="laptop-tag-green">Pass Verified</span>
-                    </div>
-
-                    <div class="laptop-table-row">
-                      <div class="laptop-row-meta">
-                        <span class="laptop-row-time">14:26</span>
-                        <strong>Gate 2 Exit</strong>
-                        <span>&middot; Unit 04A (Generator)</span>
-                      </div>
-                      <span class="laptop-tag-amber">Photo Cleared</span>
-                    </div>
-
-                    <div class="laptop-table-row">
-                      <div class="laptop-row-meta">
-                        <span class="laptop-row-time">14:18</span>
-                        <strong>West Gate</strong>
-                        <span>&middot; Unit 28C (Contractor)</span>
-                      </div>
-                      <span class="laptop-tag-green">Pass Verified</span>
-                    </div>
-
-                    <div class="laptop-table-row">
-                      <div class="laptop-row-meta">
-                        <span class="laptop-row-time">14:05</span>
-                        <strong>Main Gate</strong>
-                        <span>&middot; Unit 09A (Resident)</span>
-                      </div>
-                      <span class="laptop-tag-green">Tag In</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Laptop Base & Hinge -->
-            <div class="laptop-base-top">
-              <div class="laptop-notch"></div>
-            </div>
-            <div class="laptop-base-bottom"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- S9: TESTIMONIALS -->
-  <section class="testimonials">
+  <!-- S9: TESTIMONIALS (Disabled until real reviews are collected; set showTestimonials to true to re-enable) -->
+  <section v-if="showTestimonials" class="testimonials">
     <div class="container">
       <div class="section-header centered" data-reveal>
         <span class="badge badge-green label">What Managers Say</span>
@@ -632,7 +607,7 @@
           <div class="testi-stars"><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span></div>
           <div class="testi-quote">&ldquo;</div>
           <p class="testi-text">We used to spend every Monday chasing payment confirmations. Now the dashboard shows everything. I haven't made a single "have you paid?" call in two months.</p>
-          <div class="testi-author"><div class="testi-avatar">AM</div><div><div class="testi-name">Adaeze M.</div><div class="testi-role">Estate Manager &middot; Lekki Phase 1</div></div></div>
+          <div class="testi-author"><div class="testi-avatar">AM</div><div><div class="testi-name">Adaeze M.</div><div class="testi-role">Estate Manager &middot; Lagos</div></div></div>
         </div>
         <div class="testi-card" data-reveal data-delay="2">
           <div class="testi-stars"><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span></div>
@@ -651,28 +626,119 @@
   </section>
 
   <!-- S10: FAQ -->
-  <section class="faq">
+  <section class="faq" id="faq-section">
     <div class="container">
-      <div class="section-header centered" data-reveal>
-        <span class="badge badge-green label">Common Questions</span>
-        <h2 class="display-md" style="margin-top:12px">Before you ask</h2>
-      </div>
-      <div class="faq-list">
-        <div class="faq-item" data-reveal data-delay="1">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"Will our security guards be able to use this?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Yes. CheckPass is designed specifically for guards who need fast, simple actions. Scanning a QR code and confirming a visitor takes under five seconds — no training beyond a brief walkthrough.</div></div>
+      <div class="faq-layout">
+        <!-- Left Column: Header, Subtitle & Direct Channel -->
+        <div class="faq-col-left" data-reveal="left">
+          <h2 class="faq-title">
+            Everything You<br>
+            Need to Know.
+          </h2>
+          <p class="faq-subtitle">
+            Answers to common questions about deploying CheckPass, gate security, resident adoption, and automated dues tracking.
+          </p>
+          <a href="#contact" class="faq-contact-link" onclick="showPage('contact');return false">
+            <span>Have a specific question? Contact us</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
-        <div class="faq-item" data-reveal data-delay="2">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"What if residents don't cooperate at first?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Once it's enforced at the gate — no pass, no entry — adoption becomes natural within a few days. We help you structure the rollout so residents understand the system before it goes live.</div></div>
-        </div>
-        <div class="faq-item" data-reveal data-delay="3">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"Do we need special devices or hardware?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">No. CheckPass runs on existing smartphones. Residents, security, and managers each use the relevant app on their own phones — no scanners, tablets, or additional hardware needed.</div></div>
-        </div>
-        <div class="faq-item" data-reveal data-delay="4">
-          <div class="faq-q" onclick="toggleFaq(this)"><h4>"How long does setup take?"</h4><div class="faq-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
-          <div class="faq-a"><div class="faq-a-inner">Most estates go live within two days. We handle the full configuration — units, residents, security access, and payment structures — and walk your team through everything before launch.</div></div>
+
+        <!-- Right Column: FAQ Accordion List -->
+        <div class="faq-col-right" data-reveal="right">
+          <div class="faq-list">
+            <!-- Item 1 (Open by default) -->
+            <div class="faq-item open" data-reveal data-delay="1">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>Will our security guards be able to use this?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Yes. CheckPass is built for real gate operations. Guards don't type or learn complex menus; they simply scan visitor QR codes or look up access codes. Clearing a verified guest takes under 5 seconds.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-item" data-reveal data-delay="2">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>Do we need turnstiles, specialized tablets, or barcode scanners?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  No special hardware is required. CheckPass runs on any standard Android smartphone, iPhone, or web browser. Guards, residents, and estate managers use their existing devices from day one with zero hardware purchase.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="faq-item" data-reveal data-delay="3">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>What if our gate has unstable internet or sudden network downtime?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  CheckPass uses cryptographic offline token verification. Valid visitor passes continue to scan and clear at the gate terminal even during network drops. Activity logs automatically sync the moment connection returns.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="faq-item" data-reveal data-delay="4">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>What if residents resist changing from paper slips and phone calls?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Residents adopt CheckPass quickly because it eliminates delays. They generate and share passes directly through WhatsApp in two taps without forcing visitors to download an app. When gates enforce pass verification, compliance reaches 98%+ within days.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="faq-item" data-reveal data-delay="5">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>How does CheckPass stop levy defaults and estate dues disputes?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  CheckPass centralizes your service charges, security dues, and diesel levies with complete payment flexibility. Residents can settle dues via instant online payment (card or direct bank transfer) with automated digital receipting, or upload direct bank transfer receipts for 1-click admin approval. Automated reminders and live balances keep disputes at zero, giving executives a real-time audit ledger of paid versus defaulting flats ready for every AGM.
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="faq-item" data-reveal data-delay="6">
+              <div class="faq-q" onclick="toggleFaq(this)">
+                <h4>How fast can our estate onboard and go live?</h4>
+                <div class="faq-arrow">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+              <div class="faq-a">
+                <div class="faq-a-inner">
+                  Most residential communities and estates are fully operational within 48 hours. We handle importing your unit register, setting management permissions, and guiding your gate personnel through a quick operational drill.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -686,9 +752,12 @@
         <h2>Set up your estate in minutes.<br>Start 100% free.</h2>
         <p>Create your estate account, invite your team, and test QR visitor passes with zero hardware.</p>
         <div class="btn-row">
-          <button class="btn btn-gold btn-lg" onclick="showPage('contact', 'free')">
+          <button class="btn btn-gold btn-lg" onclick="window.goToRegister()">
             Create Free Account
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-lg" style="color:#ffffff;border-color:rgba(255,255,255,.3)" onclick="showPage('contact')">
+            Speak With Our Team
           </button>
         </div>
       </div>
@@ -702,455 +771,163 @@
 <div class="page" id="page-how-it-works">
   <div class="page-hero page-hero-green">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">End-to-End Operational Lifecycle</span>
-      <h1>How CheckPass Works —<br>From Invite to Gate Verification</h1>
-      <p>Connecting residents, security guards, and estate managers into one synchronized ecosystem.</p>
+      <h1>A Simple, Connected Journey</h1>
+      <p>From initial estate setup and resident onboarding to gate clearance and central management&mdash;everything connects smoothly in one unified platform.</p>
     </div>
   </div>
 
-  <!-- SCROLLYTELLING JOURNEY WRAPPER -->
-  <div class="how-scroll-journey">
-    
-    <!-- Section Introduction Header -->
-    <div class="how-header" data-reveal>
-      <span class="badge badge-green label" style="margin-bottom:14px;display:inline-flex">End-to-End Operational Lifecycle</span>
-      <h2>From Resident Invitation to Live Gate Audit</h2>
-      <p>Scroll through each operational phase below to see how the mobile app, gate security terminal, and admin command portal work in seamless real-time synchronization.</p>
-    </div>
-
-    <!-- Sticky Step Navigation Pill Bar -->
-    <div class="how-step-nav-sticky">
-      <div class="how-step-nav-inner">
-        <button class="how-step-pill-btn active" id="pill-how-step-1" onclick="scrollToHowStep('how-step-1')">
-          <span class="pill-num">1</span> Resident App &amp; Item Log
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-2" onclick="scrollToHowStep('how-step-2')">
-          <span class="pill-num">2</span> Visitor WhatsApp Pass
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-3" onclick="scrollToHowStep('how-step-3')">
-          <span class="pill-num">3</span> Sub-4s Gate Scan
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-4" onclick="scrollToHowStep('how-step-4')">
-          <span class="pill-num">4</span> Admin Command &amp; Dues
-        </button>
-        <button class="how-step-pill-btn" id="pill-how-step-5" onclick="scrollToHowStep('how-step-5')">
-          <span class="pill-num">5</span> 2-Week Rollout Plan
-        </button>
-      </div>
-    </div>
-
+  <div class="hiw-card-section">
     <div class="container">
-
-      <!-- STEP 01: RESIDENT MOBILE APP -->
-      <section class="how-scroll-section" id="how-step-1">
-        <div class="how-scroll-grid">
-          <!-- Left: Narrative & Features -->
-          <div class="how-scroll-content" data-reveal="left">
-            <div class="how-step-kicker">
-              <span>📱</span> STEP 01 &bull; RESIDENT INITIATION
-            </div>
-            <h3>Issue a Gate Pass in 12 Seconds &amp; Declare Move-Out Assets</h3>
-            <p>
-              No more handwritten paper slips, intercom calls to the guardhouse, or missed deliveries. From the CheckPass iOS or Android app, homeowners and verified tenants generate visitor passes in just a few taps.
-            </p>
-            <p>
-              Moving household furniture, corporate equipment, or contractor materials? Residents attach tamper-evident item photos and serial numbers right in the app before the vehicle reaches the gate—preventing unauthorized removal of estate assets.
-            </p>
-
-            <div class="how-feature-checklist">
-              <div class="how-feature-item">
-                <div class="how-feature-icon">⏱️</div>
-                <div class="how-feature-text">
-                  <h5>12-Second Generation</h5>
-                  <p>Choose guest category, enter name, set validity from 2 hours to recurring.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">📸</div>
-                <div class="how-feature-text">
-                  <h5>Move-Out Photo Manifest</h5>
-                  <p>Declare high-value items with photo evidence before departure.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">🚗</div>
-                <div class="how-feature-text">
-                  <h5>Vehicle Plate Indexing</h5>
-                  <p>Pre-registers vehicle plate for instant gate boom barrier clearance.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">🔔</div>
-                <div class="how-feature-text">
-                  <h5>Real-Time Arrival Push</h5>
-                  <p>Instant push ping the exact second your guest is scanned at the gate.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Visual Stage (Pro iPhone + Item Declaration Pop-Out Card) -->
-          <div class="how-scroll-visual" data-reveal="right">
-            <div class="how-step1-visual-wrap">
-              <!-- Main Resident App Phone -->
-              <div class="how-step1-main-phone">
-                <div class="phone-device-pro" style="width:260px;padding:7px;border-radius:38px">
-                  <div class="phone-dynamic-island" style="width:82px;height:24px;top:8px">
-                    <div class="island-camera-dot" style="width:7px;height:7px"></div>
-                    <div class="island-sensor-dot" style="width:3px;height:3px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:30px">
-                    <img class="phone-img-layer" src="/assets/app-screens/create-pass-screen.png" alt="CheckPass Resident App Create Pass Screen">
-                    <div class="phone-home-indicator" style="width:85px;bottom:6px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Overlapping Companion Phone: Item Declaration Manifest -->
-              <div class="how-step1-companion-phone">
-                <div class="phone-device-pro" style="width:210px;padding:6px;border-radius:32px">
-                  <div class="phone-dynamic-island" style="width:68px;height:20px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:24px">
-                    <img class="phone-img-layer" src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration Screen">
-                    <div class="phone-home-indicator" style="width:70px;bottom:5px"></div>
-                  </div>
-                </div>
-                <div class="companion-phone-tag">
-                  <span>📦</span> Declared Manifest
-                </div>
-              </div>
-
-              <!-- Floating Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">🔑</span>
-                <div>
-                  <div class="badge-title">Pass Issued &bull; 11.4s</div>
-                  <div class="badge-sub">Unit 14B &bull; 1 Vehicle Logged</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 02: VISITOR ZERO-DOWNLOAD PASS -->
-      <section class="how-scroll-section bg-subtle" id="how-step-2">
-        <div class="how-scroll-grid reverse">
-          <!-- Left: Visual Stage (Pro iPhone with Real QR Pass + WhatsApp Notification) -->
-          <div class="how-scroll-visual" data-reveal="left">
-            <div class="how-step2-visual-wrap">
-              <!-- Main Visitor Pass Phone -->
-              <div class="phone-device-pro" style="width:260px;padding:7px;border-radius:38px">
-                <div class="phone-dynamic-island" style="width:82px;height:24px;top:8px">
-                  <div class="island-camera-dot" style="width:7px;height:7px"></div>
-                  <div class="island-sensor-dot" style="width:3px;height:3px"></div>
-                </div>
-                <div class="phone-screen-pro" style="border-radius:30px">
-                  <img class="phone-img-layer" src="/assets/app-screens/pass-details-screen.png" alt="CheckPass Visitor Digital QR Permit">
-                  <div class="phone-home-indicator" style="width:85px;bottom:6px"></div>
-                </div>
-              </div>
-
-              <!-- Floating WhatsApp Notification Toast -->
-              <div class="how-whatsapp-toast">
-                <div class="how-whatsapp-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/></svg>
-                </div>
-                <div class="how-whatsapp-text">
-                  <strong>CheckPass Dispatch</strong>
-                  Entry permit #CP-9824 received from Unit 14B. Tap to display pass at gate.
-                </div>
-              </div>
-
-              <!-- Floating Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">📲</span>
-                <div>
-                  <div class="badge-title">Zero App Download</div>
-                  <div class="badge-sub">Runs natively in mobile browser</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Narrative & Features -->
-          <div class="how-scroll-content" data-reveal="right">
-            <div class="how-step-kicker">
-              <span>📲</span> STEP 02 &bull; ZERO-DOWNLOAD GUEST PASS
-            </div>
-            <h3>Instant WhatsApp Delivery — No App Download Required</h3>
-            <p>
-              Visitor access should never be friction-filled. Guests never have to install an app, create an account, or remember a password.
-            </p>
-            <p>
-              The moment a resident confirms an invitation, CheckPass delivers an encrypted pass link directly via WhatsApp or SMS. With a single tap, visitors display an ultra-high-contrast dynamic QR pass in their standard browser, complete with driving directions to the host unit.
-            </p>
-
-            <div class="how-feature-checklist">
-              <div class="how-feature-item">
-                <div class="how-feature-icon">⚡</div>
-                <div class="how-feature-text">
-                  <h5>Instant Browser Pass</h5>
-                  <p>Works in Safari, Chrome, or Samsung Internet with zero friction.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">💬</div>
-                <div class="how-feature-text">
-                  <h5>WhatsApp Integration</h5>
-                  <p>Delivers personalized greeting, pass code, and estate guidelines.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">🔐</div>
-                <div class="how-feature-text">
-                  <h5>Anti-Fraud Security</h5>
-                  <p>Dynamic time-synced QR tokens prevent screenshot reuse.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">🗺️</div>
-                <div class="how-feature-text">
-                  <h5>GPS Wayfinding</h5>
-                  <p>Integrated turn-by-turn map directs guests straight to Unit 14B.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 03: GATE SECURITY SCANNER -->
-      <section class="how-scroll-section" id="how-step-3">
-        <div class="how-scroll-grid">
-          <!-- Left: Narrative & Features -->
-          <div class="how-scroll-content" data-reveal="left">
-            <div class="how-step-kicker">
-              <span>🛡️</span> STEP 03 &bull; SECURITY GATE TERMINAL
-            </div>
-            <h3>Gate Clearance in Under 4 Seconds — 100% Offline-Resilient</h3>
-            <p>
-              Long gate queues create frustration and security vulnerabilities. With the CheckPass Gate Terminal, security guards scan the visitor's QR code in less than 4 seconds using ruggedized handhelds or smartphones.
-            </p>
-            <p>
-              Powered by local edge-replicated SQLite caching, verification completes instantaneously even during complete cellular network blackouts or estate generator switchovers. Guards immediately verify guest identity, vehicle plate, and declared move-out assets before triggering barriers.
-            </p>
-
-            <div class="how-feature-checklist">
-              <div class="how-feature-item">
-                <div class="how-feature-icon">⚡</div>
-                <div class="how-feature-text">
-                  <h5>Sub-4s Optical Scan</h5>
-                  <p>Reads dimmed, scratched, or high-glare phone screens effortlessly.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">📶</div>
-                <div class="how-feature-text">
-                  <h5>100% Offline SQLite</h5>
-                  <p>Zero gate stoppage during ISP outages or power switchovers.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">📦</div>
-                <div class="how-feature-text">
-                  <h5>Move-Out Manifest Check</h5>
-                  <p>Visual verification of declared items before letting trucks exit.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">🚨</div>
-                <div class="how-feature-text">
-                  <h5>Silent Panic Duress Alert</h5>
-                  <p>One-tap emergency trigger dispatches armed patrol to the gate.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Visual Stage (Dual Handheld Terminals: Scanner + Approval) -->
-          <div class="how-scroll-visual" data-reveal="right">
-            <div class="how-step3-visual-wrap">
-              <!-- Handheld 1: Optical QR Scanner Reticle -->
-              <div class="how-step3-phone-scanner">
-                <div class="phone-device-pro" style="padding:6px;border-radius:34px">
-                  <div class="phone-dynamic-island" style="width:72px;height:20px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:26px">
-                    <img class="phone-img-layer" src="/assets/app-screens/mockup_phone_guard_scanner.png" alt="CheckPass Gate Scanner Terminal Viewfinder">
-                    <div class="phone-home-indicator" style="width:75px;bottom:5px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Handheld 2: Green Verified Access Granted -->
-              <div class="how-step3-phone-approval">
-                <div class="phone-device-pro" style="padding:6px;border-radius:34px;border-color:rgba(10,91,56,0.5)">
-                  <div class="phone-dynamic-island" style="width:72px;height:20px;top:7px">
-                    <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                    <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-                  </div>
-                  <div class="phone-screen-pro" style="border-radius:26px">
-                    <img class="phone-img-layer" src="/assets/app-screens/mockup_phone_guard_approval.png" alt="CheckPass Gate Guard Access Granted Modal">
-                    <div class="phone-home-indicator" style="width:75px;bottom:5px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Floating Security Status Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">🛡️</span>
-                <div>
-                  <div class="badge-title">Verified in 3.1 Seconds</div>
-                  <div class="badge-sub">Guard Musa &bull; Main Gate Barrier 1</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 04: ESTATE ADMIN COMMAND & DUES -->
-      <section class="how-scroll-section bg-subtle" id="how-step-4">
-        <div class="how-scroll-grid reverse">
-          <!-- Left: Visual Stage (MacBook Pro Laptop + Overlapping Audit Log Window) -->
-          <div class="how-scroll-visual" data-reveal="left">
-            <div class="how-step4-visual-wrap">
-              <!-- MacBook Pro Chassis -->
-              <div class="how-step4-laptop">
-                <div class="laptop-chassis">
-                  <div class="laptop-screen">
-                    <div class="browser-tab-bar">
-                      <div class="browser-dots"><i></i><i></i><i></i></div>
-                      <div class="browser-address-bar">checkpass.estate/admin/dashboard</div>
-                    </div>
-                    <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Estate Admin Command Dashboard">
-                  </div>
-                </div>
-                <div class="laptop-base"></div>
-              </div>
-
-              <!-- Overlapping Pop-Out Window: Live Gate Audit Feed -->
-              <div class="how-step4-pop-window">
-                <div class="how-step4-pop-bar">
-                  <div class="how-step4-pop-title">
-                    <span style="color:#10B981">●</span> Live Gate Audit Log
-                  </div>
-                  <span style="font-size:10px;color:#64748B">SYNCED</span>
-                </div>
-                <img class="how-step4-pop-img" src="/assets/app-screens/mockup_laptop_gate_audit_feed.png" alt="CheckPass Live Gate Audit Feed">
-              </div>
-
-              <!-- Floating Metric Badge -->
-              <div class="how-visual-badge">
-                <span class="badge-icon">💻</span>
-                <div>
-                  <div class="badge-title">100% Immutable Audit Trail</div>
-                  <div class="badge-sub">Zero Unverified Gate Entries</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Narrative & Features -->
-          <div class="how-scroll-content" data-reveal="right">
-            <div class="how-step-kicker">
-              <span>💻</span> STEP 04 &bull; MASTER COMMAND CENTER
-            </div>
-            <h3>Live Gate Audit Feeds &amp; Automated Service Dues Tracking</h3>
-            <p>
-              Complete transparency for Estate Facility Managers and Exco committees. Every single visitor entry and exit is logged permanently to an immutable, searchable digital ledger with exact timestamps and guard IDs.
-            </p>
-            <p>
-              Synchronized financial ledgers track service charges, diesel levies, and security dues, alerting gate guards to chronic defaulters while keeping estate accounts solvent and ready for AGM audits.
-            </p>
-
-            <div class="how-feature-checklist">
-              <div class="how-feature-item">
-                <div class="how-feature-icon">📊</div>
-                <div class="how-feature-text">
-                  <h5>Real-Time Traffic Analytics</h5>
-                  <p>Monitor peak arrival hours, active vehicles, and visitor volume.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">📜</div>
-                <div class="how-feature-text">
-                  <h5>Immutable Audit Ledger</h5>
-                  <p>Permanent searchable records for incident investigation.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">💳</div>
-                <div class="how-feature-text">
-                  <h5>Automated Dues Tracking</h5>
-                  <p>Auto-generate receipts, track diesel levies, and flag defaulters.</p>
-                </div>
-              </div>
-              <div class="how-feature-item">
-                <div class="how-feature-icon">👥</div>
-                <div class="how-feature-text">
-                  <h5>Unified Resident Directory</h5>
-                  <p>Centralized registry for units, domestic staff, and vehicles.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 05: STRUCTURED 1-2 WEEK ONBOARDING ROADMAP -->
-      <section class="how-scroll-section" id="how-step-5" style="border-bottom:none">
-        <div class="onboarding-roadmap-wrap" data-reveal>
-        <div class="roadmap-header">
-          <span class="badge badge-gold label" style="margin-bottom:12px;display:inline-flex">Structured Deployment</span>
-          <h3>How We Get Your Estate Live in 1–2 Weeks</h3>
-          <p>A proven, hands-on onboarding methodology that configures your bylaws, sanitizes resident directories, and drills your gate security teams thoroughly.</p>
+      
+      <!-- MAIN INTERACTIVE CARD -->
+      <div class="hiw-main-card" id="hiwMainCard">
+        
+        <!-- Header -->
+        <div class="hiw-card-header">
+          <h2 class="hiw-card-title">How it All Works</h2>
         </div>
 
-        <div class="roadmap-timeline">
-          <!-- Phase 1 -->
-          <div class="timeline-phase">
-            <div class="phase-badge">Phase 1 &bull; Days 1–3</div>
-            <h4>Estate Bylaw &amp; Boundary Mapping</h4>
-            <p>Executive alignment session with estate facility managers. Mapping estate bylaws, zone boundaries, multi-gate barrier protocols, and unit numbering.</p>
+        <!-- Vertical Timeline Flow -->
+        <div class="hiw-flow-container" id="hiwFlowContainer">
+          <!-- Central Spine Line with Active Blue Segment -->
+          <div class="hiw-spine-track" aria-hidden="true">
+            <div class="hiw-spine-base"></div>
+            <div class="hiw-spine-active" :style="activeSpineStyle"></div>
+            <div class="hiw-spine-dot" :style="activeDotStyle"></div>
           </div>
 
-          <!-- Phase 2 -->
-          <div class="timeline-phase">
-            <div class="phase-badge">Phase 2 &bull; Days 4–6</div>
-            <h4>Resident Directory Ingestion</h4>
-            <p>Data sanitization and bulk onboarding of homeowners, tenants, and domestic staff rosters with digital credentials and resident guidelines.</p>
-          </div>
+          <!-- Step Rows (Alternating) -->
+          <div class="hiw-steps-list">
+            
+            <!-- STEP 1: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-1"
+              :class="{ 'is-active': activeHowStep === 1, 'is-disabled': activeHowStep !== 1 }"
+              @click="setHowStep(1)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-buildings hiw-phosphor-icon"></i>
+                </div>
+              </div>
 
-          <!-- Phase 3 -->
-          <div class="timeline-phase">
-            <div class="phase-badge">Phase 3 &bull; Days 7–9</div>
-            <h4>Security Guard Physical Drills</h4>
-            <p>Hands-on physical drills with gate security shift teams covering the sub-4s QR scanner, offline SQLite fallback codes, and outgoing item comparisons.</p>
-          </div>
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">1</div>
+                <h3 class="hiw-step-title">Create Account &amp; Configure Property</h3>
+                <p class="hiw-step-desc">
+                  Tell us about your estate and get set up in minutes. Configure your property by mapping house units, lanes, apartment blocks, and designated gate access barriers.
+                </p>
+              </div>
+            </div>
 
-          <!-- Phase 4 -->
-          <div class="timeline-phase">
-            <div class="phase-badge">Phase 4 &bull; Days 10–11</div>
-            <h4>Dues Ledgers &amp; Calibration</h4>
-            <p>Configuration of custom estate dues categories (diesel levy, security, sanitation, maintenance) and test receipt reconciliation workflows.</p>
-          </div>
+            <!-- STEP 2: Left = Text, Right = Icon -->
+            <div
+              class="hiw-step-row step-even"
+              id="hiw-step-2"
+              :class="{ 'is-active': activeHowStep === 2, 'is-disabled': activeHowStep !== 2 }"
+              @click="setHowStep(2)"
+            >
+              <!-- Left Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">2</div>
+                <h3 class="hiw-step-title">Add Residents &amp; Security Personnel</h3>
+                <p class="hiw-step-desc">
+                  Add homeowners, tenants, and gate guards to your property. Both residents and security staff instantly receive automated SMS and email notifications with verified login credentials, a guide on how to download the mobile app, and instructions to access the web portal.
+                </p>
+              </div>
 
-          <!-- Phase 5 -->
-          <div class="timeline-phase active">
-            <div class="phase-badge" style="background:#0A5B38;color:#fff">Phase 5 &bull; Day 12+</div>
-            <h4>Managed Gate Go-Live</h4>
-            <p>Digital gate barrier activation with dedicated Sheffy field and remote operational support ensuring zero visitor traffic interruption.</p>
-          </div>
-        </div>
-        </div>
-      </section>
+              <!-- Right Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-users-three hiw-phosphor-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-3"
+              :class="{ 'is-active': activeHowStep === 3, 'is-disabled': activeHowStep !== 3 }"
+              @click="setHowStep(3)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-qr-code hiw-phosphor-icon"></i>
+                </div>
+              </div>
+
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">3</div>
+                <h3 class="hiw-step-title">Residents Create Passes &amp; Pay Dues</h3>
+                <p class="hiw-step-desc">
+                  When residents log in, they can generate instant digital QR guest passes in two taps and share them via WhatsApp. They can also view pending estate dues, settle via instant online checkout or by uploading bank transfer receipts for 1-click admin approval, and receive instant verifiable payment receipts.
+                </p>
+              </div>
+            </div>
+
+            <!-- STEP 4: Left = Text, Right = Icon -->
+            <div
+              class="hiw-step-row step-even"
+              id="hiw-step-4"
+              :class="{ 'is-active': activeHowStep === 4, 'is-disabled': activeHowStep !== 4 }"
+              @click="setHowStep(4)"
+            >
+              <!-- Left Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">4</div>
+                <h3 class="hiw-step-title">Security Scans &amp; Grants Access</h3>
+                <p class="hiw-step-desc">
+                  Security guards scan visitor QR codes or input pass codes on their mobile terminal. In under 4 seconds, identity and vehicle details are confirmed, access is granted, and the resident receives an immediate arrival notification.
+                </p>
+              </div>
+
+              <!-- Right Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-shield-check hiw-phosphor-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 5: Left = Icon, Right = Text -->
+            <div
+              class="hiw-step-row step-odd"
+              id="hiw-step-5"
+              :class="{ 'is-active': activeHowStep === 5, 'is-disabled': activeHowStep !== 5 }"
+              @click="setHowStep(5)"
+            >
+              <!-- Left Visual -->
+              <div class="hiw-col hiw-col-visual">
+                <div class="hiw-icon-wrapper">
+                  <div class="hiw-icon-halo"></div>
+                  <i class="ph-duotone ph-chart-line-up hiw-phosphor-icon"></i>
+                </div>
+              </div>
+
+              <!-- Right Content -->
+              <div class="hiw-col hiw-col-content">
+                <div class="hiw-step-badge">5</div>
+                <h3 class="hiw-step-title">Monitor Everything in Real Time</h3>
+                <p class="hiw-step-desc">
+                  All gate activities, visitor movements, dues collections, and emergency alerts are monitored live from the central admin dashboard with complete, immutable audit logs.
+                </p>
+              </div>
+            </div>
+
+          </div><!-- /hiw-steps-list -->
+        </div><!-- /hiw-flow-container -->
+
+      </div><!-- /hiw-main-card -->
 
       <!-- Bottom Mini-CTA -->
       <div class="mini-cta" style="margin-top:54px" data-reveal>
@@ -1160,140 +937,699 @@
       </div>
 
     </div><!-- /container -->
-  </div><!-- /how-scroll-journey -->
+  </div><!-- /hiw-card-section -->
 </div><!-- /page-how-it-works -->
-
 
 <!-- ==================== FEATURES PAGE ==================== -->
 <div class="page" id="page-features">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Features</span>
-      <h1>Everything you need to run<br>your estate properly</h1>
-      <p>Built for how real estates operate — not how software companies imagine they do.</p>
+      <h1>
+        Built for Total Control.<br>
+        <span class="hero-mint-accent">Engineered for Zero Downtime.</span>
+      </h1>
+      <p>From instant sub-4s gate verification to automated dues reconciliation, explore the four core pillars running modern residential communities.</p>
     </div>
   </div>
+
   <div class="container">
     <div class="features-full">
-      <div class="feature-row" data-reveal>
+      <!-- 01: VISITOR ACCESS -->
+      <div class="feature-row feature-row-1" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Visitor Access</span>
-          <h2>Approve visitors in seconds</h2>
-          <p>Every visitor is pre-registered before arrival. Security scans a QR code and confirms in under five seconds. No calls. No waiting. No confusion about who's expected.</p>
+          <h2>
+            <span class="feature-mint-text">Instant Clearance.</span><br>
+            Zero Gate Queues.
+          </h2>
+          <p>Every visitor is pre-registered before arrival. Security scans a dynamic QR code and confirms entry in under four seconds. No intercom calls, no manual logbooks, and no confusion about who is expected.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Resident creates a pass from the app</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Visitor shows QR code at the gate</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Guard scans and confirms instantly</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Entry logged with timestamp automatically</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-paper-plane-tilt"></i></div>
+              <span>Resident issues passes in two taps or via direct WhatsApp link</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-qr-code"></i></div>
+              <span>Sub-4s optical camera scan with instant host &amp; unit confirmation</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-shield-check"></i></div>
+              <span>Offline cryptographic tokens verify access during total cellular downtime</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-clock-counter-clockwise"></i></div>
+              <span>Permanent timestamped gate entry log tied to resident profiles</span>
+            </div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/app-screens/pass-details-screen.png" alt="Visitor Pass Details">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">🛡️</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Pass Verified &bull; Gate 1</div>
-                    <div style="font-size:.72rem;color:var(--n600)">Sub-4s Instant Gate Entry</div>
+
+        <div class="feature-stage-card" data-reveal="right" id="f1StageCard">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#D9EBDF"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#005E34"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#005E34"/>
+            </svg>
+          </div>
+          <div class="feature-stage-mockup-wrap">
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f1Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature1Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-0"></span></span>
+                <span>01 WhatsApp</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-1"></span></span>
+                <span>02 Scanner</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-2"></span></span>
+                <span>03 Offline</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature1Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f1Bar-3"></span></span>
+                <span>04 Audit</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f1BentoViewport">
+              <!-- Slide 0: WhatsApp 2-Tap Invite -->
+              <div class="bento-slide bento-slide-0 active" id="f1Slide-0">
+                <div class="bento-wa-header" style="margin-top:36px">
+                  <div class="bento-wa-profile">
+                    <div class="bento-wa-avatar">
+                      <i class="ph-bold ph-whatsapp-logo"></i>
+                    </div>
+                    <div class="bento-wa-info">
+                      <div class="bento-wa-name">CheckPass Concierge <i class="ph-fill ph-seal-check"></i></div>
+                      <div class="bento-wa-status">Automated Gate Dispatch</div>
+                    </div>
+                  </div>
+                  <div class="bento-wa-badge">Verified Pass</div>
+                </div>
+
+                <div class="bento-wa-chat-body">
+                  <div class="bento-wa-bubble">
+                    Hello Kunle, Chief Adeleke has invited you to <strong>Villa 4B, Phase 2</strong>. Present your access code at Barrier 1.
+                  </div>
+                  <div class="bento-wa-chips">
+                    <span class="bento-wa-chip active">QR Clearance</span>
+                    <span class="bento-wa-chip">Gate 1 Map</span>
+                    <span class="bento-wa-chip">Expires 11:59 PM</span>
                   </div>
                 </div>
+
+                <div class="bento-wa-ticket">
+                  <div class="bento-ticket-left">
+                    <div class="bento-ticket-id">PASS #CP-9042-XP</div>
+                    <div class="bento-ticket-name">Kunle Alabi</div>
+                    <div class="bento-ticket-dest">Host: Chief Adeleke &bull; Villa 4B</div>
+                  </div>
+                  <div class="bento-ticket-qr">
+                    <i class="ph-duotone ph-qr-code"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 1: Optical Scanner HUD -->
+              <div class="bento-slide bento-slide-1" id="f1Slide-1">
+                <div class="bento-scanner-viewport" style="margin-top:36px">
+                  <div class="bento-scanner-reticle">
+                    <i class="ph-duotone ph-qr-code"></i>
+                    <div class="bento-scanner-beam"></div>
+                  </div>
+                </div>
+
+                <div class="bento-scanner-host-card">
+                  <div class="bento-host-info">
+                    <div class="bento-host-avatar">CA</div>
+                    <div class="bento-host-text">
+                      <div class="bento-host-label">Optical Match Verified</div>
+                      <div class="bento-host-name">Chief Adeleke</div>
+                      <div class="bento-host-unit">Villa 4B &bull; Barrier 1 Camera</div>
+                    </div>
+                  </div>
+                  <div class="bento-gate-badge">
+                    <i class="ph-bold ph-check"></i> 0.38s Clear
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide 2: Offline Cryptographic Engine -->
+              <div class="bento-slide bento-slide-2" id="f1Slide-2">
+                <div class="bento-telemetry-row" style="margin-top:36px">
+                  <span class="bento-telemetry-pill offline">
+                    <i class="ph-bold ph-wifi-slash"></i> Offline Mode Active
+                  </span>
+                  <span class="bento-telemetry-pill active">
+                    <i class="ph-bold ph-shield-check"></i> 100% Operational
+                  </span>
+                </div>
+
+                <div class="bento-crypto-core">
+                  <div class="bento-crypto-ring r1"></div>
+                  <div class="bento-crypto-ring r2"></div>
+                  <div class="bento-crypto-ring r3"></div>
+                  <div class="bento-crypto-icon">
+                    <i class="ph-bold ph-cpu"></i>
+                  </div>
+                </div>
+
+                <div class="bento-crypto-proof">
+                  <div class="bento-crypto-proof-title">Zero-Downtime Local Cryptography</div>
+                  <div class="bento-crypto-proof-hash">AES-256 HMAC &bull; ECDSA Local Gate Cache</div>
+                </div>
+              </div>
+
+              <!-- Slide 3: Live Gate Audit Stream -->
+              <div class="bento-slide bento-slide-3" id="f1Slide-3">
+                <div class="bento-feed-header" style="margin-top:36px">
+                  <div class="bento-feed-title">Gate 1 Live Stream</div>
+                  <div class="bento-feed-live">
+                    <span class="bento-feed-live-dot"></span> LIVE AUDIT
+                  </div>
+                </div>
+
+                <div class="bento-feed-list">
+                  <div class="bento-feed-row">
+                    <div class="bento-feed-row-left">
+                      <span class="bento-feed-time">10:42 AM</span>
+                      <div class="bento-feed-person">
+                        <span class="bento-feed-name">Kunle Alabi (Toyota Prado)</span>
+                        <span class="bento-feed-plate">LND-492-AA &bull; Villa 4B</span>
+                      </div>
+                    </div>
+                    <span class="bento-feed-badge in">Cleared</span>
+                  </div>
+
+                  <div class="bento-feed-row">
+                    <div class="bento-feed-row-left">
+                      <span class="bento-feed-time">10:39 AM</span>
+                      <div class="bento-feed-person">
+                        <span class="bento-feed-name">Julius Berger Logistics</span>
+                        <span class="bento-feed-plate">SMK-818-XP &bull; Sector C</span>
+                      </div>
+                    </div>
+                    <span class="bento-feed-badge cleared">Heavy Entry</span>
+                  </div>
+
+                  <div class="bento-feed-row">
+                    <div class="bento-feed-row-left">
+                      <span class="bento-feed-time">10:31 AM</span>
+                      <div class="bento-feed-person">
+                        <span class="bento-feed-name">Jumia Express Courier</span>
+                        <span class="bento-feed-plate">Motorcycle Dispatch &bull; Unit 12</span>
+                      </div>
+                    </div>
+                    <span class="bento-feed-badge out">Departed</span>
+                  </div>
+                </div>
+
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-check-circle"></i>
+                  <span>All 248 morning movements cryptographically logged</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f1BottomPill">
+              <span class="pill-icon" id="f1PillIcon">📱</span>
+              <div class="pill-body">
+                <div class="pill-title" id="f1PillTitle">Instant WhatsApp Passes</div>
+                <div class="pill-sub" id="f1PillSub">Resident issues in 2 taps &bull; Pre-cleared</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="feature-row reverse" data-reveal>
+
+      <!-- 02: PAYMENTS & DUES -->
+      <div class="feature-row reverse feature-row-2" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Payments</span>
-          <h2>Stop chasing service charges</h2>
-          <p>Track payments, balances, and confirmations in one place. Residents upload proof directly in the app. You see who has paid, who hasn't, and the full history — no spreadsheets.</p>
+          <h2>
+            <span class="feature-mint-text">Collect Every Dues.</span><br>
+            Without Disputes.
+          </h2>
+          <p>Automate service charges, security dues, and diesel levies in one centralized ledger. Residents choose between instant online checkout or uploading bank transfer receipts in-app, while managers approve with one tap—zero spreadsheets.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Track all service charge balances</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Residents upload payment receipts in-app</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Manager approves and confirms with one tap</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Complete payment history always available</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-wallet"></i></div>
+              <span>Real-time balance and levy breakdown for every residential unit</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-receipt"></i></div>
+              <span>Flexible payment options: instant online checkout or manual bank transfer receipt upload</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-bell-ringing"></i></div>
+              <span>Automated dues reminders sent to occupants before deadlines</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-file-text"></i></div>
+              <span>Complete audit-ready ledger prepared for AGM presentation</span>
+            </div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/ui screens/Resident Interface/Fees.png" alt="Service Charge and Estate Dues">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">💳</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Levy Reconciled</div>
-                    <div style="font-size:.72rem;color:var(--n600)">Digital Receipt Confirmed</div>
+
+        <div class="feature-stage-card" data-reveal="left" id="f2StageCard">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202 526C202 305.086 381.086 126 602 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202V526Z" fill="#044B2B"/>
+              <path d="M521.584 1810.18H203.341L201.946 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.826 1812.18 195.932 1815.62C198.81 1924.64 288.091 2012.13 397.809 2012.13H521.584V1810.18Z" fill="#96D0B6"/>
+              <path d="M1559 126.087H1757.69L1758.57 325.995L1884.65 325.446L1884.31 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#96D0B6"/>
+            </svg>
+          </div>
+          <div class="feature-stage-mockup-wrap">
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f2Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature2Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-0"></span></span>
+                <span>01 Ledger</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-1"></span></span>
+                <span>02 Teller Match</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-2"></span></span>
+                <span>03 Routing</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature2Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f2Bar-3"></span></span>
+                <span>04 AGM Export</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f2BentoViewport">
+              <!-- Slide 0: Automated Dues Ledger -->
+              <div class="bento-slide bento-f2-slide-0 active" id="f2Slide-0">
+                <div class="bento-ledger-header">
+                  <div class="bento-ledger-unit">
+                    <i class="ph-duotone ph-buildings"></i> Villa 4B <span>&bull; Chief Adeleke</span>
+                  </div>
+                  <div class="bento-ledger-badge">100% Settled</div>
+                </div>
+
+                <div class="bento-ledger-rows">
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Estate Service Charge (Oct)</span>
+                    <span class="bento-ledger-amount">₦35,000</span>
+                  </div>
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Security &amp; Perimeter Patrol</span>
+                    <span class="bento-ledger-amount">₦15,000</span>
+                  </div>
+                  <div class="bento-ledger-row">
+                    <span class="bento-ledger-item">Generator &amp; Diesel Levy</span>
+                    <span class="bento-ledger-amount">₦25,000</span>
                   </div>
                 </div>
+
+                <div class="bento-ledger-total-card">
+                  <div class="bento-ledger-total-left">
+                    <span class="bento-ledger-total-label">Total Monthly Dues</span>
+                    <span class="bento-ledger-total-num">₦75,000</span>
+                  </div>
+                  <span class="bento-ledger-total-status"><i class="ph-bold ph-check"></i> Cleared &bull; Oct 01</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Bank Teller Receipt OCR -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-1">
+                <div class="bento-receipt-card">
+                  <div class="bento-receipt-top">
+                    <span class="bento-receipt-bank">Stanbic IBTC Bank</span>
+                    <span class="bento-receipt-ref">Ref: STB-883190-TX</span>
+                  </div>
+                  <div class="bento-receipt-match-box">
+                    <div class="bento-receipt-match-icon"><i class="ph-bold ph-check"></i></div>
+                    <div class="bento-receipt-match-text">
+                      <strong>₦75,000.00 Exact Match</strong><br>
+                      Payer: Chief Adeleke &bull; Villa 4B
+                    </div>
+                  </div>
+                  <button type="button" class="bento-receipt-btn">
+                    <i class="ph-bold ph-check-circle"></i> 1-Click Reconcile &amp; Issue Receipt
+                  </button>
+                </div>
+              </div>
+
+              <!-- Slide 2: Direct Settlement Routing -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-2">
+                <div class="bento-settle-diagram" style="margin-top:36px">
+                  <div class="bento-settle-node">
+                    <div class="bento-settle-node-left">
+                      <i class="ph-duotone ph-user bento-settle-node-icon"></i>
+                      <span>Resident Card / Bank App</span>
+                    </div>
+                    <span class="bento-settle-badge">Source</span>
+                  </div>
+                  <div class="bento-settle-arrow">↓ PCI-DSS Central Bank Switch</div>
+                  <div class="bento-settle-node">
+                    <div class="bento-settle-node-left">
+                      <i class="ph-duotone ph-bank bento-settle-node-icon"></i>
+                      <span>First Bank: Greenview HOA</span>
+                    </div>
+                    <span class="bento-settle-badge" style="background:#25D366;color:#062817">Direct Deposit</span>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-shield-check"></i>
+                  <span>Zero intermediary escrow &bull; 100% direct property settlement</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: AGM-Ready Financial Export -->
+              <div class="bento-slide bento-f2-slide-0" id="f2Slide-3">
+                <div class="bento-agm-card">
+                  <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:1rem;color:#FFFFFF">
+                    October 2026 Financial Audit
+                  </div>
+                  <div class="bento-agm-stats">
+                    <div class="bento-agm-stat-box">
+                      <div class="bento-agm-stat-val">₦18.45M</div>
+                      <div class="bento-agm-stat-lbl">Total Collected (98.2%)</div>
+                    </div>
+                    <div class="bento-agm-stat-box">
+                      <div class="bento-agm-stat-val" style="color:#FBBF24">₦340K</div>
+                      <div class="bento-agm-stat-lbl">Pending (3 Units)</div>
+                    </div>
+                  </div>
+                  <button type="button" class="bento-agm-btn">
+                    <i class="ph-bold ph-download-simple"></i> Download AGM-Ready CSV &amp; PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f2BottomPill">
+              <span class="pill-icon" id="f2PillIcon">💳</span>
+              <div class="pill-body">
+                <div class="pill-title" id="f2PillTitle">Automated Unit Ledger</div>
+                <div class="pill-sub" id="f2PillSub">Real-time balances &bull; 100% Reconciled</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="feature-row" data-reveal>
+
+      <!-- 03: MOVE-OUT ASSET TRACKING -->
+      <div class="feature-row feature-row-3" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Item Tracking</span>
-          <h2>Avoid disputes and confusion</h2>
-          <p>All items entering or leaving the estate are declared and recorded. When something is disputed, the record is there — clear, timestamped, and tied to the resident's account.</p>
+          <h2>
+            <span class="feature-mint-text">Stop Unauthorized</span><br>
+            Item Removals Before the Gate.
+          </h2>
+          <p>Moving trucks and contractors can't just drive out. Residents pre-declare departing items—from laptops to furniture—with attached photo evidence. Guards verify the manifest at the gate before raising the barrier.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Residents declare items before moving</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Security confirms against the declaration</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Full item log accessible to management</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Eliminates disputes with verifiable records</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-package"></i></div>
+              <span>Residents declare departing appliances, furniture, and tools in-app</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-camera"></i></div>
+              <span>Upload photo evidence and serial numbers before clearance dispatch</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-clipboard-text"></i></div>
+              <span>Security verifies declared items on terminal against physical cargo</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-warning-circle"></i></div>
+              <span>Instant manager notification if unapproved equipment is detected</span>
+            </div>
           </div>
         </div>
-        <div class="feature-visual">
-          <div class="feature-phone-wrap">
-            <div class="feature-phone-pro">
-              <div class="phone-dynamic-island" style="width:76px;height:21px;top:8px">
-                <div class="island-camera-dot" style="width:6px;height:6px"></div>
-                <div class="island-sensor-dot" style="width:2px;height:2px"></div>
-              </div>
-              <div class="feature-phone-screen">
-                <img src="/assets/app-screens/item-declaration-screen.png" alt="Item Declaration and Anti-Theft">
-                <div class="feature-phone-pill">
-                  <span style="font-size:18px">📦</span>
-                  <div>
-                    <div style="font-weight:800;font-size:.82rem;color:var(--dark);line-height:1.2">Exit Inspected</div>
-                    <div style="font-size:.72rem;color:var(--n600)">2x Displays &bull; Verified by Guard</div>
+
+        <div class="feature-stage-card" data-reveal="right" id="f3StageCard">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#033445"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#50B3D5"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.087 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#50B3D5"/>
+            </svg>
+          </div>
+          <div class="feature-stage-mockup-wrap">
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f3Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature3Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-0"></span></span>
+                <span>01 Manifest</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-1"></span></span>
+                <span>02 Photo HUD</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-2"></span></span>
+                <span>03 Approval</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature3Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f3Bar-3"></span></span>
+                <span>04 Barrier</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f3BentoViewport">
+              <!-- Slide 0: Digital Move-Out Manifest -->
+              <div class="bento-slide bento-f3-slide-0 active" id="f3Slide-0">
+                <div class="bento-manifest-header">
+                  <div style="font-family:'Cabinet Grotesk',sans-serif;font-weight:800;font-size:0.92rem">
+                    Manifest #MO-2026-771
+                  </div>
+                  <span class="bento-manifest-tag">3 Declared Items</span>
+                </div>
+
+                <div class="bento-manifest-items">
+                  <div class="bento-manifest-item">
+                    <span>3x Samsung Inverter ACs (1.5HP)</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
+                  </div>
+                  <div class="bento-manifest-item">
+                    <span>1x 15kVA Mikano Soundproof Gen</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
+                  </div>
+                  <div class="bento-manifest-item">
+                    <span>2x 65" LG OLED 4K Smart TVs</span>
+                    <span style="color:#50B3D5;font-weight:800">Declared</span>
                   </div>
                 </div>
+
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-check-circle" style="color:#50B3D5"></i>
+                  <span>Host resident declaration timestamped &bull; Ready for gate check</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Photo & Serial HUD -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-1">
+                <div class="bento-photo-hud" style="margin-top:36px">
+                  <div class="bento-photo-reticle"></div>
+                  <div class="bento-photo-title">Optical Serial Match Verified</div>
+                  <div class="bento-photo-sn">SN: SAM-INV-889104-NG</div>
+                  <div style="font-size:0.75rem;color:#CBD5E1">
+                    Terminal camera scan confirmed against item declaration.
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-shield-check" style="color:#50B3D5"></i>
+                  <span>Guard Officer S. Oronimo &bull; Cargo Inspection Complete</span>
+                </div>
+              </div>
+
+              <!-- Slide 2: Dual Approval Seals -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-2">
+                <div class="bento-dual-seals" style="margin-top:36px">
+                  <div class="bento-seal-box">
+                    <div class="bento-seal-icon"><i class="ph-bold ph-house-line"></i></div>
+                    <div class="bento-seal-title">Landlord / Host</div>
+                    <div class="bento-seal-status">APPROVED ✓</div>
+                  </div>
+                  <div class="bento-seal-box">
+                    <div class="bento-seal-icon"><i class="ph-bold ph-seal-check"></i></div>
+                    <div class="bento-seal-title">HOA Executive</div>
+                    <div class="bento-seal-status">SIGNED ✓</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-lock-key" style="color:#50B3D5"></i>
+                  <span>HMAC-SHA256 Cryptographic Manifest Signature Valid</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: Departure Checkpoint Barrier -->
+              <div class="bento-slide bento-f3-slide-0" id="f3Slide-3">
+                <div class="bento-checkpoint-card" style="margin-top:36px">
+                  <div style="font-size:0.75rem;color:#94A3B8;text-transform:uppercase;font-weight:700">Clearance Verified</div>
+                  <div class="bento-checkpoint-truck">Moving Van: KJA-918-BD</div>
+                  <div style="font-size:0.82rem;color:#E2E8F0">All cargo items verified against digital clearance.</div>
+                  <div class="bento-checkpoint-barrier">
+                    <i class="ph-bold ph-check"></i> EXIT BARRIER LIFTED
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f3BottomPill">
+              <span class="pill-icon" id="f3PillIcon">📦</span>
+              <div class="pill-body">
+                <div class="pill-title" id="f3PillTitle">Digital Move-Out Manifest</div>
+                <div class="pill-sub" id="f3PillSub">Itemized cargo &bull; Dual-Signoff verified</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="feature-row reverse" data-reveal>
+
+      <!-- 04: CENTRAL COMMAND -->
+      <div class="feature-row reverse feature-row-4" data-reveal>
         <div class="feature-text">
-          <span class="badge badge-green label">Admin Dashboard</span>
-          <h2>See everything clearly</h2>
-          <p>One view shows every resident, visitor, payment, and activity across your estate. Filter, search, and export. Stay fully informed without chasing anyone.</p>
+          <h2>
+            <span class="feature-mint-text">Total Oversight</span><br>
+            From One Screen.
+          </h2>
+          <p>One unified console gives executives, facility managers, and security commanders live visibility over all entrances, financial balances, and resident rosters across single or multi-gate estates.</p>
           <div class="feature-perks">
-            <div class="feature-perk"><div class="perk-dot"></div>Live visitor entry and exit log</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Payment status for every unit</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Resident directory and contact details</div>
-            <div class="feature-perk"><div class="perk-dot"></div>Exportable reports for committee meetings</div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-broadcast"></i></div>
+              <span>Live synchronized gate audit stream across all terminals</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-identification-badge"></i></div>
+              <span>Searchable resident census and vehicle registration directory</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-lock-key"></i></div>
+              <span>Role-based permissions protecting sensitive resident data</span>
+            </div>
+            <div class="feature-perk">
+              <div class="perk-icon-wrap"><i class="ph-duotone ph-file-arrow-down"></i></div>
+              <span>Instant AGM-ready financial reporting exported with one click</span>
+            </div>
           </div>
         </div>
-        <div class="feature-visual" style="background:#0F172A;padding:24px;border-radius:18px;display:flex;align-items:center;justify-content:center">
-          <div style="width:100%;border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)">
-            <img src="/assets/app-screens/mockup_laptop_admin_dashboard.png" alt="CheckPass Admin Dashboard" style="width:100%;display:block">
+
+        <div class="feature-stage-card" data-reveal="left" id="f4StageCard">
+          <div class="feature-stage-bg-frame">
+            <svg class="feature-stage-svg" viewBox="0 0 1885 2013" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M202.001 526C202.001 305.086 381.087 126 602.001 126H1759V1410C1759 1630.91 1579.91 1810 1359 1810H202.001V526Z" fill="#071F14"/>
+              <path d="M521.584 1810.18H203.342L201.947 1490L0 1490.88L0.539062 1614.65C1.01402 1723.69 87.8267 1812.18 195.933 1815.62C198.811 1924.64 288.092 2012.13 397.81 2012.13H521.584V1810.18Z" fill="#82C9AA"/>
+              <path d="M1559 126.087H1757.7L1758.57 325.995L1884.65 325.446L1884.32 248.168C1884.02 180.086 1829.82 124.843 1762.32 122.695C1760.52 54.6274 1704.78 0.000117865 1636.28 0H1559V126.087Z" fill="#82C9AA"/>
+            </svg>
+          </div>
+          <div class="feature-stage-mockup-wrap">
+            <!-- Bento In-Card Controller -->
+            <div class="bento-card-nav" id="f4Nav">
+              <button type="button" class="bento-nav-dot active" onclick="window.switchFeature4Slide(0)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-0"></span></span>
+                <span>01 Gates</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(1)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-1"></span></span>
+                <span>02 Census</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(2)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-2"></span></span>
+                <span>03 SOS Alert</span>
+              </button>
+              <button type="button" class="bento-nav-dot" onclick="window.switchFeature4Slide(3)">
+                <span class="nav-dot-bar"><span class="nav-dot-progress" id="f4Bar-3"></span></span>
+                <span>04 KPI</span>
+              </button>
+            </div>
+
+            <div class="bento-stage-viewport" id="f4BentoViewport">
+              <!-- Slide 0: Multi-Barrier Gates -->
+              <div class="bento-slide bento-f4-slide-0 active" id="f4Slide-0">
+                <div class="bento-gates-grid">
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-shield-check"></i> Main Gate (Entrance)</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 142 Passes Today</div>
+                  </div>
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-truck"></i> Cargo &amp; Service Gate</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 18 Trucks Cleared</div>
+                  </div>
+                  <div class="bento-gate-row">
+                    <div class="bento-gate-name"><i class="ph-duotone ph-car"></i> Residents Fast-Track</div>
+                    <div class="bento-gate-status"><span class="bento-gate-dot"></span> 310 RFID Scans</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-fill ph-check-circle" style="color:#79F3BA"></i>
+                  <span>All 3 perimeter gates synchronized in real-time</span>
+                </div>
+              </div>
+
+              <!-- Slide 1: Resident Census & Vehicle Search -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-1">
+                <div class="bento-census-search">
+                  <div class="bento-search-box">
+                    <i class="ph-bold ph-magnifying-glass"></i> Search Plate: <span>LND-492-AA</span>
+                  </div>
+                  <div class="bento-search-result">
+                    <div class="bento-search-result-title">Chief Adeleke (Villa 4B, Phase 2)</div>
+                    <div class="bento-search-result-sub">Black Toyota Land Cruiser Prado &bull; Authorized Resident</div>
+                  </div>
+                </div>
+                <div class="bento-feed-toast">
+                  <i class="ph-bold ph-identification-card" style="color:#79F3BA"></i>
+                  <span>648 Active Occupants &bull; 412 Verified Vehicles</span>
+                </div>
+              </div>
+
+              <!-- Slide 2: 1-Tap Emergency SOS Alert -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-2">
+                <div class="bento-sos-card" style="margin-top:36px">
+                  <div class="bento-sos-badge"><i class="ph-bold ph-warning"></i> RESIDENT SOS TRIGGERED</div>
+                  <div class="bento-sos-unit">Villa 4B &bull; Phase 2</div>
+                  <div class="bento-sos-timer">Guard Terminal Acknowledged in 4.2s &bull; Patrol Dispatched</div>
+                </div>
+                <div class="bento-feed-toast" style="border-color:rgba(239,68,68,0.3)">
+                  <i class="ph-bold ph-broadcast" style="color:#EF4444"></i>
+                  <span>Instant digital alert broadcasted to all gate terminals</span>
+                </div>
+              </div>
+
+              <!-- Slide 3: Executive Governance KPI -->
+              <div class="bento-slide bento-f4-slide-0" id="f4Slide-3">
+                <div class="bento-kpi-grid">
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">99.8%</div>
+                    <div class="bento-kpi-lbl">On-Time Gate Clearance</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">0</div>
+                    <div class="bento-kpi-lbl">Unresolved Incidents</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">1,420</div>
+                    <div class="bento-kpi-lbl">Monthly Passes Verified</div>
+                  </div>
+                  <div class="bento-kpi-box">
+                    <div class="bento-kpi-num">100%</div>
+                    <div class="bento-kpi-lbl">Direct Dues Reconciled</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Bottom Dynamic Status Pill -->
+            <div class="bento-bottom-pill" id="f4BottomPill">
+              <span class="pill-icon" id="f4PillIcon">💻</span>
+              <div class="pill-body">
+                <div class="pill-title" id="f4PillTitle">Multi-Gate Central HUD</div>
+                <div class="pill-sub" id="f4PillSub">All 3 gates online &bull; Live telemetry stream</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <section class="section-sm" style="background:var(--n50)">
     <div class="container-sm">
       <div class="mini-cta" data-reveal>
@@ -1305,106 +1641,170 @@
   </section>
 </div>
 
-
 <!-- ==================== PRICING PAGE ==================== -->
 <div class="page" id="page-pricing">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Tailored Estate Plans</span>
-      <h1>Custom Deployment For<br>Estates of Every Scale</h1>
-      <p>Every estate has distinct requirements—from private boutique closes to multi-gate residential CDAs. Contact our team for a tailored proposal and quote.</p>
+      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Transparent Estate Pricing</span>
+      <h1>Predictable Pricing For<br>Estates of Every Scale</h1>
+      <p>Zero hidden fees. Unlimited resident accounts. 4-second gate passes, automated dues reconciliation, and verified artisan access from ₦35,000/month.</p>
     </div>
   </div>
 
   <section class="pricing-section">
     <div class="container">
-      <!-- 3 Tailored Estate Packages Grid (No Prices - Consultation Based) -->
+      <!-- Billing Cycle Switcher -->
+      <div class="pricing-toggle-wrap" data-reveal>
+        <div class="pricing-toggle">
+          <button id="pricingToggleMonthly" class="pricing-toggle-btn active" onclick="setBillingCycle('monthly')">Monthly Billing</button>
+          <button id="pricingToggleAnnual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">Annual Billing <span style="background:#044B2B;color:#96D0B6;padding:2px 8px;border-radius:100px;font-size:.72rem;margin-left:6px;font-weight:800">Save 20% • 2 Months Free</span></button>
+        </div>
+      </div>
+
+      <!-- 3 Tier Pricing Cards Grid -->
       <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr)">
         <!-- Boutique Estate Tier -->
         <div class="pricing-consult-card" data-reveal data-delay="1">
           <div class="pricing-capacity-badge">Up to 50 Units</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Boutique Estate &amp; Closes</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">Ideal for private closes, luxury residential blocks, and compact communities seeking organized visitor entry.</p>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Boutique Estate &amp; Closes</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">Ideal for private closes, luxury residential blocks, and boutique courts seeking organized visitor entry.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceBoutiqueAmount">35,000</span>
+            <span class="pricing-period" id="priceBoutiquePeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceBoutiqueNote">Billed monthly • Cancel anytime with 30 days notice</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>Up to 50 Units</strong> (Up to 150 resident accounts)</span>
+              <span><strong>Up to 50 Units</strong> (Unlimited resident accounts)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Instant QR Visitor Passes (SMS &amp; WhatsApp)</span>
+              <span>Instant 4s QR Visitor Passes (SMS &amp; WhatsApp)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Dedicated Guard Scanner Web App (Sub-4s scan)</span>
+              <span>1 Dedicated Guard Scanner Web App (Works Offline)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Digital Service Charge &amp; Dues Ledger</span>
+              <span>Dual Dues Engine (Online Checkout + Bank Teller Upload)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Standard Security Personnel Onboarding &amp; Guide</span>
+              <span>1-Click Digital Receipts &amp; Real-Time Balance Ledger</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Move-Out Asset Clearance &amp; Departure Manifest</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Digital Guard Guides &amp; Remote Video Staff Onboarding</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Standard Email &amp; WhatsApp Operations Support</span>
             </div>
           </div>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showPage('contact', 'boutique')">Request Boutique Quote</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showPage('contact', 'boutique')">Get Started — ₦35k/mo</button>
         </div>
 
-        <!-- 50-300 Units Plan (Most Requested) -->
+        <!-- 50-200 Units Plan (Most Popular) -->
         <div class="pricing-consult-card featured" data-reveal data-delay="2">
-          <div class="popular-tag">⭐ Most Requested</div>
-          <div class="pricing-capacity-badge" style="background:#0A5B38;color:#fff">50 &ndash; 300 Units</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Gated Residential Communities</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">The complete operational system for established gated residential estates and CDAs with active gate traffic.</p>
+          <div class="popular-tag">⭐ Most Popular</div>
+          <div class="pricing-capacity-badge" style="background:#0A5B38;color:#fff">50 &ndash; 200 Units</div>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Gated Residential Communities</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">The complete operational system for established residential gated communities, CDAs, and estates.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceGatedAmount">75,000</span>
+            <span class="pricing-period" id="priceGatedPeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceGatedNote">Billed monthly • Most popular for organized CDAs</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>50 to 300 Units</strong> (Up to 900 resident profiles)</span>
+              <span><strong>50 to 200 Units</strong> (Unlimited resident profiles)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Multi-Gate Synchronization &amp; Live Audit Feed</span>
+              <span>Up to 3 Synchronized Gate Terminals (Multi-Lane &amp; Pedestrian)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Photo Item Exit Declaration &amp; Anti-Theft Checks</span>
+              <span><strong>Verified Artisan Directory</strong> (Credentialed domestic technicians)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Automated Dues Invoicing &amp; Digital Receipts</span>
+              <span>1-Tap SOS Emergency Panic Siren &amp; Gate Dispatch Pinpoint</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Hands-on Security Shift Drills &amp; On-Site Training</span>
+              <span>Automated Dues Reminders &amp; Optional Defaulter Access Rules</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Dedicated Sheffy Account Manager &amp; VIP Support</span>
+              <span>Complete AGM-Ready Financial Audit Ledger &amp; Reports</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Anti-Theft Move-Out Manifest with Photo Item Declarations</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Digital Guard Guides &amp; Remote Video Staff Certification</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Dedicated Sheffy Account Manager &amp; Priority SLA Support</span>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Request Proposal &amp; Quote</button>
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Start 14-Day Free Pilot</button>
         </div>
 
-        <!-- Master Planned Estate (300+ Units) -->
+        <!-- Master Planned Estate (200+ Units) -->
         <div class="pricing-consult-card" data-reveal data-delay="3">
-          <div class="pricing-capacity-badge">300+ Units / Enterprise</div>
-          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:8px">Master Planned Estates &amp; CDAs</h3>
-          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:20px">Enterprise-grade architecture for mega-estates with multiple perimeter gates, internal CDA zones, and amenities.</p>
+          <div class="pricing-capacity-badge">200+ Units / Enterprise</div>
+          <h3 style="font-size:1.55rem;font-weight:800;color:var(--dark);margin-bottom:6px">Master Planned Estates &amp; CDAs</h3>
+          <p style="font-size:.86rem;color:var(--n600);line-height:1.5;margin-bottom:16px">Enterprise architecture for mega-estates with multiple perimeter gates, internal CDA zones, and amenities.</p>
+
+          <div class="pricing-price-wrap">
+            <span class="pricing-currency">₦</span>
+            <span class="pricing-amount" id="priceEnterpriseAmount">180,000+</span>
+            <span class="pricing-period" id="priceEnterprisePeriod">/ month</span>
+          </div>
+          <div class="pricing-annual-note" id="priceEnterpriseNote">Custom multi-gate deployment • Billed quarterly or annually</div>
 
           <div class="pricing-scope-list">
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span><strong>300+ to 2,000+ Units</strong> (Custom capacity)</span>
+              <span><strong>200+ to 2,000+ Units</strong> (Custom capacity)</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Multi-Zone Sub-Gate Routing &amp; Zone Permissions</span>
+              <span>Unlimited Gate Terminals &amp; Sub-Zone Fast-Pass Lanes</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Barrier Arm, Turnstile &amp; Hardware Integrations</span>
+              <span><strong>Hands-on Physical Guard Drills &amp; On-Site Gate Inspection</strong> (Enterprise Exclusive)</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Automatic Number Plate Recognition (ANPR) &amp; Boom Barrier APIs</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Multi-Zone Sub-Associations &amp; Dedicated FM Ledgers</span>
+            </div>
+            <div class="pricing-scope-item">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>White-Glove On-Site Deployment Specialist</span>
             </div>
             <div class="pricing-scope-item">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16.6 5L7.5 14.1 3.4 10" stroke="#0A5B38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1429,12 +1829,12 @@
         <button class="btn btn-gold btn-lg" onclick="showPage('contact', 'enterprise')">Request Executive Proposal</button>
       </div>
 
-      <!-- Interactive Deployment Scope Planner (Replaces Price Calculator) -->
+      <!-- Interactive Deployment Scope & ROI Planner -->
       <div class="calculator-box" data-reveal>
         <div class="calculator-header">
-          <span class="badge badge-green label" style="margin-bottom:12px;display:inline-flex">Scope Estimator</span>
-          <h3>Estate Deployment &amp; Capacity Planner</h3>
-          <p>Adjust the slider to your estate's unit count to calculate recommended gate terminals, resident capacity, and deployment timeline.</p>
+          <span class="badge badge-green label" style="margin-bottom:12px;display:inline-flex">ROI &amp; Scope Estimator</span>
+          <h3>Estate Deployment &amp; Cost-Per-Home Planner</h3>
+          <p>Adjust the slider to your estate's unit count to calculate the recommended plan, per-home monthly investment, and dues protection value.</p>
         </div>
         <div class="calculator-grid">
           <div class="slider-container">
@@ -1446,29 +1846,28 @@
             <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--n400)">
               <span>15 Units</span>
               <span>50 Units</span>
-              <span>300 Units</span>
+              <span>200 Units</span>
               <span>1,000+ Units</span>
             </div>
           </div>
           <div class="calc-result-card">
-            <div class="calc-res-tier" id="calcTierBadge">Gated Residential Scope (120 Units)</div>
-            <div class="calc-res-label">Recommended Deployment Scope</div>
-            <div class="calc-res-amount" id="calcTotal" style="font-size:1.55rem;line-height:1.25">2 Gate Terminals + 1 Admin Portal</div>
-            <div class="calc-res-sub" id="calcAnnualSub">Includes 1–2 weeks managed onboarding, bulk resident directory ingestion, and security personnel physical drills.</div>
-            <button class="btn btn-gold btn-sm" id="calcActionBtn" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Request Custom Quote for 120 Units</button>
+            <div class="calc-res-tier" id="calcTierBadge">Gated Community Scope (120 Units)</div>
+            <div class="calc-res-label">Recommended Monthly Investment</div>
+            <div class="calc-res-amount" id="calcTotal" style="font-size:1.75rem;line-height:1.25">₦75,000 <span style="font-size:1rem;font-weight:600;color:var(--n600)">/ month</span></div>
+            <div class="calc-res-sub" id="calcAnnualSub"><strong>Estimated ₦625 per home/month</strong>. Protects ~₦3,600,000/mo in dues. Includes 2 Gate Terminals, vetted artisan directory, 1-tap SOS panic alerts, and remote video guard certification.</div>
+            <button class="btn btn-gold btn-sm" id="calcActionBtn" style="width:100%;justify-content:center" onclick="showPage('contact', 'residential')">Start 14-Day Free Pilot for 120 Units</button>
           </div>
         </div>
       </div>
 
       <div class="mini-cta" style="margin-top:40px" data-reveal>
-        <h2>Need transparent pricing for your estate?</h2>
+        <h2>Need a formal invoice or proposal for your executive committee?</h2>
         <p>Speak with our estate operations team to get a detailed breakdown tailored specifically to your gates, guards, and resident capacity.</p>
         <button class="btn btn-gold btn-lg" onclick="showPage('contact')">Speak With Our Estate Team</button>
       </div>
     </div>
   </section>
 </div>
-
 
 <!-- ==================== ESTATES PAGE ==================== -->
 <div class="page" id="page-estates">
@@ -1505,9 +1904,9 @@
 <div class="page" id="page-contact">
   <div class="page-hero page-hero-dark">
     <div class="container">
-      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Get Started Free</span>
-      <h1>Set up your estate in 2 minutes</h1>
-      <p>Create your estate account for free. Add up to 3 residents to test before full community rollout — or speak with our team for hands-on onboarding.</p>
+      <span class="badge badge-white label" style="margin-bottom:18px;display:inline-flex">Get in Touch</span>
+      <h1>Speak With Our Estate Onboarding Team</h1>
+      <p>Have questions about estate deployment, custom integrations, or want an assisted walkthrough for your Exco and security personnel? We are here to help.</p>
     </div>
   </div>
   <div class="contact-page-bg">
@@ -1521,20 +1920,18 @@
           <div class="contact-direct-info">
             <h4>Email Support</h4>
             <p>Direct inquiries & onboarding</p>
-            <a href="mailto:support@checkpass.ng">support@checkpass.ng</a><br>
-            <a href="mailto:sales@checkpass.ng" style="font-size:.82rem;color:var(--n400)">sales@checkpass.ng</a>
+            <a href="mailto:info@checkpass.ng">info@checkpass.ng</a>
           </div>
         </div>
 
         <div class="contact-direct-card">
           <div class="contact-icon-bubble">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
           </div>
           <div class="contact-direct-info">
-            <h4>Phone & WhatsApp</h4>
-            <p>Mon – Sat, 8am – 7pm</p>
-            <a href="tel:+2348002432572">+234 (0) 800 CHECKPASS</a><br>
-            <a href="https://wa.me/2348000000000" target="_blank" style="font-size:.82rem;color:#25D366;font-weight:700">Chat on WhatsApp &rarr;</a>
+            <h4>Live AI Concierge</h4>
+            <p>24/7 instant answers &amp; tours</p>
+            <a href="#" onclick="openConcierge();return false;" style="font-size:.84rem;color:#0A5C38;font-weight:700">Chat with CheckPass AI &rarr;</a>
           </div>
         </div>
 
@@ -1543,9 +1940,9 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           </div>
           <div class="contact-direct-info">
-            <h4>Office Location</h4>
-            <p>Lekki Phase 1, Lagos</p>
-            <span style="font-size:.84rem;color:#374038;font-weight:600">Lagos &amp; Abuja Deployments</span>
+            <h4>Operational Coverage</h4>
+            <p>Lagos &amp; Abuja, Nigeria</p>
+            <span style="font-size:.84rem;color:#0A5C38;font-weight:600">Nationwide Deployments &middot; Fast Onboarding</span>
           </div>
         </div>
       </div>
@@ -1566,25 +1963,17 @@
           <div style="margin-top:28px">
             <p style="font-size:.8rem;color:var(--n400);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Connect on Social Media</p>
             <div class="social-row">
-              <a class="social-btn" href="https://x.com/checkpassng" target="_blank" aria-label="Twitter/X">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
-                X / Twitter
+              <a class="social-btn icon-only-btn" href="https://x.com/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
               </a>
-              <a class="social-btn" href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-                Instagram
+              <a class="social-btn icon-only-btn" href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.2" fill="#FFFFFF" stroke="none"/></svg>
               </a>
-              <a class="social-btn" href="https://linkedin.com/company/checkpassng" target="_blank" aria-label="LinkedIn">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7H10V9h4v1.765A4 4 0 0116 8zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
-                LinkedIn
+              <a class="social-btn icon-only-btn" href="https://www.linkedin.com/company/checkpass-ng/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
               </a>
-              <a class="social-btn" href="https://facebook.com/checkpassng" target="_blank" aria-label="Facebook">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-                Facebook
-              </a>
-              <a class="social-btn" href="https://wa.me/2348000000000" target="_blank" aria-label="WhatsApp" style="color:#128C7E;border-color:rgba(18,140,126,.3)">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.2-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.488-.893-.796-1.496-1.779-1.671-2.08-.175-.3-.019-.463.132-.613.136-.134.301-.351.451-.527.151-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.238-.244-.589-.493-.509-.677-.518l-.577-.01c-.2 0-.527.075-.802.376-.276.3-1.053 1.03-1.053 2.511 0 1.482 1.078 2.912 1.228 3.113.15.2 2.122 3.24 5.141 4.542.718.31 1.279.495 1.716.634.721.229 1.377.197 1.895.12.577-.087 1.78-.727 2.03-1.43.25-.702.25-1.304.175-1.43-.075-.125-.276-.201-.577-.351zM12.04 2C6.53 2 2.06 6.47 2.06 11.98c0 1.76.46 3.48 1.34 5.01L2 22l5.18-1.36c1.48.81 3.15 1.24 4.86 1.24 5.51 0 9.98-4.47 9.98-9.98C22.02 6.47 17.55 2 12.04 2z"/></svg>
-                WhatsApp
+              <a class="social-btn icon-only-btn" href="https://www.facebook.com/share/19mXfK2m1M/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
             </div>
           </div>
@@ -1596,7 +1985,7 @@
               <div class="form-group"><label>Your Role *</label>
                 <select required><option value="">Select your role</option><option>Estate Manager / Admin</option><option>Resident Association Chair</option><option>Property Developer</option><option>Facility Manager</option><option>Resident / Homeowner</option><option>Other</option></select>
               </div>
-              <div class="form-group"><label>Estate Name *</label><input type="text" placeholder="e.g. Lekki Gardens Phase 4" required></div>
+              <div class="form-group"><label>Estate Name *</label><input type="text" placeholder="e.g. Victoria Crest Estate" required></div>
               <div class="form-group"><label>Estate Location / City *</label>
                 <select required><option value="">Select city</option><option>Lagos</option><option>Abuja</option><option>Port Harcourt</option><option>Ibadan</option><option>Other Nigerian City</option></select>
               </div>
@@ -1635,23 +2024,28 @@
 
 
 <!-- FOOTER -->
-<footer>
-  <div class="container">
-    <div class="footer-inner" style="grid-template-columns: 2fr 1fr 1.2fr 1fr;">
+<footer class="landing-footer">
+  <div class="container footer-container">
+    <div class="footer-inner">
       <div class="footer-brand">
-        <div class="nav-logo" onclick="showPage('home')" style="cursor:pointer">
-          <span class="nav-logo-lockup" aria-label="Checkpass">
-            <img class="logo-light" src="/assets/logo/for dark background.png" alt="Checkpass" style="opacity: 1 !important; display: block;">
-          </span>
+        <div class="footer-logo-wrap" onclick="showPage('home')" style="cursor:pointer">
+          <img class="footer-brand-logo" src="/checkpass-logo-white.svg" alt="Checkpass">
         </div>
-        <p class="footer-tagline">Estate operations & access management. Without the chaos.</p>
+        <p class="footer-tagline">Estate operations &amp; access management. Without the chaos.</p>
         <p class="footer-sub">A product of Sheffy Technologies</p>
         <div class="footer-social">
-          <a href="https://x.com/checkpassng" target="_blank" aria-label="Twitter/X"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg> X</a>
-          <a href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
-          <a href="https://linkedin.com/company/checkpassng" target="_blank" aria-label="LinkedIn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7H10V9h4v1.765A4 4 0 0116 8zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg> LinkedIn</a>
-          <a href="https://facebook.com/checkpassng" target="_blank" aria-label="Facebook"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg> Facebook</a>
-          <a href="https://wa.me/2348000000000" target="_blank" aria-label="WhatsApp"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.2-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.488-.893-.796-1.496-1.779-1.671-2.08-.175-.3-.019-.463.132-.613.136-.134.301-.351.451-.527.151-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.238-.244-.589-.493-.509-.677-.518l-.577-.01c-.2 0-.527.075-.802.376-.276.3-1.053 1.03-1.053 2.511 0 1.482 1.078 2.912 1.228 3.113.15.2 2.122 3.24 5.141 4.542.718.31 1.279.495 1.716.634.721.229 1.377.197 1.895.12.577-.087 1.78-.727 2.03-1.43.25-.702.25-1.304.175-1.43-.075-.125-.276-.201-.577-.351zM12.04 2C6.53 2 2.06 6.47 2.06 11.98c0 1.76.46 3.48 1.34 5.01L2 22l5.18-1.36c1.48.81 3.15 1.24 4.86 1.24 5.51 0 9.98-4.47 9.98-9.98C22.02 6.47 17.55 2 12.04 2z"/></svg> WhatsApp</a>
+          <a href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <img src="/social-media-icons/Instagram.svg" alt="Instagram" width="18" height="18" />
+          </a>
+          <a href="https://www.facebook.com/share/19mXfK2m1M/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <img src="/social-media-icons/Facebook.svg" alt="Facebook" width="18" height="18" />
+          </a>
+          <a href="https://x.com/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="X">
+            <img src="/social-media-icons/X.svg" alt="X" width="18" height="18" />
+          </a>
+          <a href="https://www.linkedin.com/company/checkpass-ng/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <img src="/social-media-icons/linkedin.svg" alt="LinkedIn" width="18" height="18" />
+          </a>
         </div>
       </div>
       <div class="footer-col">
@@ -1659,32 +2053,37 @@
         <ul>
           <li><a href="#" onclick="showPage('how-it-works');return false">How It Works</a></li>
           <li><a href="#" onclick="showPage('features');return false">Features</a></li>
-          <li><a href="#" onclick="showPage('pricing');return false">Pricing & Plans</a></li>
+          <li><a href="#" onclick="showPage('pricing');return false">Pricing &amp; Plans</a></li>
           <li><a href="#" onclick="showPage('estates');return false">Supported Estates</a></li>
         </ul>
       </div>
-      <div class="footer-col">
-        <h5>Contact & Support</h5>
+      <div class="footer-col footer-col-contact">
+        <h5>Contact &amp; Support</h5>
         <ul>
-          <li><a href="mailto:support@checkpass.ng">support@checkpass.ng</a></li>
-          <li><a href="mailto:sales@checkpass.ng">sales@checkpass.ng</a></li>
-          <li><a href="tel:+2348002432572">+234 (0) 800 CHECKPASS</a></li>
-          <li><a href="https://wa.me/2348000000000" target="_blank" style="color:var(--gold)">WhatsApp Chat</a></li>
+          <li><a href="mailto:info@checkpass.ng" class="footer-contact-link">info@checkpass.ng</a></li>
+          <li>
+            <a href="#" onclick="openConcierge();return false;" class="footer-contact-link" style="display:inline-flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00C97A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span>Live AI Concierge (24/7)</span>
+            </a>
+          </li>
+          <li><a href="#" onclick="showPage('contact');return false" class="footer-contact-link">Estate Onboarding Desk</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h5>Company</h5>
         <ul>
           <li><a href="#" onclick="showPage('contact');return false">Contact Us</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Security Overview</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('privacy')" onclick="window.openLegalModal && window.openLegalModal('privacy'); return false;">Privacy Policy</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('terms')" onclick="window.openLegalModal && window.openLegalModal('terms'); return false;">Terms of Service</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('agreement')" onclick="window.openLegalModal && window.openLegalModal('agreement'); return false;">Master Services Agreement (MSA &amp; DPA)</a></li>
+          <li><a href="#" @click.prevent="openLegalModal('guards')" onclick="window.openLegalModal && window.openLegalModal('guards'); return false;">Security Overview</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 CheckPass &middot; Sheffy Technologies. All rights reserved.</p>
-      <div class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <p>&copy; 2026 CheckPass &middot; Sheffy Technologies. All rights reserved.</p>
+      <div class="footer-legal"><a href="#" @click.prevent="openLegalModal('privacy')" onclick="window.openLegalModal && window.openLegalModal('privacy'); return false;">Privacy Policy</a><a href="#" @click.prevent="openLegalModal('terms')" onclick="window.openLegalModal && window.openLegalModal('terms'); return false;">Terms of Service</a><a href="#" @click.prevent="openLegalModal('agreement')" onclick="window.openLegalModal && window.openLegalModal('agreement'); return false;">Master Services Agreement &amp; DPA</a></div>
     </div>
   </div>
 </footer>
@@ -1753,7 +2152,7 @@
       <div class="nav-logo-lockup" style="margin:0 auto 14px;width:150px;height:30px">
         <img src="/assets/logo/for white background.png" alt="CheckPass">
       </div>
-      <h3>Sign in to CheckPass</h3>
+      <h3>Log in to CheckPass</h3>
       <p id="loginSubText">Select your role to access your portal</p>
     </div>
 
@@ -1768,11 +2167,11 @@
     <form id="loginForm" onsubmit="handleLoginSubmit(event)">
       <div class="login-form-group" id="groupEstateCode">
         <label>Estate ID / Code</label>
-        <input type="text" id="loginEstateCode" placeholder="e.g. CP-LEKKI-01" required value="CP-LEKKI-01">
+        <input type="text" id="loginEstateCode" placeholder="e.g. CP-ESTATE-01" required value="CP-ESTATE-01">
       </div>
       <div class="login-form-group">
         <label id="loginUserLabel">Admin Email Address</label>
-        <input type="text" id="loginIdentifier" placeholder="manager@estate.ng" required value="admin@lekkigardens.ng">
+        <input type="text" id="loginIdentifier" placeholder="manager@estate.ng" required value="admin@estate.ng">
       </div>
       <div class="login-form-group">
         <label id="loginPassLabel">Password</label>
@@ -1785,7 +2184,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary" id="loginSubmitBtn" style="width:100%;justify-content:center">
-        Sign In to Manager Portal &rarr;
+        Log In to Manager Portal &rarr;
       </button>
     </form>
 
@@ -1815,11 +2214,553 @@
 
 
   </div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     AI CONCIERGE FLOATING ASSISTANT WIDGET (Matches user screenshot)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="cp-concierge-anchor">
+  <!-- Speech Bubble Prompt -->
+  <transition name="cp-fade">
+    <div
+      v-if="showConciergePrompt && !isConciergeOpen"
+      class="cp-concierge-bubble"
+      @click="openConcierge()"
+      role="button"
+      tabindex="0"
+    >
+      <button class="cp-concierge-bubble-close" @click.stop="dismissConciergePrompt" aria-label="Dismiss">&times;</button>
+      <div class="cp-concierge-bubble-title">Hey there!</div>
+      <div class="cp-concierge-bubble-sub">How can we help you?</div>
+      <div class="cp-concierge-bubble-arrow"></div>
+    </div>
+  </transition>
+
+  <!-- Circular Trigger Button with Badge -->
+  <button
+    class="cp-concierge-fab"
+    @click="toggleConcierge()"
+    aria-label="Open CheckPass AI Operations Assistant"
+  >
+    <span v-if="conciergeUnread > 0 && !isConciergeOpen" class="cp-concierge-badge">{{ conciergeUnread }}</span>
+    <svg v-if="!isConciergeOpen" class="cp-concierge-fab-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2.5" y="3.5" width="19" height="14" rx="3" stroke="#ffffff" stroke-width="2.2"/>
+      <path d="M7 8h10M7 12h6" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M6 17.5l-3 3.5v-3.5h3z" fill="#ffffff"/>
+    </svg>
+    <svg v-else class="cp-concierge-fab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>
+
+<!-- AI Concierge Floating Dialog -->
+<transition name="cp-slide-up">
+  <div v-if="isConciergeOpen" class="cp-concierge-dialog" role="dialog" aria-modal="true" aria-label="CheckPass Support" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop @touchmove.stop>
+    <!-- Header -->
+    <div class="cp-concierge-header">
+      <div class="cp-concierge-header-info">
+        <div class="cp-concierge-avatar">
+          <svg width="22" height="22" viewBox="0 0 119 119" fill="none">
+            <path d="M75.71 0C87.405 0 96.923 9.324 97.234 20.944C108.739 21.335 117.971 30.758 118.021 42.369L118.079 55.565L96.548 55.659L96.399 21.532H62.513V0H75.71Z" fill="#10B981"/>
+            <path d="M118.079 62.608L118.021 75.805C117.971 87.416 108.738 96.839 97.232 97.229C96.922 108.849 87.405 118.174 75.709 118.174H62.513V96.642H96.398L96.547 62.515L118.079 62.608Z" fill="#10B981"/>
+            <path d="M21.681 96.642H55.567V118.174H42.37C30.675 118.174 21.157 108.849 20.846 97.229C9.34 96.839 0.108 87.416 0.058 75.805L0 62.608L21.532 62.515L21.681 96.642Z" fill="#10B981"/>
+            <path d="M55.567 21.532H21.681L21.532 55.659L0 55.565L0.058 42.369C0.108 30.758 9.34 21.334 20.846 20.944C21.157 9.324 30.675 0 42.37 0H55.567V21.532Z" fill="#10B981"/>
+          </svg>
+        </div>
+        <div>
+          <div class="cp-concierge-title-line">
+            <span class="cp-concierge-title">CheckPass Support</span>
+          </div>
+          <div class="cp-concierge-tagline">Estate Access &amp; Operations</div>
+        </div>
+      </div>
+      <button class="cp-concierge-close-btn" @click="closeConcierge" aria-label="Close dialog">&times;</button>
+    </div>
+
+    <!-- Unified Single Scroll Body -->
+    <div
+      class="cp-concierge-messages"
+      ref="conciergeScrollContainer"
+      data-lenis-prevent
+      data-lenis-prevent-wheel
+      @wheel.stop
+      @touchmove.stop
+    >
+      <div
+        v-for="(msg, i) in conciergeMessages"
+        :key="i"
+        class="cp-msg-row"
+        :class="msg.sender === 'user' ? 'cp-msg-row-user' : 'cp-msg-row-ai'"
+      >
+        <div class="cp-msg-balloon" v-html="msg.text"></div>
+        <div class="cp-msg-meta">{{ msg.time }}</div>
+      </div>
+
+      <!-- Thinking indicator -->
+      <div v-if="isConciergeThinking" class="cp-msg-row cp-msg-row-ai">
+        <div class="cp-msg-balloon cp-msg-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Suggested Topics: Inline in the Single Scroll Flow -->
+      <div class="cp-concierge-chips-inline">
+        <div class="cp-chips-inline-heading">Quick Topics</div>
+        <div class="cp-concierge-chips-stacked">
+          <button
+            v-for="(chip, idx) in conciergeQuickChips"
+            :key="idx"
+            class="cp-chip-btn-stacked"
+            @click="selectConciergeChip(chip)"
+          >
+            <span>{{ chip.label }}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Footer -->
+    <div class="cp-concierge-footer">
+      <form class="cp-concierge-form" @submit.prevent="submitConciergeMessage">
+        <input
+          v-model="conciergeInput"
+          type="text"
+          placeholder="Ask a question about estate setup..."
+          class="cp-concierge-input"
+          maxlength="280"
+        />
+        <button
+          type="submit"
+          class="cp-concierge-send"
+          :disabled="!conciergeInput.trim() || isConciergeThinking"
+          aria-label="Send"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+      <div class="cp-concierge-subtext">
+        <span>Instant operational guidance</span> &bull; <a href="#" @click.prevent="triggerDemoModal(); closeConcierge()">Book 15-Min Walkthrough</a>
+      </div>
+    </div>
+  </div>
+</transition>
+
+
+<!-- CHECKPASS LEGAL & COMPLIANCE MODAL (VUE-BASED WITH TELEPORT) -->
+<Teleport to="body">
+  <div
+    v-if="isLegalModalOpen"
+    class="landing-legal-overlay open"
+    @click.self="isLegalModalOpen = false"
+    data-lenis-prevent
+    data-lenis-prevent-wheel
+    @wheel.stop
+  >
+    <div
+      class="landing-legal-box"
+      data-lenis-prevent
+      data-lenis-prevent-wheel
+      @wheel.stop
+    >
+      <!-- Header -->
+      <div class="landing-legal-header">
+        <div>
+          <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            CheckPass Legal &amp; Compliance Center
+          </h3>
+          <span style="font-size:12px;color:#64748B">Regulated by Nigeria Data Protection Act (NDP Act) 2023 &middot; NDPC GAID 2025</span>
+        </div>
+        <div class="landing-legal-tabs">
+          <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'privacy' }" @click="activeLegalTab = 'privacy'">Privacy Policy</button>
+          <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'terms' }" @click="activeLegalTab = 'terms'">Terms of Service</button>
+          <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'agreement' }" @click="activeLegalTab = 'agreement'">Master Services Agreement (MSA &amp; DPA)</button>
+          <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'guards' }" @click="activeLegalTab = 'guards'">Guard Protocol</button>
+        </div>
+        <div class="login-close-btn" @click="isLegalModalOpen = false" style="position:static;width:32px;height:32px;margin:0;cursor:pointer" aria-label="Close modal">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="landing-legal-body" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop>
+        <!-- TAB 1: PRIVACY -->
+        <div v-if="activeLegalTab === 'privacy'" class="legal-tab-content">
+          <h4>1. Regulatory Compliance &amp; Preamble</h4>
+          <p>This Privacy Policy outlines how Sheffy Technologies Limited (&ldquo;CheckPass&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes personal data through the CheckPass Gate Access, Facility Management, and Resident Portal platforms. CheckPass operates in strict compliance with the <strong>Nigeria Data Protection Act (NDP Act) 2023</strong> and the <strong>General Application and Implementation Directive (GAID) 2025</strong> under the regulatory supervision of the <strong>Nigeria Data Protection Commission (NDPC)</strong>.</p>
+          
+          <h4>2. Roles: Data Controller vs. Data Processor</h4>
+          <p>Under Section 24 of the NDP Act 2023 and GAID 2025 Directive 15:</p>
+          <ul>
+            <li><strong>The Subscribing Estate HOA / Community Association / Property Board:</strong> Acts as the statutory <strong>Data Controller</strong>. The Estate determines who resides on the premises, approves tenant and landlord rosters, establishes gate clearance protocols, and configures financial dues levies.</li>
+            <li><strong>CheckPass (Sheffy Technologies Limited):</strong> Acts strictly as the <strong>Data Processor</strong>. We provide secure cloud hosting, cryptographic QR tokens, gate scanner software, and multi-channel notification infrastructure (WhatsApp, SMS, Email) strictly per the Controller&rsquo;s instructions.</li>
+          </ul>
+
+          <h4>3. Lawful Bases for Processing</h4>
+          <p>Under Section 25 of the NDPA 2023, data processing is conducted under: (a) <strong>Contractual Necessity:</strong> To generate and validate visitor access passes; (b) <strong>Legitimate Interests:</strong> To maintain physical perimeter security, prevent theft, and secure estate residents; and (c) <strong>Legal Obligations:</strong> To provide verified financial transaction records and dues audit trails.</p>
+
+          <h4>4. Categories of Personal Data Collected</h4>
+          <ul>
+            <li><strong>Resident &amp; Tenant Profiles:</strong> Full name, verified mobile phone number, unit address, vehicle license plates, and household members.</li>
+            <li><strong>Visitor &amp; Delivery Telemetry:</strong> Visitor name, mobile phone number, vehicle plate, purpose of visit, host unit, entry timestamp, and exit timestamp.</li>
+            <li><strong>Dues &amp; Levy Transactions:</strong> Invoicing history, digital payment references, and uploaded direct bank transfer receipts for 1-click verification. (CheckPass never stores raw credit/debit card numbers; all transactions are processed via CBN-licensed payment switches).</li>
+            <li><strong>Security Gate Logs:</strong> Guard badge IDs, terminal checkpoints, and pass scan verification timestamps.</li>
+          </ul>
+
+          <h4>5. Data Security &amp; Storage Standards</h4>
+          <p>Data is safeguarded with <strong>AES-256 bit encryption at rest</strong> and <strong>TLS 1.3 encryption in transit</strong>. Visitor movement records are kept in tamper-proof, append-only ledgers to prevent unauthorized modification.</p>
+
+          <h4>6. Data Retention &amp; Automatic Purging</h4>
+          <p>Routine visitor gate records are retained for security auditing purposes for a standard cycle of <strong>180 days</strong>, after which movement telemetry is automatically anonymized or purged unless required for an active incident investigation.</p>
+
+          <h4>7. Resident &amp; Visitor Rights</h4>
+          <p>Data subjects have the right to request access, rectification, or deletion of non-essential records under Sections 34-39 NDPA 2023. Inquiries can be submitted to our Data Protection Officer at <a href="mailto:dpo@checkpass.ng" style="color:#0A5C38;font-weight:700">dpo@checkpass.ng</a>.</p>
+        </div>
+
+        <!-- TAB 2: TERMS -->
+        <div v-else-if="activeLegalTab === 'terms'" class="legal-tab-content">
+          <h4>1. Acceptance of Terms &amp; Regulatory Framework</h4>
+          <p>By accessing the CheckPass platform (web console, resident app, or gate terminal), you agree to these Terms of Service. Under Section 24 of the Nigeria Data Protection Act (NDPA) 2023, the Estate HOA operates as the Data Controller, while CheckPass operates as the technical Data Processor.</p>
+
+          <h4>2. Proptech Nature &amp; Independent Perimeter Governance</h4>
+          <p>CheckPass is an independent digital proptech platform. CheckPass is NOT a licensed private security guard company or law enforcement body. Physical admission into any gated community remains governed exclusively by estate bylaws and security personnel stationed at the perimeter gates.</p>
+
+          <h4>3. Account Registration &amp; Administration</h4>
+          <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
+
+          <h4>4. Visitor Passes &amp; Host Warranty</h4>
+          <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
+
+          <h4>5. Offline Gate Validation &amp; High Availability</h4>
+          <p>CheckPass targets <strong>99.8% platform uptime</strong>. Gate terminals feature local offline cryptographic data caching, ensuring security guards can continue validating QR passes even during total cellular internet outages.</p>
+
+          <h4>6. Move-Out Clearance &amp; Anti-Theft Protocols</h4>
+          <p>Security officers must inspect departing moving vans against digital move-out manifest passes approved by the estate executive or landlord before opening exit barrier gates.</p>
+
+          <h4>7. Dues &amp; Direct Bank Settlement</h4>
+          <p>CheckPass facilitates dues collection via digital card/USSD payments and direct bank transfer receipt uploads. Funds collected digitally are settled directly into the designated bank account of the property/CDA without intermediary custody.</p>
+
+          <h4>8. Emergency &amp; Panic Alerts Disclaimer</h4>
+          <p>The panic alert feature is an informational digital relay alerting security guards. CheckPass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
+
+          <h4>9. Limitation of Liability &amp; Governing Law</h4>
+          <p>To the maximum extent permitted by Nigerian law, CheckPass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
+        </div>
+
+        <!-- TAB 3: MASTER SERVICES AGREEMENT -->
+        <div v-else-if="activeLegalTab === 'agreement'" class="legal-tab-content">
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:14px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+            <div>
+              <strong style="color:#166534;font-size:13.5px">📄 Standard Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
+              <p style="font-size:12px;color:#15803D;margin:3px 0 0">Universal B2B contract for Residential Estates, CDAs, Commercial Complexes, and Facility Management Boards.</p>
+            </div>
+            <button
+              type="button"
+              class="btn-msa-download"
+              @click="downloadMsaPdf"
+              style="background:#0A5C38;color:#FFFFFF;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(10,92,56,0.2)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download Official Agreement (PDF)</span>
+            </button>
+          </div>
+
+          <div style="background:#fff;border:1px solid #E2E8F0;padding:24px;border-radius:10px">
+            <div style="text-align:center;border-bottom:2px solid #0A5C38;padding-bottom:14px;margin-bottom:18px">
+              <h3 style="font-size:17px;font-weight:800;color:#071F14;margin:0">MASTER SERVICES AGREEMENT &amp; DATA PROCESSING ADDENDUM (MSA &amp; DPA)</h3>
+              <p style="font-size:11.5px;color:#64748B;margin:4px 0 0">BETWEEN SHEFFY TECHNOLOGIES LIMITED (RC 1928471) &amp; THE SUBSCRIBING PROPERTY / CLIENT</p>
+            </div>
+
+            <h5 style="font-size:13px;font-weight:700;color:#071F14;margin-bottom:6px">PART 1 &middot; COMMERCIAL TERMS &amp; CLOUD SLA</h5>
+            <p style="font-size:12.5px;line-height:1.6"><strong>1. PARTIES:</strong> Executed between <strong>Sheffy Technologies Limited</strong> (Service Provider, RC 1928471, Lagos, Nigeria) and the <strong>Subscribing Client</strong> (&ldquo;The Property / CDA&rdquo;), represented by its authorized executive upon account onboarding.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>2. SCOPE OF CLOUD SERVICES:</strong> CheckPass grants non-exclusive cloud access to: (a) 4-Second QR Gate Pass Verification; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, Email); (c) Automated Dues Invoicing &amp; Direct Bank Settlement; (d) Anti-Theft Move-Out Manifest; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>3. SUBSCRIPTION &amp; DIRECT SETTLEMENT:</strong> Software subscription is billed on a transparent monthly or discounted annual plan. 100% of resident dues collected are routed directly to the property's designated bank account via CBN-licensed payment switches.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>4. ZERO HARDWARE LOCK-IN:</strong> Guard terminals operate on standard Android or iOS devices with automatic offline cryptographic token verification during cellular network downtime.</p>
+
+            <hr style="border:none;border-top:1px dashed #CBD5E1;margin:18px 0" />
+
+            <h5 style="font-size:13px;font-weight:700;color:#071F14;margin-bottom:6px">PART 2 &middot; NDPA 2023 / GAID 2025 DATA PROCESSING ADDENDUM</h5>
+            <p style="font-size:12.5px;line-height:1.6"><strong>5. STATUTORY ROLES:</strong> Under Section 24 of the NDP Act 2023 and NDPC GAID 2025, the Subscriber is the Data Controller. CheckPass is strictly the Data Processor. CheckPass shall enforce AES-256 bit encryption, TLS 1.3 in transit, and never monetize, sell, or disclose resident data.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>6. TERM, 30-DAY EXIT &amp; FULL DATA PORTABILITY:</strong> Operates on flexible monthly or annual renewals. The Subscriber may terminate service with thirty (30) days notice without exit penalties. Upon termination, CheckPass shall deliver an encrypted, full CSV export of all resident records and dues archives.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>7. INCIDENT NOTIFICATION:</strong> CheckPass covenants to notify the Subscriber within seventy-two (72) hours of any confirmed security breach in accordance with Section 40 NDPA 2023.</p>
+
+            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid #E2E8F0;padding-top:16px;background:#F8FAFC;padding:16px;border-radius:8px">
+              <div>
+                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:14px">FOR: SHEFFY TECHNOLOGIES LIMITED</p>
+                <div style="border-bottom:1px solid #475569;width:80%;height:22px"></div>
+                <p style="font-size:11px;color:#64748B;margin:4px 0 0">Authorized Executive Signatory &middot; RC 1928471</p>
+              </div>
+              <div>
+                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:14px">FOR: THE SUBSCRIBING CLIENT</p>
+                <div style="border-bottom:1px solid #475569;width:80%;height:22px"></div>
+                <p style="font-size:11px;color:#64748B;margin:4px 0 0">Chairman / Secretary / Facility Manager</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: GUARD PROTOCOL -->
+        <div v-else-if="activeLegalTab === 'guards'" class="legal-tab-content">
+          <h4>Official Gate Security Duty Protocol (NDPA 2023 &amp; GAID 2025)</h4>
+          <ol>
+            <li><strong>Zero Personal Phone Recording:</strong> Strictly forbidden from taking photos or screenshots of visitor logs, resident phone numbers, or license plates with personal phones.</li>
+            <li><strong>Zero Cash Bribery:</strong> Soliciting or accepting cash tips, entry bribes, or gate tolls is strictly prohibited and results in immediate dismissal.</li>
+            <li><strong>100% Digital Pass Verification:</strong> Every vehicle, pedestrian, or artisan must present an active 6-character code or QR pass. Never wave anyone in without system verification.</li>
+            <li><strong>Move-Out Asset Clearance:</strong> For moving vans and departing occupants, verify all declared appliances and furniture against the digital move-out manifest before lifting the exit barrier.</li>
+            <li><strong>Emergency Escalation:</strong> Maintain calm, activate the gate emergency dispatch button during SOS alerts, and notify the Chief Security Officer immediately.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="landing-legal-footer">
+        <button
+          type="button"
+          class="btn-msa-download-footer"
+          @click="downloadMsaPdf"
+          style="background:transparent;border:1px solid #CBD5E1;color:#0A5C38;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download PDF Agreement</span>
+        </button>
+        <span class="legal-meta-badge" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#64748B">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Regulated under NDP Act 2023 &amp; NDPC GAID 2025
+        </span>
+        <button type="button" class="btn btn-outline btn-sm" @click="isLegalModalOpen = false">Close Window</button>
+      </div>
+    </div>
+  </div>
+</Teleport>
+
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { publicApi, crmApi } from '@/api'
+
+interface PlatformStats {
+  propertiesOnboarded: number
+  activeResidents: number
+  passesCreated: number
+  entriesVerified: number
+  itemsDeclared: number
+}
+
+const pageLoading = ref(true)
+const isMobileNavOpen = ref(false)
+
+// ── SECTION A (TAKE CHARGE OF YOUR PROPERTY) SLIDER ENGINE ──
+const activeSlideA = ref(1)
+const isExitingSlideA = ref(false)
+let slideATimer: ReturnType<typeof setInterval> | null = null
+
+function setSlideA(idx: number) {
+  if (idx === activeSlideA.value) return
+  isExitingSlideA.value = true
+  setTimeout(() => {
+    activeSlideA.value = idx
+    isExitingSlideA.value = false
+  }, 220)
+}
+
+function nextSlideA() {
+  const next = activeSlideA.value >= 4 ? 1 : activeSlideA.value + 1
+  setSlideA(next)
+}
+
+function startSlideATimer() {
+  if (slideATimer) clearInterval(slideATimer)
+  slideATimer = setInterval(() => {
+    nextSlideA()
+  }, 4200)
+}
+
+// ── SECTION B (MANAGE VISITORS & PAYMENTS) SLIDER ENGINE ──
+const activeSlideB = ref(1)
+const isExitingSlideB = ref(false)
+let slideBTimer: ReturnType<typeof setInterval> | null = null
+
+function setSlideB(idx: number) {
+  if (idx === activeSlideB.value) return
+  isExitingSlideB.value = true
+  setTimeout(() => {
+    activeSlideB.value = idx
+    isExitingSlideB.value = false
+  }, 180)
+}
+
+function nextSlideB() {
+  const next = activeSlideB.value >= 2 ? 1 : activeSlideB.value + 1
+  setSlideB(next)
+}
+
+function startSlideBTimer() {
+  if (slideBTimer) clearInterval(slideBTimer)
+  slideBTimer = setInterval(() => {
+    nextSlideB()
+  }, 4400)
+}
+
+// ── SECTION C (STAY AHEAD OF EVERY ENTRY) SLIDER ENGINE ──
+const activeSlideC = ref(1)
+const isExitingSlideC = ref(false)
+let slideCTimer: ReturnType<typeof setInterval> | null = null
+let f1Interval: any = null
+
+function setSlideC(idx: number) {
+  if (idx === activeSlideC.value) return
+  isExitingSlideC.value = true
+  setTimeout(() => {
+    activeSlideC.value = idx
+    isExitingSlideC.value = false
+  }, 180)
+}
+
+function nextSlideC() {
+  const next = activeSlideC.value >= 2 ? 1 : activeSlideC.value + 1
+  setSlideC(next)
+}
+
+function startSlideCTimer() {
+  if (slideCTimer) clearInterval(slideCTimer)
+  if (f1Interval) clearInterval(f1Interval);
+  slideCTimer = setInterval(() => {
+    nextSlideC()
+  }, 4400)
+}
+// Set to true once verified real customer testimonials are collected from testing
+// ── HOW IT WORKS INTERACTIVE STEP ENGINE ──
+const activeHowStep = ref(1)
+
+function setHowStep(stepNum: number, smoothScroll = true) {
+  activeHowStep.value = stepNum
+  if (smoothScroll && typeof window !== 'undefined') {
+    const el = document.getElementById(`hiw-step-${stepNum}`)
+    if (el) {
+      const yOffset = -120
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: 'smooth' })
+    }
+  }
+}
+
+const activeSpineStyle = computed(() => {
+  const positions: Record<number, { top: string; height: string }> = {
+    1: { top: '2%', height: '18%' },
+    2: { top: '22%', height: '18%' },
+    3: { top: '42%', height: '18%' },
+    4: { top: '62%', height: '18%' },
+    5: { top: '80%', height: '18%' }
+  }
+  const pos = positions[activeHowStep.value] || positions[1]
+  return {
+    top: pos.top,
+    height: pos.height
+  }
+})
+
+const activeDotStyle = computed(() => {
+  const tops: Record<number, string> = {
+    1: '20%',
+    2: '40%',
+    3: '60%',
+    4: '80%',
+    5: '98%'
+  }
+  return {
+    top: tops[activeHowStep.value] || '20%'
+  }
+})
+
+function updateHowStepOnScroll() {
+  const steps = [1, 2, 3, 4, 5]
+  const viewportTrigger = window.innerHeight * 0.45
+  let closestStep = activeHowStep.value
+  let minDistance = Infinity
+
+  for (const stepNum of steps) {
+    const el = document.getElementById(`hiw-step-${stepNum}`)
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    const stepCenter = rect.top + rect.height * 0.5
+    const dist = Math.abs(stepCenter - viewportTrigger)
+    if (dist < minDistance) {
+      minDistance = dist
+      closestStep = stepNum
+    }
+  }
+  if (closestStep !== activeHowStep.value) {
+    activeHowStep.value = closestStep
+  }
+}
+
+const showTestimonials = ref(false)
+
+// Real-time Central Platform Stats (Live totals queried from database)
+const platformStats = ref<PlatformStats>({
+  propertiesOnboarded: 1, // Active onboarded estate
+  activeResidents: 2,     // Active registered residents
+  passesCreated: 3,       // Passes created
+  entriesVerified: 0,     // Verified gate entries
+  itemsDeclared: 0,       // Declared items
+})
+
+async function fetchPlatformStats() {
+  try {
+    const res = await publicApi.getPlatformStats()
+    if (res.data && typeof res.data.propertiesOnboarded === 'number') {
+      platformStats.value = {
+        propertiesOnboarded: Number(res.data.propertiesOnboarded) || 0,
+        activeResidents: Number(res.data.activeResidents) || 0,
+        passesCreated: Number(res.data.passesCreated) || 0,
+        entriesVerified: Number(res.data.entriesVerified) || 0,
+        itemsDeclared: Number(res.data.itemsDeclared) || 0,
+      }
+    }
+  } catch (e) {
+    console.debug('Live platform-stats API pending deployment; displaying live system baseline:', e)
+  }
+  await nextTick()
+  if (typeof (window as any).initCounters === 'function') {
+    (window as any).initCounters()
+  }
+  if (typeof (window as any).animateCounter === 'function') {
+    document.querySelectorAll<HTMLElement>('.stats-strip [data-count]').forEach(el => {
+      (window as any).animateCounter(el)
+    })
+  }
+}
+
+function toggleMobileNav() {
+  isMobileNavOpen.value = !isMobileNavOpen.value
+  const el = document.getElementById('mobileNav')
+  if (el) el.classList.toggle('open', isMobileNavOpen.value)
+}
+
+function closeMobileNav() {
+  isMobileNavOpen.value = false
+  const el = document.getElementById('mobileNav')
+  if (el) el.classList.remove('open')
+}
 
 const router = useRouter()
 
@@ -1835,17 +2776,301 @@ if (typeof window !== 'undefined') {
   (window as any).goToLogin = goToLogin;
   (window as any).goToRegister = goToRegister;
   (window as any).openLoginModal = goToLogin;
+  (window as any).toggleMobileNav = toggleMobileNav;
+  (window as any).closeMobileNav = closeMobileNav;
+  (window as any).showPage = (id: string) => {
+    const next = document.getElementById('page-' + id);
+    if (!next) return;
+    document.querySelectorAll('.page').forEach(p => { if (p !== next) p.classList.remove('active', 'entering'); });
+    next.classList.add('active', 'entering');
+    setTimeout(() => next.classList.remove('entering'), 420);
+    const links = document.querySelectorAll('.nav-links .nav-link');
+    const map: Record<string, number> = {'how-it-works': 0, 'features': 1, 'pricing': 2, 'contact': 3};
+    links.forEach(l => l.classList.remove('active-nav'));
+    if (map[id] !== undefined && links[map[id]]) links[map[id]].classList.add('active-nav');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 }
 
 onMounted(() => {
+  startSlideATimer()
+  startSlideBTimer()
+  startSlideCTimer()
+  fetchPlatformStats()
+  window.addEventListener('scroll', updateHowStepOnScroll, { passive: true })
+  if (typeof window !== 'undefined') {
+    (window as any).setHowStep = setHowStep;
+
+  // ── Universal Bento Card Cycle Engine (Features 1, 2, 3, 4) ──
+  function setupBentoCycle(prefix: string, pillData: Array<{ icon: string; title: string; sub: string }>) {
+    let activeIdx = 0
+    let progress = 0
+    let isPaused = false
+    let interval: any = null
+    const DURATION = 4000
+    const STEP = 50
+
+    function cleanup() {
+      if (interval) clearInterval(interval)
+    }
+    void cleanup
+
+    function switchSlide(idx: number) {
+      activeIdx = idx
+      progress = 0
+
+      // Update in-card nav dots
+      const navWrap = document.getElementById(prefix + 'Nav')
+      if (navWrap) {
+        const dots = navWrap.querySelectorAll('.bento-nav-dot')
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === idx))
+      }
+
+      // Reset progress bars
+      for (let i = 0; i < 4; i++) {
+        const bar = document.getElementById(prefix + 'Bar-' + i)
+        if (bar && i !== idx) bar.style.width = '0%'
+      }
+
+      // Update slides
+      for (let i = 0; i < 4; i++) {
+        const slide = document.getElementById(prefix + 'Slide-' + i)
+        if (slide) {
+          if (i === idx) {
+            slide.classList.remove('active')
+            void slide.offsetWidth
+            slide.classList.add('active')
+          } else {
+            slide.classList.remove('active')
+          }
+        }
+      }
+
+      // Update bottom status pill
+      const p = pillData[idx]
+      if (p) {
+        const iconEl = document.getElementById(prefix + 'PillIcon')
+        const titleEl = document.getElementById(prefix + 'PillTitle')
+        const subEl = document.getElementById(prefix + 'PillSub')
+        if (iconEl) iconEl.textContent = p.icon
+        if (titleEl) titleEl.textContent = p.title
+        if (subEl) subEl.textContent = p.sub
+      }
+    }
+
+    const stageCard = document.getElementById(prefix + 'StageCard')
+    if (stageCard && !(stageCard as any).__bound) {
+      ;(stageCard as any).__bound = true
+      stageCard.addEventListener('mouseenter', () => { isPaused = true })
+      stageCard.addEventListener('mouseleave', () => { isPaused = false })
+
+      let touchStartX = 0
+      stageCard.addEventListener('touchstart', (e: TouchEvent) => {
+        if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX
+      }, { passive: true })
+      stageCard.addEventListener('touchend', (e: TouchEvent) => {
+        if (e.changedTouches && e.changedTouches[0]) {
+          const dx = e.changedTouches[0].clientX - touchStartX
+          if (Math.abs(dx) > 35) {
+            switchSlide(dx < 0 ? (activeIdx + 1) % 4 : (activeIdx + 3) % 4)
+          }
+        }
+      }, { passive: true })
+    }
+
+    interval = setInterval(() => {
+      if (isPaused) return
+      progress += (STEP / DURATION) * 100
+      const bar = document.getElementById(prefix + 'Bar-' + activeIdx)
+      if (bar) bar.style.width = Math.min(progress, 100) + '%'
+      if (progress >= 100) {
+        progress = 0
+        switchSlide((activeIdx + 1) % 4)
+      }
+    }, STEP)
+
+    return switchSlide
+  }
+
+  const f1Pills = [
+    { icon: '📱', title: 'Instant WhatsApp Passes', sub: 'Resident issues in 2 taps • Pre-cleared' },
+    { icon: '⚡', title: 'Sub-4s Optical Scanner', sub: 'Camera HUD scan • Auto host confirmation' },
+    { icon: '🛡️', title: 'Zero-Downtime Cryptography', sub: 'AES-256 local verification • No outage lag' },
+    { icon: '📋', title: 'Live Gate Audit Stream', sub: 'Real-time timestamped gate ledger • 100% trace' }
+  ]
+  const f2Pills = [
+    { icon: '💳', title: 'Automated Unit Ledger', sub: 'Real-time balances • 100% Reconciled' },
+    { icon: '🧾', title: '1-Click Teller Match', sub: 'Stanbic IBTC verified • Receipt issued' },
+    { icon: '🏦', title: 'Direct Bank Settlement', sub: '100% Routed to Estate Account • Paystack Switch' },
+    { icon: '📊', title: 'AGM-Ready Financial Export', sub: '₦18.45M Collected • One-click CSV & PDF' }
+  ]
+  const f3Pills = [
+    { icon: '📦', title: 'Digital Move-Out Manifest', sub: 'Itemized cargo • Dual-Signoff verified' },
+    { icon: '📸', title: 'Photo & Serial HUD', sub: 'SN: SAM-INV-889104 • 100% Verified Match' },
+    { icon: '🛡️', title: 'Dual Sign-Off Approval', sub: 'Host Landlord + HOA Executive Seals' },
+    { icon: '🚧', title: 'Gate Departure Barrier', sub: 'Truck KJA-918-BD • Exit Barrier Lifted' }
+  ]
+  const f4Pills = [
+    { icon: '💻', title: 'Multi-Gate Central HUD', sub: 'All 3 gates online • Live telemetry stream' },
+    { icon: '🔍', title: 'Census & Vehicle Directory', sub: 'Plate match: LND-492-AA • Chief Adeleke' },
+    { icon: '🚨', title: '1-Tap Emergency SOS', sub: 'Unit 14B Alert • Guard acknowledged in 4.2s' },
+    { icon: '📈', title: 'Executive Governance KPI', sub: '99.8% On-time • 1,420 Passes Verified' }
+  ]
+
+  const switchF1 = setupBentoCycle('f1', f1Pills)
+  const switchF2 = setupBentoCycle('f2', f2Pills)
+  const switchF3 = setupBentoCycle('f3', f3Pills)
+  const switchF4 = setupBentoCycle('f4', f4Pills)
+
+  ;(window as any).switchFeature1Slide = switchF1;
+  ;(window as any).switchFeature2Slide = switchF2;
+  ;(window as any).switchFeature3Slide = switchF3;
+  ;(window as any).switchFeature4Slide = switchF4;
+
+
+    (window as any).setBillingCycle = function(cycle: 'monthly' | 'annual') {
+      (window as any).currentBillingCycle = cycle;
+      const monthlyBtn = document.getElementById('pricingToggleMonthly');
+      const annualBtn = document.getElementById('pricingToggleAnnual');
+      if (monthlyBtn && annualBtn) {
+        monthlyBtn.classList.toggle('active', cycle === 'monthly');
+        annualBtn.classList.toggle('active', cycle === 'annual');
+      }
+
+      const boutiqueAmount = document.getElementById('priceBoutiqueAmount');
+      const boutiquePeriod = document.getElementById('priceBoutiquePeriod');
+      const boutiqueNote = document.getElementById('priceBoutiqueNote');
+      if (boutiqueAmount && boutiquePeriod && boutiqueNote) {
+        if (cycle === 'annual') {
+          boutiqueAmount.textContent = '29,166';
+          boutiquePeriod.textContent = '/ month';
+          boutiqueNote.textContent = '₦350,000 billed annually (Save ₦70,000 • 2 Months Free!)';
+        } else {
+          boutiqueAmount.textContent = '35,000';
+          boutiquePeriod.textContent = '/ month';
+          boutiqueNote.textContent = 'Billed monthly • Cancel anytime with 30 days notice';
+        }
+      }
+
+      const gatedAmount = document.getElementById('priceGatedAmount');
+      const gatedPeriod = document.getElementById('priceGatedPeriod');
+      const gatedNote = document.getElementById('priceGatedNote');
+      if (gatedAmount && gatedPeriod && gatedNote) {
+        if (cycle === 'annual') {
+          gatedAmount.textContent = '62,500';
+          gatedPeriod.textContent = '/ month';
+          gatedNote.textContent = '₦750,000 billed annually (Save ₦150,000 • 2 Months Free!)';
+        } else {
+          gatedAmount.textContent = '75,000';
+          gatedPeriod.textContent = '/ month';
+          gatedNote.textContent = 'Billed monthly • Most popular for organized CDAs';
+        }
+      }
+
+      const entNote = document.getElementById('priceEnterpriseNote');
+      if (entNote) {
+        if (cycle === 'annual') {
+          entNote.textContent = 'Billed annually with dedicated SLA and custom milestone delivery';
+        } else {
+          entNote.textContent = 'Billed quarterly or annually based on gate & hardware volume';
+        }
+      }
+
+      const slider = document.getElementById('calcRange') as HTMLInputElement | null;
+      if (slider && typeof (window as any).updatePricingSlider === 'function') {
+        (window as any).updatePricingSlider(slider.value);
+      }
+    };
+
+    (window as any).updatePricingSlider = function(units: string | number) {
+      const count = parseInt(String(units));
+      const display = document.getElementById('sliderUnitCount');
+      const tierBadge = document.getElementById('calcTierBadge');
+      const totalDisplay = document.getElementById('calcTotal');
+      const annualSub = document.getElementById('calcAnnualSub');
+      const actionBtn = document.getElementById('calcActionBtn');
+      const maxResidents = count * 3;
+      const isAnnual = (window as any).currentBillingCycle === 'annual';
+
+      if (display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';
+
+      if (count <= 50) {
+        if (tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';
+        const monthlyCost = isAnnual ? '₦29,166' : '₦35,000';
+        const period = isAnnual ? '/mo (billed annually)' : '/month';
+        const perHome = Math.round((isAnnual ? 29166 : 35000) / count).toLocaleString();
+        if (totalDisplay) totalDisplay.innerHTML = monthlyCost + ' <span style="font-size:1rem;font-weight:600;color:var(--n600)">' + period + '</span>';
+        if (annualSub) annualSub.innerHTML = '<strong>Estimated ₦' + perHome + ' per home/month</strong>. Includes 1 Gate Terminal, 4s WhatsApp passes, automated dues reconciliation, and digital guard guides.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Get Started for ' + count + ' Units';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'boutique');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      } else if (count <= 200) {
+        const terminals = count <= 120 ? '2 Gate Terminals' : '3 Gate Terminals';
+        if (tierBadge) tierBadge.textContent = 'Gated Community Scope (' + count + ' Units)';
+        const monthlyCost = isAnnual ? '₦62,500' : '₦75,000';
+        const period = isAnnual ? '/mo (billed annually)' : '/month';
+        const perHome = Math.round((isAnnual ? 62500 : 75000) / count).toLocaleString();
+        const duesPool = (count * 30000).toLocaleString();
+        if (totalDisplay) totalDisplay.innerHTML = monthlyCost + ' <span style="font-size:1rem;font-weight:600;color:var(--n600)">' + period + '</span>';
+        if (annualSub) annualSub.innerHTML = '<strong>Estimated ₦' + perHome + ' per home/month</strong>. Protects ~₦' + duesPool + '/mo in dues. Includes ' + terminals + ', vetted artisan directory, 1-tap SOS panic alerts, and remote video guard certification.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Start 14-Day Free Pilot for ' + count + ' Units';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'residential');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      } else {
+        if (tierBadge) tierBadge.textContent = 'Enterprise / Master Planned (' + count + ' Units)';
+        if (totalDisplay) totalDisplay.innerHTML = 'Custom <span style="font-size:1rem;font-weight:600;color:var(--n600)">from ₦180k/month</span>';
+        if (annualSub) annualSub.innerHTML = 'Tailored for ' + count + '+ homes. Includes unlimited gate terminals, <strong>hands-on physical on-site guard shift drills</strong>, ANPR barrier APIs, multi-zone CDAs, and 24/7 dedicated SLA.';
+        if (actionBtn) {
+          actionBtn.textContent = 'Contact Enterprise Team (' + count + ' Units)';
+          actionBtn.onclick = () => {
+            (window as any).showPage('contact', 'enterprise');
+            const inp = document.getElementById('contactUnitsInput') as HTMLInputElement | null;
+            if (inp) inp.value = count + ' units';
+          };
+        }
+      }
+    };
+    (window as any).scrollToHowStep = (id: string) => {
+      const num = parseInt(id.replace(/\D/g, '')) || 1;
+      setHowStep(num);
+    };
+  }
+  startSlideCTimer()
+  fetchPlatformStats()
+
   let styleEl = document.getElementById('landing-styles') as HTMLLinkElement
   if (!styleEl) {
     styleEl = document.createElement('link')
     styleEl.id = 'landing-styles'
     styleEl.rel = 'stylesheet'
-    styleEl.href = '/landing.css'
+    styleEl.href = `/landing.css?v=${Date.now()}`
+    styleEl.onload = () => {
+      setTimeout(() => {
+        pageLoading.value = false
+      }, 250)
+    }
     document.head.appendChild(styleEl)
+  } else {
+    styleEl.href = `/landing.css?v=${Date.now()}`
+    setTimeout(() => {
+      pageLoading.value = false
+    }, 250)
   }
+
+  // Safety fallback so loader never hangs
+  setTimeout(() => {
+    pageLoading.value = false
+  }, 1200)
 
   const loadScript = (src: string): Promise<void> => {
     return new Promise((resolve) => {
@@ -1862,14 +3087,15 @@ onMounted(() => {
 
   Promise.all([
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js'),
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js')
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js'),
+    loadScript('https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js')
   ]).then(() => {
     try {
       const existingScript = document.getElementById('landing-inline-script')
       if (existingScript) existingScript.remove()
       const script = document.createElement('script')
       script.id = 'landing-inline-script'
-      script.textContent = "\r\ngsap.registerPlugin(ScrollTrigger);\r\nlet activePage='home',heroVideoFadeMs=450,heroVideoCycleStarted=false,heroVideoIndex=0,heroVideoTransitioning=false;\r\nlet currentBillingCycle = 'monthly';\r\nlet currentLoginRole = 'manager';\r\n\r\nfunction showPage(id, plan){\r\n  const prev=document.querySelector('.page.active');\r\n  const next=document.getElementById('page-'+id);\r\n  if(!next)return;\r\n  if(prev && prev !== next) prev.classList.remove('active');\r\n  next.classList.add('active','entering');\r\n  setTimeout(()=>next.classList.remove('entering'),420);\r\n  activePage=id;\r\n  window.scrollTo({top:0,behavior:'instant'});\r\n  updateNavStyle(id);setActiveNavLink(id);\r\n  setTimeout(()=>initReveal(),80);\r\n  if(id==='home')setTimeout(initHeroAnim,60);\r\n  if(id==='contact' && plan){\r\n    const ps = document.getElementById('contactPlanSelect');\r\n    if(ps && ps.querySelector(`option[value=\"${plan}\"]`)){\r\n      ps.value = plan;\r\n    }\r\n  }\r\n  closeMobileNav();\r\n}\r\n\r\nfunction setActiveNavLink(id){\r\n  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));\r\n  const map={'how-it-works':0,'features':1,'pricing':2,'estates':3,'contact':4};\r\n  const idx=map[id];\r\n  if(idx!==undefined){const links=document.querySelectorAll('.nav-links .nav-link');if(links[idx])links[idx].classList.add('active-nav');}\r\n}\r\n\r\nfunction updateNavStyle(pid){\r\n  const nav=document.getElementById('navbar');\r\n  nav.classList.remove('hero-nav','dark-nav','scrolled');\r\n  nav.classList.add(window.scrollY>60?'scrolled':pid==='home'?'hero-nav':'dark-nav');\r\n}\r\n\r\nwindow.addEventListener('scroll',()=>{\r\n  const nav=document.getElementById('navbar');\r\n  if(window.scrollY>60){nav.classList.remove('hero-nav','dark-nav');nav.classList.add('scrolled');}\r\n  else{nav.classList.remove('scrolled');nav.classList.add(activePage==='home'?'hero-nav':'dark-nav');}\r\n},{passive:true});\r\n\r\nfunction toggleMobileNav(){document.getElementById('mobileNav').classList.toggle('open');}\r\nfunction closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');}\r\n\r\nfunction initReveal(){\r\n  ScrollTrigger.getAll().forEach(t=>t.kill());\r\n  const page=document.querySelector('.page.active');\r\n  if(!page)return;\r\n  // HIW steps: staggered group entrance\r\n  const hiwSteps=page.querySelectorAll('.hiw-step');\r\n  if(hiwSteps.length){\r\n    const hiwWrap=page.querySelector('.hiw-steps');\r\n    gsap.fromTo(hiwSteps,{opacity:0,y:32},{opacity:1,y:0,duration:.7,stagger:.15,ease:'power3.out',scrollTrigger:{trigger:hiwWrap||hiwSteps[0],start:'top 82%',once:true}});\r\n  }\r\n  // General section reveals\r\n  page.querySelectorAll('[data-reveal]').forEach(el=>{\r\n    if(el.classList.contains('hiw-step'))return;\r\n    const dir=el.dataset.reveal;const d=(parseInt(el.dataset.delay||'0'))*0.12;\r\n    const base={duration:.65,delay:d,ease:'power3.out'};\r\n    let from,to;\r\n    if(dir==='left'){from={opacity:0,x:-28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='right'){from={opacity:0,x:28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='scale'){from={opacity:0,scale:.95};to={...base,opacity:1,scale:1};}\r\n    else{from={opacity:0,y:24};to={...base,opacity:1,y:0};}\r\n    gsap.fromTo(el,from,{...to,scrollTrigger:{trigger:el,start:'top 88%',once:true}});\r\n  });\r\n  // HIW connector line draw\r\n  const conn=page.querySelector('.hiw-connector');\r\n  if(conn)gsap.fromTo(conn,{scaleX:0},{scaleX:1,duration:.9,ease:'power2.inOut',transformOrigin:'left center',scrollTrigger:{trigger:conn,start:'top 85%',once:true}});\r\n  ScrollTrigger.refresh();\r\n}\r\n\r\nfunction animateCounter(el){\r\n  const raw=el.dataset.count;if(!raw)return;\r\n  const target=parseInt(raw);const suffix=raw.replace(String(target),'');\r\n  const dur=1800;const t0=performance.now();\r\n  (function tick(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target)+suffix;if(p<1)requestAnimationFrame(tick);})(t0);\r\n}\r\nfunction initCounters(){\r\n  const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animateCounter(e.target);io.unobserve(e.target);}});},{threshold:0.5});\r\n  document.querySelectorAll('[data-count]').forEach(el=>io.observe(el));\r\n}\r\n\r\nfunction toggleFaq(el){\r\n  const item=el.closest('.faq-item');const was=item.classList.contains('open');\r\n  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));\r\n  if(!was)item.classList.add('open');\r\n}\r\n\r\nfunction handleFormSubmit(e){\r\n  e.preventDefault();\r\n  document.getElementById('contactForm').style.display='none';\r\n  document.getElementById('formSuccess').style.display='block';\r\n}\r\n\r\nfunction initHeroAnim(){\r\n  const home=document.getElementById('page-home');\r\n  if(!home||!home.classList.contains('active'))return;\r\n  const items=home.querySelectorAll('.hero-animate');\r\n  items.forEach(i=>i.classList.remove('is-visible'));\r\n  requestAnimationFrame(()=>items.forEach(i=>i.classList.add('is-visible')));\r\n}\r\n\r\nfunction setupHeroVideoSequence(){\r\n  if(heroVideoCycleStarted)return;\r\n  const videos=[document.getElementById('heroVideo1'),document.getElementById('heroVideo2')].filter(Boolean);\r\n  if(videos.length!==2)return;\r\n  videos.forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');});\r\n  const play=i=>{const v=videos[i];if(!v)return;v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});};\r\n  const nextVid=()=>{\r\n    if(heroVideoTransitioning)return;heroVideoTransitioning=true;\r\n    const cur=videos[heroVideoIndex];const ni=(heroVideoIndex+1)%videos.length;const nxt=videos[ni];\r\n    if(!cur||!nxt){heroVideoTransitioning=false;return;}\r\n    nxt.currentTime=0;const p=nxt.play();if(p&&p.catch)p.catch(()=>{});\r\n    nxt.classList.add('is-active');cur.classList.remove('is-active');\r\n    setTimeout(()=>{cur.pause();cur.currentTime=0;heroVideoIndex=ni;heroVideoTransitioning=false;},heroVideoFadeMs);\r\n  };\r\n  videos.forEach((v,i)=>{\r\n    v.addEventListener('timeupdate',()=>{if(i!==heroVideoIndex||heroVideoTransitioning||!v.duration)return;if(v.duration-v.currentTime<=heroVideoFadeMs/1000+0.05)nextVid();});\r\n    v.addEventListener('ended',()=>{if(i===heroVideoIndex)nextVid();});\r\n  });\r\n  play(0);heroVideoCycleStarted=true;\r\n}\r\n\r\n/* Flagship Phone Showcase: Scroll-Driven Pinned Scrollytelling */\r\nlet currentFlagshipSlide = 0;\r\n\r\nfunction setFlagshipSlide(index) {\r\n  if (index < 0 || index > 3) return;\r\n  if (index === currentFlagshipSlide) return;\r\n  currentFlagshipSlide = index;\r\n\r\n  // 1. Update Step Buttons\r\n  for (let i = 0; i < 4; i++) {\r\n    const btn = document.getElementById('stepBtn' + i);\r\n    if (btn) {\r\n      if (i === index) btn.classList.add('active');\r\n      else btn.classList.remove('active');\r\n    }\r\n  }\r\n\r\n  // 2. Update Left Text Slides\r\n  const textSlides = document.querySelectorAll('.flagship-slide-item');\r\n  textSlides.forEach((slide) => {\r\n    const slideIdx = parseInt(slide.getAttribute('data-slide'), 10);\r\n    if (slideIdx === index) {\r\n      slide.classList.remove('leaving-up', 'leaving-down');\r\n      slide.classList.add('active');\r\n    } else {\r\n      slide.classList.remove('active');\r\n      if (slideIdx < index) {\r\n        slide.classList.add('leaving-up');\r\n        slide.classList.remove('leaving-down');\r\n      } else {\r\n        slide.classList.add('leaving-down');\r\n        slide.classList.remove('leaving-up');\r\n      }\r\n    }\r\n  });\r\n\r\n  // 3. Update Phone Screen Images\r\n  const phoneImgs = document.querySelectorAll('.phone-screen-img');\r\n  phoneImgs.forEach((img) => {\r\n    const imgIdx = parseInt(img.getAttribute('data-phone-slide'), 10);\r\n    if (imgIdx === index) {\r\n      img.classList.add('active');\r\n    } else {\r\n      img.classList.remove('active');\r\n    }\r\n  });\r\n\r\n  // 4. Update Floating Pop-out Card Groups\r\n  const popGroups = document.querySelectorAll('.phone-floating-cards-group');\r\n  popGroups.forEach((group) => {\r\n    const grpIdx = parseInt(group.getAttribute('data-pop-slide'), 10);\r\n    if (grpIdx === index) {\r\n      group.classList.add('active');\r\n    } else {\r\n      group.classList.remove('active');\r\n    }\r\n  });\r\n}\r\n\r\nfunction updateStepProgress(progress) {\r\n  for (let i = 0; i < 4; i++) {\r\n    const fill = document.getElementById('stepLine' + i);\r\n    if (!fill) continue;\r\n    const start = i * 0.25;\r\n    const end = (i + 1) * 0.25;\r\n    if (progress >= end) {\r\n      fill.style.width = '100%';\r\n    } else if (progress <= start) {\r\n      fill.style.width = '0%';\r\n    } else {\r\n      const pct = Math.round(((progress - start) / 0.25) * 100);\r\n      fill.style.width = pct + '%';\r\n    }\r\n  }\r\n}\r\n\r\nfunction goToFlagshipSlide(index) {\r\n  const section = document.getElementById('flagshipSection');\r\n  if (!section) return;\r\n  if (window.innerWidth > 768) {\r\n    const navH = 72;\r\n    const totalTravel = section.offsetHeight - (window.innerHeight - navH);\r\n    const sectionTop = window.pageYOffset + section.getBoundingClientRect().top;\r\n    const targetY = sectionTop - navH + (totalTravel * (index + 0.12) / 4);\r\n    window.scrollTo({ top: targetY, behavior: 'smooth' });\r\n  } else {\r\n    setFlagshipSlide(index);\r\n    updateStepProgress((index + 0.5) / 4);\r\n  }\r\n}\r\n\r\nfunction switchFlagshipScreen(type) {\r\n  const map = { gate: 0, pass: 1, item: 2, fees: 3 };\r\n  if (typeof map[type] !== 'undefined') goToFlagshipSlide(map[type]);\r\n}\r\n\r\nfunction updateFlagshipScroll() {\r\n  if (window.innerWidth <= 768) return;\r\n  const section = document.getElementById('flagshipSection');\r\n  if (!section) return;\r\n\r\n  const rect = section.getBoundingClientRect();\r\n  const navH = 72;\r\n  const totalTravel = section.offsetHeight - (window.innerHeight - navH);\r\n  if (totalTravel <= 0) return;\r\n\r\n  const scrolled = navH - rect.top;\r\n  const progress = Math.max(0, Math.min(1, scrolled / totalTravel));\r\n\r\n  const targetIndex = Math.min(3, Math.floor(progress * 4));\r\n  setFlagshipSlide(targetIndex);\r\n  updateStepProgress(progress);\r\n}\r\n\r\nlet flagshipScrollTicking = false;\r\nwindow.addEventListener('scroll', () => {\r\n  if (!flagshipScrollTicking) {\r\n    window.requestAnimationFrame(() => {\r\n      updateFlagshipScroll();\r\n      flagshipScrollTicking = false;\r\n    });\r\n    flagshipScrollTicking = true;\r\n  }\r\n}, { passive: true });\r\n\r\n/* Scrollytelling How It Works: Smooth Scroll & Active Scroll-Spy */\r\nfunction scrollToHowStep(stepId){\r\n  const el = document.getElementById(stepId);\r\n  if(el){\r\n    const yOffset = -140; // account for navbar + sticky pill bar\r\n    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;\r\n    window.scrollTo({top: y, behavior: 'smooth'});\r\n  }\r\n}\r\n\r\n// Backwards-compatible helper\r\nfunction goToHowStep(step){\r\n  scrollToHowStep('how-step-' + step);\r\n}\r\n\r\nfunction setHowMode(mode){\r\n  const map = { lifecycle: 'how-step-1', resident: 'how-step-1', guard: 'how-step-3', admin: 'how-step-4' };\r\n  if(map[mode]) scrollToHowStep(map[mode]);\r\n}\r\n\r\n// Scroll-Spy to dynamically highlight active step in sticky progress bar\r\nwindow.addEventListener('scroll', () => {\r\n  if(typeof activePage !== 'undefined' && activePage !== 'how-it-works') return;\r\n  const steps = ['how-step-1', 'how-step-2', 'how-step-3', 'how-step-4', 'how-step-5'];\r\n  const scrollPos = window.scrollY + 220;\r\n\r\n  for(let i = steps.length - 1; i >= 0; i--){\r\n    const sec = document.getElementById(steps[i]);\r\n    if(sec && sec.offsetTop <= scrollPos){\r\n      document.querySelectorAll('.how-step-pill-btn').forEach(btn => btn.classList.remove('active'));\r\n      const activeBtn = document.getElementById('pill-' + steps[i]);\r\n      if(activeBtn) activeBtn.classList.add('active');\r\n      break;\r\n    }\r\n  }\r\n}, {passive: true});\r\n\r\n/* Estate Deployment & Scope Planner (Consultation Model) */\r\nfunction updatePricingSlider(units){\r\n  const count = parseInt(units);\r\n  const display = document.getElementById('sliderUnitCount');\r\n  const tierBadge = document.getElementById('calcTierBadge');\r\n  const totalDisplay = document.getElementById('calcTotal');\r\n  const annualSub = document.getElementById('calcAnnualSub');\r\n  const actionBtn = document.getElementById('calcActionBtn');\r\n  const maxResidents = count * 3;\r\n\r\n  if(display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';\r\n\r\n  if(count <= 50){\r\n    if(tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = '1 Gate Terminal + 1 Admin Portal';\r\n    if(annualSub) annualSub.textContent = 'Recommended for private closes & courts. Includes 1-week managed onboarding, guard orientation, and visitor pass setup.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Quote for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'boutique');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else if(count <= 300){\r\n    const terminals = count <= 150 ? '2 Gate Terminals' : '3 Gate Terminals';\r\n    if(tierBadge) tierBadge.textContent = 'Gated Residential Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = terminals + ' + Multi-Zone Sync';\r\n    if(annualSub) annualSub.textContent = 'Includes automated dues ledger, anti-theft item tracking, and dedicated guard physical drills.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Proposal for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'residential');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else {\r\n    if(tierBadge) tierBadge.textContent = 'Master Planned Estate (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = 'Multi-Gate Network + Turnstile Integration';\r\n    if(annualSub) annualSub.textContent = 'Includes executive AGM reporting, SLA guarantee, and custom multi-zone security hierarchy.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Speak with Enterprise Team (' + count + ' Units)';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'enterprise');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  }\r\n}\r\n\r\n/* Demo Video Modal Functions */\r\nfunction openDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n    if(video){\r\n      video.currentTime = 0;\r\n      video.play().catch(()=>{});\r\n    }\r\n  }\r\n}\r\n\r\nfunction closeDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    if(video) video.pause();\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\n/* Login Modal Functions */\r\nfunction openLoginModal(role){\r\n  if(role) setLoginRole(role);\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n  }\r\n}\r\n\r\nfunction closeLoginModal(){\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\nfunction setLoginRole(role){\r\n  currentLoginRole = role;\r\n  const tM = document.getElementById('roleTabManager');\r\n  const tR = document.getElementById('roleTabResident');\r\n  const tS = document.getElementById('roleTabSecurity');\r\n  const uLbl = document.getElementById('loginUserLabel');\r\n  const pLbl = document.getElementById('loginPassLabel');\r\n  const idInput = document.getElementById('loginIdentifier');\r\n  const passInput = document.getElementById('loginPassword');\r\n  const submitBtn = document.getElementById('loginSubmitBtn');\r\n\r\n  [tM, tR, tS].forEach(t => t && t.classList.remove('active'));\r\n\r\n  if(role === 'manager'){\r\n    if(tM) tM.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Admin Email Address';\r\n    if(pLbl) pLbl.textContent = 'Password';\r\n    if(idInput) { idInput.placeholder = 'manager@estate.ng'; idInput.value = 'admin@lekkigardens.ng'; }\r\n    if(passInput) passInput.value = 'password123';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Manager Portal →';\r\n  } else if(role === 'resident'){\r\n    if(tR) tR.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Phone Number or Email';\r\n    if(pLbl) pLbl.textContent = '4-Digit Resident PIN';\r\n    if(idInput) { idInput.placeholder = '08012345678 or name@email.com'; idInput.value = '08023456789'; }\r\n    if(passInput) passInput.value = '4821';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In as Resident →';\r\n  } else if(role === 'security'){\r\n    if(tS) tS.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Officer Username / Badge ID';\r\n    if(pLbl) pLbl.textContent = 'Gate Access PIN';\r\n    if(idInput) { idInput.placeholder = 'e.g. GUARD-GATE-01'; idInput.value = 'GUARD-MAIN-GATE'; }\r\n    if(passInput) passInput.value = '1122';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Gate Scanner →';\r\n  }\r\n}\r\n\r\nfunction fillLoginDemo(role){\r\n  setLoginRole(role);\r\n}\r\n\r\nfunction handleLoginSubmit(e){\r\n  e.preventDefault();\r\n  const form = document.getElementById('loginForm');\r\n  const notice = document.getElementById('loginSuccessNotice');\r\n  const title = document.getElementById('loginSuccessTitle');\r\n  const desc = document.getElementById('loginSuccessDesc');\r\n\r\n  if(form) form.style.display = 'none';\r\n  if(notice) notice.style.display = 'block';\r\n\r\n  if(currentLoginRole === 'manager'){\r\n    if(title) title.textContent = 'Manager Portal Connected!';\r\n    if(desc) desc.textContent = 'Authenticated: Lekki Phase 1 Estate Admin. Dashboard active.';\r\n  } else if(currentLoginRole === 'resident'){\r\n    if(title) title.textContent = 'Welcome, Sarah O. (Flat 12B)';\r\n    if(desc) desc.textContent = 'Active Invites & Service charge receipts synced.';\r\n  } else {\r\n    if(title) title.textContent = 'Gate Scanner Active';\r\n    if(desc) desc.textContent = 'Main Gate Terminal verified and online.';\r\n  }\r\n\r\n  setTimeout(()=>{\r\n    closeLoginModal();\r\n    if(form) form.style.display = 'block';\r\n    if(notice) notice.style.display = 'none';\r\n  }, 2200);\r\n}\r\n\r\n/* SiteAssist Stakeholders Interactive Loader & Auto-Switch (3 Slides) */\r\nconst siteAssistFeatures = [\r\n  {\r\n    num: '01',\r\n    kicker: 'ESTATE MANAGERS & EXCO',\r\n    title: 'Run Your Estate Without Missing Records or Payment Disputes',\r\n    body: 'Create service charges and diesel levies in seconds, track paid versus defaulting units in real time, and export clean financial reports ready for your next AGM.'\r\n  },\r\n  {\r\n    num: '02',\r\n    kicker: 'SECURITY GUARDS & GATE TEAMS',\r\n    title: 'Clear Visitors in Seconds Without Endless Phone Calls',\r\n    body: 'Scan QR passes directly on your phone to verify guests instantly, log vehicles without paper logbooks, and inspect moving items with photo proof before opening the gate.'\r\n  },\r\n  {\r\n    num: '03',\r\n    kicker: 'RESIDENTS & HOMEOWNERS',\r\n    title: 'Invite Guests in Two Taps and Keep Receipts in One Place',\r\n    body: 'Share WhatsApp entry passes that get your visitors through the gate without delays, pay estate dues with instant receipts, and trigger emergency SOS if you ever need help.'\r\n  }\r\n];\r\n\r\nlet activeSiteAssistIdx = 0;\r\nlet siteAssistInterval = null;\r\nlet siteAssistProgress = 0;\r\nlet isSiteAssistPaused = false;\r\nconst SA_DURATION = 6000;\r\nconst SA_STEP = 50;\r\n\r\nfunction initSiteAssistAutoCycle(){\r\n  if(siteAssistInterval) clearInterval(siteAssistInterval);\r\n  siteAssistProgress = 0;\r\n  \r\n  const container = document.getElementById('siteassistContainer');\r\n  if(container){\r\n    container.addEventListener('mouseenter', () => { isSiteAssistPaused = true; });\r\n    container.addEventListener('mouseleave', () => { isSiteAssistPaused = false; });\r\n    container.addEventListener('touchstart', () => { isSiteAssistPaused = true; }, {passive: true});\r\n    container.addEventListener('touchend', () => { isSiteAssistPaused = false; }, {passive: true});\r\n  }\r\n\r\n  siteAssistInterval = setInterval(()=>{\r\n    if(isSiteAssistPaused) return;\r\n    siteAssistProgress += (SA_STEP / SA_DURATION) * 100;\r\n    \r\n    const fill = document.getElementById('saFill-' + activeSiteAssistIdx);\r\n    if(fill) fill.style.width = Math.min(siteAssistProgress, 100) + '%';\r\n    \r\n    if(siteAssistProgress >= 100){\r\n      siteAssistProgress = 0;\r\n      switchSiteAssistTab((activeSiteAssistIdx + 1) % 3, true);\r\n    }\r\n  }, SA_STEP);\r\n}\r\n\r\nfunction switchSiteAssistTab(idx, isAuto){\r\n  activeSiteAssistIdx = idx;\r\n  siteAssistProgress = 0;\r\n  \r\n  const item = siteAssistFeatures[idx];\r\n  const kickerEl = document.getElementById('saKicker');\r\n  const counterEl = document.getElementById('saCounter');\r\n  const titleEl = document.getElementById('saTitle');\r\n  const bodyEl = document.getElementById('saBody');\r\n  const contentBox = document.getElementById('saContentBox');\r\n  \r\n  if(kickerEl) kickerEl.textContent = item.kicker;\r\n  if(counterEl) counterEl.textContent = item.num;\r\n  if(titleEl) titleEl.textContent = item.title;\r\n  if(bodyEl) bodyEl.textContent = item.body;\r\n  \r\n  if(contentBox){\r\n    contentBox.style.animation = 'none';\r\n    contentBox.offsetHeight; // trigger reflow\r\n    contentBox.style.animation = 'saFadeUp .4s cubic-bezier(0.16,1,0.3,1) forwards';\r\n  }\r\n\r\n  // Update background slides & tabs\r\n  for(let i = 0; i < 3; i++){\r\n    const slide = document.getElementById('saSlide-' + i);\r\n    const fill = document.getElementById('saFill-' + i);\r\n    const btns = document.querySelectorAll('.siteassist-tab-btn');\r\n    \r\n    if(slide) slide.classList.toggle('active', i === idx);\r\n    if(btns[i]) btns[i].classList.toggle('active', i === idx);\r\n    if(fill) fill.style.width = '0%';\r\n  }\r\n}\r\n\r\ndocument.addEventListener('click',e=>{\r\n  const btn=e.target.closest('.btn');if(!btn)return;\r\n  const r=document.createElement('span');const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);\r\n  r.style.cssText=`position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:ripple .5s ease;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;pointer-events:none`;\r\n  if(getComputedStyle(btn).position==='static')btn.style.position='relative';\r\n  btn.style.overflow='hidden';btn.appendChild(r);setTimeout(()=>r.remove(),550);\r\n});\r\nconst rs=document.createElement('style');rs.textContent='@keyframes ripple{to{transform:scale(2.5);opacity:0}}';document.head.appendChild(rs);\r\n\r\ndocument.addEventListener('DOMContentLoaded',()=>{\r\n  updateNavStyle('home');\r\n  if(typeof initReveal === 'function') initReveal();\r\n  if(typeof initCounters === 'function') initCounters();\r\n  if(typeof updatePricingSlider === 'function') updatePricingSlider(60);\r\n  initSiteAssistAutoCycle();\r\n});\r\n\n"
+      script.textContent = "\r\ngsap.registerPlugin(ScrollTrigger);\r\n\r\n// Fluid Lenis Smooth Scroll Engine\r\nlet lenisInstance = null;\r\nif (typeof Lenis !== 'undefined') {\r\n  try {\r\n    if (window.__lenis) { window.__lenis.destroy(); window.__lenis = null; }\r\n    lenisInstance = new Lenis({\r\n      duration: 1.15,\r\n      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),\r\n      smoothWheel: true,\r\n      touchMultiplier: 1.0,\r\n      wheelMultiplier: 0.95,\r\n    });\r\n    lenisInstance.on('scroll', ScrollTrigger.update);\r\n    gsap.ticker.add((time) => {\r\n      lenisInstance.raf(time * 1000);\r\n    });\r\n    gsap.ticker.lagSmoothing(0);\r\n    window.__lenis = lenisInstance;\r\n  } catch(e) { console.warn('Lenis init error:', e); }\r\n}\r\nlet activePage='home',heroVideoFadeMs=450,heroVideoCycleStarted=false,heroVideoIndex=0,heroVideoTransitioning=false;\r\nlet currentBillingCycle = 'monthly';\r\nlet currentLoginRole = 'manager';\r\n\r\nfunction showPage(id, plan){\r\n  const next=document.getElementById('page-'+id);\r\n  if(!next)return;\r\n  document.querySelectorAll('.page').forEach(p => { if(p !== next) p.classList.remove('active', 'entering'); });\r\n  next.classList.add('active','entering');\r\n  setTimeout(()=>next.classList.remove('entering'),420);\r\n  activePage=id;\r\n  if(window.__lenis){ window.__lenis.scrollTo(0, {immediate:true}); } else { window.scrollTo({top:0,behavior:'instant'}); }\r\n  updateNavStyle(id);setActiveNavLink(id);\r\n  setTimeout(()=>initReveal(),80);\r\n  if(id==='home')setTimeout(initHeroAnim,60);if(id==='features' && typeof window.initFeature1BentoCycle==='function')setTimeout(window.initFeature1BentoCycle,60);\r\n  if(id==='contact' && plan){\r\n    const ps = document.getElementById('contactPlanSelect');\r\n    if(ps && ps.querySelector(`option[value=\\\"${plan}\\\"]`)){\r\n      ps.value = plan;\r\n    }\r\n  }\r\n  closeMobileNav();\r\n}\r\n\r\nfunction setActiveNavLink(id){\r\n  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active-nav'));\r\n  const map={'how-it-works':0,'features':1,'pricing':2,'contact':3};\r\n  const idx=map[id];\r\n  if(idx!==undefined){const links=document.querySelectorAll('.nav-links .nav-link');if(links[idx])links[idx].classList.add('active-nav');}\r\n}\r\n\r\nfunction updateNavStyle(pid){\r\n  const nav=document.getElementById('navbar');\r\n  if(!nav)return;\r\n  nav.classList.remove('nav-hidden','hero-nav','dark-nav','scrolled');\r\n  nav.classList.add(window.scrollY>60?'scrolled':pid==='home'?'hero-nav':'dark-nav');\r\n}\r\n\r\nlet lastScrollY = window.pageYOffset || document.documentElement.scrollTop;\r\nlet navScrollTicking = false;\r\nconst NAV_SCROLL_DELTA = 6;\r\n\r\nfunction handleSmartNavScroll(){\r\n  const nav = document.getElementById('navbar');\r\n  if(!nav) return;\r\n  const currentY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop);\r\n  const mobileNav = document.getElementById('mobileNav');\r\n  const isMobileOpen = mobileNav && mobileNav.classList.contains('open');\r\n\r\n  nav.classList.remove('nav-hidden');\r\n  if(isMobileOpen || currentY > 40){\r\n    nav.classList.remove('hero-nav','dark-nav');\r\n    nav.classList.add('scrolled');\r\n  } else {\r\n    nav.classList.remove('scrolled');\r\n    nav.classList.add(activePage === 'home' ? 'hero-nav' : 'dark-nav');\r\n  }\r\n  lastScrollY = currentY;\r\n}\r\n\r\nwindow.addEventListener('scroll', ()=>{\r\n  if(!navScrollTicking){\r\n    window.requestAnimationFrame(()=>{\r\n      handleSmartNavScroll();\r\n      navScrollTicking = false;\r\n    });\r\n    navScrollTicking = true;\r\n  }\r\n}, {passive:true});\r\n\r\nfunction toggleMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.toggle('open');if(h)h.classList.toggle('open');}\r\nfunction closeMobileNav(){const m=document.getElementById('mobileNav');const h=document.getElementById('hamburger');if(m)m.classList.remove('open');if(h)h.classList.remove('open');}\r\n\r\nfunction initReveal(){\r\n  ScrollTrigger.getAll().forEach(t=>t.kill());\r\n  const page=document.querySelector('.page.active');\r\n  if(!page)return;\r\n\r\n  // Text Reveal Scroll Animation (Framer Motion style scrub)\r\n  const revealWords = page.querySelectorAll('#textRevealParagraph .reveal-word');\r\n  if(revealWords.length && typeof gsap !== 'undefined'){\r\n    gsap.fromTo(revealWords, { opacity: 0.22, color: '#CBD5E1' }, { opacity: 1, color: '#071F14', stagger: 0.08, ease: 'none', scrollTrigger: { trigger: '#text-reveal-section', start: 'top 78%', end: 'bottom 45%', scrub: 0.5 } });\r\n  }\r\n    // HIW steps: staggered group entrance\r\n  const hiwSteps=page.querySelectorAll('.hiw-step');\r\n  if(hiwSteps.length){\r\n    const hiwWrap=page.querySelector('.hiw-steps');\r\n    gsap.fromTo(hiwSteps,{opacity:0,y:32},{opacity:1,y:0,duration:.7,stagger:.15,ease:'power3.out',scrollTrigger:{trigger:hiwWrap||hiwSteps[0],start:'top 82%',once:true}});\r\n  }\r\n  // General section reveals\r\n  page.querySelectorAll('[data-reveal]').forEach(el=>{\r\n    if(el.classList.contains('hiw-step'))return;\r\n    const dir=el.dataset.reveal;const d=(parseInt(el.dataset.delay||'0'))*0.12;\r\n    const base={duration:.65,delay:d,ease:'power3.out'};\r\n    let from,to;\r\n    if(dir==='left'){from={opacity:0,x:-28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='right'){from={opacity:0,x:28};to={...base,opacity:1,x:0};}\r\n    else if(dir==='scale'){from={opacity:0,scale:.95};to={...base,opacity:1,scale:1};}\r\n    else{from={opacity:0,y:24};to={...base,opacity:1,y:0};}\r\n    gsap.fromTo(el,from,{...to,scrollTrigger:{trigger:el,start:'top 88%',once:true}});\r\n  });\r\n  // HIW connector line draw\r\n  const conn=page.querySelector('.hiw-connector');\r\n  if(conn)gsap.fromTo(conn,{scaleX:0},{scaleX:1,duration:.9,ease:'power2.inOut',transformOrigin:'left center',scrollTrigger:{trigger:conn,start:'top 85%',once:true}});\r\n  ScrollTrigger.refresh();\r\n}\r\n\r\nfunction animateCounter(el){\r\n  const raw=el.dataset.count;if(!raw)return;\r\n  const target=parseInt(raw);const suffix=raw.replace(String(target),'');\r\n  const dur=1800;const t0=performance.now();\r\n  (function tick(now){const p=Math.min((now-t0)/dur,1);const e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target)+suffix;if(p<1)requestAnimationFrame(tick);})(t0);\r\n}\r\nwindow.animateCounter = animateCounter;\r\nwindow.initCounters = function initCounters(){\r\n  const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animateCounter(e.target);io.unobserve(e.target);}});},{threshold:0.5});\r\n  document.querySelectorAll('[data-count]').forEach(el=>io.observe(el));\r\n}\r\n\r\nfunction toggleFaq(el){\r\n  const item=el.closest('.faq-item');const was=item.classList.contains('open');\r\n  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));\r\n  if(!was)item.classList.add('open');\r\n}\r\n\r\nfunction handleFormSubmit(e){\r\n  e.preventDefault();\r\n  document.getElementById('contactForm').style.display='none';\r\n  document.getElementById('formSuccess').style.display='block';\r\n}\r\n\r\nfunction initHeroAnim(){\r\n  const home=document.getElementById('page-home');\r\n  if(!home||!home.classList.contains('active'))return;\r\n  const items=home.querySelectorAll('.hero-animate');\r\n  items.forEach(i=>i.classList.remove('is-visible'));\r\n  requestAnimationFrame(()=>items.forEach(i=>i.classList.add('is-visible')));\r\n}\r\n\r\nfunction setupHeroVideoSequence(){\r\n  if(heroVideoCycleStarted)return;\r\n  const videos=[document.getElementById('heroVideo1'),document.getElementById('heroVideo2')].filter(Boolean);\r\n  if(videos.length!==2)return;\r\n  videos.forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');});\r\n  const play=i=>{const v=videos[i];if(!v)return;v.currentTime=0;const p=v.play();if(p&&p.catch)p.catch(()=>{});};\r\n  const nextVid=()=>{\r\n    if(heroVideoTransitioning)return;heroVideoTransitioning=true;\r\n    const cur=videos[heroVideoIndex];const ni=(heroVideoIndex+1)%videos.length;const nxt=videos[ni];\r\n    if(!cur||!nxt){heroVideoTransitioning=false;return;}\r\n    nxt.currentTime=0;const p=nxt.play();if(p&&p.catch)p.catch(()=>{});\r\n    nxt.classList.add('is-active');cur.classList.remove('is-active');\r\n    setTimeout(()=>{cur.pause();cur.currentTime=0;heroVideoIndex=ni;heroVideoTransitioning=false;},heroVideoFadeMs);\r\n  };\r\n  videos.forEach((v,i)=>{\r\n    v.addEventListener('timeupdate',()=>{if(i!==heroVideoIndex||heroVideoTransitioning||!v.duration)return;if(v.duration-v.currentTime<=heroVideoFadeMs/1000+0.05)nextVid();});\r\n    v.addEventListener('ended',()=>{if(i===heroVideoIndex)nextVid();});\r\n  });\r\n  play(0);heroVideoCycleStarted=true;\r\n}\r\n\r\n/* Scrollytelling How It Works: Smooth Scroll & Active Scroll-Spy */\r\nfunction scrollToHowStep(stepId){\r\n  const el = document.getElementById(stepId);\r\n  if(el){\r\n    const yOffset = -140; // account for navbar + sticky pill bar\r\n    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;\r\n    window.scrollTo({top: y, behavior: 'smooth'});\r\n  }\r\n}\r\n\r\n// Backwards-compatible helper\r\nfunction goToHowStep(step){\r\n  scrollToHowStep('how-step-' + step);\r\n}\r\n\r\nfunction setHowMode(mode){\r\n  const map = { lifecycle: 'how-step-1', resident: 'how-step-1', guard: 'how-step-3', admin: 'how-step-4' };\r\n  if(map[mode]) scrollToHowStep(map[mode]);\r\n}\r\n\r\n// Scroll-Spy to dynamically highlight active step in sticky progress bar\r\nwindow.addEventListener('scroll', () => {\r\n  if(typeof activePage !== 'undefined' && activePage !== 'how-it-works') return;\r\n  const steps = ['how-step-1', 'how-step-2', 'how-step-3', 'how-step-4', 'how-step-5'];\r\n  const scrollPos = window.scrollY + 220;\r\n\r\n  for(let i = steps.length - 1; i >= 0; i--){\r\n    const sec = document.getElementById(steps[i]);\r\n    if(sec && sec.offsetTop <= scrollPos){\r\n      document.querySelectorAll('.how-step-pill-btn').forEach(btn => btn.classList.remove('active'));\r\n      const activeBtn = document.getElementById('pill-' + steps[i]);\r\n      if(activeBtn) activeBtn.classList.add('active');\r\n      break;\r\n    }\r\n  }\r\n}, {passive: true});\r\n\r\n/* Estate Deployment & Scope Planner (Consultation Model) */\r\nfunction updatePricingSlider(units){\r\n  const count = parseInt(units);\r\n  const display = document.getElementById('sliderUnitCount');\r\n  const tierBadge = document.getElementById('calcTierBadge');\r\n  const totalDisplay = document.getElementById('calcTotal');\r\n  const annualSub = document.getElementById('calcAnnualSub');\r\n  const actionBtn = document.getElementById('calcActionBtn');\r\n  const maxResidents = count * 3;\r\n\r\n  if(display) display.textContent = count + (count === 1 ? ' Unit' : ' Units') + ' (up to ' + maxResidents + ' residents)';\r\n\r\n  if(count <= 50){\r\n    if(tierBadge) tierBadge.textContent = 'Boutique Estate Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = '1 Gate Terminal + 1 Admin Portal';\r\n    if(annualSub) annualSub.textContent = 'Recommended for private closes & courts. Includes 1-week managed onboarding, guard orientation, and visitor pass setup.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Quote for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'boutique');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else if(count <= 300){\r\n    const terminals = count <= 150 ? '2 Gate Terminals' : '3 Gate Terminals';\r\n    if(tierBadge) tierBadge.textContent = 'Gated Residential Scope (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = terminals + ' + Multi-Zone Sync';\r\n    if(annualSub) annualSub.textContent = 'Includes automated dues ledger, anti-theft item tracking, and dedicated guard physical drills.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Request Proposal for ' + count + ' Units';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'residential');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  } else {\r\n    if(tierBadge) tierBadge.textContent = 'Master Planned Estate (' + count + ' Units)';\r\n    if(totalDisplay) totalDisplay.textContent = 'Multi-Gate Network + Turnstile Integration';\r\n    if(annualSub) annualSub.textContent = 'Includes executive AGM reporting, SLA guarantee, and custom multi-zone security hierarchy.';\r\n    if(actionBtn) {\r\n      actionBtn.textContent = 'Speak with Enterprise Team (' + count + ' Units)';\r\n      actionBtn.onclick = () => {\r\n        showPage('contact', 'enterprise');\r\n        const inp = document.getElementById('contactUnitsInput');\r\n        if(inp) inp.value = count + ' units';\r\n      };\r\n    }\r\n  }\r\n}\r\n\r\n/* Demo Video Modal Functions */\r\nfunction openDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n    if(video){\r\n      video.currentTime = 0;\r\n      video.play().catch(()=>{});\r\n    }\r\n  }\r\n}\r\n\r\nfunction closeDemoModal(){\r\n  const modal = document.getElementById('demoModal');\r\n  const video = document.getElementById('demoVideoPlayer');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    if(video) video.pause();\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\n/* Login Modal Functions */\r\nfunction openLoginModal(role){\r\n  if(role) setLoginRole(role);\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.style.display = 'flex';\r\n    requestAnimationFrame(()=>modal.classList.add('open'));\r\n  }\r\n}\r\n\r\nfunction closeLoginModal(){\r\n  const modal = document.getElementById('loginModal');\r\n  if(modal){\r\n    modal.classList.remove('open');\r\n    setTimeout(()=>modal.style.display = 'none', 300);\r\n  }\r\n}\r\n\r\nfunction setLoginRole(role){\r\n  currentLoginRole = role;\r\n  const tM = document.getElementById('roleTabManager');\r\n  const tR = document.getElementById('roleTabResident');\r\n  const tS = document.getElementById('roleTabSecurity');\r\n  const uLbl = document.getElementById('loginUserLabel');\r\n  const pLbl = document.getElementById('loginPassLabel');\r\n  const idInput = document.getElementById('loginIdentifier');\r\n  const passInput = document.getElementById('loginPassword');\r\n  const submitBtn = document.getElementById('loginSubmitBtn');\r\n\r\n  [tM, tR, tS].forEach(t => t && t.classList.remove('active'));\r\n\r\n  if(role === 'manager'){\r\n    if(tM) tM.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Admin Email Address';\r\n    if(pLbl) pLbl.textContent = 'Password';\r\n    if(idInput) { idInput.placeholder = 'manager@estate.ng'; idInput.value = 'admin@estate.ng'; }\r\n    if(passInput) passInput.value = 'password123';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Manager Portal →';\r\n  } else if(role === 'resident'){\r\n    if(tR) tR.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Phone Number or Email';\r\n    if(pLbl) pLbl.textContent = '4-Digit Resident PIN';\r\n    if(idInput) { idInput.placeholder = '08012345678 or name@email.com'; idInput.value = '08023456789'; }\r\n    if(passInput) passInput.value = '4821';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In as Resident →';\r\n  } else if(role === 'security'){\r\n    if(tS) tS.classList.add('active');\r\n    if(uLbl) uLbl.textContent = 'Officer Username / Badge ID';\r\n    if(pLbl) pLbl.textContent = 'Gate Access PIN';\r\n    if(idInput) { idInput.placeholder = 'e.g. GUARD-GATE-01'; idInput.value = 'GUARD-MAIN-GATE'; }\r\n    if(passInput) passInput.value = '1122';\r\n    if(submitBtn) submitBtn.textContent = 'Sign In to Gate Scanner →';\r\n  }\r\n}\r\n\r\nfunction fillLoginDemo(role){\r\n  setLoginRole(role);\r\n}\r\n\r\nfunction handleLoginSubmit(e){\r\n  e.preventDefault();\r\n  const form = document.getElementById('loginForm');\r\n  const notice = document.getElementById('loginSuccessNotice');\r\n  const title = document.getElementById('loginSuccessTitle');\r\n  const desc = document.getElementById('loginSuccessDesc');\r\n\r\n  if(form) form.style.display = 'none';\r\n  if(notice) notice.style.display = 'block';\r\n\r\n  if(currentLoginRole === 'manager'){\r\n    if(title) title.textContent = 'Manager Portal Connected!';\r\n    if(desc) desc.textContent = 'Authenticated: Estate Admin. Dashboard active.';\r\n  } else if(currentLoginRole === 'resident'){\r\n    if(title) title.textContent = 'Welcome, Sarah O. (Flat 12B)';\r\n    if(desc) desc.textContent = 'Active Invites & Service charge receipts synced.';\r\n  } else {\r\n    if(title) title.textContent = 'Gate Scanner Active';\r\n    if(desc) desc.textContent = 'Main Gate Terminal verified and online.';\r\n  }\r\n\r\n  setTimeout(()=>{\r\n    closeLoginModal();\r\n    if(form) form.style.display = 'block';\r\n    if(notice) notice.style.display = 'none';\r\n  }, 2200);\r\n}\r\n\r\n/* SiteAssist Stakeholders Interactive Loader & Auto-Switch (3 Slides) */\r\nconst siteAssistFeatures = [\r\n  {\r\n    num: '01',\r\n    kicker: 'ESTATE MANAGERS & EXCO',\r\n    title: 'Run Your Estate Without Missing Records or Payment Disputes',\r\n    body: 'Create service charges and diesel levies in seconds, track paid versus defaulting units in real time, and export clean financial reports ready for your next AGM.'\r\n  },\r\n  {\r\n    num: '02',\r\n    kicker: 'SECURITY GUARDS & GATE TEAMS',\r\n    title: 'Clear Visitors in Seconds Without Endless Phone Calls',\r\n    body: 'Scan QR passes directly on your phone to verify guests instantly, log vehicles without paper logbooks, and inspect moving items with photo proof before opening the gate.'\r\n  },\r\n  {\r\n    num: '03',\r\n    kicker: 'RESIDENTS & HOMEOWNERS',\r\n    title: 'Invite Guests in Two Taps and Keep Receipts in One Place',\r\n    body: 'Share instant entry passes via WhatsApp, SMS, or Email that get your visitors through the gate without delays, pay estate dues with instant receipts, and trigger emergency SOS if you ever need help.'\r\n  }\r\n];\r\n\r\nlet activeSiteAssistIdx = 0;\r\nlet siteAssistInterval = null;\r\nlet siteAssistProgress = 0;\r\nlet isSiteAssistPaused = false;\r\nconst SA_DURATION = 6000;\r\nconst SA_STEP = 50;\r\n\r\nfunction initSiteAssistAutoCycle(){\r\n  if(siteAssistInterval) clearInterval(siteAssistInterval);\r\n  siteAssistProgress = 0;\r\n  \r\n  const tabsNav = document.querySelector('.siteassist-tabs-nav');\r\n  if(tabsNav && !tabsNav.__saEventsBound){\r\n    tabsNav.__saEventsBound = true;\r\n    const card = document.getElementById('siteassistContainer');\r\n    tabsNav.addEventListener('mouseenter', () => { isSiteAssistPaused = true; if(card) card.classList.add('is-paused'); });\r\n    tabsNav.addEventListener('mouseleave', () => { isSiteAssistPaused = false; if(card) card.classList.remove('is-paused'); });\r\n  }\r\n  const container = document.getElementById('siteassistContainer');\r\n  if(container && !container.__saEventsBound){\r\n    container.__saEventsBound = true;\r\n    let saTouchStartX = 0;\r\n    let saTouchStartY = 0;\r\n    container.addEventListener('touchstart', (e) => { if(e.touches && e.touches[0]){ saTouchStartX = e.touches[0].clientX; saTouchStartY = e.touches[0].clientY; } }, {passive: true});\r\n    container.addEventListener('touchend', (e) => { if(e.changedTouches && e.changedTouches[0]){ const dx = e.changedTouches[0].clientX - saTouchStartX; const dy = e.changedTouches[0].clientY - saTouchStartY; if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ if(dx < 0){ switchSiteAssistTab((activeSiteAssistIdx + 1) % 3); } else { switchSiteAssistTab((activeSiteAssistIdx + 2) % 3); } } } }, {passive: true});\r\n  }\r\n\r\n  for(let i = 0; i < 3; i++){\r\n    const fill = document.getElementById('saFill-' + i);\r\n    if(fill) fill.style.width = '0%';\r\n  }\r\n\r\n  siteAssistInterval = setInterval(()=>{\r\n    if(isSiteAssistPaused) return;\r\n    siteAssistProgress += (SA_STEP / SA_DURATION) * 100;\r\n    \r\n    const fill = document.getElementById('saFill-' + activeSiteAssistIdx);\r\n    if(fill) fill.style.width = Math.min(siteAssistProgress, 100) + '%';\r\n    \r\n    if(siteAssistProgress >= 100){\r\n      siteAssistProgress = 0;\r\n      switchSiteAssistTab((activeSiteAssistIdx + 1) % 3, true);\r\n    }\r\n  }, SA_STEP);\r\n}\r\n\r\nfunction switchSiteAssistTab(idx, isAuto){\r\n  activeSiteAssistIdx = idx;\r\n  siteAssistProgress = 0;\r\n  \r\n  const item = siteAssistFeatures[idx];\r\n  const kickerEl = document.getElementById('saKicker');\r\n  const counterEl = document.getElementById('saCounter');\r\n  const titleEl = document.getElementById('saTitle');\r\n  const bodyEl = document.getElementById('saBody');\r\n  \r\n  if(kickerEl){\r\n    kickerEl.textContent = item.kicker;\r\n    kickerEl.style.animation = 'none';\r\n    kickerEl.offsetHeight;\r\n    kickerEl.style.animation = 'saKickerFade 0.45s ease forwards';\r\n  }\r\n  if(counterEl){\r\n    counterEl.textContent = item.num;\r\n    counterEl.style.animation = 'none';\r\n    counterEl.offsetHeight;\r\n    counterEl.style.animation = 'saKickerFade .38s ease forwards';\r\n  }\r\n  if(titleEl){\r\n    titleEl.textContent = item.title;\r\n    titleEl.style.animation = 'none';\r\n    titleEl.offsetHeight;\r\n    titleEl.style.animation = 'saHeadlineFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards';\r\n  }\r\n  if(bodyEl){\r\n    bodyEl.textContent = item.body;\r\n    bodyEl.style.animation = 'none';\r\n    bodyEl.offsetHeight;\r\n    bodyEl.style.animation = 'saBodyFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both';\r\n  }\r\n\r\n  // Update background slides & tabs\r\n  for(let i = 0; i < 3; i++){\r\n    const slide = document.getElementById('saSlide-' + i);\r\n    const fill = document.getElementById('saFill-' + i);\r\n    const btns = document.querySelectorAll('.siteassist-tab-btn');\r\n    \r\n    if(slide){\r\n      if(i === idx){\r\n        slide.classList.remove('active');\r\n        void slide.offsetWidth;\r\n        slide.classList.add('active');\r\n      } else {\r\n        slide.classList.remove('active');\r\n      }\r\n    }\r\n    if(btns[i]) btns[i].classList.toggle('active', i === idx);\r\n    if(fill && i !== idx) fill.style.width = '0%';\r\n  }\r\n}\r\n\r\ndocument.addEventListener('click',e=>{\r\n  const btn=e.target.closest('.btn');if(!btn)return;\r\n  const r=document.createElement('span');const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);\r\n  r.style.cssText=`position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:ripple .5s ease;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;pointer-events:none`;\r\n  if(getComputedStyle(btn).position==='static')btn.style.position='relative';\r\n  btn.style.overflow='hidden';btn.appendChild(r);setTimeout(()=>r.remove(),550);\r\n});\r\nconst rs=document.createElement('style');rs.textContent='@keyframes ripple{to{transform:scale(2.5);opacity:0}}';document.head.appendChild(rs);\r\n\r\nfunction bootLanding(){\r\n  updateNavStyle('home');\r\n  if(typeof initReveal === 'function') initReveal();\r\n  if(typeof initCounters === 'function') initCounters();\r\n  if(typeof updatePricingSlider === 'function') updatePricingSlider(60);\r\n  initSiteAssistAutoCycle();\r\n}\r\nif(document.readyState === 'loading'){\r\n  document.addEventListener('DOMContentLoaded', bootLanding);\r\n}else{\r\n  bootLanding();\r\n}\r\nwindow.initSiteAssistAutoCycle = initSiteAssistAutoCycle;\r\nwindow.switchSiteAssistTab = switchSiteAssistTab;\r\nwindow.showPage = showPage;\r\n"
       document.body.appendChild(script)
     } catch (err) {
       console.warn('Landing script init error:', err)
@@ -1877,10 +3103,976 @@ onMounted(() => {
   })
 })
 
+
+// ── AI Concierge Floating Assistant ──
+
+// ── CheckPass Legal & Compliance Center State ──
+const isLegalModalOpen = ref(false)
+const activeLegalTab = ref<'privacy' | 'terms' | 'agreement' | 'guards'>('privacy')
+
+function openLegalModal(tab: 'privacy' | 'terms' | 'agreement' | 'guards' = 'privacy') {
+  activeLegalTab.value = tab
+  isLegalModalOpen.value = true
+}
+
+function downloadMsaPdf() {
+  const link = document.createElement('a')
+  link.href = '/docs/CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  link.download = 'CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+if (typeof window !== 'undefined') {
+  ;(window as any).openLegalModal = openLegalModal;
+  ;(window as any).downloadMsaPdf = downloadMsaPdf;
+}
+
+const isConciergeOpen = ref(false)
+// Check persistent read/dismiss state from localStorage
+const isConciergeRead = typeof window !== 'undefined' && localStorage.getItem('checkpass_concierge_read') === 'true'
+const isPromptDismissed = typeof window !== 'undefined' && localStorage.getItem('checkpass_prompt_dismissed') === 'true'
+
+const showConciergePrompt = ref(!isPromptDismissed && !isConciergeRead)
+const conciergeUnread = ref(isConciergeRead ? 0 : 2)
+const isConciergeThinking = ref(false)
+const conciergeInput = ref('')
+const conciergeScrollContainer = ref<HTMLElement | null>(null)
+
+interface ConciergeMsg {
+  sender: 'ai' | 'user'
+  text: string
+  time: string
+}
+
+const conciergeMessages = ref<ConciergeMsg[]>([
+  {
+    sender: 'ai',
+    text: '👋 <strong>Welcome to CheckPass!</strong><br>I\'m your Estate Operations Assistant. Whether you manage 30 homes or 2,500 units, I can show you how gate passes, automated dues, or security workflows operate.',
+    time: 'Just now'
+  },
+  {
+    sender: 'ai',
+    text: 'Tap a quick topic below or type your question:',
+    time: 'Just now'
+  }
+])
+
+const conciergeQuickChips = ref([
+  { label: '🌟 What do I gain using CheckPass?', query: 'What do I gain using CheckPass?' },
+  { label: '⚡ How does 4s clearance work?', query: 'How does 4s clearance work?' },
+  { label: '💳 Automated dues & receipts', query: 'How do automated dues and receipts work?' },
+  { label: '🛠️ Vetted artisan directory', query: 'How does the vetted artisan directory work?' },
+  { label: '📶 Poor security network?', query: 'Does it work offline when network is down?' },
+  { label: '🚚 Move-out asset tracking', query: 'How does move-out asset clearance work?' },
+  { label: '📅 Book a 15-min live demo', query: 'How can I schedule a demo for our estate?' }
+])
+
+function openConcierge() {
+  isConciergeOpen.value = true
+  conciergeUnread.value = 0
+  showConciergePrompt.value = false
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('checkpass_concierge_read', 'true')
+    localStorage.setItem('checkpass_prompt_dismissed', 'true')
+  }
+  scrollConciergeBottom()
+}
+
+function toggleConcierge() {
+  if (isConciergeOpen.value) {
+    isConciergeOpen.value = false
+  } else {
+    openConcierge()
+  }
+}
+
+function triggerDemoModal() {
+  if (typeof (window as any).openDemoModal === 'function') {
+    (window as any).openDemoModal()
+  }
+}
+
+function closeConcierge() {
+  isConciergeOpen.value = false
+}
+
+function dismissConciergePrompt() {
+  showConciergePrompt.value = false
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('checkpass_prompt_dismissed', 'true')
+  }
+}
+
+function scrollConciergeBottom() {
+  nextTick(() => {
+    if (conciergeScrollContainer.value) {
+      conciergeScrollContainer.value.scrollTop = conciergeScrollContainer.value.scrollHeight
+    }
+  })
+}
+
+
+// ── AI Concierge & Lead Extractor Engine ──
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
+
+const CONCIERGE_SYSTEM_PROMPT = `You are the official CheckPass Estate Operations AI Concierge for Nigeria.
+CheckPass is an enterprise digital gate access control and automated dues collection platform for residential gated communities, HOAs, and corporate estates in Nigeria (Lagos, Abuja, Port Harcourt, Ibadan).
+Key capabilities:
+- 4-Second QR code visitor passes shared via WhatsApp/SMS without requiring guests to install an app.
+- Offline guard scanner software that verifies cryptographic tokens without internet during cellular downtime.
+- Automated estate dues & levies (security, diesel surcharge, waste) with instant Paystack online payment and 1-click bank transfer receipt verification.
+- Move-out asset clearance manifest verifying appliances/furniture to prevent unauthorized tenant departures.
+- 1-Tap resident emergency SOS alerting gate security with exact flat unit number.
+- Vetted estate artisan directory (electricians, plumbers).
+Pricing:
+- Boutique: ₦35,000/mo (up to 50 homes)
+- Gated Community: ₦75,000/mo (up to 200 homes)
+- Enterprise: Custom for 500+ units.
+Free 3-unit trial sandbox provisioned in 48 hours.
+
+Answer clearly, politely, and concisely using British/Nigerian English. If the user mentions their name, estate name, flat count, or contact info, acknowledge it warmly and tell them an estate onboarding specialist has received their request.`
+
+function extractLeadFromConversation(userText: string, aiReply: string) {
+  try {
+    const emailMatch = userText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+    const phoneMatch = userText.match(/(?:\+?234|0)[789][01]\d{8}/)
+    const unitsMatch = userText.match(/(\d{1,4})\s*(?:units?|flats?|houses?|homes?|residents?)/i)
+    
+    // Check if user provided contact/estate details
+    const hasEstateIndicator = userText.toLowerCase().includes('estate') || userText.toLowerCase().includes('gated') || userText.toLowerCase().includes('community') || userText.toLowerCase().includes('phase')
+    
+    if (emailMatch || phoneMatch || unitsMatch || hasEstateIndicator) {
+      const units = unitsMatch ? parseInt(unitsMatch[1], 10) : 100
+      const dealValue = units * 1200 * 12
+      
+      let estateName = 'Prospective Estate'
+      const estateRegex = /([A-Z][a-zA-Z0-9\s]{2,25}(?:Estate|Gardens|Court|Hills|Crest|Phase\s*\d|Heights|Valley|View))/i
+      const foundEstate = userText.match(estateRegex)
+      if (foundEstate) estateName = foundEstate[1].trim()
+      
+      let contactName = 'Prospective HOA Exco'
+      const nameRegex = /(?:my name is|i am|this is|i'm)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)/i
+      const foundName = userText.match(nameRegex)
+      if (foundName) contactName = foundName[1].trim()
+
+      const newLead = {
+        id: 'lead-ai-' + Date.now(),
+        estateName,
+        name: contactName,
+        role: 'Inquiring Executive',
+        phone: phoneMatch ? phoneMatch[0] : '',
+        email: emailMatch ? emailMatch[1] : '',
+        city: userText.toLowerCase().includes('abuja') ? 'Abuja' : 'Lagos',
+        units,
+        dealValue,
+        stage: 'new',
+        source: 'AI Concierge',
+        chatTranscript: 'User: ' + userText + '\nAI: ' + aiReply.replace(/<[^>]+>/g, ' '),
+        notes: 'Captured automatically by on-site AI Concierge assistant on ' + new Date().toLocaleString('en-NG'),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      const existingRaw = localStorage.getItem('checkpass_crm_leads')
+      let existingLeads = []
+      try { existingLeads = existingRaw ? JSON.parse(existingRaw) : [] } catch {}
+      existingLeads.unshift(newLead)
+      localStorage.setItem('checkpass_crm_leads', JSON.stringify(existingLeads))
+      console.log('Captured AI Concierge lead to CRM local store:', newLead)
+
+      // Asynchronously sync to backend database API
+      crmApi.createLead({
+        estate_name: estateName,
+        name: contactName,
+        role: 'Inquiring Executive',
+        phone: phoneMatch ? phoneMatch[0] : null,
+        email: emailMatch ? emailMatch[1] : null,
+        city: userText.toLowerCase().includes('abuja') ? 'Abuja' : 'Lagos',
+        units,
+        deal_value: dealValue,
+        stage: 'new',
+        source: 'AI Concierge',
+        chat_transcript: newLead.chatTranscript,
+        notes: newLead.notes
+      }).catch((err) => {
+        console.warn('Backend CRM sync offline/deferred, cached in local store:', err)
+      })
+    }
+  } catch (err) {
+    console.warn('Lead extraction error:', err)
+  }
+}
+
+async function queryGeminiAPI(userQuery: string): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        role: 'user',
+        parts: [{ text: `${CONCIERGE_SYSTEM_PROMPT}\n\nVisitor Question: ${userQuery}\nProvide a helpful, formatted response:` }]
+      }]
+    })
+  })
+  if (!response.ok) throw new Error('Gemini API request failed')
+  const data = await response.json()
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  return rawText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
+async function queryOpenAIAPI(userQuery: string): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: CONCIERGE_SYSTEM_PROMPT },
+        { role: 'user', content: userQuery }
+      ],
+      temperature: 0.5
+    })
+  })
+  if (!response.ok) throw new Error('OpenAI API request failed')
+  const data = await response.json()
+  const rawText = data.choices?.[0]?.message?.content || ''
+  return rawText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
+function getConciergeAnswer(query: string): string {
+  const q = query.toLowerCase()
+
+  // 1. Core Value Proposition / Gains
+  if (q.includes('gain') || q.includes('benefit') || q.includes('why') || q.includes('value') || q.includes('advantage') || q.includes('help') || q.includes('solve') || q.includes('differen') || q.includes('better')) {
+    return "🌟 <strong>What You &amp; Your Estate Gain with CheckPass:</strong><br><br>" +
+      "<strong>1. 🛡️ For Estate Executives &amp; Excos:</strong><br>" +
+      "&bull; <strong>95%+ Dues Recovery:</strong> Eliminate defaults with online card/transfer payments and 1-click bank teller verification.<br>" +
+      "&bull; <strong>100% Gate Transparency:</strong> Immutable live logs of every visitor, vehicle, artisan, and delivery.<br>" +
+      "&bull; <strong>Zero Dues Disputes:</strong> Automated receipts and AGM-ready financial ledgers eliminate paper spreadsheet chaos.<br><br>" +
+      "<strong>2. 🏡 For Residents &amp; Landlords:</strong><br>" +
+      "&bull; <strong>Instant Guest Passes:</strong> Create 4-second QR passes in 2 taps and share via WhatsApp—no gate intercom calls.<br>" +
+      "&bull; <strong>Vetted Artisan Directory:</strong> Hire verified electricians, plumbers, and technicians straight from the app.<br>" +
+      "&bull; <strong>Move-Out Protection:</strong> Block unauthorized asset removal or tenant departures without digital clearance.<br><br>" +
+      "<strong>3. 👮 For Gate Security:</strong><br>" +
+      "&bull; <strong>4-Second Scan Clearance:</strong> Fast verification on standard smartphones, even during total internet downtime.<br><br>" +
+      "<a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">Book a 15-min walkthrough</a> or tap <strong>See Pricing</strong> below!"
+  }
+
+  // 2. Artisans & Domestic Services
+  if (q.includes('artisan') || q.includes('plumber') || q.includes('electrician') || q.includes('carpenter') || q.includes('technician') || q.includes('repair') || q.includes('handyman') || q.includes('directory')) {
+    return "🛠️ <strong>Verified Estate Artisan Directory:</strong><br>" +
+      "CheckPass solves the frustration of finding trusted domestic technicians inside residential estates:<br><br>" +
+      "&bull; <strong>Vetted &amp; Certified:</strong> Plumbers, electricians, and AC technicians are verified with valid ID and credentials.<br>" +
+      "&bull; <strong>Neighbor Ratings:</strong> Residents browse real reviews and job history before hiring.<br>" +
+      "&bull; <strong>Gate Accountability:</strong> Security automatically logs when an artisan enters your home and leaves the estate grounds.<br><br>" +
+      "Residents access the directory directly from their mobile portal with zero friction."
+  }
+
+  // 3. Resident Experience
+  if (q.includes('resident') || q.includes('tenant') || q.includes('occupant') || q.includes('landlord')) {
+    return "🏡 <strong>The CheckPass Resident Experience:</strong><br>" +
+      "Residents manage their estate life conveniently from any smartphone with zero mandatory app downloads:<br><br>" +
+      "1. <strong>Quick Passes:</strong> Issue visitor passes in under 10 seconds and share via WhatsApp, SMS, or Email.<br>" +
+      "2. <strong>Flexible Dues:</strong> Settle levies via online card/transfer or upload direct bank tellers for 1-click admin approval.<br>" +
+      "3. <strong>Vetted Artisans:</strong> Hire background-checked domestic technicians directly in-app.<br>" +
+      "4. <strong>1-Tap SOS Alert:</strong> Instantly notify gate security during medical, fire, or safety emergencies."
+  }
+
+  // 4. Guards, Gate Hardware & Devices
+  if (q.includes('device') || q.includes('hardware') || q.includes('phone') || q.includes('guard') || q.includes('scanner') || q.includes('barrier') || q.includes('turnstile')) {
+    return "👮 <strong>Gate Security &amp; Hardware Compatibility:</strong><br>" +
+      "&bull; <strong>Zero Proprietary Hardware Required:</strong> Security guards scan passes using standard Android or iOS smartphones or tablets.<br>" +
+      "&bull; <strong>Barrier Integration:</strong> Works seamlessly with manual gates, boom barriers, and pedestrian turnstiles.<br>" +
+      "&bull; <strong>Built for Nigerian Realities:</strong> Operates fully offline during cellular downtime, caching valid passes locally.<br>" +
+      "&bull; <strong>Guard Training:</strong> Digital visual guides are included on all plans; hands-on physical guard drills are included for Enterprise estates."
+  }
+
+  // 5. Estate Setup & Launch Time
+  if (q.includes('setup') || q.includes('onboard') || q.includes('how long') || q.includes('deploy') || q.includes('start') || q.includes('register') || q.includes('pilot')) {
+    return "⚡ <strong>Fast 48-Hour Estate Onboarding:</strong><br>" +
+      "Getting your estate live on CheckPass is completely turnkey:<br><br>" +
+      "1. <strong>Upload Resident List:</strong> Import your estate units and resident roster via CSV or self-serve links.<br>" +
+      "2. <strong>Gate Setup:</strong> Security guards receive digital visual training guides (or on-site drills for Enterprise).<br>" +
+      "3. <strong>Go-Live Sandbox:</strong> We run a 48-hour pilot simulation before opening the gate to live traffic.<br><br>" +
+      "<a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">Book a 15-min walkthrough</a> to get your estate sandbox configured!"
+  }
+
+  // 6. Emergency / Panic SOS
+  if (q.includes('panic') || q.includes('emergency') || q.includes('sos') || q.includes('fire') || q.includes('police') || q.includes('safety') || q.includes('alert')) {
+    return "🚨 <strong>1-Tap Instant Emergency SOS:</strong><br>" +
+      "&bull; <strong>Real-Time Gate Sirens:</strong> Residents tap SOS in-app to trigger high-priority alerts at the main gate terminal.<br>" +
+      "&bull; <strong>Exact Unit Identification:</strong> Guards instantly see the resident's unit number and emergency contact details.<br>" +
+      "&bull; <strong>Rapid Dispatch:</strong> Security can immediately direct patrol or emergency vehicles to the exact house address."
+  }
+
+  // 7. Gate Clearance
+  if (q.includes('clearance') || q.includes('visitor') || q.includes('4s') || q.includes('gate') || q.includes('qr')) {
+    return "✅ <strong>How 4-Second Gate Clearance Works:</strong><br>" +
+      "1. <strong>Resident invites guest:</strong> In two taps, the resident creates a digital pass and shares the link directly via WhatsApp.<br>" +
+      "2. <strong>Security scans QR code:</strong> The guard scans the guest's pass on their phone in under 4 seconds.<br>" +
+      "3. <strong>Instant gate approval:</strong> The screen immediately confirms the guest's name and host house address, so the barrier opens right away—no phone calls or paper logbooks."
+  }
+
+  // 8. Dues & Payments
+  if (q.includes('due') || q.includes('payment') || q.includes('service charge') || q.includes('receipt') || q.includes('levy') || q.includes('bank') || q.includes('teller')) {
+    return "💳 <strong>Zero-Dispute Dues &amp; Collections:</strong><br>" +
+      "CheckPass automates estate service charges, security dues, and diesel levies with two flexible payment methods:<br><br>" +
+      "1. <strong>Instant Online Payment:</strong> Residents pay securely in-app using debit cards, USSD, or direct bank transfer, receiving automated digital receipts immediately.<br>" +
+      "2. <strong>Bank Transfer &amp; Receipt Upload:</strong> Residents who transfer directly to the estate's bank account can upload their payment receipt or teller in-app. Estate managers review and approve with one tap, instantly issuing the official estate receipt.<br><br>" +
+      "Estate executives track collection balances, pending verifications, and resident payment status live on a centralized dashboard—completely eliminating spreadsheets."
+  }
+
+  // 9. Offline / Network
+  if (q.includes('offline') || q.includes('network') || q.includes('internet') || q.includes('down')) {
+    return "📶 <strong>Works Even Without Internet:</strong><br>" +
+      "Security devices keep a secure offline copy of scheduled passes. Even during poor network or total internet downtime, guards can still scan QR passes and verify genuine visitors without any delay."
+  }
+
+  // 10. Move-out
+  if (q.includes('move') || q.includes('asset') || q.includes('truck') || q.includes('furniture')) {
+    return "🚚 <strong>Move-Out Asset Verification:</strong><br>" +
+      "Tenants or moving contractors cannot leave without digital clearance. Residents register departing assets (appliances, furniture, machinery) with attached photos. Security validates the manifest item-by-item before lifting the barrier."
+  }
+
+  // 11. Walkthrough / Demo / Contact
+  if (q.includes('demo') || q.includes('walkthrough') || q.includes('meeting') || q.includes('call') || q.includes('contact') || q.includes('sales')) {
+    return "📅 <strong>Ready for a Live Walkthrough?</strong><br>" +
+      "Click <a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">here to open our Demo Booking Form</a> or email us at <strong>hi@checkpass.ng</strong>. We configure a custom sandbox for your estate in under 48 hours!"
+  }
+
+  // 12. Pricing
+  if (q.includes('price') || q.includes('cost') || q.includes('pricing') || q.includes('tier') || q.includes('naira') || q.includes('plan')) {
+    return "🏷️ <strong>Transparent Estate Pricing:</strong><br>" +
+      "&bull; <strong>Boutique:</strong> ₦35,000/mo (up to 50 homes)<br>" +
+      "&bull; <strong>Gated Community:</strong> ₦75,000/mo (up to 200 homes)<br>" +
+      "&bull; <strong>Enterprise:</strong> Custom for multi-gate master estates.<br>" +
+      "Boutique and Gated plans include digital guard guides, self-serve onboarding, and dedicated operations support. Physical in-person guard drills are exclusive to Enterprise."
+  }
+
+  // 13. Smart Helpful Fallback with Clickable Options
+  return "Thank you for asking! CheckPass is Nigeria's premier digital estate access and operations management platform.<br><br>" +
+    "Explore common topics with one tap:<br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('What do I gain using CheckPass?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🌟 What you &amp; your estate gain</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How do automated dues and receipts work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">💳 Dues &amp; receipt verification</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does 4s clearance work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">⚡ 4-Second gate passes</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does the vetted artisan directory work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🛠️ Vetted artisan directory</a><br>" +
+    "&bull; <a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">📅 Book a 15-min live walkthrough</a>"
+}
+
+function selectConciergeChip(chip: { label: string; query: string }) {
+  addUserMessage(chip.query)
+}
+
+function submitConciergeMessage() {
+  const text = conciergeInput.value.trim()
+  if (!text || isConciergeThinking.value) return
+  addUserMessage(text)
+  conciergeInput.value = ''
+}
+
+async function addUserMessage(text: string) {
+  conciergeMessages.value.push({
+    sender: 'user',
+    text,
+    time: 'Just now'
+  })
+  scrollConciergeBottom()
+
+  isConciergeThinking.value = true
+  let reply = ''
+
+  try {
+    if (GEMINI_API_KEY) {
+      reply = await queryGeminiAPI(text)
+    } else if (OPENAI_API_KEY) {
+      reply = await queryOpenAIAPI(text)
+    } else {
+      reply = getConciergeAnswer(text)
+    }
+  } catch (err) {
+    console.warn('AI API error, using knowledge base fallback:', err)
+    reply = getConciergeAnswer(text)
+  } finally {
+    isConciergeThinking.value = false
+  }
+
+  conciergeMessages.value.push({
+    sender: 'ai',
+    text: reply,
+    time: 'Just now'
+  })
+  scrollConciergeBottom()
+
+  extractLeadFromConversation(text, reply)
+}
+
 onUnmounted(() => {
+  window.removeEventListener('scroll', updateHowStepOnScroll)
+  if (slideATimer) clearInterval(slideATimer)
+  if (slideBTimer) clearInterval(slideBTimer)
+  if (slideCTimer) clearInterval(slideCTimer)
+  if (f1Interval) clearInterval(f1Interval);
   const styleEl = document.getElementById('landing-styles')
   if (styleEl) styleEl.remove()
   const scriptEl = document.getElementById('landing-inline-script')
   if (scriptEl) scriptEl.remove()
 })
 </script>
+
+<style scoped>
+/* ── Navbar CTA Button Size Matched with Hero Section CTA ── */
+.navbar {
+  height: clamp(76px, 8.5vh, 84px) !important;
+}
+
+.nav-cta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.nav-cta .btn-primary {
+  padding: clamp(14px, 1.8vh, 18px) clamp(26px, 2.2vw, 36px) !important;
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem) !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  min-height: 52px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 18px rgba(0, 94, 52, 0.28) !important;
+}
+
+.nav-cta .btn-login {
+  min-height: 52px !important;
+  padding: clamp(14px, 1.8vh, 18px) clamp(20px, 1.8vw, 26px) !important;
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem) !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+/* ── Full Horizontal Viewport Scaling with Padding & Fixed 16:9 Aspect Ratio ── */
+.section-c-description,
+.core-control-desc {
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif !important;
+  font-size: clamp(1.2rem, 1.55vw, 1.55rem) !important;
+  line-height: 1.65 !important;
+  font-weight: 450 !important;
+  max-width: min(680px, 100%) !important;
+}
+
+.core-control-title,
+.section-c-title {
+  letter-spacing: -0.025em !important;
+}
+
+.siteassist-showcase-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
+}
+
+.core-control-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
+}
+
+.siteassist-card {
+  width: 100% !important;
+  aspect-ratio: 16 / 9 !important;
+  height: auto !important;
+  min-height: clamp(480px, 48vw, 980px) !important;
+  max-height: none !important;
+}
+
+.siteassist-inner {
+  padding: clamp(24px, 3.5vw, 60px) !important;
+}
+
+.siteassist-content-wrap {
+  max-width: clamp(480px, 48vw, 880px) !important;
+}
+
+.siteassist-feature-title {
+  font-size: clamp(2rem, 3.0vw, 3.4rem) !important;
+}
+
+.siteassist-feature-body {
+  font-size: clamp(1.15rem, 1.55vw, 1.6rem) !important;
+}
+
+
+/* ── Full-Screen Loading Cover ── */
+.landing-screen-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.landing-loader-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fade-landing-loader-enter-active,
+.fade-landing-loader-leave-active {
+  transition: opacity 0.35s ease;
+}
+.fade-landing-loader-enter-from,
+.fade-landing-loader-leave-to {
+  opacity: 0;
+}
+
+
+/* ── CRITICAL PRE-PAINT NAVBAR & MOBILE STYLES (Guarantees zero FOUC) ── */
+.navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  height: var(--nav-h, 72px) !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+.nav-inner {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+}
+.nav-logo {
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+.nav-logo-lockup {
+  position: relative !important;
+  width: min(180px, 42vw) !important;
+  min-width: 130px !important;
+  height: 34px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+.nav-logo-lockup img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+.nav-logo .logo-dark { opacity: 1; }
+.nav-logo .logo-light { opacity: 0; }
+.navbar.hero-nav .nav-logo .logo-dark,
+.navbar.dark-nav .nav-logo .logo-dark { opacity: 0 !important; }
+.navbar.hero-nav .nav-logo .logo-light,
+.navbar.dark-nav .nav-logo .logo-light { opacity: 1 !important; }
+.navbar.scrolled .nav-logo .logo-dark { opacity: 1 !important; }
+.navbar.scrolled .nav-logo .logo-light { opacity: 0 !important; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-hamburger {
+  display: none !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 6px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  z-index: 1001 !important;
+  transition: all 0.2s ease !important;
+}
+.navbar.scrolled .nav-hamburger {
+  background: rgba(11, 31, 23, 0.06) !important;
+  border: 1px solid rgba(11, 31, 23, 0.12) !important;
+  color: #0B1F17 !important;
+}
+.nav-hamburger span {
+  display: block !important;
+  width: 22px !important;
+  height: 2px !important;
+  background: currentColor !important;
+  border-radius: 2px !important;
+  transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+.nav-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg) !important;
+}
+.nav-hamburger.open span:nth-child(2) {
+  opacity: 0 !important;
+}
+.nav-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg) !important;
+}
+.nav-mobile {
+  position: fixed !important;
+  top: var(--nav-h, 72px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  padding: 16px 20px 24px !important;
+  display: none !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14) !important;
+  z-index: 999 !important;
+  box-sizing: border-box !important;
+}
+.nav-mobile.open {
+  display: flex !important;
+}
+.nav-mobile .nav-link {
+  color: #1a2e24 !important;
+  padding: 12px 14px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  border-radius: 8px !important;
+  transition: background 0.15s ease !important;
+}
+.nav-mobile .nav-link:hover {
+  background: rgba(10, 92, 56, 0.06) !important;
+  color: #0A5C38 !important;
+}
+
+@media (max-width: 900px) {
+  .nav-links,
+  .nav-cta {
+    display: none !important;
+  }
+  .nav-hamburger {
+    display: flex !important;
+  }
+}
+
+/* ── STATS STRIP: STATIONARY CENTERED ON WEB, CONTINUOUS TICKER ON MOBILE ── */
+.stats-strip {
+  background: #ffffff !important;
+  border-top: 1px solid var(--border, #E6EAE7) !important;
+  border-bottom: 1px solid var(--border, #E6EAE7) !important;
+  padding: 38px 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.stats-ticker-outer {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 4px 24px !important;
+  overflow: visible !important;
+}
+
+.stats-ticker-track {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  animation: none;
+}
+
+.stats-ticker-group {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 20px !important;
+  width: 100% !important;
+}
+
+.stats-ticker-group[aria-hidden="true"] {
+  display: none !important;
+}
+
+.stat-card {
+  flex: 1 1 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FAFAF9 !important;
+  border: 1px solid rgba(11, 31, 23, 0.08) !important;
+  border-radius: 18px !important;
+  padding: 18px 24px !important;
+  min-width: 160px !important;
+  max-width: 230px !important;
+  box-shadow: 0 2px 10px rgba(11, 31, 23, 0.03) !important;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+  user-select: none !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(10, 91, 56, 0.22) !important;
+  box-shadow: 0 8px 24px rgba(10, 91, 56, 0.08) !important;
+}
+
+.stat-num {
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 2.1rem !important;
+  color: #0A5C38 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1 !important;
+}
+
+.stat-label {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #526059 !important;
+  margin-top: 6px !important;
+  text-align: center !important;
+  line-height: 1.35 !important;
+  white-space: nowrap !important;
+}
+
+@keyframes statsTickerSlide {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (max-width: 900px) {
+  .stats-strip {
+    padding: 22px 0 24px !important;
+    overflow: hidden !important;
+  }
+  .stats-ticker-outer {
+    overflow: hidden !important;
+    padding: 4px 0 !important;
+    max-width: 100% !important;
+    mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%) !important;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%) !important;
+  }
+  .stats-ticker-track {
+    width: max-content !important;
+    justify-content: flex-start !important;
+    animation: statsTickerSlide 24s linear infinite !important;
+    will-change: transform !important;
+  }
+  .stats-ticker-track:hover,
+  .stats-ticker-track:active {
+    animation-play-state: paused !important;
+  }
+  .stats-ticker-group {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding-right: 14px !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+  }
+  .stats-ticker-group[aria-hidden="true"] {
+    display: flex !important;
+  }
+  .stat-card {
+    flex: 0 0 auto !important;
+    min-width: 150px !important;
+    max-width: none !important;
+    padding: 14px 20px !important;
+    border-radius: 16px !important;
+  }
+  .stat-num {
+    font-size: 1.72rem !important;
+  }
+  .stat-label {
+    font-size: 0.72rem !important;
+  }
+}
+
+/* ── FOOTER SOCIAL BUTTONS: WHITE ICONS ONLY, NO TEXT ── */
+.footer-social {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 20px !important;
+}
+
+.footer-social a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+}
+
+.footer-social a svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.footer-social a:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: #00C97A !important;
+  transform: translateY(-2px) scale(1.06) !important;
+  box-shadow: 0 6px 16px rgba(0, 201, 122, 0.24) !important;
+}
+
+.footer-social a:hover svg {
+  transform: scale(1.08) !important;
+}
+
+/* ── STAKEHOLDER CAROUSEL & LOADING GREEN PROGRESS LINE ── */
+.siteassist-progress-track {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  z-index: 5 !important;
+}
+
+@media (max-width: 768px) {
+  .siteassist-progress-track {
+    height: 2.5px !important;
+  }
+}
+
+.siteassist-progress-bar {
+  height: 100% !important;
+  width: 0%;
+  background: #00C97A !important;
+  box-shadow: 0 0 12px rgba(0, 201, 122, 0.9) !important;
+  border-radius: 3px !important;
+  transition: width 0.05s linear !important;
+}
+
+@keyframes saHeadlineFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saBodyFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saKickerFade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.siteassist-counter {
+  display: none !important;
+}
+
+.siteassist-feature-title {
+  animation: saHeadlineFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.siteassist-feature-body {
+  animation: saBodyFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both !important;
+}
+
+:deep(.social-btn.icon-only-btn),
+.social-btn.icon-only-btn {
+  width: 42px !important;
+  height: 42px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: #07261A !important;
+  border: 1px solid rgba(10, 92, 56, 0.25) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(7, 38, 26, 0.12) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+:deep(.social-btn.icon-only-btn:hover),
+.social-btn.icon-only-btn:hover {
+  background: #0A5C38 !important;
+  border-color: #0A5C38 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(10, 92, 56, 0.3) !important;
+}
+
+:deep(.social-btn.icon-only-btn svg),
+.social-btn.icon-only-btn svg {
+  display: block !important;
+  transition: transform 0.2s ease !important;
+}
+
+:deep(.social-btn.icon-only-btn:hover svg),
+.social-btn.icon-only-btn:hover svg {
+  transform: scale(1.08) !important;
+}
+
+</style>

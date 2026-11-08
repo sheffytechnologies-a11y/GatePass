@@ -1,21 +1,21 @@
 # CLAUDE.md
 
-Gatepass (shipped to users as **checkpazz**) is an estate visitor-access system: residents issue QR gate passes to visitors, security guards scan them at the gate, and estate admins manage residents, fees, news, and their SaaS subscription. Payments go through Paystack (NGN, Nigeria).
+Gatepass (shipped to users as **CheckPass**) is an estate visitor-access and operations management platform: residents issue QR gate passes to visitors, security guards scan them at the gate, and estate admins manage residents, fees, news, and their SaaS subscription. Payments go through Paystack (NGN, Nigeria).
 
 There is no root build. The repo holds three independent projects, each with its own dependencies:
 
 | Dir | What | Stack |
 |---|---|---|
-| `gatepass-api/` | REST API used by both frontends | Laravel 12, PHP 8.2, Sanctum tokens, Telescope, MySQL (SQLite in `.env.example`) |
-| `gatepass-admin/` | Web admin panel for estate admins and super admins | Vue 3 + Vite 5 + Pinia + TypeScript, dev port 3100 |
-| `gatepass-app/` | Mobile app for residents **and** security guards | Ionic 7 + Vue 3 + Capacitor 8 (`com.checkpazz.app`), Vite 4 |
+| `checkpass-api/` | REST API used by both frontends | Laravel 12, PHP 8.2, Sanctum tokens, Telescope, MySQL (SQLite in `.env.example`) |
+| `checkpass-admin/` | Web admin panel + Marketing Landing Page | Vue 3 + Vite 5 + Pinia + TypeScript, dev port 3100 |
+| `checkpass-app/` | Mobile app for residents **and** security guards | Ionic 7 + Vue 3 + Capacitor 8 (`com.checkpazz.app`), Vite 4 |
 
-The PNG screenshots in the repo root are UI reference mockups. `gatepass-app/android-old/` is a stale Android project; the live one is `gatepass-app/android/`.
+The PNG screenshots in the repo root are UI reference mockups. `checkpass-app/android-old/` is a stale Android project; the live one is `checkpass-app/android/`.
 
 ## Commands
 
 ```bash
-# API (from gatepass-api/)
+# API (from checkpass-api/)
 composer setup                 # install, copy .env, key:generate, migrate, npm build
 composer dev                   # serve + queue + pail logs + vite, all at once
 php artisan serve              # API only, on :8000
@@ -23,11 +23,11 @@ php artisan migrate:fresh --seed
 composer test                  # or: php artisan test --filter=SomeTest
 vendor/bin/pint                # PHP formatter
 
-# Admin / mobile app (from gatepass-admin/ or gatepass-app/)
+# Admin / mobile app (from checkpass-admin/ or checkpass-app/)
 npm run dev
 npm run build                  # runs vue-tsc first, so type errors fail the build
 
-# Mobile native (from gatepass-app/)
+# Mobile native (from checkpass-app/)
 npm run build && npx cap sync  # then open android/ or ios/ in the IDE
 ```
 
@@ -35,9 +35,19 @@ Both frontends deploy as SPAs to Firebase Hosting (`firebase.json`, serving `dis
 
 Tests run on in-memory SQLite (`phpunit.xml`). Only the access-phrase feature has real tests. Check other changes by hand against the running API.
 
+## Landing Page Architecture & Design System
+Detailed architecture and component design guide: see [`LANDING_PAGE_ARCHITECTURE.md`](LANDING_PAGE_ARCHITECTURE.md).
+
+* **Location:** `checkpass-admin/src/views/LandingView.vue` and `checkpass-admin/public/landing.css`.
+* **Icons:** Standardized on **Phosphor Icons Duotone** via `@phosphor-icons/web/duotone`.
+* **"How It Works":** 2-column alternating timeline card with an active blue scroll-spy tracking line (`.hiw-spine-active`). When the line reaches a step, that step's duotone icon activates with a glowing halo; when it leaves, the icon disables to a muted gray outline.
+* **Features Page:** 4 core pillars with bespoke Phosphor Duotone icon perks in 32x32px housing (`.perk-icon-wrap`).
+* **Design Rule:** No kicker/badge tags on top of copy headers.
+* **Mobile Responsiveness:** Image-first layout on mobile (`order: 1 !important` for visuals), infinite horizontal auto-ticker for statistics.
+
 ## Backend architecture
 
-All routes live in `gatepass-api/routes/api.php` under `/api/v1`. Every controller is in `app/Http/Controllers/Api/`.
+All routes live in `checkpass-api/routes/api.php` under `/api/v1`. Every controller is in `app/Http/Controllers/Api/`.
 
 ### Three kinds of authenticated actor
 
@@ -75,7 +85,7 @@ New admin endpoints that read or write estate data should use both traits.
 
 - **Resident fees**: `FeeController::initializePaystackPayment` / `verifyPaystackPayment`, plus the public webhook `POST /api/v1/paystack/webhook` (HMAC-verified). A fee verified through Paystack becomes `paid` straight away. The older manual flow (bank details + receipt upload, then admin approval) still exists.
 - **Estate subscriptions**: `BillingController` (`checkout`/`verify`) plus the public webhook `POST /api/v1/paystack/billing/webhook`. Plans are seeded by `PlanSeeder` (Free Trial with 3 units, then 50, 200, and 1,000 unit tiers; prices in NGN).
-- Keys: `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` → `config('services.paystack.*')`. The frontends use `VITE_PAYSTACK_PUBLIC_KEY` and load Paystack's inline JS (`gatepass-admin/src/composables/usePaystack.ts`, `gatepass-app/src/views/PaymentDetailsView.vue`).
+- Keys: `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` → `config('services.paystack.*')`. The frontends use `VITE_PAYSTACK_PUBLIC_KEY` and load Paystack's inline JS (`checkpass-admin/src/composables/usePaystack.ts`, `checkpass-app/src/views/PaymentDetailsView.vue`).
 
 ### API conventions
 
@@ -92,13 +102,13 @@ New admin endpoints that read or write estate data should use both traits.
 
 Both use the `@/` → `src/` alias, axios clients in `src/api/client.ts`, Pinia stores in `src/stores/`, and lazily loaded route views.
 
-### gatepass-admin
+### checkpass-admin
 - Token is stored in `localStorage` under `admin_token`, `admin_role`, `admin_user`. Any 401 clears the session and redirects to `/login`.
 - Base URL is `VITE_API_BASE_URL`, falling back to `http://localhost:8000/api`.
 - Routes carry `meta.roles` (`super_admin` | `estate_admin`), checked in `router/index.ts`. A newly registered estate admin goes to `/register/estate` to create their estate.
 - `scripts/*.mjs` generate presentation decks and are not part of the app.
 
-### gatepass-app
+### checkpass-app
 - A single app serves two roles. `stores/auth.ts` keeps `userType` (`resident` | `security`, from the login response), and views such as `HomeView` branch on `isSecurityUser`. Guards scan visitor QR codes with `jsqr` (`QRScannerModal.vue`). Residents create and share passes and pay fees.
 - Tokens: `w_token`, `w_refresh_token`, `w_user_type`. The client silently refreshes on a 401 with code `AUTH_TOKEN_EXPIRED` and queues any requests that fail while the refresh is in flight.
 - **Gotcha:** `src/api/client.ts` hardcodes the production `baseURL` (`https://erp-api.hayokmedicare.ng/api`), and the `VITE_API_BASE_URL` line is commented out. The refresh call, however, does use `VITE_API_BASE_URL`. To point the app at a local API, change both.

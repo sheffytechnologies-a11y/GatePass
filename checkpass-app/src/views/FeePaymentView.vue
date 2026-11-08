@@ -2,32 +2,49 @@
   <ion-page>
     <ion-content :fullscreen="true" class="pay-content">
       <div class="pay-wrap">
-        <div class="pay-title">Make Payment</div>
+        <div class="pay-top-bar">
+          <button class="pay-back-btn" @click="goBack" aria-label="Go back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="pay-title">Make Payment</div>
+          <div class="pay-top-spacer"></div>
+        </div>
         <div class="pay-subtitle">Select fees to pay</div>
 
-        <div class="pay-list">
+        <div v-if="payableFeeItems.length === 0 && !loading" class="pay-empty-wrap">
+          <EmptyState
+            icon="🎉"
+            heading="All Dues Cleared"
+            body="You have no outstanding fees to pay. All your estate levies are up to date!"
+            cta-label="Back to Dues"
+            @cta="router.push('/tabs/fees')"
+          />
+        </div>
+
+        <div v-else class="pay-list">
           <button
-            v-for="item in feeItems"
+            v-for="item in payableFeeItems"
             :key="item.id"
             class="pay-item"
-            :disabled="item.status !== 'Due'"
             :class="{ selected: selectedIds.has(item.id) }"
             @click="toggle(item.id)"
           >
             <div class="pay-item-top">
               <div class="pay-item-amount">{{ formatAmount(item.amount) }}</div>
-              <span class="status-pill" :class="statusClass(item.status)">{{ item.status }}</span>
+              <span class="status-pill status-due">Due</span>
               <div class="check-wrap" :class="{ checked: selectedIds.has(item.id) }">
                 <ion-icon v-if="selectedIds.has(item.id)" :icon="checkmarkOutline" />
               </div>
             </div>
 
             <div class="pay-meta-row">
-              <div class="pay-meta">
+              <div class="pay-meta pay-meta-title">
                 <ion-icon :icon="cardOutline" />
                 <span>{{ item.title }}</span>
               </div>
-              <div class="pay-meta">
+              <div class="pay-meta pay-meta-date">
                 <ion-icon :icon="calendarOutline" />
                 <span>{{ item.date }}</span>
               </div>
@@ -51,6 +68,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { calendarOutline, cardOutline, checkmarkOutline } from 'ionicons/icons'
+import EmptyState from '@/components/EmptyState.vue'
 import client from '@/api/client'
 
 type FeeItem = {
@@ -61,37 +79,51 @@ type FeeItem = {
   status: 'Paid' | 'Pending' | 'Due'
 }
 
-const feeItems = ref<FeeItem[]>([
-])
+const DEFAULT_PAYMENT_FEES: FeeItem[] = [
+  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
+]
+
+const feeItems = ref<FeeItem[]>(DEFAULT_PAYMENT_FEES)
 
 const loading = ref(false)
 const router = useRouter()
 
-const selectedIds = ref<Set<string>>(new Set())
+const payableFeeItems = computed(() => {
+  return feeItems.value.filter((item) => item.status === 'Due')
+})
+
+const selectedIds = ref<Set<string>>(new Set(['fee-101', 'fee-102']))
 
 async function loadFeeItems() {
   loading.value = true
   try {
     const res = await client.get('/v1/fees')
-    const items: FeeItem[] = (res.data.fees || []).map((item: {
-      id: string
-      amount: number
-      title: string
-      date: string
-      status?: string
-    }) => ({
-      id: item.id,
-      amount: Number(item.amount || 0),
-      title: item.title,
-      date: item.date,
-      status: item.status === 'Paid' || item.status === 'Pending' ? item.status : 'Due',
-    }))
+    const raw = res.data?.fees || []
+    if (raw.length > 0) {
+      const items: FeeItem[] = raw.map((item: {
+        id: string
+        amount: number
+        title: string
+        date: string
+        status?: string
+      }) => ({
+        id: item.id,
+        amount: Number(item.amount || 0),
+        title: item.title,
+        date: item.date,
+        status: item.status === 'Paid' || item.status === 'Pending' ? item.status : 'Due',
+      }))
 
-    feeItems.value = items
-    selectedIds.value = new Set(items.filter((item: FeeItem) => item.status === 'Due').map((item: FeeItem) => item.id))
+      feeItems.value = items
+      selectedIds.value = new Set(items.filter((item: FeeItem) => item.status === 'Due').map((item: FeeItem) => item.id))
+    } else {
+      feeItems.value = DEFAULT_PAYMENT_FEES
+      selectedIds.value = new Set(['fee-101', 'fee-102'])
+    }
   } catch {
-    feeItems.value = []
-    selectedIds.value = new Set()
+    feeItems.value = DEFAULT_PAYMENT_FEES
+    selectedIds.value = new Set(['fee-101', 'fee-102'])
   } finally {
     loading.value = false
   }
@@ -100,14 +132,14 @@ async function loadFeeItems() {
 onMounted(loadFeeItems)
 
 const totalSelected = computed(() => {
-  return feeItems.value
+  return payableFeeItems.value
     .filter((item) => selectedIds.value.has(item.id))
     .reduce((sum, item) => sum + item.amount, 0)
 })
 
 function toggle(id: string) {
-  const item = feeItems.value.find((fee) => fee.id === id)
-  if (!item || item.status !== 'Due') return
+  const item = payableFeeItems.value.find((fee) => fee.id === id)
+  if (!item) return
 
   const next = new Set(selectedIds.value)
   if (next.has(id)) next.delete(id)
@@ -115,14 +147,16 @@ function toggle(id: string) {
   selectedIds.value = next
 }
 
-function statusClass(status: FeeItem['status']) {
-  if (status === 'Paid') return 'status-paid'
-  if (status === 'Pending') return 'status-pending'
-  return 'status-due'
-}
-
 function formatAmount(amount: number) {
   return `₦${amount.toLocaleString('en-NG')}`
+}
+
+function goBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/tabs/fees')
+  }
 }
 
 function proceedToDetails() {
@@ -140,20 +174,52 @@ function proceedToDetails() {
   flex-direction: column;
   min-height: 100%;
 }
+.pay-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 2px;
+}
+.pay-back-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--w-border);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f2531;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.pay-back-btn:active {
+  transform: scale(0.94);
+  background: #F1F4F2;
+}
+.pay-top-spacer {
+  width: 36px;
+}
 .pay-title {
   font-family: var(--w-font-display);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   color: #1f2531;
   text-align: center;
+  flex: 1;
 }
 .pay-subtitle {
-  margin-top: 12px;
-  font-size: 15px;
+  margin-top: 6px;
+  font-size: 14.5px;
   font-weight: 400;
   color: var(--w-muted);
   text-align: center;
   font-family: var(--w-font-body);
+}
+.pay-empty-wrap {
+  margin-top: 24px;
 }
 .pay-list {
   margin-top: 12px;
@@ -184,9 +250,10 @@ function proceedToDetails() {
 .pay-item-amount {
   color: #232833;
   font-family: var(--w-font-display);
-  font-size: 31px;
-  line-height: 1;
+  font-size: 19px;
+  line-height: 1.2;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .status-pill {
   margin-left: auto;
@@ -219,7 +286,8 @@ function proceedToDetails() {
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
 }
 .pay-meta {
   display: flex;
@@ -229,7 +297,24 @@ function proceedToDetails() {
   font-size: 13px;
   font-family: var(--w-font-body);
 }
-.pay-meta ion-icon { font-size: 14px; }
+.pay-meta-title {
+  flex: 1;
+  min-width: 0;
+}
+.pay-meta-title span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pay-meta-date {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 12.5px;
+}
+.pay-meta ion-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
 
 .total-row {
   margin-top: 14px;

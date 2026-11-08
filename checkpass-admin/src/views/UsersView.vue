@@ -187,7 +187,7 @@
     </div>
 
     <!-- User list -->
-    <div v-if="loading" class="state-box"><div class="spinner"></div></div>
+    <div v-if="loading" class="state-box"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
     <div v-else-if="users.length === 0" class="state-box">No users found.</div>
     <div v-else class="user-list">
       <article v-for="user in users" :key="user.id" class="user-row" @click="openEdit(user)">

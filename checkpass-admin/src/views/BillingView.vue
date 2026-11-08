@@ -6,7 +6,7 @@
       <p class="hero-copy">Upgrade, renew, or top up units any time. Payments are handled securely through Paystack.</p>
     </section>
 
-    <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+    <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
 
     <template v-else-if="subscription">
       <div v-if="subscription.isPastDue || subscription.renewalOverdue" class="banner banner-warning">

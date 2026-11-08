@@ -19,12 +19,30 @@ class Estate extends Model
         'bank_name',
         'account_number',
         'account_name',
+        'property_structure',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'property_structure' => 'array',
     ];
+
+    public function getPropertyStructureOrDefault(): array
+    {
+        if (! empty($this->property_structure)) {
+            return $this->property_structure;
+        }
+
+        return [
+            'preset' => 'lane_house_flat',
+            'levels' => [
+                ['level' => 1, 'name' => 'Lane', 'slug' => 'lane', 'required' => true],
+                ['level' => 2, 'name' => 'House', 'slug' => 'house', 'required' => true],
+                ['level' => 3, 'name' => 'Flat', 'slug' => 'flat', 'required' => false],
+            ],
+        ];
+    }
 
     public function units()
     {

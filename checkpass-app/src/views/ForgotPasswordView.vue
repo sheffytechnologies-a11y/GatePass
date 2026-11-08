@@ -43,7 +43,7 @@
             <button type="button" class="use-otp-btn" @click="otp = debugOtp">Fill Code</button>
           </div>
 
-          <!-- STEP 1: REQUEST CODE -->
+          <!-- STEP 1: REQUEST OTP -->
           <form v-if="step === 1" @submit.prevent="handleRequestOtp" class="recovery-form">
             <div class="field">
               <label class="field-label">Registered Phone or Email <span class="req">*</span></label>
@@ -54,7 +54,7 @@
                 <input
                   v-model="identifier"
                   type="text"
-                  placeholder="e.g. 0813 248 9619 or name@domain.com"
+                  placeholder="e.g. 0803 000 0000 or name@domain.com"
                   autocomplete="username"
                   required
                 />
@@ -68,26 +68,24 @@
             >
               <span v-if="loading" class="spinner"></span>
               <span v-else class="btn-text">
-                Send Verification Code
+                Send 6-Digit OTP
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </span>
             </button>
           </form>
 
-          <!-- STEP 2: VERIFY CODE & NEW PASSWORD -->
-          <form v-else @submit.prevent="handleResetPassword" class="recovery-form">
-            
-            <!-- OTP Input -->
+          <!-- STEP 2: VERIFY OTP FIRST -->
+          <form v-else-if="step === 2" @submit.prevent="handleVerifyOtp" class="recovery-form">
             <div class="field">
               <div class="field-header-row">
-                <label class="field-label">6-digit verification code <span class="req">*</span></label>
+                <label class="field-label">Enter 6-digit OTP <span class="req">*</span></label>
                 <button
                   type="button"
                   class="resend-link"
                   :disabled="resendCooldown > 0 || loading"
                   @click="handleRequestOtp"
                 >
-                  {{ resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code' }}
+                  {{ resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP' }}
                 </button>
               </div>
               <div class="input-wrap otp-input-wrap">
@@ -99,8 +97,29 @@
                   placeholder="••••••"
                   class="otp-input"
                   required
+                  autocomplete="one-time-code"
                 />
               </div>
+            </div>
+
+            <button
+              type="submit"
+              class="primary-btn"
+              :disabled="loading || otp.trim().length < 6"
+            >
+              <span v-if="loading" class="spinner"></span>
+              <span v-else class="btn-text">
+                Verify OTP
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </span>
+            </button>
+          </form>
+
+          <!-- STEP 3: SET NEW PASSWORD (ONLY AFTER OTP CONFIRMED) -->
+          <form v-else-if="step === 3" @submit.prevent="handleResetPassword" class="recovery-form">
+            <div class="otp-verified-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>OTP verified for <strong>{{ identifier }}</strong></span>
             </div>
 
             <!-- New Password -->
@@ -154,7 +173,7 @@
             >
               <span v-if="loading" class="spinner"></span>
               <span v-else class="btn-text">
-                Reset Password &amp; Enter Checkpass
+                Update Password &amp; Enter Checkpass
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </span>
             </button>
@@ -186,7 +205,7 @@ const router = useRouter()
 const auth   = useAuthStore()
 const { showToast } = useToast()
 
-const step            = ref<1 | 2>(1)
+const step            = ref<1 | 2 | 3>(1)
 const identifier      = ref('')
 const otp             = ref('')
 const newPassword     = ref('')
@@ -233,12 +252,32 @@ async function handleRequestOtp() {
     const res = await authApi.forgotPassword(identifier.value.trim())
     step.value = 2
     startCooldown()
-    showToast(res.data?.message || 'Verification code dispatched.', 'success')
+    showToast(res.data?.message || 'A 6-digit OTP has been sent.', 'success')
     if (res.data?.debugOtp) {
       debugOtp.value = res.data.debugOtp
     }
   } catch (e: any) {
     const msg = e.response?.data?.message || e.response?.data?.errors?.identifier?.[0] || 'Could not send verification code.'
+    errorMsg.value = msg
+    showToast(msg, 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleVerifyOtp() {
+  errorMsg.value = ''
+  if (otp.value.trim().length !== 6) {
+    errorMsg.value = 'Please enter a valid 6-digit OTP.'
+    return
+  }
+  loading.value = true
+  try {
+    await authApi.verifyResetOtp(identifier.value.trim(), otp.value.trim())
+    step.value = 3
+    showToast('OTP verified successfully! Now set your new password.', 'success')
+  } catch (e: any) {
+    const msg = e.response?.data?.message || e.response?.data?.errors?.otp?.[0] || 'The 6-digit OTP is incorrect or has expired.'
     errorMsg.value = msg
     showToast(msg, 'error')
   } finally {
@@ -449,6 +488,7 @@ function goBack() {
   background: #F8FAFC;
   border: 1.5px solid #E2E8F0;
   border-radius: 14px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -465,6 +505,7 @@ function goBack() {
   align-items: center;
   color: #94A3B8;
   pointer-events: none;
+  z-index: 2;
 }
 
 .input-wrap input {
@@ -473,9 +514,28 @@ function goBack() {
   padding: 0 16px 0 42px;
   border: none;
   background: transparent;
+  border-radius: 14px;
   font-size: 15px;
   color: #0F172A;
   outline: none;
+}
+
+/* Eliminate browser autofill light-blue background and cut-corner clipping */
+.input-wrap input:-webkit-autofill,
+.input-wrap input:-webkit-autofill:hover,
+.input-wrap input:-webkit-autofill:focus,
+.input-wrap input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: 14px !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrap:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+  box-shadow: 0 0 0 1000px #F8FAFC inset !important;
 }
 
 .otp-input-wrap input {
@@ -583,5 +643,21 @@ function goBack() {
 .back-link-btn:hover {
   color: #0A5C38;
   text-decoration: underline;
+}
+</style>
+
+<style scoped>
+.otp-verified-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #E6F4EE;
+  border: 1px solid #A7F3D0;
+  color: #0A5C38;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 12px;
 }
 </style>

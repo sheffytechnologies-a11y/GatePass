@@ -1,15 +1,13 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title slot="start" class="home-title">{{ greeting }}, {{ firstName }} 👋</ion-title>
-        <div slot="end">
+    <ion-content :fullscreen="true" class="home-content">
+      <!-- Scrollable Top Greeting Bar (scrolls away as tabs approach the top) -->
+      <div class="home-top-bar">
+        <h1 class="home-title">{{ greeting }}, {{ firstName }} 👋</h1>
+        <div class="home-notif-wrap">
           <NotifBell :count="notifStore.unreadCount" @click="router.push('/notifications')" />
         </div>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content :fullscreen="true" class="home-content">
+      </div>
       <ion-refresher slot="fixed" @ionRefresh="onRefresh">
         <ion-refresher-content />
       </ion-refresher>
@@ -77,8 +75,6 @@
             :stats="summary.stats"
           />
 
-          <AccessPhraseCard />
-
           <section class="section">
             <div class="passes-shell">
               <!-- Sticky Tab Navigation Bar (fixed when reaching the top) -->
@@ -96,7 +92,7 @@
                     :class="{ active: activeHomeTab === 'news' }"
                     @click="activeHomeTab = 'news'"
                   >
-                    <span>News</span>
+                    <span>Announcements</span>
                     <span v-if="unreadNewsCount > 0" class="tab-unread-pill">{{ unreadNewsCount }}</span>
                   </button>
                   <button
@@ -111,7 +107,7 @@
 
               <!-- ── PASSES TAB ── -->
               <template v-if="activeHomeTab === 'passes'">
-                <div v-if="activePasses.length === 0">
+                <div v-if="displayedHomePasses.length === 0">
                   <EmptyState
                     icon="🎟️"
                     heading="No active passes"
@@ -122,7 +118,7 @@
                 </div>
                 <div v-else class="pass-mini-list">
                   <button
-                    v-for="pass in activePasses"
+                    v-for="pass in displayedHomePasses"
                     :key="pass.id"
                     class="pass-mini-row"
                     @click="router.push(`/pass/${pass.id}`)"
@@ -137,7 +133,13 @@
                     <span class="pass-mini-status" :class="statusClass(pass.status)">{{ pass.status }}</span>
                   </button>
 
-                  <button class="view-all-btn" @click="router.push('/tabs/passes')">View all passes</button>
+                  <button
+                    v-if="hasMoreThanFivePasses"
+                    class="view-all-btn"
+                    @click="router.push('/passes')"
+                  >
+                    View all passes
+                  </button>
                 </div>
               </template>
 
@@ -199,11 +201,9 @@
                     >
                       <div class="news-card-header">
                         <div class="news-badge-group">
-                          <span v-if="!readNewsIds.includes(item.id)" class="news-status-badge news-status-badge--unread">
-                            ● New
-                          </span>
-                          <span v-else class="news-status-badge news-status-badge--read">
-                            Read
+                          <span class="news-role-badge">
+                            <span v-if="!readNewsIds.includes(item.id)" class="news-unread-dot"></span>
+                            {{ formatAdminRole(item.authorRole || item.adminRole) }}
                           </span>
                           <span class="news-date-text">{{ fmtNewsDate(item.createdAt) }}</span>
                         </div>
@@ -222,11 +222,78 @@
                       </div>
 
                       <div class="news-card-title">{{ item.title }}</div>
-                      <div class="news-card-snippet">{{ item.content }}</div>
+                      <div
+                        class="news-card-snippet"
+                        :class="{ 'is-expanded': expandedNewsIds.includes(item.id) }"
+                      >
+                        {{ item.content }}
+                      </div>
 
                       <div class="news-card-footer">
-                        <span class="read-more-link">Tap to read full notice &rarr;</span>
+                        <button
+                          type="button"
+                          class="news-card-comment-btn"
+                          @click.stop="toggleInlineComments(item.id)"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                          </svg>
+                          <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
+                        </button>
+
+                        <button
+                          v-if="isLongNewsContent(item.content)"
+                          type="button"
+                          class="news-see-more-link"
+                          @click.stop="toggleExpandNews(item.id)"
+                        >
+                          {{ expandedNewsIds.includes(item.id) ? 'See less' : 'See more' }}
+                        </button>
                       </div>
+
+                      <!-- Inline Comments Accordion -->
+                      <transition name="slide-fade">
+                        <div
+                          v-if="openInlineCommentsIds.includes(item.id)"
+                          class="news-inline-comments-box"
+                          @click.stop
+                        >
+                          <!-- Comment Composer -->
+                          <div class="inline-comment-row">
+                            <input
+                              v-model="inlineCommentInputs[item.id]"
+                              type="text"
+                              class="inline-comment-input"
+                              placeholder="Write a comment..."
+                              maxlength="200"
+                              @keydown.enter.prevent="submitInlineComment(item.id)"
+                            />
+                            <button
+                              class="inline-comment-post-btn"
+                              :disabled="!inlineCommentInputs[item.id] || !inlineCommentInputs[item.id].trim()"
+                              @click="submitInlineComment(item.id)"
+                            >
+                              Post
+                            </button>
+                          </div>
+
+                          <!-- Existing Comments List -->
+                          <div v-if="getNewsComments(item.id).length > 0" class="inline-comments-stream">
+                            <div
+                              v-for="c in getNewsComments(item.id)"
+                              :key="c.id"
+                              class="inline-comment-entry"
+                            >
+                              <div class="inline-comment-header">
+                                <span class="inline-comment-author">{{ c.authorName }}</span>
+                                <span class="inline-comment-time">{{ c.createdAt }}</span>
+                              </div>
+                              <div class="inline-comment-msg">{{ c.content }}</div>
+                            </div>
+                          </div>
+                          <div v-else class="inline-no-comments">No comments yet. Be the first to comment!</div>
+                        </div>
+                      </transition>
                     </div>
                   </div>
                 </div>
@@ -321,40 +388,40 @@
                       />
                     </div>
 
-                    <!-- Services Filled State (Clean card: opens details modal) -->
-                    <div v-else class="artisan-list">
+                    <!-- Services Filled State: 2 Cards per Row Grid -->
+                    <div v-else class="artisan-grid">
                       <div
                         v-for="artisan in displayedArtisans"
                         :key="artisan.id"
                         class="artisan-card"
                         @click="openArtisanModal(artisan)"
                       >
-                        <div class="artisan-top">
-                          <div class="artisan-avatar" :style="{ background: artisan.avatarBg }">
-                            {{ artisan.initials }}
+                        <!-- Cover Image Banner -->
+                        <div class="artisan-cover-wrap">
+                          <div class="artisan-cover-placeholder">
+                            <span>{{ getCategoryIcon(artisan.category) }}</span>
                           </div>
-                          <div class="artisan-meta">
-                            <div class="artisan-name-row">
-                              <span class="artisan-name">{{ artisan.name }}</span>
-                              <span class="vetted-inline-badge">✓ Verified</span>
-                            </div>
-                            <div class="artisan-trade">{{ artisan.trade }}</div>
-                            <div class="artisan-rating-row">
-                              <span class="rating-star">★</span>
-                              <span class="rating-val">{{ artisan.rating }}</span>
-                              <span class="rating-count">({{ artisan.reviews.length }} resident reviews)</span>
-                            </div>
-                          </div>
-                          <div class="artisan-chevron-box">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M9 18l6-6-6-6"/>
-                            </svg>
-                          </div>
+                          <img
+                            :src="artisan.imageUrl || getCategoryCover(artisan.category)"
+                            :alt="artisan.name"
+                            class="artisan-cover-img"
+                            loading="lazy"
+                            @error="(e) => (e.target as HTMLElement).style.opacity = '0'"
+                          />
+                          <span class="artisan-category-chip-floating">{{ artisan.category }}</span>
                         </div>
 
-                        <div class="artisan-card-footer">
-                          <span class="card-action-text">View Profile &amp; Reviews</span>
-                          <span class="card-action-arrow">→</span>
+                        <!-- Card Body: Name on top, Rating & Reviews together at the bottom of the name -->
+                        <div class="artisan-card-body">
+                          <div class="artisan-name">{{ artisan.name }}</div>
+
+                          <div class="artisan-rating-row">
+                            <span class="rating-star">★</span>
+                            <span class="rating-score">{{ artisan.rating }}</span>
+                            <span class="rating-reviews">({{ artisan.reviews.length }} {{ artisan.reviews.length === 1 ? 'review' : 'reviews' }})</span>
+                          </div>
+
+                          <div class="artisan-trade">{{ artisan.trade }}</div>
                         </div>
                       </div>
                     </div>
@@ -423,20 +490,27 @@
     />
 
     <!-- Artisan Details & Reviews Modal -->
-    <ion-modal
-      :is-open="!!selectedArtisan"
-      class="artisan-sheet-modal"
-      @didDismiss="closeArtisanModal"
-    >
-      <div v-if="selectedArtisan" class="sheet-modal-shell artisan-sheet-content">
-        <!-- Top Header -->
-        <div class="sheet-modal-header">
-          <div>
-            <div class="sheet-header-tag">Estate Verified Service</div>
-            <h2 class="sheet-header-title">{{ selectedArtisan.name }}</h2>
-          </div>
-          <button class="modal-close-btn" @click="closeArtisanModal">&times;</button>
-        </div>
+    <Teleport to="body">
+      <Transition name="sheet-modal">
+        <div
+          v-if="selectedArtisan"
+          class="custom-sheet-overlay"
+          @click.self="closeArtisanModal"
+        >
+          <div class="custom-sheet-container artisan-custom-sheet">
+            <!-- Grab handle -->
+            <div class="sheet-drag-handle-bar" @click="closeArtisanModal">
+              <div class="sheet-drag-handle" />
+            </div>
+
+            <!-- Top Header -->
+            <div class="sheet-modal-header">
+              <div>
+                <div class="sheet-header-tag">Estate Verified Service</div>
+                <h2 class="sheet-header-title">{{ selectedArtisan.name }}</h2>
+              </div>
+              <button class="modal-close-btn" @click="closeArtisanModal" aria-label="Close">&times;</button>
+            </div>
 
         <div class="sheet-modal-body artisan-sheet-scroll">
           <!-- Artisan Profile Header -->
@@ -468,17 +542,12 @@
             </div>
           </div>
 
-          <!-- Artisan Bio & Rate Info -->
+          <!-- Estate Security Clearance Info -->
           <div class="artisan-info-card">
-            <div v-if="selectedArtisan.priceTag" class="info-card-item">
-              <span class="info-label">Standard Call-out / Estimate:</span>
-              <span class="info-value price-highlight">{{ selectedArtisan.priceTag }}</span>
-            </div>
             <div class="info-card-item">
               <span class="info-label">Estate Security Clearance:</span>
               <span class="info-value text-green">Cleared for Resident Access</span>
             </div>
-            <p v-if="selectedArtisan.bio" class="artisan-bio-text">{{ selectedArtisan.bio }}</p>
           </div>
 
           <!-- Direct Actions: WhatsApp and Phone Call -->
@@ -590,26 +659,37 @@
           </div>
         </div>
       </div>
-    </ion-modal>
+    </div>
+  </Transition>
+</Teleport>
 
     <!-- News Article Detail Modal -->
-    <ion-modal
-      :is-open="!!selectedNewsItem"
-      class="news-modal-sheet"
-      @didDismiss="selectedNewsItem = null"
-    >
-      <div v-if="selectedNewsItem" class="sheet-modal-shell news-sheet-content">
-        <div class="sheet-modal-header">
-          <div>
-            <div class="sheet-header-tag">Estate Announcement</div>
-            <h2 class="sheet-header-title">{{ selectedNewsItem.title }}</h2>
-          </div>
-          <button class="modal-close-btn" @click="selectedNewsItem = null">&times;</button>
-        </div>
+    <Teleport to="body">
+      <Transition name="sheet-modal">
+        <div
+          v-if="selectedNewsItem"
+          class="custom-sheet-overlay"
+          @click.self="selectedNewsItem = null"
+        >
+          <div class="custom-sheet-container news-custom-sheet">
+            <!-- Grab handle -->
+            <div class="sheet-drag-handle-bar" @click="selectedNewsItem = null">
+              <div class="sheet-drag-handle" />
+            </div>
 
-        <div class="sheet-modal-body news-sheet-scroll">
+            <div class="sheet-modal-header">
+              <div>
+                <div class="sheet-header-tag">Estate Announcement</div>
+                <h2 class="sheet-header-title">{{ selectedNewsItem.title }}</h2>
+              </div>
+              <button class="modal-close-btn" @click="selectedNewsItem = null">&times;</button>
+            </div>
+
+        <div class="sheet-modal-body news-sheet-scroll" id="newsModalScrollBody">
           <div class="news-sheet-meta">
-            <span class="news-sheet-badge">Estate Announcement</span>
+            <span class="news-role-badge">
+              {{ formatAdminRole(selectedNewsItem.authorRole || selectedNewsItem.adminRole) }}
+            </span>
             <span class="news-sheet-date">{{ fmtNewsDate(selectedNewsItem.createdAt) }}</span>
           </div>
 
@@ -623,6 +703,58 @@
             <p v-for="(paragraph, idx) in selectedNewsItem.content.split('\n')" :key="idx" class="news-sheet-p">
               {{ paragraph }}
             </p>
+          </div>
+
+          <!-- ── COMMENTS SECTION ── -->
+          <div class="news-comments-section" id="newsCommentsSection">
+            <div class="news-comments-header">
+              <span class="news-comments-title">
+                Comments ({{ getNewsComments(selectedNewsItem.id).length }})
+              </span>
+            </div>
+
+            <!-- Comment Composer -->
+            <div class="news-comment-composer">
+              <input
+                id="newsCommentInput"
+                v-model="newNewsCommentText"
+                type="text"
+                class="news-comment-input"
+                placeholder="Write a comment..."
+                @keydown.enter.prevent="submitNewsComment(selectedNewsItem.id)"
+              />
+              <button
+                class="news-comment-submit-btn"
+                :disabled="!newNewsCommentText.trim() || submittingComment"
+                @click="submitNewsComment(selectedNewsItem.id)"
+              >
+                Post
+              </button>
+            </div>
+
+            <!-- Comments List -->
+            <div class="news-comments-list">
+              <div
+                v-for="c in getNewsComments(selectedNewsItem.id)"
+                :key="c.id"
+                class="news-comment-item"
+              >
+                <div class="news-comment-avatar">
+                  {{ (c.authorName || 'R').charAt(0).toUpperCase() }}
+                </div>
+                <div class="news-comment-content">
+                  <div class="news-comment-top">
+                    <span class="news-comment-author">{{ c.authorName }}</span>
+                    <span v-if="c.authorUnit" class="news-comment-unit">• {{ c.authorUnit }}</span>
+                    <span class="news-comment-time">{{ c.createdAt }}</span>
+                  </div>
+                  <div class="news-comment-text">{{ c.content }}</div>
+                </div>
+              </div>
+              <div v-if="getNewsComments(selectedNewsItem.id).length === 0" class="news-comments-empty">
+                No comments yet. Be the first to leave a comment.
+              </div>
+            </div>
           </div>
 
           <div class="news-sheet-actions">
@@ -642,7 +774,9 @@
           </div>
         </div>
       </div>
-    </ion-modal>
+    </div>
+  </Transition>
+</Teleport>
   </ion-page>
 </template>
 
@@ -650,12 +784,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
-  IonRefresher, IonRefresherContent, IonSkeletonText, IonModal,
+  IonPage, IonContent,
+  IonRefresher, IonRefresherContent, IonSkeletonText,
 } from '@ionic/vue'
 // import type { Notification } from '@/types'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
+import { usePassesStore } from '@/stores/passes'
 import EstateHero from '@/components/EstateHero.vue'
 import PassCard from '@/components/PassCard.vue'
 import NotifBell from '@/components/NotifBell.vue'
@@ -663,17 +798,20 @@ import EmptyState from '@/components/EmptyState.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import QRScannerModal from '@/components/QRScannerModal.vue'
-import AccessPhraseCard from '@/components/AccessPhraseCard.vue'
 import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
+import { MOCK_HOME_SUMMARY, MOCK_RESIDENT } from '@/api/mock'
 
 export type NewsFeedItem = {
   id: number
   title: string
   content: string
   image: string | null
+  authorRole?: string | null
+  adminRole?: string | null
+  adminName?: string | null
   createdAt: string | null
 }
 
@@ -694,16 +832,16 @@ export interface ArtisanItem {
   phone: string
   whatsapp: string
   rating: number
-  priceTag: string
   avatarBg: string
   initials: string
-  bio: string
+  imageUrl?: string
   reviews: ArtisanReview[]
 }
 
 const router     = useRouter()
 const auth       = useAuthStore()
 const notifStore = useNotificationsStore()
+const passesStore= usePassesStore()
 const { showToast } = useToast()
 
 const scannerOpen = ref(false)
@@ -739,6 +877,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 101,
     title: 'Routine Transformer Maintenance & Grid Switchover',
+    authorRole: 'Estate Admin',
     content: 'Dear Residents, please be informed that the estate facilities management team will be conducting scheduled quarterly maintenance on the central power transformer this Saturday between 10:00 AM and 2:00 PM. Alternative backup generators will supply essential street lighting and security gate systems during the maintenance window.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
@@ -746,6 +885,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 102,
     title: 'Access Control Security Notice: Visitor Pre-Registration',
+    authorRole: 'Estate Admin',
     content: 'In accordance with our estate security protocol, all visitors, ride-hailing cabs, and delivery dispatch riders must have a valid Checkpass QR code or 6-digit access code generated prior to arrival at the main gates. Thank you for keeping our community safe.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 28).toISOString(),
@@ -753,6 +893,7 @@ const defaultEstateNews: NewsFeedItem[] = [
   {
     id: 103,
     title: 'Monthly Estate Environmental Sanitation Exercise',
+    authorRole: 'Estate Exco',
     content: 'This is a gentle reminder that the mandatory estate-wide clean-up exercise holds on the last Saturday of the month from 7:00 AM to 10:00 AM. Vehicular movement within the estate will be temporarily restricted during these hours.',
     image: null,
     createdAt: new Date(Date.now() - 3600 * 1000 * 72).toISOString(),
@@ -805,9 +946,175 @@ function markAllNewsRead() {
   showToast('All announcements marked as read', 'success')
 }
 
-function openNewsArticle(item: NewsFeedItem) {
+
+export interface NewsComment {
+  id: string
+  newsId: number
+  authorName: string
+  authorUnit: string
+  authorRole?: string
+  content: string
+  createdAt: string
+}
+
+const newsCommentsStorageKey = 'checkpass_news_comments'
+
+const initialDefaultNewsComments: Record<number, NewsComment[]> = {
+  101: [
+    {
+      id: 'c-101-1',
+      newsId: 101,
+      authorName: 'Engr. Tunde Adeleke',
+      authorUnit: 'House 4B',
+      content: 'Thank you for the early notice. Will borehole pumps remain powered on backup generators?',
+      createdAt: '2 hours ago',
+    },
+    {
+      id: 'c-101-2',
+      newsId: 101,
+      authorName: 'Estate Admin',
+      authorUnit: 'Facility Office',
+      authorRole: 'Estate Admin',
+      content: 'Yes Engr. Tunde, generator circuit 2 feeds the borehole pump station throughout.',
+      createdAt: '1 hour ago',
+    },
+  ],
+  102: [
+    {
+      id: 'c-102-1',
+      newsId: 102,
+      authorName: 'Mrs. Folake Adeyemi',
+      authorUnit: 'Flat 12',
+      content: 'This has reduced waiting queues at the main gate significantly this morning.',
+      createdAt: 'Yesterday',
+    },
+  ],
+}
+
+function loadInitialNewsComments(): Record<number, NewsComment[]> {
+  try {
+    const raw = localStorage.getItem(newsCommentsStorageKey)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return initialDefaultNewsComments
+}
+
+const newsCommentsMap = ref<Record<number, NewsComment[]>>(loadInitialNewsComments())
+
+function getNewsComments(newsId: number): NewsComment[] {
+  return newsCommentsMap.value[newsId] || []
+}
+
+const newNewsCommentText = ref('')
+const submittingComment = ref(false)
+
+function submitNewsComment(newsId: number) {
+  const text = newNewsCommentText.value.trim()
+  if (!text || submittingComment.value) return
+  submittingComment.value = true
+
+  const authorName = auth.resident?.name || 'Resident Neighbor'
+  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+
+  const newComment: NewsComment = {
+    id: 'c-' + Date.now(),
+    newsId,
+    authorName,
+    authorUnit,
+    content: text,
+    createdAt: 'Just now',
+  }
+
+  if (!newsCommentsMap.value[newsId]) {
+    newsCommentsMap.value[newsId] = []
+  }
+  newsCommentsMap.value[newsId].push(newComment)
+
+  try {
+    localStorage.setItem(newsCommentsStorageKey, JSON.stringify(newsCommentsMap.value))
+  } catch {}
+
+  newNewsCommentText.value = ''
+  submittingComment.value = false
+  showToast('Comment posted', 'success')
+}
+
+
+const expandedNewsIds = ref<number[]>([])
+const openInlineCommentsIds = ref<number[]>([])
+const inlineCommentInputs = ref<Record<number, string>>({})
+
+function toggleExpandNews(id: number) {
+  const idx = expandedNewsIds.value.indexOf(id)
+  if (idx >= 0) expandedNewsIds.value.splice(idx, 1)
+  else expandedNewsIds.value.push(id)
+}
+
+function toggleInlineComments(id: number) {
+  const idx = openInlineCommentsIds.value.indexOf(id)
+  if (idx >= 0) {
+    openInlineCommentsIds.value.splice(idx, 1)
+  } else {
+    openInlineCommentsIds.value.push(id)
+    if (!inlineCommentInputs.value[id]) {
+      inlineCommentInputs.value[id] = ''
+    }
+  }
+}
+
+function submitInlineComment(newsId: number) {
+  const text = (inlineCommentInputs.value[newsId] || '').trim()
+  if (!text) return
+
+  const authorName = auth.resident?.name || 'Resident Neighbor'
+  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+
+  const newComment: NewsComment = {
+    id: 'c-' + Date.now(),
+    newsId,
+    authorName,
+    authorUnit,
+    content: text,
+    createdAt: 'Just now',
+  }
+
+  if (!newsCommentsMap.value[newsId]) {
+    newsCommentsMap.value[newsId] = []
+  }
+  newsCommentsMap.value[newsId].push(newComment)
+
+  try {
+    localStorage.setItem(newsCommentsStorageKey, JSON.stringify(newsCommentsMap.value))
+  } catch {}
+
+  inlineCommentInputs.value[newsId] = ''
+  showToast('Comment posted', 'success')
+}
+
+function isLongNewsContent(text: string): boolean {
+  if (!text) return false
+  return text.length > 95 || text.includes('\n')
+}
+
+function formatAdminRole(role?: string | null): string {
+  if (!role) return 'Estate Admin'
+  if (role === 'super_admin') return 'Super Admin'
+  if (role === 'estate_admin') return 'Estate Admin'
+  if (role === 'exco') return 'Estate Exco'
+  if (role === 'manager') return 'Estate Manager'
+  return role
+}
+
+function openNewsArticle(item: NewsFeedItem, focusComment = false) {
   markNewsRead(item.id)
   selectedNewsItem.value = item
+  newNewsCommentText.value = ''
+  if (focusComment) {
+    setTimeout(() => {
+      const input = document.getElementById('newsCommentInput') as HTMLInputElement | null
+      if (input) input.focus()
+    }, 280)
+  }
 }
 
 function dismissNews(id: number, e?: Event) {
@@ -831,19 +1138,47 @@ const serviceCategories = ['All', 'Electrician', 'Plumber', 'AC Repair', 'Cleani
 const activeServiceCategory = ref('All')
 const simulateEmptyServices = ref(false)
 
+function getCategoryCover(category: string): string {
+  switch (category) {
+    case 'Electrician':
+      return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80'
+    case 'Plumber':
+      return 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=500&q=80'
+    case 'AC Repair':
+      return 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=500&q=80'
+    case 'Cleaning':
+      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+    case 'Carpentry':
+      return 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80'
+    default:
+      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+  }
+}
+
+function getCategoryIcon(category: string): string {
+  switch (category) {
+    case 'Electrician': return '⚡'
+    case 'Plumber': return '🔧'
+    case 'AC Repair': return '❄️'
+    case 'Cleaning': return '✨'
+    case 'Carpentry': return '🪚'
+    case 'Buy & Sell': return '🛍️'
+    default: return '🛠️'
+  }
+}
+
 const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-1',
     name: 'Chinedu Okafor',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80',
     trade: 'Senior Electrician & Inverter Specialist',
     category: 'Electrician',
     phone: '+2348031234567',
     whatsapp: '2348031234567',
     rating: 4.9,
-    priceTag: 'From ₦4,000 call-out',
     avatarBg: '#0A5C38',
     initials: 'CO',
-    bio: 'Over 12 years experience in high-grade residential electrical wiring, lithium/tubular inverter backup installations, solar hybrid integration, and DB panel troubleshooting.',
     reviews: [
       {
         id: 'rev-1',
@@ -874,15 +1209,14 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-2',
     name: 'Sunday Adebayo',
+    imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=500&q=80',
     trade: 'Plumbing & Water Heaters',
     category: 'Plumber',
     phone: '+2348059876543',
     whatsapp: '2348059876543',
     rating: 4.8,
-    priceTag: 'From ₦3,500 call-out',
     avatarBg: '#0284C7',
     initials: 'SA',
-    bio: 'Certified plumbing specialist. Expert in borehole pressure pumps, water heater installations, PPR pipe welding, and hidden underground leak detection.',
     reviews: [
       {
         id: 'rev-4',
@@ -905,15 +1239,14 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-3',
     name: 'Musa Ibrahim',
+    imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=500&q=80',
     trade: 'HVAC & AC Service / Gas Refill',
     category: 'AC Repair',
     phone: '+2348123456789',
     whatsapp: '2348123456789',
     rating: 5.0,
-    priceTag: 'From ₦5,000 service',
     avatarBg: '#D97706',
     initials: 'MI',
-    bio: 'Comprehensive air conditioning servicing, coil chemical wash, R410A / R22 gas top-up, compressor troubleshooting, and smart inverter AC diagnostics.',
     reviews: [
       {
         id: 'rev-6',
@@ -936,15 +1269,14 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-4',
     name: 'Grace Sparkle Pro',
+    imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80',
     trade: 'Deep Home Cleaning & Fumigation',
     category: 'Cleaning',
     phone: '+2348098765432',
     whatsapp: '2348098765432',
     rating: 4.9,
-    priceTag: 'From ₦8,000 flat',
     avatarBg: '#7C3AED',
     initials: 'GS',
-    bio: 'Trained residential cleaning crew. Post-construction scrubbing, sofa steam extraction, kitchen degreasing, and eco-friendly odorless fumigation.',
     reviews: [
       {
         id: 'rev-8',
@@ -959,15 +1291,14 @@ const artisansList = ref<ArtisanItem[]>([
   {
     id: 'art-5',
     name: 'Yakubu Danladi',
+    imageUrl: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80',
     trade: 'Cabinetry, Door Locks & Woodwork',
     category: 'Carpentry',
     phone: '+2348076543210',
     whatsapp: '2348076543210',
     rating: 4.7,
-    priceTag: 'From ₦4,500 call-out',
     avatarBg: '#B45309',
     initials: 'YD',
-    bio: 'Master carpenter specializing in modern MDF/HDF kitchen cabinets, wardrobe repairs, smart digital door lock installations, and sagging door adjustments.',
     reviews: [
       {
         id: 'rev-9',
@@ -1059,7 +1390,7 @@ const buyItemsList = ref([
     condition: 'Like New',
     sellerUnit: 'Flat 3B • Block A',
     timeAgo: '2h ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🍳',
   },
   {
@@ -1070,7 +1401,7 @@ const buyItemsList = ref([
     condition: 'Gently Used',
     sellerUnit: 'House 12 • Palm Way',
     timeAgo: 'Yesterday',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🛋️',
   },
   {
@@ -1081,7 +1412,7 @@ const buyItemsList = ref([
     condition: 'Brand New',
     sellerUnit: 'Unit 7 • Emerald',
     timeAgo: '3d ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🌀',
   },
   {
@@ -1092,7 +1423,7 @@ const buyItemsList = ref([
     condition: 'Like New',
     sellerUnit: 'Flat 1A • Block C',
     timeAgo: '4d ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '📺',
   },
 ])
@@ -1113,7 +1444,21 @@ const greeting  = computed(() => {
   return 'Good evening'
 })
 
-const activePasses  = computed(() => summary.value.recentPasses.filter(p => p.status !== 'Exited' && p.status !== 'Revoked').slice(0, 4))
+const totalPassesCount = computed(() => {
+  const storeCount = passesStore.passes.length
+  const statsActive = summary.value.stats?.activePasses ?? 0
+  const summaryRecent = summary.value.recentPasses?.length ?? 0
+  return Math.max(storeCount, statsActive, summaryRecent)
+})
+
+const hasMoreThanFivePasses = computed(() => totalPassesCount.value > 5)
+
+const allActivePasses = computed(() => {
+  const source = passesStore.passes.length > 0 ? passesStore.passes : summary.value.recentPasses
+  return source.filter(p => p.status !== 'Exited' && p.status !== 'Revoked')
+})
+
+const displayedHomePasses = computed(() => allActivePasses.value.slice(0, 5))
 // const recentNotifs  = computed(() => summary.value.notifications.slice(0, 3))
 
 async function loadSummary() {
@@ -1121,11 +1466,42 @@ async function loadSummary() {
   summaryError.value   = false
   try {
     const res = await client.get('/v1/home/summary')
-    summary.value = res.data
-    notifStore.notifications = res.data.notifications
-    if (res.data.resident) auth.updateResident(res.data.resident)
-  } catch {
-    summaryError.value = true
+    if (res.data) {
+      summary.value = res.data
+      notifStore.notifications = res.data.notifications || []
+      if (res.data.resident) auth.updateResident(res.data.resident)
+      try {
+        localStorage.setItem('cp_home_summary', JSON.stringify(res.data))
+      } catch {}
+    }
+  } catch (err) {
+    // Graceful offline/demo fallback: use cached summary or MOCK_HOME_SUMMARY
+    let fallback: HomeSummary | null = null
+    try {
+      const cached = localStorage.getItem('cp_home_summary')
+      if (cached) fallback = JSON.parse(cached)
+    } catch {}
+
+    if (!fallback) {
+      const storedUser = JSON.parse(localStorage.getItem('w_user') ?? 'null')
+      const residentData = auth.resident || {
+        ...MOCK_RESIDENT,
+        name: storedUser?.name || 'Sheriff',
+        estateName: storedUser?.estateName || 'Emerald Court',
+      }
+      fallback = {
+        ...MOCK_HOME_SUMMARY,
+        resident: residentData,
+      }
+    }
+
+    summary.value = fallback
+    notifStore.notifications = fallback.notifications || []
+    if (fallback.resident && !auth.resident) {
+      auth.updateResident(fallback.resident)
+    }
+    // Prevent locking the dashboard behind an error screen
+    summaryError.value = false
   } finally {
     summaryLoading.value = false
   }
@@ -1137,22 +1513,29 @@ async function loadNews() {
   newsLoading.value = true
   try {
     const res = await client.get('/v1/news')
-    newsItems.value = (res.data.news || []).map((item: NewsFeedItem & { image?: string | null; createdAt?: string | null }) => ({
-      id: item.id,
-      title: item.title,
-      content: item.content,
-      image: item.image ?? null,
-      createdAt: item.createdAt ?? null,
-    }))
+    const items = res.data?.news || []
+    if (items.length > 0) {
+      newsItems.value = items.map((item: NewsFeedItem & { image?: string | null; createdAt?: string | null }) => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        image: item.image ?? null,
+        authorRole: (item as any).adminRole || (item as any).authorRole || 'Estate Admin',
+        adminName: (item as any).adminName ?? null,
+        createdAt: item.createdAt ?? null,
+      }))
+    } else {
+      newsItems.value = defaultEstateNews
+    }
   } catch {
-    newsItems.value = []
+    newsItems.value = defaultEstateNews
   } finally {
     newsLoading.value = false
   }
 }
 
 async function onRefresh(event: CustomEvent) {
-  await loadSummary()
+  await Promise.all([loadSummary(), loadNews(), passesStore.fetchAll()])
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 
@@ -1192,9 +1575,15 @@ function initials(name: string) {
 }
 
 function avatarColor(name: string) {
-  const colors = ['#F08A00', '#0E9F24', '#6D17E6', '#E5007E', '#1A3F8F']
-  const idx = (name.charCodeAt(0) || 0) % colors.length
-  return colors[idx]
+  const gradients = [
+    'linear-gradient(135deg, #0A5C38, #00C97A)',
+    'linear-gradient(135deg, #1A3F8F, #4A90D9)',
+    'linear-gradient(135deg, #7C3AED, #A855F7)',
+    'linear-gradient(135deg, #D97706, #FBBF24)',
+    'linear-gradient(135deg, #0284C7, #38BDF8)',
+  ]
+  const idx = (name.charCodeAt(0) || 0) % gradients.length
+  return gradients[idx]
 }
 
 function statusClass(status: string) {
@@ -1206,10 +1595,15 @@ function statusClass(status: string) {
 
 onMounted(() => {
   loadSummary()
+  passesStore.fetchAll()
   try {
     const saved = localStorage.getItem('cp_estate_artisans')
     if (saved) {
-      artisansList.value = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
+      artisansList.value = parsed.map((a: any) => ({
+        ...a,
+        imageUrl: a.imageUrl || getCategoryCover(a.category),
+      }))
     }
   } catch {}
 })
@@ -1227,21 +1621,43 @@ onMounted(() => {
 .passes-shell { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── STICKY NAVIGATION TABS BAR ── */
+.home-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ion-safe-area-top, 0px) + 14px) 16px 6px;
+  background: var(--w-bg);
+}
+.home-title {
+  margin: 0;
+  font-size: 19px !important;
+  font-weight: 700;
+  color: var(--w-text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.home-notif-wrap {
+  display: flex;
+  align-items: center;
+}
+
+/* ── STICKY NAVIGATION TABS BAR (Docks at top as greeting scrolls off) ── */
 .passes-tabs-sticky-bar {
   position: sticky;
-  top: -16px; /* docks seamlessly under ion-toolbar at the top of ion-content */
-  z-index: 35;
-  background: var(--w-bg, #F7F9F7);
-  padding-top: 14px;
-  margin-top: -14px;
+  top: 0;
+  z-index: 40;
+  background: var(--w-bg, #F4F2EE);
+  padding-top: calc(var(--ion-safe-area-top, 0px) + 12px);
+  margin-top: calc(-1 * (var(--ion-safe-area-top, 0px) + 12px));
   margin-left: -16px;
   margin-right: -16px;
   padding-left: 16px;
   padding-right: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding-bottom: 2px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1.5px solid var(--w-border, #E5EAE7);
-  box-shadow: 0 4px 12px -3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px -3px rgba(0, 0, 0, 0.04);
 }
 
 .passes-tabs {
@@ -1389,131 +1805,206 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
-/* ── ARTISAN CARDS (Services) ── */
-.artisan-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* ── ARTISAN CARDS (Services - 2 in a row with Cover Photo) ── */
+.artisan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 .artisan-card {
   background: #FFFFFF;
-  border: 1px solid rgba(10, 92, 56, 0.12);
-  border-radius: 16px;
-  padding: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 14px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .artisan-card:active {
-  transform: scale(0.99);
-  background: #FAFCFB;
+  transform: scale(0.97);
 }
-.artisan-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.artisan-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  color: #FFFFFF;
-  font-size: 16px;
-  font-weight: 700;
+.artisan-cover-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0A5C38, #113824);
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
-.artisan-meta {
-  flex: 1;
-  min-width: 0;
-}
-.artisan-name-row {
+.artisan-cover-placeholder {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  font-size: 30px;
+  background: linear-gradient(135deg, #0A5C38 0%, #15803D 100%);
+  color: #FFFFFF;
+}
+.artisan-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.artisan-category-chip-floating {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  z-index: 2;
+  background: rgba(17, 32, 25, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+}
+.artisan-card:hover .artisan-cover-img {
+  transform: scale(1.03);
+}
+.artisan-card-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
 }
 .artisan-name {
   font-size: 14.5px;
   font-weight: 700;
-  color: #112019;
-}
-.artisan-trade {
-  font-size: 12px;
-  color: #64746C;
-  margin-top: 2px;
+  color: #1E293B;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .artisan-rating-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: #4A5850;
-  margin-top: 4px;
+  gap: 3px;
+  margin-top: 1px;
 }
 .rating-star {
   color: #F59E0B;
   font-size: 13px;
+  line-height: 1;
 }
-.rating-val {
+.rating-score {
+  font-size: 12.5px;
   font-weight: 700;
-  color: #112019;
+  color: #1E293B;
 }
-.rating-count {
-  color: #7A8B81;
+.rating-reviews {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 2px;
 }
-.artisan-chevron-box {
+.artisan-trade {
+  font-size: 11.5px;
+  color: #64748B;
+  line-height: 1.35;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── TELEPORT BOTTOM SHEET MODALS (Services Artisan & Estate Announcements) ── */
+.custom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(10, 20, 15, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.custom-sheet-container {
+  width: 100%;
+  max-width: 520px;
+  height: 88vh;
+  max-height: 88vh;
+  background: #FFFFFF;
+  border-radius: 28px 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
+  animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sheet-drag-handle-bar {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9AA79F;
+  padding: 10px 0 4px;
+  cursor: pointer;
+  touch-action: none;
+  background: #FFFFFF;
   flex-shrink: 0;
-  padding-right: 2px;
 }
 
-/* ── ARTISAN CARD ENHANCEMENTS ── */
-.vetted-inline-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: #0A5C38;
-  background: #EAF7EE;
-  padding: 1px 6px;
+.sheet-drag-handle {
+  width: 44px;
+  height: 5px;
   border-radius: 999px;
-  margin-left: 4px;
+  background: #D1D5DB;
+  transition: background 0.15s ease;
 }
-.artisan-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(10, 92, 56, 0.12);
-  margin-top: 2px;
+
+.sheet-drag-handle-bar:hover .sheet-drag-handle {
+  background: #9CA3AF;
 }
-.card-action-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: #0A5C38;
+
+/* Vue Transition */
+.sheet-modal-enter-active,
+.sheet-modal-leave-active {
+  transition: opacity 0.25s ease;
 }
-.card-action-arrow {
-  font-size: 13px;
-  color: #0A5C38;
-  font-weight: 700;
+.sheet-modal-enter-from,
+.sheet-modal-leave-to {
+  opacity: 0;
+}
+.sheet-modal-enter-active .custom-sheet-container {
+  animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.sheet-modal-leave-active .custom-sheet-container {
+  animation: sheetSlideDown 0.22s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
 }
 
 /* ── ARTISAN & NEWS SHEET MODALS ── */
-ion-modal.artisan-sheet-modal,
-ion-modal.news-modal-sheet {
-  --height: 90%;
-  --border-radius: 24px 24px 0 0;
-  --backdrop-opacity: 0.65;
-  align-items: flex-end;
-}
 .sheet-modal-shell {
   display: flex;
   flex-direction: column;
@@ -2139,24 +2630,206 @@ ion-modal.news-modal-sheet {
   font-weight: 800;
 }
 .news-card-snippet {
-  font-size: 12.5px;
-  color: #556B60;
+  font-size: 13.5px;
   line-height: 1.45;
+  color: var(--w-muted);
+  margin-bottom: 12px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+.news-card-snippet.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 .news-card-footer {
   display: flex;
   align-items: center;
   padding-top: 2px;
 }
-.read-more-link {
+
+/* ── Role Badge & Unread Dot ── */
+.news-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 2.5px 8.5px;
+  letter-spacing: 0.01em;
+}
+.news-unread-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0A5C38;
+  display: inline-block;
+}
+
+/* ── News Card Footer (Comment count on left, See more on right) ── */
+.news-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+}
+.news-card-comment-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.news-card-comment-count:hover, .news-card-comment-count:active {
+  color: #0A5C38;
+  background: #F0FDF4;
+}
+.news-see-more-link {
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--w-primary, #0A5C38);
+  color: #0A5C38;
+  margin-left: auto;
+  cursor: pointer;
+  letter-spacing: 0.01em;
 }
+.news-see-more-link:hover {
+  text-decoration: underline;
+}
+
+/* ── COMMENTS SECTION IN MODAL ── */
+.news-comments-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #E5E7EB;
+}
+.news-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.news-comments-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+}
+.news-comment-composer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.news-comment-input {
+  flex: 1;
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  outline: none;
+  background: #F9FAFB;
+  color: #111827;
+  transition: border-color 0.15s, background 0.15s;
+}
+.news-comment-input:focus {
+  border-color: #0A5C38;
+  background: #FFFFFF;
+}
+.news-comment-submit-btn {
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.news-comment-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.news-comment-submit-btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+.news-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.news-comment-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.news-comment-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #E8F5EE;
+  color: #0A5C38;
+  font-weight: 700;
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.news-comment-content {
+  flex: 1;
+  background: #F8FAFC;
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid #F1F5F9;
+}
+.news-comment-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+.news-comment-author {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1F2937;
+}
+.news-comment-unit {
+  font-size: 11px;
+  color: #6B7280;
+}
+.news-comment-time {
+  font-size: 10.5px;
+  color: #9CA3AF;
+  margin-left: auto;
+}
+.news-comment-text {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.news-comments-empty {
+  font-size: 12px;
+  color: #9CA3AF;
+  text-align: center;
+  padding: 14px 0;
+  font-style: italic;
+}
+
 
 /* ── ARTISAN DETAILS & REVIEWS SHEET MODAL ── */
 .artisan-sheet-modal {
@@ -2732,34 +3405,41 @@ ion-modal.news-modal-sheet {
 .pass-mini-list { display: flex; flex-direction: column; gap: 6px; }
 .pass-mini-row {
   width: 100%;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
-  background: #ececef;
+  background: #FFFFFF;
+  box-shadow: none;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 14px;
+  padding: 14px 16px;
   text-align: left;
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pass-mini-row:active {
+  transform: scale(0.98);
 }
 .pass-mini-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 24px;
-  font-weight: 700;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 .pass-mini-body { flex: 1; min-width: 0; }
 .pass-mini-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: #22252b;
-  line-height: 1.2;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2778,20 +3458,27 @@ ion-modal.news-modal-sheet {
 .status-expired { background: #f3dedf; color: #f24141; }
 .status-exited { background: #d8d8da; color: #2b2f38; }
 .view-all-btn {
-  margin-top: 2px;
+  margin-top: 4px;
   width: 100%;
-  border: none;
-  border-radius: 14px;
-  background: #ececef;
-  color: #5f6470;
-  font-size: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: none;
+  color: #475569;
+  font-size: 15px;
   font-weight: 600;
-  padding: 10px 12px;
+  padding: 12px 16px;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.view-all-btn:active {
+  background: #F8FAFC;
 }
 .news-mini-empty {
-  border-radius: 14px;
-  background: #ececef;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #FFFFFF;
+  box-shadow: none;
   color: #6b7280;
   text-align: center;
   padding: 18px;
@@ -2800,10 +3487,11 @@ ion-modal.news-modal-sheet {
 .news-mini-list { display: flex; flex-direction: column; gap: 8px; }
 .news-mini-row {
   width: 100%;
-  border: none;
-  border-radius: 14px;
-  background: #ececef;
-  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 14px 16px;
   text-align: left;
 }
 .news-mini-top {
@@ -2867,4 +3555,121 @@ ion-modal.news-modal-sheet {
 .notif-time { font-size: 11px; color: var(--w-muted); margin-top: 3px; }
 .unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--w-primary); flex-shrink: 0; }
 .notif-empty{ padding: 24px; text-align: center; font-size: 14px; color: var(--w-muted); }
+
+/* ── Inline Comments Accordion & Controls ── */
+.news-card-comment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--w-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.news-card-comment-btn:active {
+  background: rgba(10, 92, 56, 0.08);
+  color: #0A5C38;
+}
+.news-card-comment-btn svg {
+  color: currentColor;
+}
+.news-see-more-link {
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0A5C38;
+  cursor: pointer;
+}
+.news-inline-comments-box {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--w-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inline-comment-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.inline-comment-input {
+  flex: 1;
+  height: 36px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--w-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  color: var(--w-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.inline-comment-input:focus {
+  border-color: #0A5C38;
+}
+.inline-comment-post-btn {
+  height: 36px;
+  padding: 0 14px;
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.inline-comment-post-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.inline-comments-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.inline-comment-entry {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.inline-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.inline-comment-author {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.inline-comment-time {
+  font-size: 10px;
+  color: #94A3B8;
+}
+.inline-comment-msg {
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.35;
+}
+.inline-no-comments {
+  font-size: 11.5px;
+  color: #94A3B8;
+  font-style: italic;
+  padding: 4px 2px;
+}
+
 </style>

@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="residents.length === 0" class="empty-state">No residents found.</div>
       <div v-else class="stack-list">
         <article v-for="resident in residents" :key="resident.id" class="record-card card">
@@ -87,18 +87,51 @@
               <label class="form-label">Owner's Email Address</label>
               <input v-model="form.email" class="form-input" type="email" placeholder="Enter Email Address" />
             </div>
-            <div class="address-row">
-              <div class="form-group">
-                <label class="form-label">Lane</label>
-                <input v-model="form.lane" class="form-input" />
+            <div class="property-picker-section">
+              <div class="label-row">
+                <label class="form-label">Property Unit Assignment</label>
+                <button
+                  type="button"
+                  class="unit-add-link"
+                  @click="manualAddressMode = !manualAddressMode"
+                >
+                  {{ manualAddressMode ? '← Pick from Properties' : '+ Custom / Manual Address' }}
+                </button>
               </div>
-              <div class="form-group">
-                <label class="form-label">House</label>
-                <input v-model="form.house" class="form-input" />
+
+              <div v-if="!manualAddressMode" class="form-group">
+                <select
+                  :value="form.unit_id"
+                  class="form-select"
+                  @change="onSelectProperty(Number(($event.target as HTMLSelectElement).value) || '')"
+                >
+                  <option value="">Select a configured property...</option>
+                  <option
+                    v-for="prop in estateProperties"
+                    :key="prop.id"
+                    :value="prop.id"
+                  >
+                    {{ prop.flatAddress }} — {{ prop.isOccupied ? 'Occupied (' + prop.residentsCount + ')' : 'Vacant' }} ({{ prop.unitType || 'Apartment' }})
+                  </option>
+                </select>
+                <p v-if="estateProperties.length === 0" class="field-hint">
+                  No properties found for this estate. Use manual entry or generate units in the Properties module.
+                </p>
               </div>
-              <div class="form-group">
-                <label class="form-label">Flat</label>
-                <input v-model="form.flat" class="form-input" />
+
+              <div v-else class="address-row">
+                <div class="form-group">
+                  <label class="form-label">Lane</label>
+                  <input v-model="form.lane" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">House</label>
+                  <input v-model="form.house" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Flat</label>
+                  <input v-model="form.flat" class="form-input" />
+                </div>
               </div>
             </div>
             <div class="toggle-row">
@@ -244,10 +277,31 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { residentsApi, estatesApi, unitsApi } from '@/api/index'
+import { residentsApi, estatesApi, unitsApi, propertiesApi } from '@/api/index'
+import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 
 const { showToast } = useToast()
+const auth = useAuthStore()
+
+const estateProperties = ref<any[]>([])
+const manualAddressMode = ref(false)
+
+function onSelectProperty(propId: number | '') {
+  form.value.unit_id = propId
+  if (!propId) {
+    form.value.lane = ''
+    form.value.house = ''
+    form.value.flat = ''
+    return
+  }
+  const found = estateProperties.value.find((p: any) => p.id === propId)
+  if (found) {
+    form.value.lane = found.lane || ''
+    form.value.house = found.house || ''
+    form.value.flat = found.flat || ''
+  }
+}
 
 const loading = ref(true)
 const residents = ref<any[]>([])
@@ -317,15 +371,27 @@ async function loadUnits() {
   } catch {/* ignore */}
 }
 
-function openCreate() {
+async function openCreate() {
   editing.value = null
+  const currentEstateId = Number(estateFilter.value || auth.activeEstateId) || ''
   form.value = {
     name: '', phone: '', email: '',
     lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
-    estate_id: '', unit_id: '', role: 'tenant', is_active: true,
+    estate_id: currentEstateId, unit_id: '', role: 'tenant', is_active: true,
   }
   formError.value = ''
   units.value = []
+  estateProperties.value = []
+  manualAddressMode.value = false
+
+  if (currentEstateId) {
+    try {
+      const res = await propertiesApi.getAll(Number(currentEstateId))
+      estateProperties.value = res.data?.properties || []
+    } catch {
+      estateProperties.value = []
+    }
+  }
   modalOpen.value = true
 }
 
@@ -547,4 +613,20 @@ onMounted(() => { load(); loadEstates() })
   .detail-grid { grid-template-columns: 1fr; }
   .record-badges { justify-content: flex-start; }
 }
+
+.property-picker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 12px;
+}
+.field-hint {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin: 4px 0 0;
+}
+
 </style>

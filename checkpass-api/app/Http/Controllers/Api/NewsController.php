@@ -162,6 +162,7 @@ class NewsController extends Controller
             'estateName' => $news->estate?->name,
             'adminId' => $news->admin_id,
             'adminName' => $news->admin?->name,
+            'adminRole' => $news->admin?->role === 'super_admin' ? 'Super Admin' : 'Estate Admin',
             'title' => $news->title,
             'content' => $news->content,
             'image' => $news->image,

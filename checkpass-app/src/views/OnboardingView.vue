@@ -8,7 +8,7 @@
           <div class="hero-card">
             <!-- White Brand Logo (Inside Card at Top - Decreased Size) -->
             <div class="card-logo-wrap">
-              <img src="/logo-dark.png" alt="Checkpass" class="card-logo-white" />
+              <img src="/checkpass-logo-white.svg" alt="Checkpass" class="card-logo-white" />
             </div>
 
             <!-- Slide Image (Fills Card) -->
@@ -200,7 +200,7 @@ async function handleNext() {
   height: 18px;
   max-width: 110px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
+  /* vector logo */
   opacity: 0.94;
 }
 

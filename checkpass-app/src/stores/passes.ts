@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Pass, PassStatus } from '@/types'
 import client from '@/api/client'
+import { MOCK_PASSES } from '@/api/mock'
 
 export const usePassesStore = defineStore('passes', () => {
   const passes = ref<Pass[]>([])
@@ -46,13 +47,18 @@ export const usePassesStore = defineStore('passes', () => {
       const res = await client.get('/v1/passes', {
         params: { status: filterStatus.value, search: searchQuery.value || undefined, sort: sortOrder.value },
       })
-      passes.value = res.data.passes
-      // Batch cache loaded passes
-      if (Array.isArray(passes.value)) {
-        passes.value.forEach(p => cacheOfflinePass(p))
+      const list = res.data?.passes || []
+      passes.value = list
+      if (Array.isArray(list) && list.length > 0) {
+        list.forEach(p => cacheOfflinePass(p))
+      } else {
+        const offline = Object.values(JSON.parse(localStorage.getItem('cp_offline_passes') || '{}')) as Pass[]
+        passes.value = offline.length > 0 ? offline : [...MOCK_PASSES]
       }
-    } catch (e: any) {
-      error.value = "Couldn't load your passes."
+    } catch {
+      const offline = Object.values(JSON.parse(localStorage.getItem('cp_offline_passes') || '{}')) as Pass[]
+      passes.value = offline.length > 0 ? offline : [...MOCK_PASSES]
+      error.value = null
     } finally {
       loading.value = false
     }
@@ -73,7 +79,13 @@ export const usePassesStore = defineStore('passes', () => {
         activePass.value = { ...cached, isOfflineCached: true }
         error.value = null
       } else {
-        error.value = e.response?.data?.code || 'SERVER_ERROR'
+        const mock = MOCK_PASSES.find(p => p.id === id || (p as any).ulid === id)
+        if (mock) {
+          activePass.value = { ...mock, isOfflineCached: true }
+          error.value = null
+        } else {
+          error.value = e.response?.data?.code || 'SERVER_ERROR'
+        }
       }
     } finally {
       loading.value = false

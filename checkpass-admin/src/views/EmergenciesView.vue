@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="emergencies.length === 0" class="empty-state">No emergencies found.</div>
       <div v-else class="stack-list">
         <article v-for="incident in emergencies" :key="incident.id" class="record-card card" :class="{ urgent: incident.status === 'sent' }">
@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { emergenciesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 
@@ -171,7 +171,22 @@ function fmtDatetime(iso: string | null): string {
   return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-onMounted(load)
+let autoRefreshTimer: any = null
+
+onMounted(() => {
+  load()
+  autoRefreshTimer = setInterval(() => {
+    const params: Record<string, unknown> = {}
+    if (statusFilter.value) params.status = statusFilter.value
+    emergenciesApi.getAll(params).then(res => {
+      emergencies.value = res.data?.emergencies || []
+    }).catch(() => {})
+  }, 7000)
+})
+
+onUnmounted(() => {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer)
+})
 </script>
 
 <style scoped>

@@ -387,6 +387,17 @@
       border-bottom: 2px dashed #D2DDD6;
     }
 
+    /* Seamless Card Mode (Clean luxury pass without ticket notches) */
+    .seamless-mode .ticket-rip {
+      display: none !important;
+    }
+    .seamless-mode .t1-header {
+      padding-bottom: 24px;
+    }
+    .seamless-mode .t1-body {
+      padding-top: 18px;
+    }
+
     /* Body */
     .t1-body {
       padding: 6px 20px 20px;
@@ -912,6 +923,14 @@
       </div>
 
       <!-- Trigger Entrance Zoom button -->
+      <div class="toggle-bar">
+        <button class="toggle-btn active" id="btnSeamless" onclick="setCardStyle(true)">
+          💳 Clean Seamless Pass
+        </button>
+        <button class="toggle-btn" id="btnPerforated" onclick="setCardStyle(false)">
+          🎟️ Perforated Ticket
+        </button>
+      </div>
       <button class="zoom-ctrl-btn" onclick="triggerEntranceZoom()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
         Replay Logo Entrance Zoom
@@ -932,7 +951,7 @@
         </div>
       </div>
 
-      <div class="pass-ticket-1">
+      <div class="pass-ticket-1 seamless-mode">
         <div class="t1-header">
           <!-- Background Logo Zoom Watermark -->
           <div class="t1-bg-logo-watermark watermark-target">
@@ -994,34 +1013,8 @@
 
           <!-- Standalone Clean QR Pod -->
           <div class="t1-qr-center-box">
-            <div class="t1-qr-wrapper">
-              <svg viewBox="0 0 100 100" fill="#0A5C38">
-                <rect x="0" y="0" width="30" height="30" rx="4" />
-                <rect x="6" y="6" width="18" height="18" fill="#FFF" />
-                <rect x="10" y="10" width="10" height="10" rx="2" />
-                <rect x="70" y="0" width="30" height="30" rx="4" />
-                <rect x="76" y="6" width="18" height="18" fill="#FFF" />
-                <rect x="80" y="10" width="10" height="10" rx="2" />
-                <rect x="0" y="70" width="30" height="30" rx="4" />
-                <rect x="6" y="76" width="18" height="18" fill="#FFF" />
-                <rect x="10" y="80" width="10" height="10" rx="2" />
-                <rect x="36" y="8" width="6" height="16" />
-                <rect x="48" y="14" width="8" height="6" />
-                <rect x="38" y="38" width="24" height="24" rx="4" fill="#00C97A" />
-                <rect x="44" y="44" width="12" height="12" fill="#FFF" rx="2" />
-                <rect x="14" y="38" width="12" height="6" />
-                <rect x="8" y="50" width="8" height="12" />
-                <rect x="72" y="38" width="8" height="8" />
-                <rect x="86" y="42" width="8" height="18" />
-                <rect x="38" y="72" width="14" height="8" />
-                <rect x="58" y="80" width="16" height="8" />
-                <rect x="78" y="72" width="14" height="14" />
-              </svg>
-            </div>
-            <div class="t1-qr-hint">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              Scan QR code at gate barrier for clearance
-            </div>
+            <div class="t1-qr-wrapper"><img src="data:image/png;base64,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" alt="Verified Checkpass QR Code" style="width: 100%; height: 100%; display: block; border-radius: 6px;" /></div>
+            
           </div>
 
           <!-- Clean Attribution Footer -->
@@ -1092,30 +1085,7 @@
           </div>
 
           <!-- QR Pod -->
-          <div class="t2-qr-box">
-            <svg viewBox="0 0 100 100" fill="#0C3B4A">
-              <rect x="0" y="0" width="30" height="30" rx="4" />
-              <rect x="6" y="6" width="18" height="18" fill="#FFF" />
-              <rect x="10" y="10" width="10" height="10" rx="2" />
-              <rect x="70" y="0" width="30" height="30" rx="4" />
-              <rect x="76" y="6" width="18" height="18" fill="#FFF" />
-              <rect x="80" y="10" width="10" height="10" rx="2" />
-              <rect x="0" y="70" width="30" height="30" rx="4" />
-              <rect x="6" y="76" width="18" height="18" fill="#FFF" />
-              <rect x="10" y="80" width="10" height="10" rx="2" />
-              <rect x="36" y="8" width="6" height="16" />
-              <rect x="48" y="14" width="8" height="6" />
-              <rect x="38" y="38" width="24" height="24" rx="4" fill="#00C97A" />
-              <rect x="44" y="44" width="12" height="12" fill="#FFF" rx="2" />
-              <rect x="14" y="38" width="12" height="6" />
-              <rect x="8" y="50" width="8" height="12" />
-              <rect x="72" y="38" width="8" height="8" />
-              <rect x="86" y="42" width="8" height="18" />
-              <rect x="38" y="72" width="14" height="8" />
-              <rect x="58" y="80" width="16" height="8" />
-              <rect x="78" y="72" width="14" height="14" />
-            </svg>
-            <div class="t2-qr-label">Present QR Code to Security Terminal</div>
+          <div class="t2-qr-box"><img src="data:image/png;base64,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" alt="Verified Checkpass QR Code" style="width: 140px; height: 140px; margin: 0 auto 8px; display: block; border-radius: 6px;" /><div class="t2-qr-label">Present QR Code to Security Terminal</div>
           </div>
 
           <div class="t2-footer">
@@ -1178,30 +1148,7 @@
           </div>
 
           <!-- Standalone QR Box -->
-          <div class="t3-qr-box">
-            <svg viewBox="0 0 100 100" fill="#0A5C38">
-              <rect x="0" y="0" width="30" height="30" rx="4" />
-              <rect x="6" y="6" width="18" height="18" fill="#FFF" />
-              <rect x="10" y="10" width="10" height="10" rx="2" />
-              <rect x="70" y="0" width="30" height="30" rx="4" />
-              <rect x="76" y="6" width="18" height="18" fill="#FFF" />
-              <rect x="80" y="10" width="10" height="10" rx="2" />
-              <rect x="0" y="70" width="30" height="30" rx="4" />
-              <rect x="6" y="76" width="18" height="18" fill="#FFF" />
-              <rect x="10" y="80" width="10" height="10" rx="2" />
-              <rect x="36" y="8" width="6" height="16" />
-              <rect x="48" y="14" width="8" height="6" />
-              <rect x="38" y="38" width="24" height="24" rx="4" fill="#00C97A" />
-              <rect x="44" y="44" width="12" height="12" fill="#FFF" rx="2" />
-              <rect x="14" y="38" width="12" height="6" />
-              <rect x="8" y="50" width="8" height="12" />
-              <rect x="72" y="38" width="8" height="8" />
-              <rect x="86" y="42" width="8" height="18" />
-              <rect x="38" y="72" width="14" height="8" />
-              <rect x="58" y="80" width="16" height="8" />
-              <rect x="78" y="72" width="14" height="14" />
-            </svg>
-            <div class="t3-hint">Scan at Gate Barrier Terminal</div>
+          <div class="t3-qr-box"><img src="data:image/png;base64,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" alt="Verified Checkpass QR Code" style="width: 136px; height: 136px; margin: 0 auto 6px; display: block; border-radius: 6px;" /><div class="t3-hint">Scan at Gate Barrier Terminal</div>
           </div>
 
           <div class="t3-footer">
@@ -1257,6 +1204,15 @@
   </section>
 
   <script>
+    function setCardStyle(isSeamless) {
+      document.getElementById('btnSeamless').classList.toggle('active', isSeamless);
+      document.getElementById('btnPerforated').classList.toggle('active', !isSeamless);
+      const ticket1 = document.querySelector('.pass-ticket-1');
+      if (ticket1) {
+        ticket1.classList.toggle('seamless-mode', isSeamless);
+      }
+    }
+
     function setPhotoState(hasPhoto) {
       document.getElementById('btnWithPhoto').classList.toggle('active', hasPhoto);
       document.getElementById('btnNoPhoto').classList.toggle('active', !hasPhoto);

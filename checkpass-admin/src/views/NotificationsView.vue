@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <div v-if="loading" class="loading-state"><div class="spinner"></div></div>
+      <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="notifications.length === 0" class="empty-state">No notifications found.</div>
       <div v-else class="stack-list">
         <article v-for="notification in notifications" :key="notification.id" class="record-card card" :class="{ unread: !notification.read }">
