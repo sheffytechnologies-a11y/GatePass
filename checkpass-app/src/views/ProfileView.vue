@@ -130,11 +130,6 @@
               <span class="menu-label">Terms of Service</span>
               <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
             </button>
-            <button class="menu-row" @click="showAgreement">
-              <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" />
-              <span class="menu-label">Master Services Agreement (MSA &amp; DPA)</span>
-              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
-            </button>
           </div>
         </div>
 
@@ -412,7 +407,7 @@ import {
 import {
   personOutline, lockClosedOutline, notificationsOutline, notificationsOffOutline,
   enterOutline, timeOutline, helpCircleOutline, shieldCheckmarkOutline,
-  chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline, callOutline,
+  chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline,
   documentTextOutline,
 } from 'ionicons/icons'
 import ResidentPassCard from '@/components/ResidentPassCard.vue'
@@ -772,16 +767,6 @@ async function showTerms() {
     subHeader: 'Platform Use & Pass Authorization',
     message: 'CheckPass provides digital gate access and proptech tools. Physical admission remains governed by your Estate HOA and security bylaws. Passes must be issued for lawful visitors with prior consent.',
     buttons: ['Understood'],
-  })
-  await alert.present()
-}
-
-async function showAgreement() {
-  const alert = await alertController.create({
-    header: 'Master Services Agreement & DPA',
-    subHeader: 'B2B Estate Cloud Agreement',
-    message: 'CheckPass operates under a dual-role framework: your community HOA is the Data Controller, and Sheffy Technologies Limited is strictly the Data Processor. All dues route 100% to estate accounts with 30-day exit portability.',
-    buttons: ['Got it'],
   })
   await alert.present()
 }
