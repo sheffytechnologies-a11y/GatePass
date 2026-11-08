@@ -1458,13 +1458,12 @@
 
         <div class="contact-direct-card">
           <div class="contact-icon-bubble">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
           </div>
           <div class="contact-direct-info">
-            <h4>Phone & WhatsApp</h4>
-            <p>Mon – Sat, 8am – 7pm</p>
-            <a href="tel:+2348132489619">+234 813 248 9619</a><br>
-            <a href="https://wa.me/2348132489619" target="_blank" style="font-size:.82rem;color:#25D366;font-weight:700">Chat on WhatsApp &rarr;</a>
+            <h4>Live AI Concierge</h4>
+            <p>24/7 instant answers &amp; tours</p>
+            <a href="#" onclick="openConcierge();return false;" style="font-size:.84rem;color:#0A5C38;font-weight:700">Chat with CheckPass AI &rarr;</a>
           </div>
         </div>
 
@@ -1507,9 +1506,6 @@
               </a>
               <a class="social-btn icon-only-btn" href="https://facebook.com/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              </a>
-              <a class="social-btn icon-only-btn" href="https://wa.me/2348132489619" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.677.15-.2.301-.777.979-.953 1.18-.175.2-.351.226-.652.075-.3-.15-1.267-.467-2.414-1.488-.893-.796-1.496-1.779-1.671-2.08-.175-.3-.019-.463.132-.613.136-.134.301-.351.451-.527.151-.175.201-.301.301-.501.1-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.238-.244-.589-.493-.509-.677-.518l-.577-.01c-.2 0-.527.075-.802.376-.276.3-1.053 1.03-1.053 2.511 0 1.482 1.078 2.912 1.228 3.113.15.2 2.122 3.24 5.141 4.542.718.31 1.279.495 1.716.634.721.229 1.377.197 1.895.12.577-.087 1.78-.727 2.03-1.43.25-.702.25-1.304.175-1.43-.075-.125-.276-.201-.577-.351zM12.04 2C6.53 2 2.06 6.47 2.06 11.98c0 1.76.46 3.48 1.34 5.01L2 22l5.18-1.36c1.48.81 3.15 1.24 4.86 1.24 5.51 0 9.98-4.47 9.98-9.98C22.02 6.47 17.55 2 12.04 2z"/></svg>
               </a>
             </div>
           </div>
@@ -1597,13 +1593,13 @@
         <h5>Contact &amp; Support</h5>
         <ul>
           <li><a href="mailto:info@checkpass.ng" class="footer-contact-link">info@checkpass.ng</a></li>
-          <li><a href="tel:+2348132489619" class="footer-contact-link">+234 813 248 9619</a></li>
           <li>
-            <a href="https://wa.me/2348132489619" target="_blank" rel="noopener noreferrer" class="footer-whatsapp-link" style="display:inline-flex;align-items:center;gap:6px">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="#00C97A"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.173 8.173 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.45 0-2.87-.38-4.12-1.1l-.3-.17-3.07.8 0.82-2.99-.19-.31c-.79-1.28-1.21-2.76-1.21-4.29 0-4.54 3.7-8.24 8.24-8.24zm4.52 10.3c-.25-.13-1.47-.73-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.65.81-.79.98-.15.17-.29.19-.54.06-.25-.13-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.73-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43l-.48-.01c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08 0 1.23.89 2.41 1.02 2.58.12.17 1.76 2.69 4.26 3.77.6.26 1.06.41 1.42.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
-              <span>WhatsApp Chat</span>
+            <a href="#" onclick="openConcierge();return false;" class="footer-contact-link" style="display:inline-flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00C97A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span>Live AI Concierge (24/7)</span>
             </a>
           </li>
+          <li><a href="#" onclick="showPage('contact');return false" class="footer-contact-link">Estate Onboarding Desk</a></li>
         </ul>
       </div>
       <div class="footer-col">

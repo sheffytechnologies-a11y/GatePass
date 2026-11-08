@@ -166,7 +166,7 @@
                   <ion-icon :icon="callOutline" />
                   <span>Call Admin Desk</span>
                 </a>
-                <a :href="`https://wa.me/2348132489619?text=Hello%20Estate%20Office,%20inquiry%20from%20${encodeURIComponent(auth.resident?.name || 'Resident')}%20(${encodeURIComponent(auth.resident?.flatAddress || 'Unit')})`" target="_blank" class="hotline-btn hotline-btn--green">
+                <a :href="`https://wa.me/2348000000000?text=Hello%20Estate%20Office,%20inquiry%20from%20${encodeURIComponent(auth.resident?.name || 'Resident')}%20(${encodeURIComponent(auth.resident?.flatAddress || 'Unit')})`" target="_blank" class="hotline-btn hotline-btn--green">
                   <span>WhatsApp Desk</span>
                 </a>
               </div>

@@ -39,7 +39,7 @@
                 <input
                   v-model="loginIdentifier"
                   :type="isEmail ? 'email' : 'text'"
-                  placeholder="e.g. 0813 248 9619 or name@email.com"
+                  placeholder="e.g. 0803 000 0000 or name@email.com"
                   autocomplete="username"
                   required
                 />

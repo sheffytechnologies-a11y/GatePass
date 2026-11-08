@@ -54,7 +54,7 @@
                 <input
                   v-model="identifier"
                   type="text"
-                  placeholder="e.g. 0813 248 9619 or name@domain.com"
+                  placeholder="e.g. 0803 000 0000 or name@domain.com"
                   autocomplete="username"
                   required
                 />

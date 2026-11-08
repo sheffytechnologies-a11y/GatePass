@@ -1390,7 +1390,7 @@ const buyItemsList = ref([
     condition: 'Like New',
     sellerUnit: 'Flat 3B • Block A',
     timeAgo: '2h ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🍳',
   },
   {
@@ -1401,7 +1401,7 @@ const buyItemsList = ref([
     condition: 'Gently Used',
     sellerUnit: 'House 12 • Palm Way',
     timeAgo: 'Yesterday',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🛋️',
   },
   {
@@ -1412,7 +1412,7 @@ const buyItemsList = ref([
     condition: 'Brand New',
     sellerUnit: 'Unit 7 • Emerald',
     timeAgo: '3d ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '🌀',
   },
   {
@@ -1423,7 +1423,7 @@ const buyItemsList = ref([
     condition: 'Like New',
     sellerUnit: 'Flat 1A • Block C',
     timeAgo: '4d ago',
-    whatsapp: '2348132489619',
+    whatsapp: '2348000000000',
     iconEmoji: '📺',
   },
 ])
