@@ -195,15 +195,12 @@
         <div class="bpm-content-col" data-reveal="right">
           <div class="bpm-content-inner">
             <h2 class="bpm-title">
-            Better Property<br>
-            Management <span class="bpm-title-accent">Starts Here</span>
-          </h2>
+              Better Property Management<br>
+              <span class="bpm-title-accent">Starts Here</span>
+            </h2>
             <p class="bpm-description">
-            From residential estates and gated communities<br class="bpm-sub-br">
-            to offices and business premises, Check Pass makes<br class="bpm-sub-br">
-            it easier to manage occupants, coordinate visitor access,<br class="bpm-sub-br">
-            handle payments and oversee daily operations.
-          </p>
+              From residential estates and gated communities to offices and business premises, Check Pass makes it easier to manage occupants, coordinate visitor access, handle payments and oversee daily operations.
+            </p>
           </div>
         </div>
       </div>
@@ -338,10 +335,7 @@
                 Your <span class="section-a-title-accent">Property</span>
               </h2>
               <p class="section-a-description">
-                Whether it's a residential estate, gated community or<br class="sec-a-sub-br">
-                workplace, manage occupants, assign responsibilities,<br class="sec-a-sub-br">
-                organise payments and oversee daily operations from<br class="sec-a-sub-br">
-                one dashboard.
+                Whether it's a residential estate, gated community or workplace, manage occupants, assign responsibilities, organise payments and oversee daily operations from one dashboard.
               </p>
               <a href="#features" class="section-cta-link sec-a-cta" onclick="showPage('features');return false">
                 <span>Learn more</span>

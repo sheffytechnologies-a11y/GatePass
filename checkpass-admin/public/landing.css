@@ -2769,17 +2769,25 @@ footer {
 
 /* ── FIRST SECTION: TEXT REVEAL STATEMENT (FRAMER MOTION STYLE SCROLL ANIMATION) ── */
 .text-reveal-section {
-  padding: 140px 0 120px;
+  min-height: 70vh;
+  min-height: 70dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(80px, 10vh, 150px) 0;
   background: #FFFFFF;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
   border-bottom: 1px solid rgba(10, 92, 56, 0.06);
 }
 
 .text-reveal-container {
-  max-width: 1060px;
+  width: 100%;
+  max-width: min(1320px, 92vw);
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 clamp(24px, 4vw, 48px);
+  box-sizing: border-box;
 }
 
 .reveal-eyebrow {
@@ -2971,70 +2979,85 @@ footer {
   font-weight: 600;
 }
 
-/* ── SECOND SECTION: BETTER PROPERTY MANAGEMENT ── */
+/* ── SECOND SECTION: BETTER PROPERTY MANAGEMENT (Taste-Skill Fluid Full-Screen Layout) ── */
 .bpm-section {
-  padding: 88px 0 96px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(56px, 8vh, 110px) 0;
   background: #ffffff;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .bpm-container {
-  max-width: 1240px;
+  width: 100%;
+  max-width: min(1560px, 94vw);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(24px, 4vw, 64px);
+  box-sizing: border-box;
 }
 
 .bpm-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  align-items: end;
-  gap: 56px;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(40px, 6vw, 104px);
+  width: 100%;
 }
 
 .bpm-visual-col {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
   width: 100%;
 }
 
 .bpm-image-wrapper {
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: min(840px, 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .bpm-image {
   width: 100%;
   height: auto;
-  display: block;
+  max-height: min(78vh, 720px);
   object-fit: contain;
+  display: block;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 14px 36px rgba(10, 92, 56, 0.08));
 }
 
 .bpm-image:hover {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-4px) scale(1.015);
 }
 
 .bpm-content-col {
   display: flex;
-  align-items: flex-end;
-  padding-bottom: 24px;
+  align-items: center;
+  width: 100%;
 }
 
 .bpm-content-inner {
-  max-width: 580px;
+  max-width: min(640px, 100%);
+  width: 100%;
 }
 
 .bpm-title {
-  font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
   font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: #064E3B;
-  margin-bottom: 20px;
+  margin-bottom: clamp(18px, 2.6vh, 28px);
 }
 
 .bpm-title-accent {
@@ -3043,13 +3066,13 @@ footer {
 }
 
 .bpm-description {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
   line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
-  max-width: 470px;
+  max-width: min(580px, 100%);
 }
 
 .bpm-sub-br {
@@ -3107,16 +3130,19 @@ footer {
 }
 
 .section-a-container {
-  max-width: 1240px;
+  width: 100%;
+  max-width: min(1560px, 94vw);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(24px, 4vw, 64px);
+  box-sizing: border-box;
 }
 
 .section-a-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
   align-items: center;
-  gap: 64px;
+  gap: clamp(40px, 6vw, 104px);
+  width: 100%;
 }
 
 /* Left Visual Column & Stage */
@@ -3130,7 +3156,8 @@ footer {
 .section-a-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: min(780px, 48vw);
+  max-height: min(78vh, 740px);
   aspect-ratio: 1885 / 2013;
   margin: 0 auto;
   user-select: none;
@@ -3425,17 +3452,18 @@ footer {
 }
 
 .section-a-content-inner {
-  max-width: 540px;
+  max-width: min(640px, 100%);
+  width: 100%;
 }
 
 .section-a-title {
-  font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
   font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: #064E3B;
-  margin-bottom: 20px;
+  margin-bottom: clamp(18px, 2.6vh, 28px);
 }
 
 .section-a-title-accent {
@@ -3444,13 +3472,13 @@ footer {
 }
 
 .section-a-description {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(0.92rem, 1.05vw, 1.02rem);
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
   line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
-  max-width: 530px;
+  max-width: min(580px, 100%);
 }
 
 .sec-a-sub-br {
@@ -3562,19 +3590,21 @@ footer {
 }
 
 .section-b-container {
-  max-width: 1180px;
   width: 100%;
+  max-width: min(1560px, 94vw);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(24px, 4vw, 64px);
   position: relative;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .section-b-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr);
   align-items: center;
-  gap: 36px;
+  gap: clamp(40px, 6vw, 104px);
+  width: 100%;
 }
 
 /* Left Column: Heading & Descriptive Copy */
@@ -3586,18 +3616,18 @@ footer {
 }
 
 .section-b-content-inner {
-  max-width: 480px;
+  max-width: min(640px, 100%);
   width: 100%;
 }
 
 .section-b-title {
-  font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
   font-weight: 800;
-  line-height: 1.04;
+  line-height: 1.05;
   color: #ffffff;
-  letter-spacing: -0.01em;
-  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  margin-bottom: clamp(18px, 2.6vh, 28px);
 }
 
 .section-b-title-accent {
@@ -3605,11 +3635,12 @@ footer {
 }
 
 .section-b-description {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.90);
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
+  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
+  max-width: min(580px, 100%);
 }
 
 .sec-b-sub-br {
@@ -3776,19 +3807,21 @@ footer {
 }
 
 .section-c-container {
-  max-width: 1240px;
   width: 100%;
+  max-width: min(1560px, 94vw);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(24px, 4vw, 64px);
   position: relative;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .section-c-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
   align-items: center;
-  gap: 64px;
+  gap: clamp(40px, 6vw, 104px);
+  width: 100%;
 }
 
 /* Left Visual Column & Stage */
@@ -3802,7 +3835,8 @@ footer {
 .section-c-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: 530px;
+  max-width: min(780px, 48vw);
+  max-height: min(78vh, 740px);
   aspect-ratio: 1885 / 2013;
   margin: 0 auto;
   user-select: none;
@@ -3942,13 +3976,13 @@ footer {
 }
 
 .section-c-title {
-  font-family: 'Cabinet Grotesk', sans-serif;
-  font-size: clamp(1.7rem, 3.2vw, 3.1rem);
+  font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
   font-weight: 800;
-  line-height: 1.04;
+  line-height: 1.05;
   color: #ffffff;
-  letter-spacing: -0.01em;
-  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  margin-bottom: clamp(18px, 2.6vh, 28px);
 }
 
 .section-c-title-accent {

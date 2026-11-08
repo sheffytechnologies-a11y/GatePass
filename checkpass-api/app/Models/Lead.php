@@ -66,3 +66,4 @@ class Lead extends Model
         return $this->belongsTo(Estate::class, 'estate_id');
     }
 }
+
