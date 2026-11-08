@@ -6214,3 +6214,39 @@ select:-webkit-autofill {
     font-size: 18px;
   }
 }
+
+/* ── Navbar Button Sizing Matched with Hero CTA ── */
+.navbar {
+  height: clamp(76px, 8.5vh, 84px);
+}
+
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-cta .btn-primary {
+  padding: clamp(14px, 1.8vh, 18px) clamp(26px, 2.2vw, 36px);
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem);
+  font-weight: 700;
+  border-radius: 14px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(0, 94, 52, 0.28);
+}
+
+.nav-cta .btn-login {
+  min-height: 52px;
+  padding: clamp(14px, 1.8vh, 18px) clamp(20px, 1.8vw, 26px);
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem);
+  font-weight: 700;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}

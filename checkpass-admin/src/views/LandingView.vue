@@ -27,7 +27,7 @@
     </div>
     <div class="nav-cta">
       <button class="btn btn-login" onclick="window.goToLogin()">Log In</button>
-      <button class="btn btn-primary btn-sm" onclick="window.goToRegister()">Create Free Account</button>
+      <button class="btn btn-primary" onclick="window.goToRegister()">Create Free Account</button>
     </div>
     <div class="nav-hamburger" id="hamburger" @click="toggleMobileNav" onclick="toggleMobileNav()" :class="{ open: isMobileNavOpen }" aria-label="Toggle Menu">
       <span></span><span></span><span></span>
@@ -3124,6 +3124,42 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ── Navbar CTA Button Size Matched with Hero Section CTA ── */
+.navbar {
+  height: clamp(76px, 8.5vh, 84px) !important;
+}
+
+.nav-cta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.nav-cta .btn-primary {
+  padding: clamp(14px, 1.8vh, 18px) clamp(26px, 2.2vw, 36px) !important;
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem) !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  min-height: 52px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 18px rgba(0, 94, 52, 0.28) !important;
+}
+
+.nav-cta .btn-login {
+  min-height: 52px !important;
+  padding: clamp(14px, 1.8vh, 18px) clamp(20px, 1.8vw, 26px) !important;
+  font-size: clamp(1.05rem, 1.2vw, 1.22rem) !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
 /* ── Full Horizontal Viewport Scaling with Padding & Fixed 16:9 Aspect Ratio ── */
 .siteassist-showcase-container {
   width: 100% !important;
