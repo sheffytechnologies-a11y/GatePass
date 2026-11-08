@@ -2829,12 +2829,11 @@ footer {
 
 /* ── FIRST SECTION: TEXT REVEAL STATEMENT (FRAMER MOTION STYLE SCROLL ANIMATION) ── */
 .text-reveal-section {
-  min-height: 70vh;
-  min-height: 70dvh;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(80px, 10vh, 150px) 0;
+  padding: clamp(36px, 4.5vh, 64px) 0;
   background: #FFFFFF;
   position: relative;
   overflow: hidden;
@@ -2851,7 +2850,7 @@ footer {
 }
 
 .reveal-eyebrow {
-  margin-bottom: 24px;
+  margin-bottom: clamp(12px, 1.6vh, 18px);
 }
 
 .text-reveal-statement {
@@ -3046,7 +3045,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(56px, 8vh, 110px) 0;
+  padding: clamp(40px, 5vh, 72px) 0;
   background: #ffffff;
   position: relative;
   overflow: hidden;
