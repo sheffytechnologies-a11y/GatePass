@@ -172,3 +172,4 @@ To alert the CheckPass sales team when a hot estate lead is captured:
    ```
 2. **Instant Super Admin Sync**:
    The Super Admin can click **"Sync AI Inquiries"** on the CRM header to reload live leads stored from the on-site concierge.
+

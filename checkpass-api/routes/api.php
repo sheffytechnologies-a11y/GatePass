@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\AccessPhraseController;
 use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\CrmLeadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,16 @@ Route::prefix('v1')->group(function () {
 
     // ── Public platform stats for landing page ─────────────────────────────
     Route::get('platform-stats', [AdminController::class, 'publicPlatformStats']);
+
+    // ── Super Admin Sales CRM & Public AI Concierge Lead Ingestion ─────────
+    Route::prefix('crm')->group(function () {
+        Route::post('leads', [CrmLeadController::class, 'store']);
+        Route::get('leads', [CrmLeadController::class, 'index']);
+        Route::get('leads/{id}', [CrmLeadController::class, 'show']);
+        Route::patch('leads/{id}', [CrmLeadController::class, 'update']);
+        Route::delete('leads/{id}', [CrmLeadController::class, 'destroy']);
+        Route::post('leads/{id}/provision-sandbox', [CrmLeadController::class, 'provisionSandbox']);
+    });
 
     // ── Public auth routes ─────────────────────────────────────────────────
     Route::prefix('auth')->group(function () {

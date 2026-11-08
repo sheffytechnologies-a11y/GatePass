@@ -2025,7 +2025,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { publicApi } from '@/api'
+import { publicApi, crmApi } from '@/api'
 
 interface PlatformStats {
   propertiesOnboarded: number
@@ -2600,7 +2600,25 @@ function extractLeadFromConversation(userText: string, aiReply: string) {
       try { existingLeads = existingRaw ? JSON.parse(existingRaw) : [] } catch {}
       existingLeads.unshift(newLead)
       localStorage.setItem('checkpass_crm_leads', JSON.stringify(existingLeads))
-      console.log('Captured AI Concierge lead to CRM:', newLead)
+      console.log('Captured AI Concierge lead to CRM local store:', newLead)
+
+      // Asynchronously sync to backend database API
+      crmApi.createLead({
+        estate_name: estateName,
+        name: contactName,
+        role: 'Inquiring Executive',
+        phone: phoneMatch ? phoneMatch[0] : null,
+        email: emailMatch ? emailMatch[1] : null,
+        city: userText.toLowerCase().includes('abuja') ? 'Abuja' : 'Lagos',
+        units,
+        deal_value: dealValue,
+        stage: 'new',
+        source: 'AI Concierge',
+        chat_transcript: newLead.chatTranscript,
+        notes: newLead.notes
+      }).catch((err) => {
+        console.warn('Backend CRM sync offline/deferred, cached in local store:', err)
+      })
     }
   } catch (err) {
     console.warn('Lead extraction error:', err)

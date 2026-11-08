@@ -419,6 +419,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToast'
+import { crmApi } from '@/api'
 
 type LeadStage = 'new' | 'discovery' | 'demo' | 'proposal' | 'pilot' | 'won'
 
@@ -575,16 +576,52 @@ const DEFAULT_LEADS: Lead[] = [
 
 const leads = ref<Lead[]>([])
 
-function loadLeads() {
+async function loadLeads() {
   try {
     const raw = localStorage.getItem('checkpass_crm_leads')
     if (raw) {
       leads.value = JSON.parse(raw)
-      return
+    } else {
+      leads.value = DEFAULT_LEADS
+      saveAllLeads()
     }
-  } catch {}
-  leads.value = DEFAULT_LEADS
-  saveAllLeads()
+  } catch {
+    leads.value = DEFAULT_LEADS
+  }
+
+  // Attempt background sync with persistent backend database
+  try {
+    const res = await crmApi.getLeads()
+    const backendData = res.data?.data || []
+    if (Array.isArray(backendData) && backendData.length > 0) {
+      const remoteLeads: Lead[] = backendData.map((b: any) => ({
+        id: String(b.ulid || b.id),
+        estateName: b.estate_name,
+        name: b.name,
+        role: b.role,
+        phone: b.phone,
+        email: b.email,
+        city: b.city,
+        units: Number(b.units || 50),
+        dealValue: Number(b.deal_value || 0),
+        stage: b.stage as LeadStage,
+        source: b.source,
+        chatTranscript: b.chat_transcript,
+        notes: b.notes,
+        createdAt: b.created_at,
+        updatedAt: b.updated_at,
+      }))
+
+      // Merge remote with local leads
+      const localMap = new Map<string, Lead>()
+      leads.value.forEach(l => localMap.set(l.estateName.toLowerCase().trim(), l))
+      remoteLeads.forEach(r => localMap.set(r.estateName.toLowerCase().trim(), r))
+      leads.value = Array.from(localMap.values())
+      saveAllLeads()
+    }
+  } catch (err) {
+    console.debug('Backend CRM sync deferred, using local cache:', err)
+  }
 }
 
 function saveAllLeads() {
@@ -600,6 +637,17 @@ function saveLead(lead: Lead) {
     leads.value[idx] = { ...lead }
   }
   saveAllLeads()
+
+  // Asynchronously sync change to backend database
+  crmApi.updateLead(lead.id, {
+    stage: lead.stage,
+    notes: lead.notes,
+    role: lead.role,
+    units: lead.units,
+    deal_value: lead.dealValue,
+  }).catch((err) => {
+    console.debug('Deferred remote update for lead:', lead.id, err)
+  })
 }
 
 function syncLeadsFromStorage() {
@@ -681,6 +729,7 @@ function deleteLead(id: string) {
   saveAllLeads()
   selectedLead.value = null
   showToast('Lead removed from CRM', 'warning')
+  crmApi.deleteLead(id).catch(() => {})
 }
 
 function createNewLead() {
@@ -708,6 +757,26 @@ function createNewLead() {
   showAddLeadModal.value = false
   showToast(`Created lead for ${newLead.estateName}`, 'success')
 
+  // Sync to backend database
+  crmApi.createLead({
+    estate_name: newLead.estateName,
+    name: newLead.name,
+    role: newLead.role,
+    phone: newLead.phone,
+    email: newLead.email,
+    city: newLead.city,
+    units: newLead.units,
+    deal_value: newLead.dealValue,
+    stage: newLead.stage,
+    source: newLead.source,
+    notes: newLead.notes,
+  }).then((res) => {
+    if (res.data?.data?.ulid) {
+      newLead.id = res.data.data.ulid
+      saveAllLeads()
+    }
+  }).catch(() => {})
+
   // Reset form
   newLeadForm.value = {
     estateName: '',
@@ -724,6 +793,7 @@ function createNewLead() {
 
 function convertLeadToSandbox(lead: Lead) {
   showToast(`Provisioning Sandbox portal for ${lead.estateName}...`, 'info')
+  crmApi.provisionSandbox(lead.id).catch(() => {})
   selectedLead.value = null
   router.push({
     path: '/register/estate',

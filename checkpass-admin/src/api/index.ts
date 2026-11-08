@@ -131,3 +131,12 @@ export const newsApi = {
 export const publicApi = {
   getPlatformStats: () => client.get('/v1/platform-stats'),
 }
+
+export const crmApi = {
+  getLeads: (params?: Record<string, unknown>) => client.get('/v1/crm/leads', { params }),
+  getLead: (id: string | number) => client.get(`/v1/crm/leads/${id}`),
+  createLead: (data: Record<string, unknown>) => client.post('/v1/crm/leads', data),
+  updateLead: (id: string | number, data: Record<string, unknown>) => client.patch(`/v1/crm/leads/${id}`, data),
+  deleteLead: (id: string | number) => client.delete(`/v1/crm/leads/${id}`),
+  provisionSandbox: (id: string | number) => client.post(`/v1/crm/leads/${id}/provision-sandbox`),
+}
