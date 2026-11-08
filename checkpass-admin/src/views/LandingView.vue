@@ -64,7 +64,7 @@
     <div class="hero-content">
       <div class="hero-inner">
         <h1 class="hero-animate" style="transition-delay:0ms; text-transform: none !important;">Smarter <span class="hero-accent">Access</span><br>Management</h1>
-        <p class="hero-sub hero-animate" style="transition-delay:100ms">From resident-issued invites to secure verification, CheckPass<br>gives you full control over visitor access and many more.</p>
+        <p class="hero-sub hero-animate" style="transition-delay:100ms">From resident-issued invites to secure verification, CheckPass gives you full control over visitor access and many more.</p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="window.goToRegister()">
             Create Free Account
