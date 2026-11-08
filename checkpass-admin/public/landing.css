@@ -2995,7 +2995,7 @@ footer {
 
 .bpm-container {
   width: 100%;
-  max-width: min(1560px, 94vw);
+  max-width: min(1680px, 92vw);
   margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 64px);
   box-sizing: border-box;
@@ -3003,9 +3003,9 @@ footer {
 
 .bpm-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(40px, 6vw, 104px);
+  gap: clamp(48px, 6vw, 120px);
   width: 100%;
 }
 
@@ -3019,20 +3019,21 @@ footer {
 .bpm-image-wrapper {
   position: relative;
   width: 100%;
-  max-width: min(840px, 100%);
+  max-width: min(900px, 52vw);
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto;
 }
 
 .bpm-image {
   width: 100%;
   height: auto;
-  max-height: min(78vh, 720px);
+  max-height: min(80vh, 780px);
   object-fit: contain;
   display: block;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: drop-shadow(0 14px 36px rgba(10, 92, 56, 0.08));
+  filter: drop-shadow(0 16px 40px rgba(10, 92, 56, 0.10));
 }
 
 .bpm-image:hover {
@@ -3052,12 +3053,12 @@ footer {
 
 .bpm-title {
   font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
+  font-size: clamp(2.5rem, 4.2vw, 4.8rem);
   font-weight: 800;
   line-height: 1.05;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: #064E3B;
-  margin-bottom: clamp(18px, 2.6vh, 28px);
+  margin-bottom: clamp(18px, 2.5vh, 30px);
 }
 
 .bpm-title-accent {
@@ -3067,12 +3068,12 @@ footer {
 
 .bpm-description {
   font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
-  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
+  font-size: clamp(1.1rem, 1.4vw, 1.42rem);
   line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
-  max-width: min(580px, 100%);
+  max-width: min(620px, 100%);
 }
 
 .bpm-sub-br {
@@ -3131,7 +3132,7 @@ footer {
 
 .section-a-container {
   width: 100%;
-  max-width: min(1560px, 94vw);
+  max-width: min(1680px, 92vw);
   margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 64px);
   box-sizing: border-box;
@@ -3139,9 +3140,9 @@ footer {
 
 .section-a-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(40px, 6vw, 104px);
+  gap: clamp(48px, 6vw, 120px);
   width: 100%;
 }
 
@@ -3156,8 +3157,8 @@ footer {
 .section-a-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: min(780px, 48vw);
-  max-height: min(78vh, 740px);
+  max-width: min(880px, 52vw);
+  max-height: min(80vh, 780px);
   aspect-ratio: 1885 / 2013;
   margin: 0 auto;
   user-select: none;
@@ -3458,12 +3459,12 @@ footer {
 
 .section-a-title {
   font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
+  font-size: clamp(2.5rem, 4.2vw, 4.8rem);
   font-weight: 800;
   line-height: 1.05;
-  letter-spacing: -0.02em;
   color: #064E3B;
-  margin-bottom: clamp(18px, 2.6vh, 28px);
+  letter-spacing: -0.025em;
+  margin-bottom: clamp(18px, 2.5vh, 30px);
 }
 
 .section-a-title-accent {
@@ -3473,12 +3474,12 @@ footer {
 
 .section-a-description {
   font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
-  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
+  font-size: clamp(1.1rem, 1.4vw, 1.42rem);
   line-height: 1.62;
   color: #4A5568;
   margin: 0;
   font-weight: 450;
-  max-width: min(580px, 100%);
+  max-width: min(620px, 100%);
 }
 
 .sec-a-sub-br {
@@ -3591,7 +3592,7 @@ footer {
 
 .section-b-container {
   width: 100%;
-  max-width: min(1560px, 94vw);
+  max-width: min(1680px, 92vw);
   margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 64px);
   position: relative;
@@ -3601,33 +3602,33 @@ footer {
 
 .section-b-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
   align-items: center;
-  gap: clamp(40px, 6vw, 104px);
+  gap: clamp(48px, 6vw, 120px);
   width: 100%;
 }
 
 /* Left Column: Heading & Descriptive Copy */
 .section-b-content-col {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   width: 100%;
 }
 
 .section-b-content-inner {
-  max-width: min(640px, 100%);
+  max-width: min(680px, 100%);
   width: 100%;
 }
 
 .section-b-title {
   font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
+  font-size: clamp(2.5rem, 4.2vw, 4.8rem);
   font-weight: 800;
   line-height: 1.05;
   color: #ffffff;
-  letter-spacing: -0.02em;
-  margin-bottom: clamp(18px, 2.6vh, 28px);
+  letter-spacing: -0.025em;
+  margin-bottom: clamp(18px, 2.5vh, 30px);
 }
 
 .section-b-title-accent {
@@ -3636,11 +3637,12 @@ footer {
 
 .section-b-description {
   font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
-  font-size: clamp(1.05rem, 1.25vw, 1.35rem);
+  font-size: clamp(1.1rem, 1.4vw, 1.42rem);
   line-height: 1.62;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.94);
   margin: 0;
-  max-width: min(580px, 100%);
+  font-weight: 450;
+  max-width: min(620px, 100%);
 }
 
 .sec-b-sub-br {
@@ -3650,7 +3652,7 @@ footer {
 /* Right Visual Column & Stage (positioned compactly close to copy) */
 .section-b-visual-col {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   width: 100%;
 }
@@ -3658,9 +3660,10 @@ footer {
 .section-b-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: min(880px, 52vw);
+  max-height: min(80vh, 780px);
   aspect-ratio: 1885 / 2013;
-  margin: 0;
+  margin: 0 auto;
   user-select: none;
   cursor: pointer;
 }
@@ -3808,19 +3811,19 @@ footer {
 
 .section-c-container {
   width: 100%;
-  max-width: min(1560px, 94vw);
+  max-width: min(1680px, 92vw);
   margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 64px);
   position: relative;
-  z-index: 2;
+  z-index: 3;
   box-sizing: border-box;
 }
 
 .section-c-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(40px, 6vw, 104px);
+  gap: clamp(48px, 6vw, 120px);
   width: 100%;
 }
 
@@ -3835,8 +3838,8 @@ footer {
 .section-c-stage-wrapper {
   position: relative;
   width: 100%;
-  max-width: min(780px, 48vw);
-  max-height: min(78vh, 740px);
+  max-width: min(880px, 52vw);
+  max-height: min(80vh, 780px);
   aspect-ratio: 1885 / 2013;
   margin: 0 auto;
   user-select: none;
@@ -3972,17 +3975,18 @@ footer {
 }
 
 .section-c-content-inner {
-  max-width: 520px;
+  max-width: min(680px, 100%);
+  width: 100%;
 }
 
 .section-c-title {
   font-family: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2.3rem, 3.8vw, 4.4rem);
+  font-size: clamp(2.5rem, 4.2vw, 4.8rem);
   font-weight: 800;
   line-height: 1.05;
   color: #ffffff;
-  letter-spacing: -0.02em;
-  margin-bottom: clamp(18px, 2.6vh, 28px);
+  letter-spacing: -0.025em;
+  margin-bottom: clamp(18px, 2.5vh, 30px);
 }
 
 .section-c-title-accent {
@@ -3990,11 +3994,13 @@ footer {
 }
 
 .section-c-description {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.90);
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.1rem, 1.4vw, 1.42rem);
+  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.94);
   margin: 0;
+  font-weight: 450;
+  max-width: min(620px, 100%);
 }
 
 .sec-c-sub-br {
