@@ -412,7 +412,7 @@ import {
 import {
   personOutline, lockClosedOutline, notificationsOutline, notificationsOffOutline,
   enterOutline, timeOutline, helpCircleOutline, shieldCheckmarkOutline,
-  chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline, callOutline,
+  chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline,
   documentTextOutline,
 } from 'ionicons/icons'
 import ResidentPassCard from '@/components/ResidentPassCard.vue'
