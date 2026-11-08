@@ -2973,7 +2973,9 @@ footer {
   border-radius: 20px !important;
   width: 100% !important;
   max-width: 900px !important;
+  height: min(88vh, 860px) !important;
   max-height: 88vh !important;
+  min-height: 0 !important;
   display: flex !important;
   flex-direction: column !important;
   box-shadow: 0 24px 60px rgba(7, 31, 20, 0.45) !important;
@@ -3043,12 +3045,36 @@ footer {
 }
 
 .landing-legal-body {
-  padding: 28px 32px;
-  overflow-y: auto;
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #334155;
+  padding: 28px 32px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  max-height: calc(88vh - 140px) !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  color: #334155 !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #0A5C38 #E2E8F0 !important;
+}
+
+.landing-legal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.landing-legal-body::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+
+.landing-legal-body::-webkit-scrollbar-thumb {
+  background: #0A5C38;
+  border-radius: 4px;
+}
+
+.landing-legal-body::-webkit-scrollbar-thumb:hover {
+  background: #064026;
 }
 
 .landing-legal-body h4 {
@@ -4399,13 +4425,13 @@ footer {
 }
 
 .core-control-desc {
-  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif;
-  font-size: clamp(1.18rem, 1.55vw, 1.55rem);
-  line-height: 1.65;
-  color: #4A5568;
-  margin: 0 0 clamp(24px, 3vh, 36px) 0;
-  max-width: min(680px, 100%);
-  font-weight: 450;
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif !important;
+  font-size: clamp(1.2rem, 1.55vw, 1.55rem) !important;
+  line-height: 1.65 !important;
+  color: #4A5568 !important;
+  margin: 0 0 clamp(24px, 3vh, 36px) 0 !important;
+  max-width: min(680px, 100%) !important;
+  font-weight: 450 !important;
 }
 
 .core-control-btn {

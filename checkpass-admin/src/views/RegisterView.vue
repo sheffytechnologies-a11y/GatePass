@@ -388,8 +388,15 @@
 
     <!-- Legal Modal Dialog (Terms, Privacy & Master Services Agreement) -->
     <Teleport to="body">
-      <div v-if="legalModalOpen" class="legal-modal-backdrop" @click.self="legalModalOpen = false">
-        <div class="legal-modal-card">
+      <div
+        v-if="legalModalOpen"
+        class="legal-modal-backdrop"
+        @click.self="legalModalOpen = false"
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        @wheel.stop
+      >
+        <div class="legal-modal-card" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop>
           <div class="legal-modal-header">
             <div class="legal-tabs">
               <button
@@ -417,80 +424,167 @@
                 Master Services Agreement (MSA &amp; DPA)
               </button>
             </div>
-            <button type="button" class="legal-close-btn" @click="legalModalOpen = false">&times;</button>
+            <button type="button" class="legal-close-btn" @click="legalModalOpen = false" aria-label="Close modal">&times;</button>
           </div>
 
-          <div class="legal-modal-body">
+          <div class="legal-modal-body" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop>
             <!-- Terms Tab -->
             <div v-if="legalTab === 'terms'" class="legal-text-flow">
-              <h3>Checkpass Terms of Service</h3>
-              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (Nigeria)</p>
+              <h3>CheckPass Terms of Service</h3>
+              <p class="legal-date">Last Updated: October 2026 &middot; Sheffy Technologies Limited (RC 1928471, Nigeria)</p>
               
-              <h4>1. Definitions &amp; Role Framework</h4>
-              <p>These Terms govern your access to the Checkpass Platform. Under Section 24 of the Nigeria Data Protection Act 2023 (NDPA), the Estate Homeowners Association (HOA) acts as the Data Controller, while Checkpass acts as the Data Processor providing digital access management, visitor passes, and estate infrastructure.</p>
+              <h4>1. Definitions &amp; Statutory Framework</h4>
+              <p>These Terms of Service (&ldquo;Terms&rdquo;) constitute a legally binding agreement between Sheffy Technologies Limited (&ldquo;CheckPass&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) and the Subscribing Estate, Community Development Association (CDA), Property Board, Facility Management Company, or Resident (&ldquo;User&rdquo; or &ldquo;You&rdquo;). Under Section 24 of the Nigeria Data Protection Act (NDPA) 2023 and NDPC GAID 2025 Directive 15, the Estate Homeowners Association or Facility Board operates as the <strong>Data Controller</strong>, while CheckPass acts as the technical <strong>Data Processor</strong> providing perimeter digital pass verification, resident registries, and automated dues billing infrastructure.</p>
 
-              <h4>2. Platform Nature &amp; Estate Authority</h4>
-              <p>Checkpass is an independent proptech platform. Checkpass is NOT a private security firm, law enforcement body, or emergency first responder. Physical admission into any estate remains governed exclusively by estate bylaws and gate security personnel.</p>
+              <h4>2. Proptech Nature &amp; Estate Authority Governance</h4>
+              <p>CheckPass is an independent digital proptech platform providing access software, verification tokens, and administrative consoles. CheckPass is NOT a licensed private security guard company, armed guard service, or law enforcement agency. Physical admittance into any gated residential community, corporate park, or commercial estate remains governed exclusively by the estate's internal bylaws and security guards stationed at the gate. CheckPass holds no authority or liability regarding physical barrier arms, bollards, or manual guard decisions.</p>
 
-              <h4>3. Account Registration &amp; Administration</h4>
-              <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
+              <h4>3. Account Registration &amp; Administrative Warranty</h4>
+              <p>When registering an Estate or Community Account, the Administrator warrants and represents that they possess verified legal authority (via HOA Executive Resolution, Board Appointment, or formal Facility Management Service Contract) to onboard residents, configure perimeter rules, manage gate security officers, and administer payment collection. The Administrator covenants to keep security scanner PINs, multi-factor authentication tokens, and administrative credentials strictly confidential.</p>
 
-              <h4>4. Visitor Passes &amp; Host Warranty</h4>
-              <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
+              <h4>4. Pass Issuance &amp; Host Warranty</h4>
+              <p>When a resident, landlord, or tenant generates an access pass, QR code, or alphanumeric verification code for a visitor, delivery courier, or contractor, the issuing host explicitly warrants that they have obtained the guest's consent to log their full name, telephone number, vehicle license plate, and entry timestamp for perimeter clearance in compliance with the NDPA 2023.</p>
 
-              <h4>5. Estate Levies &amp; Payment Processing</h4>
-              <p>All estate dues and subscription fees are processed through PCI-DSS certified payment processors (Paystack Payments Limited). Checkpass never touches or stores raw credit or debit card numbers.</p>
+              <h4>5. Offline Gate Validation &amp; Redundancy</h4>
+              <p>CheckPass incorporates high-availability offline cryptographic pass verification (HMAC-SHA256). During local cellular network downtime or power outages, guard mobile terminals can validate pre-issued passes locally without internet connectivity. Once internet connectivity restores, gate records automatically synchronize to the estate cloud ledger without data loss.</p>
 
-              <h4>6. Emergency &amp; Panic Alerts Disclaimer</h4>
-              <p>The panic alert feature is an informational digital relay alerting security guards. Checkpass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
+              <h4>6. Move-Out Clearance &amp; Anti-Theft Protocols</h4>
+              <p>To safeguard estate property and prevent tenant asset theft, CheckPass provides digital Move-Out Manifest passes. Security personnel must inspect physical goods against digital manifests approved by the estate executive or landlord before authorizing outbound vehicle gate passage.</p>
 
-              <h4>7. Limitation of Liability &amp; Governing Law</h4>
-              <p>To the maximum extent permitted by Nigerian law, Checkpass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
+              <h4>7. Financial Levies &amp; Direct Bank Settlement</h4>
+              <p>CheckPass enables digital collection of estate dues, security levies, utility tariffs, and development levies. All digital card, USSD, and bank transfer payments are processed directly via Central Bank of Nigeria (CBN) licensed payment switches (Paystack Payments Limited, PCI-DSS Level 1 certified). CheckPass NEVER holds, escrows, or commingles resident funds; 100% of collected dues settle directly into the subscribing property's commercial bank account.</p>
+
+              <h4>8. Emergency SOS Alert Disclaimer</h4>
+              <p>The 1-Tap Emergency SOS feature is a digital information relay intended to notify estate security officers and administrative executives. CheckPass does not provide armed emergency response, medical dispatch, or fire suppression services. In the event of an active life-threatening emergency, residents must contact Nigerian emergency services immediately (112 or 199).</p>
+
+              <h4>9. Domestic Staff &amp; Artisan Directory</h4>
+              <p>CheckPass provides a directory module allowing estates to index vetted domestic artisans, plumbers, and technicians. CheckPass does not employ, insure, or guarantee the craftsmanship of listed artisans. The estate administration and individual residents retain sole responsibility for supervising artisan work inside private residences.</p>
+
+              <h4>10. Prohibited Conduct &amp; Platform Integrity</h4>
+              <p>Users shall not: (a) reverse-engineer, decompile, or tamper with the CheckPass mobile or web applications; (b) share guard terminal login credentials across multiple unauthorized individuals; (c) commercially harvest or export visitor records without lawful controller authorization; or (d) input fraudulent vehicle plates or fictitious identities.</p>
+
+              <h4>11. Limitation of Liability &amp; Disclaimers</h4>
+              <p>To the maximum extent permitted under Nigerian law, CheckPass and Sheffy Technologies Limited disclaim all liability for physical theft, unauthorized trespass, civil unrest, or property damage occurring within the estate. CheckPass's cumulative monetary liability shall not exceed the subscription fees received from the subscribing estate in the preceding three (3) calendar months.</p>
+
+              <h4>12. Governing Law &amp; Dispute Resolution</h4>
+              <p>These Terms are governed by and construed under the laws of the Federal Republic of Nigeria. Any dispute arising under these Terms shall first be resolved through good-faith mediation. Failing settlement within 30 days, disputes shall be submitted to binding arbitration under the Arbitration and Mediation Act 2023 in Lagos State, Nigeria.</p>
             </div>
 
             <!-- Privacy Tab -->
             <div v-else-if="legalTab === 'privacy'" class="legal-text-flow">
-              <h3>Checkpass Privacy Policy</h3>
-              <p class="legal-date">NDPA 2023 &amp; NDPC GAID 2025 Certified &middot; Bank-Grade Data Protection</p>
+              <h3>CheckPass Privacy Policy</h3>
+              <p class="legal-date">Certified Compliant: Nigeria Data Protection Act (NDPA) 2023 &middot; NDPC GAID 2025 Directive 15</p>
 
-              <h4>1. Data Controller vs. Data Processor</h4>
-              <p>For resident rosters, unit assignments, and gate logs, your Estate HOA is the primary Data Controller. Checkpass acts as Data Processor providing cloud hosting, cryptographic pass tokens, and administrative consoles under Section 24 of the NDP Act 2023 and GAID 2025 Directive 15.</p>
+              <h4>1. Preamble &amp; Statutory Authority</h4>
+              <p>Sheffy Technologies Limited (&ldquo;CheckPass&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is committed to the highest standards of data privacy and security. This Privacy Policy details how we collect, process, store, and protect personal data across the CheckPass Resident Mobile App, Gate Terminal App, and Administrator Dashboard in strict compliance with the <strong>Nigeria Data Protection Act (NDPA) 2023</strong> and the <strong>General Application and Implementation Directive (GAID) 2025</strong> overseen by the <strong>Nigeria Data Protection Commission (NDPC)</strong>.</p>
 
-              <h4>2. Data We Process</h4>
-              <p>We process only data essential for gated perimeter integrity: (a) Administrator and resident names, phone numbers, and unit addresses; (b) Visitor full name, phone number, vehicle plate, and gate timestamp; (c) Pass access logs and security audit entries.</p>
+              <h4>2. Statutory Roles: Data Controller vs. Data Processor</h4>
+              <p>Under Section 24 of the NDPA 2023 and GAID 2025 Directive 15:</p>
+              <ul>
+                <li><strong>The Subscribing Estate HOA / CDA / Facility Board:</strong> Operates as the statutory <strong>Data Controller</strong>. The Estate determines who resides on the premises, approves tenant rosters, establishes gate entry protocols, and configures financial dues structures.</li>
+                <li><strong>CheckPass (Sheffy Technologies Limited):</strong> Operates strictly as the statutory <strong>Data Processor</strong>. We provide cloud infrastructure, cryptographic QR token generation, and multi-channel messaging (WhatsApp, SMS, Email) solely pursuant to the documented instructions of the Data Controller.</li>
+              </ul>
 
-              <h4>3. Legal Bases for Processing</h4>
-              <p>Data processing is conducted under Contractual Necessity (Section 25 NDPA) to issue access passes, and Legitimate Interest to safeguard community perimeter security.</p>
+              <h4>3. Lawful Bases for Processing</h4>
+              <p>In accordance with Section 25 of the NDPA 2023, data is processed under the following lawful bases: (a) <strong>Contractual Necessity:</strong> To generate and validate access passes requested by residents; (b) <strong>Legitimate Interests:</strong> To maintain physical perimeter security, deter burglaries, and safeguard community assets; and (c) <strong>Legal &amp; Tax Obligations:</strong> To generate verifiable dues payment invoices and audit trails.</p>
 
-              <h4>4. Financial &amp; Cardholder Security</h4>
-              <p>Checkpass does NOT collect or store full credit/debit card numbers or CVVs. All payment transactions are securely tokenized and handled directly by Paystack (PCI-DSS Level 1 certified).</p>
+              <h4>4. Categories of Data Collected</h4>
+              <ul>
+                <li><strong>Resident &amp; Property Information:</strong> Full name, telephone number, email address, residential unit address, occupancy type (landlord, tenant, household member), and vehicle registration numbers.</li>
+                <li><strong>Visitor &amp; Courier Telemetry:</strong> Visitor name, mobile phone number, vehicle plate, host unit, entry timestamp, exit timestamp, and clearing guard badge identifier.</li>
+                <li><strong>Payment &amp; Dues Verification:</strong> Invoicing amounts, payment dates, bank transaction reference codes, and uploaded payment teller receipts. (CheckPass NEVER collects or stores full debit/credit card numbers or CVVs).</li>
+                <li><strong>Security &amp; Gate Verification:</strong> Terminal IP address, guard check-in logs, pass scan validation outcome (Granted / Expired / Denied), and device hardware ID.</li>
+              </ul>
 
-              <h4>5. Data Subject Rights &amp; Retention</h4>
-              <p>In accordance with the NDPA 2023 and NDPC GAID 2025, visitor movement telemetry is automatically anonymized or purged after 180 days. Users retain the right to inspect access logs associated with their profile or request data rectification through their Estate Administration.</p>
+              <h4>5. Data Security &amp; Cryptographic Architecture</h4>
+              <p>CheckPass enforces enterprise-grade data security protocols: (a) <strong>AES-256 bit encryption at rest</strong> for all databases, disk volumes, and backup archives; (b) <strong>TLS 1.3 encryption in transit</strong> across all API endpoints, mobile devices, and browser sessions; (c) Strict Role-Based Access Control (RBAC) preventing guards from viewing residential contact lists; and (d) Immutable, append-only security audit ledgers.</p>
+
+              <h4>6. Sub-Processors &amp; Data Sovereignty</h4>
+              <p>We work with vetted enterprise infrastructure providers: Amazon Web Services (AWS, ISO 27001 certified cloud hosting), Paystack Payments Limited (PCI-DSS Level 1 certified payment processing), and licensed Nigerian telecommunications gateways (Termii / Twilio for SMS and WhatsApp pass delivery). CheckPass strictly prohibits third-party advertising tracking, data reselling, or commercial data monetization.</p>
+
+              <h4>7. Data Retention &amp; Automatic Purging Schedule</h4>
+              <p>Visitor gate passage telemetry is retained for security auditing for a standard cycle of <strong>180 days</strong>, after which movement records are permanently deleted or anonymized. Financial dues ledgers are preserved for seven (7) years in compliance with statutory Nigerian corporate and tax record-keeping regulations.</p>
+
+              <h4>8. Data Subject Rights under NDPA 2023</h4>
+              <p>Under Sections 34-39 of the NDPA 2023, every data subject possesses the right to: (a) Request confirmation and access to personal data processed; (b) Request prompt rectification of inaccurate records; (c) Request erasure of obsolete visitor entries; (d) Request data portability in a structured CSV/JSON format; and (e) Lodge a complaint with the Nigeria Data Protection Commission (NDPC).</p>
+
+              <h4>9. Data Protection Officer (DPO) Contact</h4>
+              <p>For data privacy inquiries, Subject Access Requests (SAR), or compliance verifications, contact our Data Protection Officer at: <a href="mailto:dpo@checkpass.ng" style="color:#0A5C38;font-weight:700">dpo@checkpass.ng</a> or write to Sheffy Technologies Limited, Legal &amp; Privacy Dept, Lagos State, Nigeria.</p>
             </div>
 
             <!-- Master Services Agreement & DPA Tab -->
             <div v-else-if="legalTab === 'agreement'" class="legal-text-flow">
-              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:12px 16px;border-radius:10px;margin-bottom:14px">
-                <strong style="color:#166534;font-size:13px">📄 Standard Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
-                <p style="font-size:12px;color:#15803D;margin:2px 0 0">Universal proptech service contract for Estates, CDAs, Facilities, and Corporate Parks.</p>
+              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:14px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                <div>
+                  <strong style="color:#166534;font-size:13.5px">📄 Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
+                  <p style="font-size:12px;color:#15803D;margin:3px 0 0">Universal proptech contract for Estates, CDAs, Facilities &amp; Corporate Parks &middot; Form Ref: CP-MSA-2026-V4</p>
+                </div>
+                <button
+                  type="button"
+                  class="btn-msa-download"
+                  @click="downloadMsaPdf"
+                  style="background:#0A5C38;color:#FFFFFF;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(10,92,56,0.2)"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  <span>Download Official Agreement (PDF)</span>
+                </button>
               </div>
 
-              <h3>Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</h3>
-              <p class="legal-date">Between Sheffy Technologies Limited (RC 1928471) &amp; The Subscribing Client / Property Board</p>
+              <h3>Master Services Agreement &amp; Data Processing Addendum</h3>
+              <p class="legal-date">Executed Between Sheffy Technologies Limited (RC 1928471) &amp; The Subscribing Property Board / CDA</p>
 
               <h4>PART 1 &middot; COMMERCIAL TERMS &amp; CLOUD SLA</h4>
-              <p><strong>1. Scope of Cloud Services:</strong> CheckPass grants non-exclusive cloud access to: (a) 4-Second QR Gate Pass Verification; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, Email); (c) Automated Dues Invoicing &amp; Direct Bank Settlement; (d) Anti-Theft Move-Out Manifest; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
-              <p><strong>2. Direct Dues Settlement:</strong> 100% of resident dues, service levies, and utility charges paid via card or direct bank transfer settle directly into the subscribing property's bank account.</p>
-              <p><strong>3. Zero Hardware Lock-in:</strong> Guard terminals run on standard Android or iOS devices with automatic offline cryptographic token verification during network outages.</p>
+              <p><strong>1. Parties &amp; Recitals:</strong> This Master Services Agreement is entered into between <strong>Sheffy Technologies Limited</strong> (Service Provider, RC 1928471, Lagos, Nigeria) and the <strong>Subscribing Client</strong> (&ldquo;The Property / HOA / CDA&rdquo;), represented by its authorized executive upon account onboarding.</p>
+              
+              <p><strong>2. Scope of Cloud Services:</strong> CheckPass grants non-exclusive cloud software access to: (a) 4-Second QR Gate Pass Verification for security guards; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, and Email); (c) Automated Estate Dues Invoicing &amp; Direct Bank Settlement; (d) Anti-Theft Move-Out Manifests; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
+              
+              <p><strong>3. Cloud Availability SLA &amp; Offline Redundancy:</strong> CheckPass guarantees <strong>99.8% monthly platform uptime</strong>. In addition, guard mobile terminals include local cryptographic pass verification ensuring zero gate disruptions during cellular network outages.</p>
+              
+              <p><strong>4. Direct Dues Settlement:</strong> 100% of resident estate dues, service levies, and utility charges paid via card or direct bank transfer settle directly into the subscribing property's commercial bank account. CheckPass never commingles or custodians resident funds.</p>
+
+              <p><strong>5. Zero Hardware Lock-In:</strong> Guard terminals operate on standard Android or iOS smartphones and tablets. The subscriber is never required to procure proprietary turnstile or scanning hardware.</p>
 
               <h4>PART 2 &middot; NDPA 2023 / GAID 2025 DATA PROCESSING ADDENDUM</h4>
-              <p><strong>4. Statutory Roles:</strong> Under Section 24 of the NDP Act 2023 and NDPC GAID 2025, Subscriber is Data Controller; CheckPass is Data Processor. CheckPass enforces AES-256 bit encryption at rest, TLS 1.3 in transit, and strictly never monetizes or sells resident data.</p>
-              <p><strong>5. 30-Day Exit &amp; Data Portability:</strong> The Subscriber may terminate service with thirty (30) days notice without exit penalty. Upon termination, CheckPass shall deliver an encrypted CSV export of all resident archives and ledgers.</p>
+              <p><strong>6. Statutory Roles:</strong> Under Section 24 of the NDP Act 2023 and NDPC GAID 2025 Directive 15, the Subscriber is the statutory Data Controller; CheckPass is strictly the Data Processor. CheckPass shall enforce AES-256 bit encryption at rest, TLS 1.3 in transit, and strictly never monetize, sell, or disclose resident data.</p>
+
+              <p><strong>7. 30-Day Exit &amp; Data Portability:</strong> The Subscriber may terminate service with thirty (30) days notice without exit penalty or lock-in fee. Upon termination, CheckPass shall deliver an encrypted, complete CSV export of all resident archives and ledgers within fourteen (14) days.</p>
+
+              <p><strong>8. Data Breach Notification:</strong> In the event of a confirmed security incident, CheckPass covenants to notify the Subscriber within seventy-two (72) hours in compliance with Section 40 NDPA 2023.</p>
+
+              <h4>PART 3 &middot; SIGNATURE EXECUTION BLOCK</h4>
+              <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid #E2E8F0;padding-top:16px;background:#F8FAFC;padding:16px;border-radius:10px">
+                <div>
+                  <p style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:14px">FOR: SHEFFY TECHNOLOGIES LIMITED</p>
+                  <div style="border-bottom:1px solid #475569;width:80%;height:20px"></div>
+                  <p style="font-size:11px;color:#64748B;margin:4px 0 0">Authorized Executive Signatory &middot; RC 1928471</p>
+                </div>
+                <div>
+                  <p style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:14px">FOR: SUBSCRIBING CLIENT / ESTATE BOARD</p>
+                  <div style="border-bottom:1px solid #475569;width:80%;height:20px"></div>
+                  <p style="font-size:11px;color:#64748B;margin:4px 0 0">Chairman / Secretary / Facility Manager</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="legal-modal-footer">
+            <button
+              type="button"
+              class="legal-download-link-btn"
+              @click="downloadMsaPdf"
+              style="background:transparent;border:1px solid #CBD5E1;color:#0A5C38;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download PDF Agreement</span>
+            </button>
             <button type="button" class="legal-accept-btn" @click="acceptLegal">
               I Understand &amp; Agree
             </button>
@@ -615,7 +709,17 @@ function openLegal(tab: 'terms' | 'privacy' | 'agreement') {
 }
 
 if (typeof window !== 'undefined') {
-  (window as any).openRegisterLegal = openLegal
+  ;(window as any).openRegisterLegal = openLegal;
+  ;(window as any).downloadMsaPdf = downloadMsaPdf;
+}
+
+function downloadMsaPdf() {
+  const link = document.createElement('a')
+  link.href = '/docs/CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  link.download = 'CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 function acceptLegal() {
@@ -1194,13 +1298,16 @@ async function handleRegister() {
   background: #ffffff !important;
   border-radius: 20px !important;
   width: 100% !important;
-  max-width: 720px !important;
+  max-width: 820px !important;
+  height: min(88vh, 840px) !important;
   max-height: 88vh !important;
+  min-height: 0 !important;
   display: flex !important;
   flex-direction: column !important;
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35) !important;
   overflow: hidden !important;
   border: 1px solid #e2e8f0 !important;
+  position: relative !important;
 }
 .legal-modal-header {
   display: flex;
@@ -1249,9 +1356,33 @@ async function handleRegister() {
   justify-content: center;
 }
 .legal-modal-body {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
+  padding: 24px 28px;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  max-height: calc(88vh - 130px) !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #0A5C38 #E2E8F0 !important;
+}
+
+.legal-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.legal-modal-body::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+
+.legal-modal-body::-webkit-scrollbar-thumb {
+  background: #0A5C38;
+  border-radius: 4px;
+}
+
+.legal-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #064026;
 }
 .legal-text-flow h3 {
   font-size: 19px;

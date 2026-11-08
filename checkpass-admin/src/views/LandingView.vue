@@ -2044,8 +2044,20 @@
 
 <!-- CHECKPASS LEGAL & COMPLIANCE MODAL (VUE-BASED WITH TELEPORT) -->
 <Teleport to="body">
-  <div v-if="isLegalModalOpen" class="landing-legal-overlay open" @click.self="isLegalModalOpen = false">
-    <div class="landing-legal-box">
+  <div
+    v-if="isLegalModalOpen"
+    class="landing-legal-overlay open"
+    @click.self="isLegalModalOpen = false"
+    data-lenis-prevent
+    data-lenis-prevent-wheel
+    @wheel.stop
+  >
+    <div
+      class="landing-legal-box"
+      data-lenis-prevent
+      data-lenis-prevent-wheel
+      @wheel.stop
+    >
       <!-- Header -->
       <div class="landing-legal-header">
         <div>
@@ -2063,89 +2075,126 @@
           <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'agreement' }" @click="activeLegalTab = 'agreement'">Master Services Agreement (MSA &amp; DPA)</button>
           <button type="button" class="landing-legal-tab-btn" :class="{ active: activeLegalTab === 'guards' }" @click="activeLegalTab = 'guards'">Guard Protocol</button>
         </div>
-        <div class="login-close-btn" @click="isLegalModalOpen = false" style="position:static;width:32px;height:32px;margin:0;cursor:pointer">
+        <div class="login-close-btn" @click="isLegalModalOpen = false" style="position:static;width:32px;height:32px;margin:0;cursor:pointer" aria-label="Close modal">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
       </div>
 
       <!-- Body -->
-      <div class="landing-legal-body">
+      <div class="landing-legal-body" data-lenis-prevent data-lenis-prevent-wheel @wheel.stop>
         <!-- TAB 1: PRIVACY -->
         <div v-if="activeLegalTab === 'privacy'" class="legal-tab-content">
           <h4>1. Regulatory Compliance &amp; Preamble</h4>
-          <p>This Privacy Policy outlines how Sheffy Technologies Limited (&ldquo;CheckPass&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes personal data through the CheckPass Gate Access, Facility Management, and Resident Portal platforms. CheckPass operates in strict compliance with the <strong>Nigeria Data Protection Act (NDP Act) 2023</strong> and the <strong>General Application and Implementation Directive (GAID) 2025</strong> under the supervision of the <strong>Nigeria Data Protection Commission (NDPC)</strong>.</p>
+          <p>This Privacy Policy outlines how Sheffy Technologies Limited (&ldquo;CheckPass&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) processes personal data through the CheckPass Gate Access, Facility Management, and Resident Portal platforms. CheckPass operates in strict compliance with the <strong>Nigeria Data Protection Act (NDP Act) 2023</strong> and the <strong>General Application and Implementation Directive (GAID) 2025</strong> under the regulatory supervision of the <strong>Nigeria Data Protection Commission (NDPC)</strong>.</p>
+          
           <h4>2. Roles: Data Controller vs. Data Processor</h4>
           <p>Under Section 24 of the NDP Act 2023 and GAID 2025 Directive 15:</p>
           <ul>
-            <li><strong>The Client / Community Development Association (CDA) / Property Board:</strong> Acts as the primary <strong>Data Controller</strong>. The Client determines who resides on the property, approves access rosters, sets gate protocols, and authorizes dues schedules.</li>
-            <li><strong>CheckPass (Sheffy Technologies Limited):</strong> Acts as the <strong>Data Processor</strong>. We provide secure cloud hosting, cryptographic QR tokens, gate scanner software, and multi-channel notification infrastructure (WhatsApp, SMS, Email) strictly per the Controller&rsquo;s instructions.</li>
+            <li><strong>The Subscribing Estate HOA / Community Association / Property Board:</strong> Acts as the statutory <strong>Data Controller</strong>. The Estate determines who resides on the premises, approves tenant and landlord rosters, establishes gate clearance protocols, and configures financial dues levies.</li>
+            <li><strong>CheckPass (Sheffy Technologies Limited):</strong> Acts strictly as the <strong>Data Processor</strong>. We provide secure cloud hosting, cryptographic QR tokens, gate scanner software, and multi-channel notification infrastructure (WhatsApp, SMS, Email) strictly per the Controller&rsquo;s instructions.</li>
           </ul>
-          <h4>3. Categories of Personal Data Collected</h4>
+
+          <h4>3. Lawful Bases for Processing</h4>
+          <p>Under Section 25 of the NDPA 2023, data processing is conducted under: (a) <strong>Contractual Necessity:</strong> To generate and validate visitor access passes; (b) <strong>Legitimate Interests:</strong> To maintain physical perimeter security, prevent theft, and secure estate residents; and (c) <strong>Legal Obligations:</strong> To provide verified financial transaction records and dues audit trails.</p>
+
+          <h4>4. Categories of Personal Data Collected</h4>
           <ul>
             <li><strong>Resident &amp; Tenant Profiles:</strong> Full name, verified mobile phone number, unit address, vehicle license plates, and household members.</li>
             <li><strong>Visitor &amp; Delivery Telemetry:</strong> Visitor name, mobile phone number, vehicle plate, purpose of visit, host unit, entry timestamp, and exit timestamp.</li>
             <li><strong>Dues &amp; Levy Transactions:</strong> Invoicing history, digital payment references, and uploaded direct bank transfer receipts for 1-click verification. (CheckPass never stores raw credit/debit card numbers; all transactions are processed via CBN-licensed payment switches).</li>
             <li><strong>Security Gate Logs:</strong> Guard badge IDs, terminal checkpoints, and pass scan verification timestamps.</li>
           </ul>
-          <h4>4. Data Security &amp; Storage Standards</h4>
+
+          <h4>5. Data Security &amp; Storage Standards</h4>
           <p>Data is safeguarded with <strong>AES-256 bit encryption at rest</strong> and <strong>TLS 1.3 encryption in transit</strong>. Visitor movement records are kept in tamper-proof, append-only ledgers to prevent unauthorized modification.</p>
-          <h4>5. Data Retention &amp; Automatic Purging</h4>
+
+          <h4>6. Data Retention &amp; Automatic Purging</h4>
           <p>Routine visitor gate records are retained for security auditing purposes for a standard cycle of <strong>180 days</strong>, after which movement telemetry is automatically anonymized or purged unless required for an active incident investigation.</p>
-          <h4>6. Resident &amp; Visitor Rights</h4>
-          <p>Data subjects have the right to request access, rectification, or deletion of non-essential records. Inquiries can be submitted to our Data Protection Officer at <a href="mailto:dpo@checkpass.ng" style="color:#0A5C38;font-weight:700">dpo@checkpass.ng</a>.</p>
+
+          <h4>7. Resident &amp; Visitor Rights</h4>
+          <p>Data subjects have the right to request access, rectification, or deletion of non-essential records under Sections 34-39 NDPA 2023. Inquiries can be submitted to our Data Protection Officer at <a href="mailto:dpo@checkpass.ng" style="color:#0A5C38;font-weight:700">dpo@checkpass.ng</a>.</p>
         </div>
 
         <!-- TAB 2: TERMS -->
         <div v-else-if="activeLegalTab === 'terms'" class="legal-tab-content">
-          <h4>1. Acceptance of Terms</h4>
-          <p>By accessing the CheckPass platform (web console, resident app, or gate terminal), you agree to these Terms of Service. These terms govern individual account security, password confidentiality, and acceptable platform use.</p>
-          <h4>2. Platform Scope &amp; Availability</h4>
-          <p>CheckPass targets <strong>99.8% platform uptime</strong>. Gate terminals feature local offline data caching, ensuring security guards can continue validating QR passes even during total cellular internet outages.</p>
-          <h4>3. Account Security</h4>
-          <p>Administrators and security officers must keep their credentials confidential. Sharing gate scanner PINs or commercially monetizing visitor logs is strictly prohibited.</p>
-          <h4>4. Dues &amp; Direct Bank Settlement</h4>
-          <p>CheckPass facilitates dues collection via digital card/USSD payments and direct bank transfer receipt uploads. Funds collected digitally are settled directly into the designated bank account of the property/CDA.</p>
+          <h4>1. Acceptance of Terms &amp; Regulatory Framework</h4>
+          <p>By accessing the CheckPass platform (web console, resident app, or gate terminal), you agree to these Terms of Service. Under Section 24 of the Nigeria Data Protection Act (NDPA) 2023, the Estate HOA operates as the Data Controller, while CheckPass operates as the technical Data Processor.</p>
+
+          <h4>2. Proptech Nature &amp; Independent Perimeter Governance</h4>
+          <p>CheckPass is an independent digital proptech platform. CheckPass is NOT a licensed private security guard company or law enforcement body. Physical admission into any gated community remains governed exclusively by estate bylaws and security personnel stationed at the perimeter gates.</p>
+
+          <h4>3. Account Registration &amp; Administration</h4>
+          <p>Estate Administrators warrant that they possess lawful authority (via HOA executive resolution or facility management contract) to register the estate, onboard residents, configure access rules, and manage gate security staff.</p>
+
+          <h4>4. Visitor Passes &amp; Host Warranty</h4>
+          <p>When residents issue visitor passes, QR codes, or access phrases, the host warrants that they have obtained the visitor's prior consent to record their name, phone number, and vehicle plate for gate clearance.</p>
+
+          <h4>5. Offline Gate Validation &amp; High Availability</h4>
+          <p>CheckPass targets <strong>99.8% platform uptime</strong>. Gate terminals feature local offline cryptographic data caching, ensuring security guards can continue validating QR passes even during total cellular internet outages.</p>
+
+          <h4>6. Move-Out Clearance &amp; Anti-Theft Protocols</h4>
+          <p>Security officers must inspect departing moving vans against digital move-out manifest passes approved by the estate executive or landlord before opening exit barrier gates.</p>
+
+          <h4>7. Dues &amp; Direct Bank Settlement</h4>
+          <p>CheckPass facilitates dues collection via digital card/USSD payments and direct bank transfer receipt uploads. Funds collected digitally are settled directly into the designated bank account of the property/CDA without intermediary custody.</p>
+
+          <h4>8. Emergency &amp; Panic Alerts Disclaimer</h4>
+          <p>The panic alert feature is an informational digital relay alerting security guards. CheckPass does not guarantee physical arrival times. In critical emergencies, contact Nigerian emergency services directly (112 or 199).</p>
+
+          <h4>9. Limitation of Liability &amp; Governing Law</h4>
+          <p>To the maximum extent permitted by Nigerian law, CheckPass disclaims liability for unauthorized trespass or perimeter breaches. These Terms are governed by the laws of the Federal Republic of Nigeria.</p>
         </div>
 
         <!-- TAB 3: MASTER SERVICES AGREEMENT -->
         <div v-else-if="activeLegalTab === 'agreement'" class="legal-tab-content">
-          <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:14px 18px;border-radius:10px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:14px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
-              <strong style="color:#166534">📄 Standard Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
-              <p style="font-size:12px;color:#15803D;margin:2px 0 0">Universal B2B template for Residential Estates, CDAs, Commercial Complexes, and Facility Management Boards.</p>
+              <strong style="color:#166534;font-size:13.5px">📄 Standard Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
+              <p style="font-size:12px;color:#15803D;margin:3px 0 0">Universal B2B contract for Residential Estates, CDAs, Commercial Complexes, and Facility Management Boards.</p>
             </div>
-            <button type="button" class="btn btn-primary btn-sm" onclick="window.print()" style="font-size:12px;padding:6px 14px;cursor:pointer">
-              🖨️ Print / Save as PDF
+            <button
+              type="button"
+              class="btn-msa-download"
+              @click="downloadMsaPdf"
+              style="background:#0A5C38;color:#FFFFFF;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(10,92,56,0.2)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Download Official Agreement (PDF)</span>
             </button>
           </div>
 
-          <div style="background:#fff;border:1px solid #E2E8F0;padding:24px;border-radius:8px">
+          <div style="background:#fff;border:1px solid #E2E8F0;padding:24px;border-radius:10px">
             <div style="text-align:center;border-bottom:2px solid #0A5C38;padding-bottom:14px;margin-bottom:18px">
               <h3 style="font-size:17px;font-weight:800;color:#071F14;margin:0">MASTER SERVICES AGREEMENT &amp; DATA PROCESSING ADDENDUM (MSA &amp; DPA)</h3>
-              <p style="font-size:11.5px;color:#64748B;margin:4px 0 0">BETWEEN SHEFFY TECHNOLOGIES LIMITED &amp; THE SUBSCRIBING PROPERTY / CLIENT</p>
+              <p style="font-size:11.5px;color:#64748B;margin:4px 0 0">BETWEEN SHEFFY TECHNOLOGIES LIMITED (RC 1928471) &amp; THE SUBSCRIBING PROPERTY / CLIENT</p>
             </div>
 
             <h5 style="font-size:13px;font-weight:700;color:#071F14;margin-bottom:6px">PART 1 &middot; COMMERCIAL TERMS &amp; CLOUD SLA</h5>
             <p style="font-size:12.5px;line-height:1.6"><strong>1. PARTIES:</strong> Executed between <strong>Sheffy Technologies Limited</strong> (Service Provider, RC 1928471, Lagos, Nigeria) and the <strong>Subscribing Client</strong> (&ldquo;The Property / CDA&rdquo;), represented by its authorized executive upon account onboarding.</p>
-            <p style="font-size:12.5px;line-height:1.6"><strong>2. SCOPE OF CLOUD SERVICES:</strong> CheckPass grants non-exclusive cloud access to: (a) 4-Second QR Gate Pass Verification; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, Email); (c) Automated Dues Invoicing &amp; Bank Teller Verification; (d) Anti-Theft Move-Out Manifest; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
-            <p style="font-size:12.5px;line-height:1.6"><strong>3. SUBSCRIPTION &amp; DIRECT SETTLEMENT:</strong> Software subscription is billed on a transparent monthly or discounted annual plan. 100% of resident dues collected are routed directly to the property's designated bank account.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>2. SCOPE OF CLOUD SERVICES:</strong> CheckPass grants non-exclusive cloud access to: (a) 4-Second QR Gate Pass Verification; (b) Multi-Channel Pass Dispatch (WhatsApp, SMS, Email); (c) Automated Dues Invoicing &amp; Direct Bank Settlement; (d) Anti-Theft Move-Out Manifest; (e) Verified Domestic Artisan Directory; and (f) 1-Tap Emergency SOS Gate Alert.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>3. SUBSCRIPTION &amp; DIRECT SETTLEMENT:</strong> Software subscription is billed on a transparent monthly or discounted annual plan. 100% of resident dues collected are routed directly to the property's designated bank account via CBN-licensed payment switches.</p>
             <p style="font-size:12.5px;line-height:1.6"><strong>4. ZERO HARDWARE LOCK-IN:</strong> Guard terminals operate on standard Android or iOS devices with automatic offline cryptographic token verification during cellular network downtime.</p>
 
             <hr style="border:none;border-top:1px dashed #CBD5E1;margin:18px 0" />
 
-            <h5 style="font-size:13px;font-weight:700;color:#071F14;margin-bottom:6px">PART 2 &middot; NDPA 2023 / GAID 2025 DATA PROCESSING ADDENDUM &amp; SIGNATURES</h5>
+            <h5 style="font-size:13px;font-weight:700;color:#071F14;margin-bottom:6px">PART 2 &middot; NDPA 2023 / GAID 2025 DATA PROCESSING ADDENDUM</h5>
             <p style="font-size:12.5px;line-height:1.6"><strong>5. STATUTORY ROLES:</strong> Under Section 24 of the NDP Act 2023 and NDPC GAID 2025, the Subscriber is the Data Controller. CheckPass is strictly the Data Processor. CheckPass shall enforce AES-256 bit encryption, TLS 1.3 in transit, and never monetize, sell, or disclose resident data.</p>
             <p style="font-size:12.5px;line-height:1.6"><strong>6. TERM, 30-DAY EXIT &amp; FULL DATA PORTABILITY:</strong> Operates on flexible monthly or annual renewals. The Subscriber may terminate service with thirty (30) days notice without exit penalties. Upon termination, CheckPass shall deliver an encrypted, full CSV export of all resident records and dues archives.</p>
+            <p style="font-size:12.5px;line-height:1.6"><strong>7. INCIDENT NOTIFICATION:</strong> CheckPass covenants to notify the Subscriber within seventy-two (72) hours of any confirmed security breach in accordance with Section 40 NDPA 2023.</p>
 
-            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid #E2E8F0;padding-top:16px">
+            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid #E2E8F0;padding-top:16px;background:#F8FAFC;padding:16px;border-radius:8px">
               <div>
-                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:18px">FOR: SHEFFY TECHNOLOGIES LIMITED</p>
-                <div style="border-bottom:1px solid #475569;width:80%;height:24px"></div>
-                <p style="font-size:11px;color:#64748B;margin:4px 0 0">Authorized Executive Signatory</p>
+                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:14px">FOR: SHEFFY TECHNOLOGIES LIMITED</p>
+                <div style="border-bottom:1px solid #475569;width:80%;height:22px"></div>
+                <p style="font-size:11px;color:#64748B;margin:4px 0 0">Authorized Executive Signatory &middot; RC 1928471</p>
               </div>
               <div>
-                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:18px">FOR: THE SUBSCRIBING CLIENT</p>
-                <div style="border-bottom:1px solid #475569;width:80%;height:24px"></div>
+                <p style="font-size:12px;font-weight:700;color:#071F14;margin-bottom:14px">FOR: THE SUBSCRIBING CLIENT</p>
+                <div style="border-bottom:1px solid #475569;width:80%;height:22px"></div>
                 <p style="font-size:11px;color:#64748B;margin:4px 0 0">Chairman / Secretary / Facility Manager</p>
               </div>
             </div>
@@ -2167,8 +2216,21 @@
 
       <!-- Footer -->
       <div class="landing-legal-footer">
-        <span class="legal-meta-badge">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <button
+          type="button"
+          class="btn-msa-download-footer"
+          @click="downloadMsaPdf"
+          style="background:transparent;border:1px solid #CBD5E1;color:#0A5C38;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download PDF Agreement</span>
+        </button>
+        <span class="legal-meta-badge" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#64748B">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0A5C38" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           Regulated under NDP Act 2023 &amp; NDPC GAID 2025
         </span>
         <button type="button" class="btn btn-outline btn-sm" @click="isLegalModalOpen = false">Close Window</button>
@@ -2722,8 +2784,18 @@ function openLegalModal(tab: 'privacy' | 'terms' | 'agreement' | 'guards' = 'pri
   isLegalModalOpen.value = true
 }
 
+function downloadMsaPdf() {
+  const link = document.createElement('a')
+  link.href = '/docs/CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  link.download = 'CheckPass_Master_Services_Agreement_and_DPA.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
 if (typeof window !== 'undefined') {
-  (window as any).openLegalModal = openLegalModal
+  ;(window as any).openLegalModal = openLegalModal;
+  ;(window as any).downloadMsaPdf = downloadMsaPdf;
 }
 
 const isConciergeOpen = ref(false)
@@ -3161,6 +3233,20 @@ onUnmounted(() => {
 }
 
 /* ── Full Horizontal Viewport Scaling with Padding & Fixed 16:9 Aspect Ratio ── */
+.section-c-description,
+.core-control-desc {
+  font-family: 'Satoshi', 'Inter', -apple-system, sans-serif !important;
+  font-size: clamp(1.2rem, 1.55vw, 1.55rem) !important;
+  line-height: 1.65 !important;
+  font-weight: 450 !important;
+  max-width: min(680px, 100%) !important;
+}
+
+.core-control-title,
+.section-c-title {
+  letter-spacing: -0.025em !important;
+}
+
 .siteassist-showcase-container {
   width: 100% !important;
   max-width: 100% !important;
