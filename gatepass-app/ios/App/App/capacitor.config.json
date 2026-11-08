@@ -1,0 +1,13 @@
+{
+	"appId": "com.checkpazz.app",
+	"appName": "checkpazz",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"CAPCameraPlugin",
+		"PushNotificationsPlugin"
+	]
+}
