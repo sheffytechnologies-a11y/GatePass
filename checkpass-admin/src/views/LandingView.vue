@@ -512,7 +512,7 @@
 
     <!-- CORE SYSTEM HEADER (2-Column Web View Layout) -->
   <section class="core-control-section" id="core-systems">
-    <div class="container">
+    <div class="core-control-container">
       <div class="core-control-grid" data-reveal>
         <!-- Left Column: Primary Green Heading -->
         <div class="core-control-col-left">
