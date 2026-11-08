@@ -1658,7 +1658,7 @@
               <a class="social-btn icon-only-btn" href="https://www.instagram.com/checkpass.ng/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.2" fill="#FFFFFF" stroke="none"/></svg>
               </a>
-              <a class="social-btn icon-only-btn" href="https://linkedin.com/company/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <a class="social-btn icon-only-btn" href="https://www.linkedin.com/company/checkpass-ng/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
               </a>
               <a class="social-btn icon-only-btn" href="https://www.facebook.com/share/19mXfK2m1M/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
@@ -1732,7 +1732,7 @@
           <a href="https://x.com/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="X">
             <img src="/social-media-icons/X.svg" alt="X" width="18" height="18" />
           </a>
-          <a href="https://linkedin.com/company/checkpassng" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <a href="https://www.linkedin.com/company/checkpass-ng/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
             <img src="/social-media-icons/linkedin.svg" alt="LinkedIn" width="18" height="18" />
           </a>
         </div>
