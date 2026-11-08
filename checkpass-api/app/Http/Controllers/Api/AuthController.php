@@ -240,11 +240,34 @@ class AuthController extends Controller
                 ->first();
         }
 
+        // Check if identifier belongs to an Admin
+        if (! $user && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $admin = \App\Models\Admin::where('email', $identifier)->first();
+            if ($admin) {
+                $otp = (string) mt_rand(100000, 999999);
+                $cacheKey = 'admin_pwd_reset_' . md5($admin->id);
+                Cache::put($cacheKey, [
+                    'admin_id' => $admin->id,
+                    'otp'      => $otp,
+                    'expires'  => now()->addMinutes(15)->timestamp,
+                ], now()->addMinutes(15));
+
+                $res = [
+                    'success' => true,
+                    'message' => 'A 6-digit OTP has been sent to your official admin email.',
+                ];
+                if (config('app.debug') || app()->environment('local', 'testing')) {
+                    $res['debugOtp'] = $otp;
+                }
+                return response()->json($res);
+            }
+        }
+
         // Even if user not found, return friendly message to prevent user enumeration
         if (! $user) {
             return response()->json([
                 'success' => true,
-                'message' => 'If an account matches those details, a 6-digit verification code has been dispatched.',
+                'message' => 'If an account matches those details, a 6-digit OTP has been sent.',
             ]);
         }
 
@@ -261,7 +284,7 @@ class AuthController extends Controller
 
         $res = [
             'success' => true,
-            'message' => 'A 6-digit verification code has been dispatched to your registered phone or email.',
+            'message' => 'A 6-digit OTP has been sent to your registered phone or email.',
         ];
 
         // In local/testing/debug environment, return debugOtp for immediate testing
@@ -270,6 +293,68 @@ class AuthController extends Controller
         }
 
         return response()->json($res);
+    }
+
+    /**
+     * POST /api/v1/auth/verify-reset-otp
+     * Body: { identifier, otp }
+     */
+    public function verifyResetOtp(Request $request)
+    {
+        $data = $request->validate([
+            'identifier' => 'required|string',
+            'otp'        => 'required|string|size:6',
+        ]);
+
+        $identifier = $data['identifier'];
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', $identifier)->first();
+        } else {
+            $phone = $this->normalisePhone($identifier);
+            $user = User::where('phone', $phone)
+                ->orWhere('phone', $identifier)
+                ->orWhere('email', $identifier)
+                ->first();
+        }
+
+        // Check if Admin
+        if (! $user && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $admin = \App\Models\Admin::where('email', $identifier)->first();
+            if ($admin) {
+                $cacheKey = 'admin_pwd_reset_' . md5($admin->id);
+                $cached = Cache::get($cacheKey);
+                if (! $cached || $cached['otp'] !== trim($data['otp'])) {
+                    throw ValidationException::withMessages([
+                        'otp' => ['The 6-digit OTP is invalid or has expired. Please try again.'],
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'OTP verified successfully.',
+                ]);
+            }
+        }
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'otp' => ['The 6-digit OTP is invalid or has expired. Please try again.'],
+            ]);
+        }
+
+        $cacheKey = 'pwd_reset_' . md5($user->id);
+        $cached = Cache::get($cacheKey);
+
+        if (! $cached || $cached['otp'] !== trim($data['otp'])) {
+            throw ValidationException::withMessages([
+                'otp' => ['The 6-digit OTP is invalid or has expired. Please try again.'],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP verified successfully.',
+        ]);
     }
 
     /**
@@ -293,6 +378,25 @@ class AuthController extends Controller
                 ->orWhere('phone', $identifier)
                 ->orWhere('email', $identifier)
                 ->first();
+        }
+
+        if (! $user && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $admin = \App\Models\Admin::where('email', $identifier)->first();
+            if ($admin) {
+                $cacheKey = 'admin_pwd_reset_' . md5($admin->id);
+                $cached = Cache::get($cacheKey);
+                if (! $cached || $cached['otp'] !== trim($data['otp'])) {
+                    throw ValidationException::withMessages([
+                        'otp' => ['The verification code is invalid or has expired. Please request a new code.'],
+                    ]);
+                }
+                $admin->update(['password' => Hash::make($data['newPassword'])]);
+                Cache::forget($cacheKey);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Your admin password has been updated successfully. You can now log in.',
+                ]);
+            }
         }
 
         if (! $user) {

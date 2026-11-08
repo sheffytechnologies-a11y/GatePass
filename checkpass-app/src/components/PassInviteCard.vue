@@ -19,10 +19,10 @@
         <!-- Visitor Identity Frosted Pod (Visitor Name & Host Only - No Phone Number) -->
         <div class="t1-identity-card">
           <div class="t1-avatar-wrap" :style="{ background: avatarGradient }">
-            <span class="t1-avatar-fallback">{{ initials }}</span>
+            <img v-if="visitorPhotoUrl" :src="visitorPhotoUrl" alt="Visitor" class="t1-avatar-img" />
+            <span v-else class="t1-avatar-fallback">{{ initials }}</span>
           </div>
           <div class="t1-info">
-            <span class="t1-visitor-kicker">VERIFIED VISITOR</span>
             <div class="t1-visitor-name">{{ pass.visitorName }}</div>
             <div class="t1-visitor-sub">Host: {{ pass.hostName }} · {{ pass.hostUnit }}</div>
           </div>
@@ -71,8 +71,7 @@
           <div class="t1-qr-wrapper">
             <img v-if="qrDataUrl" :src="qrDataUrl" alt="Pass QR Code" class="t1-qr-img" />
           </div>
-          <div class="t1-pass-ref">Pass #CP-{{ passShortId }}</div>
-        </div>
+          </div>
 
         <!-- Clean Attribution Footer -->
         <div class="t1-footer">
@@ -104,6 +103,17 @@ const props = withDefaults(
 
 const qrDataUrl = ref('')
 
+const visitorPhotoUrl = computed(() => {
+  const p = props.pass as any
+  if (p?.photoUrl) return p.photoUrl
+  if (p?.visitorPhoto) return p.visitorPhoto
+  try {
+    const saved = localStorage.getItem(`checkpass_photo_${p?.id}`)
+    if (saved) return saved
+  } catch {}
+  return null
+})
+
 const initials = computed(() => {
   return (props.pass.visitorName || 'Guest')
     .split(' ')
@@ -125,7 +135,6 @@ const avatarGradient = computed(() => {
   return GRADIENTS[code % GRADIENTS.length]
 })
 
-const passShortId = computed(() => (props.pass.id || '').slice(-6).toUpperCase())
 
 const badgeText = computed(() => {
   if (props.pass.status === 'On-site') return '● On-site'

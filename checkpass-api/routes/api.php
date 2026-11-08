@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\AdminRegistrationController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\AccessPhraseController;
+use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\CrmLeadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,11 +61,25 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::prefix('v1')->group(function () {
 
+    // ── Public platform stats for landing page ─────────────────────────────
+    Route::get('platform-stats', [AdminController::class, 'publicPlatformStats']);
+
+    // ── Super Admin Sales CRM & Public AI Concierge Lead Ingestion ─────────
+    Route::prefix('crm')->group(function () {
+        Route::post('leads', [CrmLeadController::class, 'store']);
+        Route::get('leads', [CrmLeadController::class, 'index']);
+        Route::get('leads/{id}', [CrmLeadController::class, 'show']);
+        Route::patch('leads/{id}', [CrmLeadController::class, 'update']);
+        Route::delete('leads/{id}', [CrmLeadController::class, 'destroy']);
+        Route::post('leads/{id}/provision-sandbox', [CrmLeadController::class, 'provisionSandbox']);
+    });
+
     // ── Public auth routes ─────────────────────────────────────────────────
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('verify-reset-otp', [AuthController::class, 'verifyResetOtp']);
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
     });
 
@@ -190,6 +206,17 @@ Route::prefix('v1')->group(function () {
             Route::get('estates',                [AdminController::class, 'listEstates']);
             Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
             Route::post('units',                 [AdminController::class, 'createUnit']);
+
+            // Properties & Physical Topology Module
+            Route::get('estates/{id}/properties',               [PropertyController::class, 'index']);
+            Route::get('estates/{id}/properties/stats',         [PropertyController::class, 'stats']);
+            Route::get('estates/{id}/properties/topology-tree', [PropertyController::class, 'topologyTree']);
+            Route::get('estates/{id}/property-structure',       [PropertyController::class, 'getStructure']);
+            Route::put('estates/{id}/property-structure',       [PropertyController::class, 'updateStructure']);
+            Route::post('properties',                           [PropertyController::class, 'store']);
+            Route::post('properties/batch',                     [PropertyController::class, 'batchStore']);
+            Route::put('properties/{id}',                       [PropertyController::class, 'update']);
+            Route::delete('properties/{id}',                    [PropertyController::class, 'destroy']);
 
             // Fees
             Route::get('fees',                              [FeeController::class, 'index']);

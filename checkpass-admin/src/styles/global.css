@@ -50,6 +50,41 @@ body {
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: inherit; }
 input, select, textarea { font-family: inherit; font-size: 14px; }
+
+/* ── Universal Input Autofill & Rounded Corner Reset ──────────────── */
+.input-wrapper, .input-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.input-wrapper input,
+.input-wrap input,
+.input-wrapper .text-input,
+.input-wrap .text-input {
+  border-radius: inherit !important;
+}
+
+/* Chrome / Safari / Edge Autofill Fix: Eliminate blue background and corner clipping */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrapper:not(:focus-within) input:-webkit-autofill,
+.input-wrap:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+  box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+}
 h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
 
 /* ── Utilities ─────────────────────────────── */

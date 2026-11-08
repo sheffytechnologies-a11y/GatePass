@@ -1,62 +1,39 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
+    <!-- Top toolbar only shown during pass creation form. Hidden on success page. -->
+    <ion-header v-if="!isDone" class="ion-no-border">
       <ion-toolbar>
-        <ion-title>{{ isDone ? 'Pass Created' : 'Create Pass' }}</ion-title>
-        <ion-buttons v-if="isDone" slot="end">
-          <ion-button @click="resetForm" color="primary">New Pass</ion-button>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/tabs/home" text="" />
         </ion-buttons>
+        <ion-title>Create Pass</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true" class="create-content">
       <div class="content-pad">
 
-        <!-- ══ DONE STATE ═══════════════════════════════════════ -->
+        <!-- ══ PASS CREATED SUCCESS STATE ════════════════════════ -->
         <transition name="fade-up">
-          <div v-if="isDone && createdPass" class="done-state animate-fade-in-up">
-            <div class="check-circle animate-check-pop">✓</div>
-            <div class="done-heading">Pass created!</div>
-
-            <PassInviteCard
-              ref="inviteCardRef"
-              :pass="createdPass"
-              :estate-name="authStore.resident?.estateName"
-            />
-
-            <div class="share-section">
-              <div class="share-heading">Share this pass with your visitor</div>
-              <div class="share-main-action">
-                <button class="share-card-btn" @click="shareCardImage">
-                  <span>📸 Share Invite Card Image</span>
-                </button>
-              </div>
-              <div class="share-grid">
-                <button class="share-btn whatsapp" @click="shareWhatsApp">
-                  <span class="share-icon">💬</span>
-                  <span>WhatsApp</span>
-                </button>
-                <button class="share-btn sms" @click="shareSMS">
-                  <span class="share-icon">📱</span>
-                  <span>SMS</span>
-                </button>
-                <button class="share-btn copy" @click="copyLink">
-                  <span class="share-icon">🔗</span>
-                  <span>Copy Link</span>
-                </button>
-                <button class="share-btn email" @click="shareEmail">
-                  <span class="share-icon">✉️</span>
-                  <span>Email</span>
-                </button>
-              </div>
+          <div v-if="isDone && createdPass" class="pass-success-view animate-fade-in-up">
+            <div class="success-icon-wrap">
+              <div class="check-circle animate-check-pop">✓</div>
             </div>
 
-            <ion-button expand="block" fill="outline" color="primary" @click="createdPass && router.push(`/pass/${createdPass.id}`)">
-              View Pass Details
-            </ion-button>
-            <ion-button expand="block" color="primary" @click="resetForm">
-              Create Another Pass
-            </ion-button>
+            <div class="success-heading">Pass created!</div>
+            <p class="success-subheading">
+              Your visitor pass for <strong>{{ createdPass.visitorName }}</strong> is ready.
+            </p>
+
+            <!-- Action CTAs: Primary "View Pass", Secondary "Back to Home" -->
+            <div class="success-cta-stack">
+              <button class="cta-primary-btn" @click="goToPassDetails">
+                View Pass
+              </button>
+              <button class="cta-secondary-btn" @click="goToHome">
+                Back to Home
+              </button>
+            </div>
           </div>
         </transition>
 
@@ -85,30 +62,37 @@
           <div class="field">
             <label>Pass Type <span class="req">*</span></label>
             <div class="chip-group">
-              <button class="chip" :class="{ active: form.type === 'One-time' }" @click="form.type = 'One-time'">One-time</button>
-              <button class="chip" :class="{ active: form.type === 'Recurring' }" @click="form.type = 'Recurring'">Recurring</button>
+              <button
+                class="chip" :class="{ active: form.type === 'One-time' }"
+                @click="form.type = 'One-time'"
+              >One-time</button>
+              <button
+                class="chip" :class="{ active: form.type === 'Recurring' }"
+                @click="form.type = 'Recurring'"
+              >Recurring</button>
             </div>
           </div>
 
-          <!-- Recurring days -->
+          <!-- One-time: Date -->
+          <div v-if="form.type === 'One-time'" class="field">
+            <label>Visit Date <span class="req">*</span></label>
+            <input v-model="form.visitDate" type="date" :min="todayStr" class="text-input" />
+          </div>
+
+          <!-- Recurring: Days of week -->
           <div v-if="form.type === 'Recurring'" class="field">
-            <label>Recurring Days <span class="req">*</span></label>
-            <div class="chip-group">
+            <label>Days of the Week <span class="req">*</span></label>
+            <div class="chip-group day-chip-group">
               <button
                 v-for="d in DAYS" :key="d"
+                type="button"
                 class="chip day-chip" :class="{ active: form.recurringDays.includes(d) }"
                 @click="toggleDay(d)"
               >{{ d }}</button>
             </div>
           </div>
 
-          <!-- Visit Date (one-time only) -->
-          <div v-if="form.type === 'One-time'" class="field">
-            <label>Visit Date <span class="req">*</span></label>
-            <input v-model="form.visitDate" type="date" :min="todayStr" class="text-input" />
-          </div>
-
-          <!-- Expiry Time -->
+          <!-- Expiry time -->
           <div class="field">
             <label>Pass Expires At <span class="req">*</span></label>
             <input v-model="form.expiryTime" type="time" class="text-input" />
@@ -116,60 +100,107 @@
 
           <!-- Visitor Phone -->
           <div class="field">
-            <label>Visitor Phone <span class="optional">(optional — for WhatsApp share)</span></label>
+            <label>Visitor Phone</label>
             <div class="input-wrap">
               <span class="prefix">+234</span>
               <input v-model="form.visitorPhone" type="tel" inputmode="numeric" placeholder="080 0000 0000" class="bare-input" />
             </div>
           </div>
 
-          <!-- Additional Details (collapsible) -->
-          <button class="collapsible-toggle" @click="showAdditional = !showAdditional">
-            Additional Details
-            <ion-icon :icon="showAdditional ? chevronUpOutline : chevronDownOutline" />
-          </button>
-          <div v-if="showAdditional" class="field">
-            <label>Vehicle Plate <span class="optional">(optional)</span></label>
-            <input v-model="form.vehiclePlate" type="text" placeholder="e.g. LAG-123-AA" class="text-input" style="text-transform:uppercase" />
+          <!-- Visitor Photo (Optional) -->
+          <div class="field">
+            <label>Visitor Photo <span class="photo-opt-label">(Optional)</span></label>
+            <div class="photo-upload-wrap">
+              <div v-if="form.photoUrl" class="photo-preview-box">
+                <img :src="form.photoUrl" alt="Visitor photo" class="photo-preview-img" />
+                <div class="photo-preview-actions">
+                  <button type="button" class="photo-recrop-btn" @click="reCropPhoto" title="Re-crop photo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 2v14a2 2 0 0 0 2 2h14"/>
+                      <path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+                    </svg>
+                    <span>Crop</span>
+                  </button>
+                  <button type="button" class="photo-remove-btn" @click="clearPhoto" title="Remove photo">&times;</button>
+                </div>
+              </div>
+              <label v-else class="photo-upload-trigger">
+                <input ref="fileInputRef" type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
+                <div class="photo-upload-box">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                  <span>Upload or take visitor photo</span>
+                </div>
+              </label>
+            </div>
           </div>
 
-          <!-- Validation errors -->
-          <div v-if="submitAttempted && !isValid" class="validation-error">
-            Please fill in all required fields.
+          <!-- Additional Details (collapsible) -->
+          <div class="collapsible-section">
+            <button class="collapsible-toggle" @click="showAdditional = !showAdditional">
+              <span>Additional Details</span>
+              <ion-icon :icon="showAdditional ? chevronUpOutline : chevronDownOutline" />
+            </button>
+
+            <div v-if="showAdditional" class="collapsible-body">
+              <!-- Vehicle Plate -->
+              <div class="field">
+                <label>Vehicle Plate Number</label>
+                <input
+                  v-model="form.vehiclePlate"
+                  type="text"
+                  placeholder="e.g. ABC 123 XY"
+                  maxlength="15"
+                  class="text-input uppercase"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Validation Error Alert -->
+          <div v-if="validationError" class="validation-error">
+            {{ validationError }}
           </div>
 
           <!-- Submit -->
           <ion-button
-            expand="block" color="primary"
-            :disabled="!isValid || submitting"
-            @click="handleSubmit"
+            expand="block"
             class="submit-btn"
+            :disabled="submitting"
+            @click="handleSubmit"
           >
             <ion-spinner v-if="submitting" name="crescent" />
-            <span v-else>Create Pass</span>
+            <span v-else>CREATE PASS</span>
           </ion-button>
 
         </div>
       </div>
     </ion-content>
+
+    <!-- Interactive Image Cropper Modal -->
+    <ImageCropperModal
+      :is-open="showCropper"
+      :image-src="rawPhotoSrc"
+      @crop="onPhotoCropped"
+      @cancel="onCropCancelled"
+    />
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonSpinner, IonIcon } from '@ionic/vue'
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons, IonButton, IonContent, IonSpinner, IonIcon } from '@ionic/vue'
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons'
 import type { Pass } from '@/types'
 import { useToast } from '@/composables/useToast'
-import PassInviteCard from '@/components/PassInviteCard.vue'
-import { useAuthStore } from '@/stores/auth'
 import client from '@/api/client'
+import ImageCropperModal from '@/components/ImageCropperModal.vue'
 
 const router = useRouter()
 const { showToast } = useToast()
-const authStore = useAuthStore()
-const inviteCardRef = ref<InstanceType<typeof PassInviteCard> | null>(null)
 
 const PURPOSES = ['Personal Visit', 'Delivery', 'Service', 'Business', 'Other']
 const DAYS     = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -181,37 +212,98 @@ const form = ref({
   visitDate: todayStr, expiryTime: '18:00',
   visitorPhone: '', vehiclePlate: '',
   recurringDays: [] as string[],
+  photoUrl: '',
 })
 
-const isDone         = ref(false)
-const submitting     = ref(false)
-const submitAttempted= ref(false)
-const showAdditional = ref(false)
-const createdPass    = ref<Pass | null>(null)
+const submitting       = ref(false)
+const isDone           = ref(false)
+const createdPass      = ref<Pass | null>(null)
+const showAdditional   = ref(false)
+const submitAttempted  = ref(false)
 
-const isValid = computed(() => {
-  if (!form.value.visitorName.trim()) return false
-  if (!form.value.purpose) return false
-  if (!form.value.type) return false
-  if (!form.value.expiryTime) return false
-  if (form.value.type === 'Recurring' && form.value.recurringDays.length === 0) return false
-  return true
+const validationError = computed(() => {
+  if (!submitAttempted.value) return null
+  if (!form.value.visitorName.trim()) return 'Visitor name is required.'
+  if (!form.value.purpose)            return 'Please select a visit purpose.'
+  if (form.value.type === 'Recurring' && form.value.recurringDays.length === 0) {
+    return 'Please select at least one day for recurring pass.'
+  }
+  return null
 })
+
+// ── CROPPER STATE & HANDLERS ──
+const showCropper   = ref(false)
+const rawPhotoSrc   = ref('')
+const fileInputRef  = ref<HTMLInputElement | null>(null)
+
+function handlePhotoUpload(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  if (file.size > 8 * 1024 * 1024) {
+    showToast('Photo must be under 8MB', 'warning')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = (evt) => {
+    rawPhotoSrc.value = evt.target?.result as string
+    showCropper.value = true
+    if (fileInputRef.value) {
+      fileInputRef.value.value = ''
+    }
+  }
+  reader.readAsDataURL(file)
+}
+
+function onPhotoCropped(croppedDataUrl: string) {
+  form.value.photoUrl = croppedDataUrl
+  showCropper.value = false
+}
+
+function onCropCancelled() {
+  showCropper.value = false
+}
+
+function reCropPhoto() {
+  if (rawPhotoSrc.value) {
+    showCropper.value = true
+  } else if (form.value.photoUrl) {
+    rawPhotoSrc.value = form.value.photoUrl
+    showCropper.value = true
+  }
+}
+
+function clearPhoto() {
+  form.value.photoUrl = ''
+  rawPhotoSrc.value = ''
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
 
 function toggleDay(d: string) {
-  const idx = form.value.recurringDays.indexOf(d)
-  if (idx >= 0) form.value.recurringDays.splice(idx, 1)
-  else form.value.recurringDays.push(d)
+  const arr = [...form.value.recurringDays]
+  const i   = arr.indexOf(d)
+  if (i >= 0) {
+    arr.splice(i, 1)
+  } else {
+    arr.push(d)
+  }
+  form.value.recurringDays = arr
 }
 
 async function handleSubmit() {
   submitAttempted.value = true
-  if (!isValid.value) return
+  if (validationError.value) return
 
   submitting.value = true
   try {
     const rawVisitorPhone = form.value.visitorPhone ? form.value.visitorPhone.replace(/\D/g, '') : ''
-    const cleanVisitorDigits = rawVisitorPhone.startsWith('234') ? rawVisitorPhone.slice(3) : rawVisitorPhone.replace(/^0+/, '')
+    const cleanVisitorDigits = rawVisitorPhone.startsWith('234')
+      ? rawVisitorPhone.slice(3)
+      : rawVisitorPhone.startsWith('0')
+        ? rawVisitorPhone.slice(1)
+        : rawVisitorPhone
     const formattedVisitorPhone = cleanVisitorDigits ? `+234${cleanVisitorDigits}` : null
 
     const res = await client.post('/v1/passes', {
@@ -224,8 +316,13 @@ async function handleSubmit() {
       vehiclePlate:  form.value.vehiclePlate ? form.value.vehiclePlate.trim().toUpperCase() : null,
     })
     createdPass.value = res.data.pass
+    if (form.value.photoUrl && createdPass.value) {
+      (createdPass.value as any).photoUrl = form.value.photoUrl
+      try {
+        localStorage.setItem(`checkpass_photo_${createdPass.value.id}`, form.value.photoUrl)
+      } catch {}
+    }
     isDone.value = true
-    showToast(`Pass created for ${form.value.visitorName}`, 'success')
   } catch {
     showToast("Couldn't create pass. Try again.", 'error')
   } finally {
@@ -238,120 +335,63 @@ function buildExpiresAt(): string {
   return new Date(`${date}T${form.value.expiryTime}:00`).toISOString()
 }
 
-async function shareCardImage() {
-  const p = createdPass.value
-  if (!p) return
-  try {
-    showToast('Generating invite card image...', 'warning')
-    const imgDataUrl = await inviteCardRef.value?.generateImage()
-    if (!imgDataUrl) {
-      showToast('Could not generate pass image.', 'error')
-      return
-    }
-    const [header, content] = imgDataUrl.split(',')
-    const mimeMatch = header.match(/data:(.*?);base64/)
-    const mimeType = mimeMatch?.[1] ?? 'image/png'
-    const byteCharacters = atob(content)
-    const byteNumbers = new Array(byteCharacters.length)
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i)
-    }
-    const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType })
-    const filename = `checkpass-${p.visitorName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.png`
-    const file = new File([blob], filename, { type: 'image/png' })
-    const nav = navigator as Navigator & {
-      canShare?: (data?: ShareData) => boolean
-      share?: (data?: ShareData) => Promise<void>
-    }
-    if (nav.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
-      await nav.share({
-        title: `${p.visitorName} Checkpass Invite`,
-        text: `Here is your Checkpass visitor pass for ${p.visitorName} at ${p.hostUnit}.`,
-        files: [file],
-      })
-      return
-    }
-    const link = document.createElement('a')
-    link.href = imgDataUrl
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    showToast('Pass image downloaded.', 'success')
-  } catch (err: unknown) {
-    if (err instanceof DOMException && err.name === 'AbortError') return
-    showToast('Unable to share pass image.', 'error')
+function goToPassDetails() {
+  if (createdPass.value) {
+    const passId = createdPass.value.id
+    isDone.value = false
+    router.push(`/pass/${passId}`)
   }
 }
 
-function resetForm() {
+function goToHome() {
   isDone.value = false
-  createdPass.value = null
-  submitAttempted.value = false
-  form.value = { visitorName: '', purpose: '', type: 'One-time', visitDate: todayStr, expiryTime: '18:00', visitorPhone: '', vehiclePlate: '', recurringDays: [] }
+  router.push('/tabs/home')
 }
 
-function fmtExpiry(iso: string) {
-  return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: true })
-}
-
-function buildShareMsg() {
-  const p = createdPass.value!
-  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://checkpass.ng'
-  const link = `${origin}/pass/${p.id}`
-  return `Hi ${p.visitorName}, here is your visitor pass for PHDL Estate. Show this QR code to the security guard at the gate on arrival.\n\nPass ID: ${p.id}\nValid until: ${fmtExpiry(p.expiresAt)}\nHost: ${p.hostName} — ${p.hostUnit}\n\nPass link: ${link}`
-}
-
-function shareWhatsApp() {
-  const p = createdPass.value!
-  const phoneDigits = p.visitorPhone ? p.visitorPhone.replace(/\D/g, '') : ''
-  const url = phoneDigits ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(buildShareMsg())}` : `https://wa.me/?text=${encodeURIComponent(buildShareMsg())}`
-  window.open(url, '_blank')
-  showToast('Opened in WhatsApp', 'success')
-}
-
-function shareSMS() {
-  const p = createdPass.value!
-  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://checkpass.ng'
-  const msg = `CHECKPASS: ${p.visitorName}, show QR at PHDL Estate gate. Valid till ${new Date(p.expiresAt).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: true })}. Link: ${origin}/pass/${p.id} — ${p.hostName}`
-  const phoneParam = p.visitorPhone ? p.visitorPhone.replace(/\D/g, '') : ''
-  window.open(`sms:${phoneParam}?body=${encodeURIComponent(msg)}`)
-}
-
-function copyLink() {
-  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://checkpass.ng'
-  const link = `${origin}/pass/${createdPass.value!.id}`
-  navigator.clipboard.writeText(link).then(() => showToast('Pass link copied', 'success'))
-}
-
-function shareEmail() {
-  const subject = encodeURIComponent('Your visitor pass for PHDL Estate')
-  const body    = encodeURIComponent(buildShareMsg())
-  window.open(`mailto:?subject=${subject}&body=${body}`)
-}
 </script>
 
 <style scoped>
 .create-content { --background: var(--w-bg); }
-.content-pad    { padding: 16px 16px 100px; }
-.form-state     { display: flex; flex-direction: column; gap: 20px; }
-.field label    { display: block; font-size: 13px; font-weight: 600; color: var(--w-text); margin-bottom: 8px; }
-.req   { color: var(--w-danger); }
-.optional { font-weight: 400; color: var(--w-muted); }
-.text-input {
-  width: 100%; border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md);
-  padding: 13px 14px; font-size: 15px; background: var(--w-surface);
-  color: var(--w-text); font-family: var(--w-font-body); outline: none;
-}
+.content-pad { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+/* Form state */
+.form-state { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--w-text); }
+.req { color: var(--w-danger); }
+.text-input { background: var(--w-surface); border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md); padding: 12px 14px; font-size: 15px; color: var(--w-text); outline: none; font-family: var(--w-font-body); }
 .text-input:focus { border-color: var(--w-primary); }
+.text-input.uppercase { text-transform: uppercase; }
+
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  padding: 8px 14px; border-radius: 20px; border: 1.5px solid var(--w-border);
-  background: var(--w-surface); font-size: 14px; color: var(--w-text);
-  cursor: pointer; transition: all 0.15s; font-family: var(--w-font-body);
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--w-border);
+  background: var(--w-surface);
+  font-size: 14px;
+  color: var(--w-text);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--w-font-body);
 }
-.chip.active { background: var(--w-primary); border-color: var(--w-primary); color: white; font-weight: 600; }
-.day-chip { padding: 8px 12px; }
+.chip.active {
+  background: var(--w-primary);
+  border-color: var(--w-primary);
+  color: white;
+  font-weight: 600;
+}
+.day-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.day-chip {
+  padding: 8px 14px;
+  min-width: 44px;
+  text-align: center;
+}
+
 .input-wrap { display: flex; align-items: center; background: var(--w-surface); border: 1.5px solid var(--w-border); border-radius: var(--w-radius-md); overflow: hidden; }
 .prefix { padding: 0 10px 0 14px; font-size: 15px; color: var(--w-muted); font-weight: 600; border-right: 1px solid var(--w-border); }
 .bare-input { flex: 1; border: none; outline: none; padding: 13px 14px; font-size: 15px; background: transparent; font-family: var(--w-font-body); }
@@ -359,44 +399,195 @@ function shareEmail() {
 .validation-error { font-size: 13px; color: var(--w-danger); background: var(--w-danger-light); padding: 10px 14px; border-radius: var(--w-radius-sm); }
 .submit-btn { --border-radius: 14px; height: 52px; font-size: 16px; font-weight: 700; margin-top: 8px; }
 
-/* Done state */
-.done-state { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-.check-circle { width: 72px; height: 72px; border-radius: 50%; background: var(--w-primary); color: white; font-size: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-.done-heading { font-family: var(--w-font-display); font-size: 24px; font-weight: 700; color: var(--w-text); }
-.pass-summary { width: 100%; background: var(--w-surface); border-radius: var(--w-radius-md); overflow: hidden; }
-.summary-row  { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--w-border); font-size: 14px; }
-.summary-row:last-child { border-bottom: none; }
-.summary-row span { color: var(--w-muted); }
-.share-section { width: 100%; max-width: 440px; margin: 0 auto; }
-.share-main-action { margin-bottom: 12px; }
-.share-card-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #0A5C38 0%, #00C97A 100%);
+/* ── PASS CREATED SUCCESS VIEW ── */
+.pass-success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: calc(100vh - 120px);
+  padding: 40px 16px 32px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.success-icon-wrap {
+  margin-bottom: 20px;
+}
+.check-circle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--w-primary, #0A5C38);
   color: #FFFFFF;
-  border: none;
-  border-radius: 14px;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
+  font-size: 36px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  box-shadow: 0 8px 24px rgba(10, 92, 56, 0.28);
+}
+.success-heading {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.success-subheading {
+  font-size: 14.5px;
+  color: #6B7280;
+  line-height: 1.5;
+  margin-bottom: 28px;
+  max-width: 320px;
+}
+.success-subheading strong {
+  color: #111827;
+}
+.pass-summary-card {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 18px;
+  padding: 8px 0;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 14px;
+}
+.summary-item:last-child {
+  border-bottom: none;
+}
+.summary-lbl {
+  color: #6B7280;
+  font-weight: 500;
+}
+.summary-val {
+  color: #111827;
+  font-weight: 700;
+}
+.capitalize {
+  text-transform: capitalize;
+}
+.success-cta-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cta-primary-btn {
+  width: 100%;
+  height: 52px;
+  background: var(--w-primary, #0A5C38);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
   box-shadow: 0 4px 14px rgba(10, 92, 56, 0.25);
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
-.share-card-btn:active { transform: scale(0.98); }
-.share-heading { font-size: 14px; font-weight: 600; color: var(--w-text); margin-bottom: 12px; text-align: center; }
-.share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.share-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 14px 10px; border-radius: var(--w-radius-md);
-  border: 1.5px solid var(--w-border); background: var(--w-surface);
-  font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--w-font-body);
-  transition: all 0.15s;
+.cta-primary-btn:active {
+  transform: scale(0.98);
 }
-.share-btn:active { transform: scale(0.97); }
-.share-btn.whatsapp { border-color: #25D366; color: #25D366; }
-.share-icon { font-size: 22px; }
+.cta-secondary-btn {
+  width: 100%;
+  height: 50px;
+  background: #FFFFFF;
+  color: #374151;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cta-secondary-btn:active {
+  background: #F9FAFB;
+  transform: scale(0.98);
+}
+
+.photo-opt-label { font-size: 11px; font-weight: 400; color: var(--w-muted); margin-left: 4px; }
+.photo-upload-wrap { margin-top: 4px; }
+.photo-upload-trigger { display: block; cursor: pointer; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.photo-upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--w-surface);
+  border: 1.5px dashed var(--w-border);
+  border-radius: var(--w-radius-md);
+  color: var(--w-text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.photo-upload-box:active { background: rgba(10, 92, 56, 0.05); }
+.photo-upload-box svg { color: var(--w-primary, #0A5C38); }
+.photo-preview-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--w-surface);
+  border: 1.5px solid var(--w-border);
+  border-radius: var(--w-radius-md, 14px);
+  padding: 8px 12px;
+}
+.photo-preview-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1.5px solid var(--w-primary, #0A5C38);
+}
+.photo-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.photo-recrop-btn {
+  background: rgba(10, 92, 56, 0.08);
+  border: 1px solid rgba(10, 92, 56, 0.22);
+  color: var(--w-primary, #0A5C38);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.photo-recrop-btn:active {
+  background: rgba(10, 92, 56, 0.16);
+}
+.photo-remove-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
+  border: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.photo-remove-btn:active {
+  background: rgba(220, 38, 38, 0.2);
+}
+
 </style>

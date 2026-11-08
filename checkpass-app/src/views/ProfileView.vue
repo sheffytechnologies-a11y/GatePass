@@ -1,21 +1,37 @@
 <template>
   <ion-page>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title>Profile</ion-title>
+    <ion-header class="ion-no-border profile-header">
+      <ion-toolbar class="profile-toolbar">
+        <ion-title class="profile-page-title">Profile</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" class="header-view-pass-btn" @click="openPassModal" aria-label="View Resident Pass">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span>View Pass</span>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true" class="profile-content">
       <div class="content-pad">
 
-        <!-- Profile card -->
-        <div class="profile-card">
-          <div class="profile-avatar">{{ initials }}</div>
-          <div class="profile-info">
-            <div class="profile-name">{{ auth.resident?.name }}</div>
-            <div class="profile-unit">{{ auth.resident?.flatAddress }}</div>
-            <div class="profile-estate">{{ auth.resident?.estateName }}</div>
+        <!-- Profile Resident Card (Clean, Uncongested, taps to view pass) -->
+        <div class="profile-card" @click="openPassModal" role="button" tabindex="0" title="Tap to view your resident pass">
+          <div class="profile-card-main">
+            <div class="profile-avatar">{{ initials }}</div>
+            <div class="profile-info">
+              <div class="profile-name">{{ auth.resident?.name }}</div>
+              <div class="profile-unit">{{ auth.resident?.flatAddress }}</div>
+              <div class="profile-estate">{{ auth.resident?.estateName }}</div>
+            </div>
+            <div class="profile-card-arrow" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -106,7 +122,17 @@
             </button>
             <button class="menu-row" @click="showPrivacy">
               <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" />
-              <span class="menu-label">Privacy Policy</span>
+              <span class="menu-label">Privacy Policy (NDPA 2023)</span>
+              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
+            </button>
+            <button class="menu-row" @click="showTerms">
+              <ion-icon :icon="documentTextOutline" class="menu-icon" />
+              <span class="menu-label">Terms of Service</span>
+              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
+            </button>
+            <button class="menu-row" @click="showAgreement">
+              <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" />
+              <span class="menu-label">Master Services Agreement (MSA &amp; DPA)</span>
               <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
             </button>
           </div>
@@ -132,20 +158,6 @@
           </div>
 
           <div class="sheet-modal-body">
-            <!-- Office Quick Action Hotlines -->
-            <div class="office-hotline-card">
-              <div class="hotline-title">Need immediate assistance?</div>
-              <div class="hotline-btns">
-                <a :href="`tel:08000000000`" class="hotline-btn">
-                  <ion-icon :icon="callOutline" />
-                  <span>Call Admin Desk</span>
-                </a>
-                <a :href="`https://wa.me/2348132489619?text=Hello%20Estate%20Office,%20inquiry%20from%20${encodeURIComponent(auth.resident?.name || 'Resident')}%20(${encodeURIComponent(auth.resident?.flatAddress || 'Unit')})`" target="_blank" class="hotline-btn hotline-btn--green">
-                  <span>WhatsApp Desk</span>
-                </a>
-              </div>
-            </div>
-
             <!-- Message Form -->
             <div class="modal-form-section">
               <label class="form-field-label">Topic / Department</label>
@@ -326,7 +338,67 @@
         </div>
       </ion-modal>
 
+
+
     </ion-content>
+
+    <!-- Resident Pass Modal (placed directly on ion-page for guaranteed presentation) -->
+    <ion-modal
+      :is-open="showPassModal"
+      @didDismiss="showPassModal = false"
+      class="resident-pass-modal"
+    >
+      <div class="sheet-modal-shell resident-pass-sheet">
+        <div class="sheet-modal-header">
+          <div>
+            <div class="sheet-header-tag">Official Estate ID</div>
+            <h2 class="sheet-header-title">Resident Gate Pass</h2>
+          </div>
+          <button class="modal-close-btn" @click="showPassModal = false" type="button" aria-label="Close pass">&times;</button>
+        </div>
+
+        <div class="sheet-modal-body resident-pass-scroll">
+          <!-- Branded Resident Pass Card (Exact same visual styling as Invite Card, without invite details) -->
+          <ResidentPassCard :resident="auth.resident" />
+
+          <!-- Actions below card (Download Pass & Share Pass) -->
+          <div class="pass-modal-actions">
+            <!-- Primary Action: Download / Save Pass (supports native save on iOS/Android & file download on desktop) -->
+            <div class="action-row-share">
+              <button
+                class="btn-action btn-share-full"
+                @click="downloadResidentPass"
+                :disabled="downloadingPass"
+                type="button"
+              >
+                <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
+                <span>{{ downloadingPass ? 'Preparing Pass…' : 'Download Pass' }}</span>
+              </button>
+            </div>
+
+            <!-- Secondary Action: Share Pass directly to WhatsApp, contacts, etc. -->
+            <div class="action-row-secondary">
+              <button
+                class="btn-action btn-secondary-full"
+                @click="shareResidentPass"
+                :disabled="downloadingPass"
+                type="button"
+              >
+                <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                  <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+                </svg>
+                <span>Share Pass</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -334,14 +406,17 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-  IonIcon, IonToggle, IonModal, alertController,
+  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent, IonButton,
+  IonIcon, IonToggle, IonModal, IonSpinner, alertController,
 } from '@ionic/vue'
 import {
   personOutline, lockClosedOutline, notificationsOutline, notificationsOffOutline,
   enterOutline, timeOutline, helpCircleOutline, shieldCheckmarkOutline,
   chevronForwardOutline, chatbubbleEllipsesOutline, ticketOutline, callOutline,
+  documentTextOutline,
 } from 'ionicons/icons'
+import ResidentPassCard from '@/components/ResidentPassCard.vue'
+import { generateResidentPassImage } from '@/utils/inviteCardRenderer'
 import EmptyState from '@/components/EmptyState.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
@@ -356,6 +431,161 @@ const pushDenied   = ref(false)
 const notifEnabled = ref(auth.resident?.pushEnabled ?? true)
 const arrivalAlerts= ref(true)
 const expiryAlerts = ref(true)
+
+// ── RESIDENT PASS ID STATE & DOWNLOAD ──
+const showPassModal   = ref(false)
+const downloadingPass = ref(false)
+
+function openPassModal() {
+  console.log('[Checkpass] Opening Resident Pass modal')
+  showPassModal.value = true
+}
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, content] = dataUrl.split(',')
+  const mimeMatch = header.match(/data:(.*?);base64/)
+  const mimeType = mimeMatch?.[1] ?? 'image/png'
+  const binary = atob(content)
+  const bytes = new Uint8Array(binary.length)
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+  return new Blob([bytes], { type: mimeType })
+}
+
+function downloadImageBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.target = '_blank'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
+}
+
+async function downloadResidentPass() {
+  if (!auth.resident) {
+    showToast('Resident profile not loaded yet.', 'warning')
+    return
+  }
+  downloadingPass.value = true
+  try {
+    showToast('Generating resident pass…', 'warning')
+    const passDataUrl = await generateResidentPassImage({
+      resident: {
+        id: auth.resident.id,
+        name: auth.resident.name,
+        flatAddress: auth.resident.flatAddress,
+        estateName: auth.resident.estateName,
+        phone: auth.resident.phone,
+        role: auth.resident.role,
+      },
+    })
+
+    const imageBlob = dataUrlToBlob(passDataUrl)
+    const sanitizedName = (auth.resident.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const fileName = `checkpass-resident-pass-${sanitizedName}.png`
+    const imageFile = new File([imageBlob], fileName, { type: 'image/png' })
+
+    const nav = navigator as Navigator & {
+      canShare?: (data?: ShareData) => boolean
+      share?: (data?: ShareData) => Promise<void>
+    }
+
+    let savedViaShare = false
+    // On iOS Safari and Android, navigator.share with files allows direct "Save Image" to Photos/Gallery
+    if (nav?.share && nav?.canShare && nav.canShare({ files: [imageFile] })) {
+      try {
+        await nav.share({
+          title: `${auth.resident.name} - Checkpass Resident Pass`,
+          text: `Official Checkpass Resident ID for ${auth.resident.name}.`,
+          files: [imageFile],
+        })
+        savedViaShare = true
+        showToast('Resident pass ready!', 'success')
+      } catch (shareErr: any) {
+        if (shareErr?.name === 'AbortError') {
+          return // User dismissed share sheet
+        }
+        console.warn('Share sheet dismissed or failed, falling back to file download:', shareErr)
+      }
+    }
+
+    if (!savedViaShare) {
+      downloadImageBlob(imageBlob, fileName)
+      showToast('Resident pass downloaded successfully!', 'success')
+    }
+  } catch (err) {
+    console.error('Error generating resident pass:', err)
+    showToast('Failed to download resident pass.', 'error')
+  } finally {
+    downloadingPass.value = false
+  }
+}
+
+async function shareResidentPass() {
+  if (!auth.resident) return
+  downloadingPass.value = true
+  try {
+    showToast('Preparing resident pass card…', 'warning')
+    const passDataUrl = await generateResidentPassImage({
+      resident: {
+        id: auth.resident.id,
+        name: auth.resident.name,
+        flatAddress: auth.resident.flatAddress,
+        estateName: auth.resident.estateName,
+        phone: auth.resident.phone,
+        role: auth.resident.role,
+      },
+    })
+
+    const imageBlob = dataUrlToBlob(passDataUrl)
+    const sanitizedName = (auth.resident.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
+    const fileName = `checkpass-resident-pass-${sanitizedName}.png`
+    const imageFile = new File([imageBlob], fileName, { type: 'image/png' })
+
+    const nav = navigator as Navigator & {
+      canShare?: (data?: ShareData) => boolean
+      share?: (data?: ShareData) => Promise<void>
+    }
+
+    let shared = false
+    if (nav?.share) {
+      try {
+        if (!nav.canShare || nav.canShare({ files: [imageFile] })) {
+          await nav.share({
+            title: `${auth.resident.name} - Resident Pass`,
+            text: `Checkpass Resident ID Pass for ${auth.resident.name} at ${auth.resident.estateName || 'Estate'}.`,
+            files: [imageFile],
+          })
+          shared = true
+        } else {
+          await nav.share({
+            title: `${auth.resident.name} - Resident Pass`,
+            text: `Checkpass Resident ID Pass for ${auth.resident.name} at ${auth.resident.estateName || 'Estate'}.`,
+          })
+          shared = true
+        }
+      } catch (e: any) {
+        if (e?.name === 'AbortError') return
+      }
+    }
+
+    if (!shared) {
+      downloadImageBlob(imageBlob, fileName)
+      showToast('Resident pass downloaded successfully!', 'success')
+    } else {
+      showToast('Resident pass shared successfully!', 'success')
+    }
+  } catch (err) {
+    console.error('Error sharing resident pass:', err)
+    showToast('Failed to share resident pass.', 'error')
+  } finally {
+    downloadingPass.value = false
+  }
+}
 
 // ── ESTATE ADMIN MESSAGING STATE ──
 const showMessageModal = ref(false)
@@ -528,8 +758,29 @@ async function showFaq() {
 
 async function showPrivacy() {
   const alert = await alertController.create({
-    header: 'Privacy & Security',
-    message: 'Checkpass stores encrypted pass records strictly for estate perimeter safety and audit clearance. Data is never sold or shared with 3rd parties.',
+    header: 'Privacy & Security (NDPA 2023)',
+    subHeader: 'Regulated under Nigeria Data Protection Act 2023 & NDPC GAID 2025',
+    message: 'Checkpass stores encrypted pass records strictly for estate perimeter safety and audit clearance. Data is encrypted with AES-256 at rest, TLS 1.3 in transit, and is never sold or shared with 3rd parties.',
+    buttons: ['Got it'],
+  })
+  await alert.present()
+}
+
+async function showTerms() {
+  const alert = await alertController.create({
+    header: 'CheckPass Terms of Service',
+    subHeader: 'Platform Use & Pass Authorization',
+    message: 'CheckPass provides digital gate access and proptech tools. Physical admission remains governed by your Estate HOA and security bylaws. Passes must be issued for lawful visitors with prior consent.',
+    buttons: ['Understood'],
+  })
+  await alert.present()
+}
+
+async function showAgreement() {
+  const alert = await alertController.create({
+    header: 'Master Services Agreement & DPA',
+    subHeader: 'B2B Estate Cloud Agreement',
+    message: 'CheckPass operates under a dual-role framework: your community HOA is the Data Controller, and Sheffy Technologies Limited is strictly the Data Processor. All dues route 100% to estate accounts with 30-day exit portability.',
     buttons: ['Got it'],
   })
   await alert.present()
@@ -647,11 +898,192 @@ async function handleLogout() {
 .profile-content { --background: var(--w-bg); }
 .content-pad { padding: 16px 16px 80px; display: flex; flex-direction: column; gap: 20px; }
 
-.profile-card { background: var(--w-primary); border-radius: var(--w-radius-xl); padding: 24px; display: flex; align-items: center; gap: 16px; color: white; }
-.profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
-.profile-name   { font-size: 20px; font-weight: 700; font-family: var(--w-font-display); }
-.profile-unit   { font-size: 14px; opacity: 0.8; margin-top: 4px; }
-.profile-estate { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+.profile-header {
+  background: var(--w-bg);
+  box-shadow: none;
+}
+.profile-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ion-safe-area-top, 0px) + 14px) 16px 12px;
+  background: var(--w-bg);
+}
+.profile-nav-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--w-text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.header-view-pass-btn {
+  --color: #FFFFFF;
+  --background: var(--w-primary, #0A5C38);
+  --border-radius: 999px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 6px;
+}
+.profile-card-arrow {
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.profile-card:hover .profile-card-arrow,
+.profile-card:active .profile-card-arrow {
+  color: #FFFFFF;
+  transform: translateX(2px);
+}
+.header-view-pass-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.profile-card {
+  background: var(--w-primary, #0A5C38);
+  border-radius: var(--w-radius-xl, 22px);
+  padding: 20px 20px;
+  color: white;
+  box-shadow: 0 4px 16px rgba(10, 92, 56, 0.18);
+}
+.profile-card-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.profile-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--w-font-display);
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+.profile-unit {
+  font-size: 14px;
+  opacity: 0.88;
+  margin-top: 4px;
+}
+.profile-estate {
+  font-size: 12.5px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* Header toolbar styling */
+ion-toolbar.profile-toolbar {
+  --background: var(--w-bg);
+  --color: var(--w-text);
+  --border-width: 0;
+  --min-height: 56px;
+  padding: 0 8px 0 4px;
+}
+.profile-page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--w-text);
+  font-family: var(--w-font-display, 'Bricolage Grotesque', sans-serif);
+  letter-spacing: -0.3px;
+  padding-left: 8px;
+}
+
+/* Modal styling */
+ion-modal.resident-pass-modal {
+  --height: 92%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.65;
+  align-items: flex-end;
+}
+.resident-pass-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #F4F2EE;
+  color: #112019;
+  overflow: hidden;
+}
+.resident-pass-scroll {
+  padding: 16px 16px 36px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.pass-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.btn-share-full {
+  width: 100%;
+  height: 50px;
+  background: var(--w-primary, #0A5C38);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--w-radius-md, 14px);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-share-full:active {
+  transform: scale(0.98);
+}
+.btn-secondary-full {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  color: var(--w-primary, #0A5C38);
+  border: 1.5px solid var(--w-primary, #0A5C38);
+  border-radius: var(--w-radius-md, 14px);
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-secondary-full:active {
+  background: rgba(10, 92, 56, 0.05);
+  transform: scale(0.98);
+}
 
 .push-banner { background: var(--w-warning-light); border-radius: var(--w-radius-md); padding: 12px 16px; font-size: 14px; color: var(--w-warning); display: flex; align-items: center; gap: 8px; }
 .settings-link { background: none; border: none; color: var(--w-warning); font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: underline; padding: 0; }

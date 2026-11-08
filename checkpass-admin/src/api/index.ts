@@ -3,11 +3,19 @@ import client from './client'
 export const authApi = {
   loginAdmin: (email: string, password: string) =>
     client.post('/v1/admin/auth/login', { email, password }),
+  loginUser: (identifier: string, password: string) =>
+    client.post('/v1/auth/login', { phone: identifier, login: identifier, email: identifier, password }),
   registerAdmin: (name: string, email: string, password: string, phone?: string) =>
     client.post('/v1/admin/auth/register', { name, email, password, phone }),
   logoutAdmin: (refreshToken?: string | null) =>
     client.post('/v1/admin/auth/logout', { refreshToken }),
   adminMe: () => client.get('/v1/admin/auth/me'),
+  forgotPassword: (identifier: string) =>
+    client.post('/v1/auth/forgot-password', { identifier, phone: identifier, email: identifier }),
+  verifyResetOtp: (identifier: string, otp: string) =>
+    client.post('/v1/auth/verify-reset-otp', { identifier, otp }),
+  resetPassword: (identifier: string, otp: string, newPassword: string) =>
+    client.post('/v1/auth/reset-password', { identifier, otp, newPassword }),
 }
 
 export const onboardingApi = {
@@ -76,6 +84,27 @@ export const unitsApi = {
   create: (data: Record<string, unknown>) => client.post('/v1/admin/units', data),
 }
 
+export const propertiesApi = {
+  getAll: (estateId: number, params?: Record<string, unknown>) =>
+    client.get(`/v1/admin/estates/${estateId}/properties`, { params }),
+  getStats: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/properties/stats`),
+  getTopologyTree: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/properties/topology-tree`),
+  getStructure: (estateId: number) =>
+    client.get(`/v1/admin/estates/${estateId}/property-structure`),
+  updateStructure: (estateId: number, data: Record<string, unknown>) =>
+    client.put(`/v1/admin/estates/${estateId}/property-structure`, data),
+  create: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/properties', data),
+  batchCreate: (data: Record<string, unknown>) =>
+    client.post('/v1/admin/properties/batch', data),
+  update: (id: number, data: Record<string, unknown>) =>
+    client.put(`/v1/admin/properties/${id}`, data),
+  delete: (id: number) =>
+    client.delete(`/v1/admin/properties/${id}`),
+}
+
 export const notificationsApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/notifications', { params }),
   delete: (id: number) => client.delete(`/v1/admin/notifications/${id}`),
@@ -87,4 +116,27 @@ export const feesApi = {
   create: (data: Record<string, unknown>) => client.post('/v1/admin/fees', data),
   update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/fees/${id}`, data),
   delete: (id: number) => client.delete(`/v1/admin/fees/${id}`),
+}
+
+
+export const newsApi = {
+  getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/news', { params }),
+  getOne: (id: number) => client.get(`/v1/admin/news/${id}`),
+  create: (data: { estate_id: number; title: string; content: string; image?: string | null }) =>
+    client.post('/v1/admin/news', data),
+  update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/news/${id}`, data),
+  delete: (id: number) => client.delete(`/v1/admin/news/${id}`),
+}
+
+export const publicApi = {
+  getPlatformStats: () => client.get('/v1/platform-stats'),
+}
+
+export const crmApi = {
+  getLeads: (params?: Record<string, unknown>) => client.get('/v1/crm/leads', { params }),
+  getLead: (id: string | number) => client.get(`/v1/crm/leads/${id}`),
+  createLead: (data: Record<string, unknown>) => client.post('/v1/crm/leads', data),
+  updateLead: (id: string | number, data: Record<string, unknown>) => client.patch(`/v1/crm/leads/${id}`, data),
+  deleteLead: (id: string | number) => client.delete(`/v1/crm/leads/${id}`),
+  provisionSandbox: (id: string | number) => client.post(`/v1/crm/leads/${id}/provision-sandbox`),
 }

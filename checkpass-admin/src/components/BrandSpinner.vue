@@ -70,7 +70,7 @@ withDefaults(
 .spinner-quadrant {
   transform-origin: 59.5px 59.5px;
   will-change: transform, opacity;
-  animation: quadrantPulse 1.0s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: quadrantFlow 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* Clockwise Chase Sequence: 1. Top-Right -> 2. Bottom-Right -> 3. Bottom-Left -> 4. Top-Left */
@@ -79,33 +79,37 @@ withDefaults(
 }
 
 .sq-bottom-right {
-  animation-delay: 0.25s;
+  animation-delay: 0.3s;
 }
 
 .sq-bottom-left {
-  animation-delay: 0.50s;
+  animation-delay: 0.6s;
 }
 
 .sq-top-left {
-  animation-delay: 0.75s;
+  animation-delay: 0.9s;
 }
 
-@keyframes quadrantPulse {
+@keyframes quadrantFlow {
   0% {
     opacity: 0.22;
-    transform: scale(0.92);
+    transform: scale(0.93);
   }
   25% {
     opacity: 1;
-    transform: scale(1.06);
+    transform: scale(1.07);
   }
   50% {
-    opacity: 0.35;
+    opacity: 0.50;
+    transform: scale(0.98);
+  }
+  75% {
+    opacity: 0.26;
     transform: scale(0.94);
   }
   100% {
     opacity: 0.22;
-    transform: scale(0.92);
+    transform: scale(0.93);
   }
 }
 </style>

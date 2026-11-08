@@ -27,11 +27,19 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pass/:id',
     component: () => import('@/views/PassDetailView.vue'),
+    meta: { hideTabBar: true },
   },
   {
     path: '/notifications',
     component: () => import('@/views/NotificationsView.vue'),
+    meta: { hideTabBar: true },
   },
+  {
+    path: '/passes',
+    component: () => import('@/views/MyPassesView.vue'),
+    meta: { hideTabBar: true },
+  },
+  { path: '/all-passes', redirect: '/passes' },
   {
     path: '/fees/payment',
     component: () => import('@/views/FeePaymentView.vue'),
@@ -50,9 +58,9 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '',       redirect: '/tabs/home' },
       { path: 'home',      component: () => import('@/views/HomeView.vue') },
-      { path: 'create',    component: () => import('@/views/CreatePassView.vue') },
+      { path: 'create',    component: () => import('@/views/CreatePassView.vue'), meta: { hideTabBar: true } },
       { path: 'fees',      component: () => import('@/views/FeesView.vue') },
-      { path: 'passes',    component: () => import('@/views/MyPassesView.vue') },
+      { path: 'passes',    redirect: '/passes' },
       { path: 'emergency', component: () => import('@/views/EmergencyView.vue') },
       { path: 'profile',   component: () => import('@/views/ProfileView.vue') },
     ],

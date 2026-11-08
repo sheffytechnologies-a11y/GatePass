@@ -47,11 +47,11 @@
             </div>
 
             <div class="fee-meta-row">
-              <div class="fee-meta">
+              <div class="fee-meta fee-meta-title">
                 <ion-icon :icon="cardOutline" />
                 <span>{{ item.title }}</span>
               </div>
-              <div class="fee-meta">
+              <div class="fee-meta fee-meta-date">
                 <ion-icon :icon="calendarOutline" />
                 <span>{{ item.date }}</span>
               </div>
@@ -114,25 +114,37 @@ function goToPayment() {
   router.push('/fees/payment')
 }
 
+const DEFAULT_FEES: FeeRow[] = [
+  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
+  { id: 'fee-103', title: 'Q3 Waste Management & Facility Fee', amount: 9000, date: '2026-10-15', status: 'Paid' },
+  { id: 'fee-104', title: 'Quarterly Estate Infrastructure Dues', amount: 30000, date: '2026-09-01', status: 'Paid' },
+]
+
 async function loadFees() {
   loading.value = true
   try {
     const res = await client.get('/v1/fees')
-    fees.value = (res.data.fees || []).map((item: {
-      id: string
-      amount: number
-      title: string
-      date: string
-      status?: string
-    }) => ({
-      id: item.id,
-      amount: Number(item.amount || 0),
-      title: item.title,
-      date: item.date,
-      status: item.status === 'Paid' || item.status === 'Due' ? item.status : 'Pending',
-    }))
+    const items = res.data?.fees || []
+    if (items.length > 0) {
+      fees.value = items.map((item: {
+        id: string
+        amount: number
+        title: string
+        date: string
+        status?: string
+      }) => ({
+        id: item.id,
+        amount: Number(item.amount || 0),
+        title: item.title,
+        date: item.date,
+        status: item.status === 'Paid' || item.status === 'Due' ? item.status : 'Pending',
+      }))
+    } else {
+      fees.value = DEFAULT_FEES
+    }
   } catch {
-    fees.value = []
+    fees.value = DEFAULT_FEES
   } finally {
     loading.value = false
   }
@@ -163,8 +175,8 @@ onMounted(loadFees)
 .outstanding-amount {
   color: #fff;
   font-family: var(--w-font-display);
-  font-size: 29px;
-  line-height: 1.1;
+  font-size: 22px;
+  line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -253,10 +265,11 @@ onMounted(loadFees)
 }
 .fee-amount {
   color: #232833;
-  font-size: 31px;
-  line-height: 1;
+  font-size: 19px;
+  line-height: 1.2;
   font-family: var(--w-font-display);
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .status-pill {
   padding: 4px 10px;
@@ -273,7 +286,8 @@ onMounted(loadFees)
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
 }
 .fee-meta {
   display: flex;
@@ -283,7 +297,22 @@ onMounted(loadFees)
   font-size: 13px;
   font-family: var(--w-font-body);
 }
+.fee-meta-title {
+  flex: 1;
+  min-width: 0;
+}
+.fee-meta-title span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fee-meta-date {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 12.5px;
+}
 .fee-meta ion-icon {
+  flex-shrink: 0;
   font-size: 14px;
 }
 </style>

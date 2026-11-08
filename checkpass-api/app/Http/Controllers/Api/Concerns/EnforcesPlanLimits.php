@@ -41,6 +41,11 @@ trait EnforcesPlanLimits
 
     protected function assertCanAddUnit(Estate $estate): void
     {
+        $this->assertCanAddUnits($estate, 1);
+    }
+
+    protected function assertCanAddUnits(Estate $estate, int $count = 1): void
+    {
         $subscription = $estate->subscription;
         $plan = $subscription?->plan;
 
@@ -51,11 +56,11 @@ trait EnforcesPlanLimits
         $limit = $plan->unit_limit + ($subscription->extra_units ?? 0);
         $current = $estate->units()->count();
 
-        if ($current >= $limit) {
+        if (($current + $count) > $limit) {
             $this->abortPlanLimit(
                 'PLAN_LIMIT_REACHED',
-                "You've reached your plan's unit limit. Upgrade your plan to add more units.",
-                ['type' => 'units', 'current' => $current, 'max' => $limit]
+                "Adding {$count} units would exceed your plan's limit of {$limit} units (currently {$current}). Upgrade your plan to add more units.",
+                ['type' => 'units', 'current' => $current, 'requested' => $count, 'max' => $limit]
             );
         }
     }

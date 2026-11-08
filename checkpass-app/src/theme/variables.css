@@ -32,6 +32,7 @@
   --w-radius-md:      12px;
   --w-radius-lg:      16px;
   --w-radius-xl:      24px;
+  --w-radius-full:    9999px;
 
   /* ── Shadow ─────────────────────────────── */
   --w-shadow-sm:      0 1px 3px rgba(0,0,0,0.08);
@@ -111,11 +112,27 @@ ion-content::part(scroll)::-webkit-scrollbar {
 }
 
 ion-tab-bar {
-  width: 100% !important;
-  max-width: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
   --color-selected: var(--w-primary);
+  contain: none !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+ion-tab-bar::part(container) {
+  overflow: visible !important;
+  contain: none !important;
+  background: transparent !important;
+}
+
+ion-tab-button {
+  --background: transparent !important;
+  background: transparent !important;
+  --ripple-color: transparent;
+}
+
+ion-tab-button.tab-create {
+  overflow: visible !important;
+  contain: none !important;
 }
 
 ion-card {
@@ -148,3 +165,31 @@ ion-card {
 
 .animate-fade-in-up { animation: fade-in-up 0.3s ease forwards; }
 .animate-check-pop  { animation: check-pop  0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+
+/* ── Universal Input Autofill & Rounded Corner Reset ──────────────── */
+.input-wrap, .input-wrapper {
+  overflow: hidden;
+}
+
+.input-wrap input, .input-wrapper input {
+  border-radius: inherit !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+  -webkit-text-fill-color: #112019 !important;
+  caret-color: #112019 !important;
+  border-radius: inherit !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-wrap:not(:focus-within) input:-webkit-autofill,
+.input-wrapper:not(:focus-within) input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
+  box-shadow: 0 0 0 1000px #F8FAF9 inset !important;
+}

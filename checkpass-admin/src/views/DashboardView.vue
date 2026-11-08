@@ -1,14 +1,11 @@
 <template>
   <div class="dashboard-page">
     <section class="hero-card">
-      <div class="hero-header-row">
-        <div>
-          <div class="hero-eyebrow">Command center</div>
-          <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
-        </div>
+      <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
+      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
+      <div class="hero-switcher-row">
         <EstateSwitcher variant="hero" />
       </div>
-      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
     </section>
 
     <!-- Prominent Setup Banner if no estate yet -->
@@ -93,6 +90,11 @@
           <span class="quick-icon">🎟️</span>
           <strong>Passes</strong>
           <span>Create passes and monitor expiry or revocation status.</span>
+        </router-link>
+        <router-link to="/news" class="quick-card card">
+          <span class="quick-icon">📢</span>
+          <strong>Broadcasts</strong>
+          <span>Publish news and notices to resident mobile feeds.</span>
         </router-link>
         <router-link to="/notifications" class="quick-card card">
           <span class="quick-icon">🔔</span>
@@ -340,7 +342,8 @@ onUnmounted(() => {
 }
 .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
 .hero-title { margin-top: 10px; font-size: 28px; line-height: 1.04; font-family: var(--font-display); }
-.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; }
+.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; line-height: 1.5; }
+.hero-switcher-row { margin-top: 14px; display: flex; align-items: center; }
 
 .loading-state {
   display: flex;

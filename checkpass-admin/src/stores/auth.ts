@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/api'
 
-type AppRole = 'super_admin' | 'estate_admin'
+type AppRole = 'super_admin' | 'estate_admin' | 'security' | 'resident'
 
 export interface EstateWorkspace {
   id: number | string
@@ -80,6 +80,34 @@ export const useAuthStore = defineStore('auth', () => {
     persistAdminSession(res.data)
   }
 
+  
+  function persistUserSession(data: { token: string; refreshToken?: string | null; userType?: string; user?: Record<string, unknown> | null; [key: string]: unknown }, fallbackRole: AppRole = 'security') {
+    const resolvedRole = (data.userType as AppRole) || fallbackRole
+    token.value = data.token
+    refreshToken.value = data.refreshToken ?? null
+    role.value = resolvedRole
+    user.value = data.user ?? { type: resolvedRole }
+    localStorage.setItem('admin_token', data.token)
+    localStorage.setItem('admin_role', resolvedRole)
+    if (data.refreshToken) localStorage.setItem('admin_refresh_token', data.refreshToken)
+    localStorage.setItem('admin_user', JSON.stringify(user.value))
+
+    const estateId = (data.user?.estate_id || data.estateId) as string | number | undefined
+    const estateName = (data.user?.estate_name || data.estateName) as string | undefined
+    if (estateId) {
+      activeEstateId.value = estateId
+      activeEstateName.value = estateName || 'Assigned Estate'
+      localStorage.setItem('admin_active_estate_id', String(estateId))
+      localStorage.setItem('admin_active_estate_name', activeEstateName.value)
+    }
+  }
+
+  async function loginUser(identifier: string, password: string, roleHint: 'security' | 'resident' = 'security') {
+    const res = await authApi.loginUser(identifier, password)
+    persistUserSession(res.data, roleHint)
+    return res.data
+  }
+
   async function logout() {
     try {
       await authApi.logoutAdmin(refreshToken.value)
@@ -103,8 +131,8 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     token, refreshToken, role, user,
     activeEstateId, activeEstateName, estates,
-    isAuthenticated, isAdmin, isSuperAdmin, isEstateAdmin, displayName,
+    isAuthenticated, isAdmin, isSuperAdmin, isEstateAdmin, displayName, isSecurity: computed(() => role.value === "security"), isResident: computed(() => role.value === "resident"),
     setActiveEstate, setEstatesList,
-    loginAdmin, registerAdmin, logout,
+    loginAdmin, loginUser, registerAdmin, logout,
   }
 })

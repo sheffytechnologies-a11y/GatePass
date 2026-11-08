@@ -55,29 +55,9 @@ function drawRoundedRect(
 }
 
 /**
- * Renders a high-resolution, branded 750x1160px PNG image of the Checkpass Invite Card
+ * Renders a high-resolution, branded 750x1180px PNG image of the Checkpass Invite Card
  */
 export async function generateInviteCardImage(pass: Pass, options: RenderPassOptions = {}): Promise<string> {
-  // Generate crisp QR code
-  const qrDataUrl = await QRCode.toDataURL(pass.qrData || `CHECKPASS:${pass.id}`, {
-    width: 380,
-    margin: 1,
-    color: {
-      dark: '#0A5C38',
-      light: '#FFFFFF',
-    },
-  })
-
-  // Load QR image element
-  const qrImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = qrDataUrl
-  })
-
-  // Setup 2x retina canvas (750x1180px)
   const width = 750
   const height = 1180
   const canvas = document.createElement('canvas')
@@ -85,6 +65,20 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Could not get canvas context')
+
+  // Render QR directly to an offscreen canvas (instant, synchronous memory canvas, 0 CORS issues)
+  const qrPodSize = 250
+  const qrInnerPad = 18
+  const qrTargetSize = qrPodSize - qrInnerPad * 2 // 214px
+  const qrCanvas = document.createElement('canvas')
+  await QRCode.toCanvas(qrCanvas, pass.qrData || `CHECKPASS:${pass.id}`, {
+    width: qrTargetSize,
+    margin: 1,
+    color: {
+      dark: '#0A5C38',
+      light: '#FFFFFF',
+    },
+  })
 
   // Background canvas fill (soft sage light tone)
   ctx.fillStyle = '#EEF1EE'
@@ -129,8 +123,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.restore()
 
   // Top Bar: Checkpass Brand + Visitor Pass Badge
-  // Checkpass Logo Symbol + Text
-  ctx.save()
   const logoX = cardX + 32
   const logoY = cardY + 44
 
@@ -147,7 +139,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.fillText('Checkpass', logoX + 38, logoY + 22)
 
   // Visitor Pass Pill Badge
-  const badgeText = 'VISITOR PASS'
+  const badgeText = pass.type === 'Recurring' ? 'RECURRING PASS' : 'VISITOR PASS'
   ctx.font = 'bold 13px "DM Sans", -apple-system, sans-serif'
   const badgeW = ctx.measureText(badgeText).width + 24
   const badgeH = 30
@@ -163,7 +155,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
 
   ctx.fillStyle = '#E2FDEE'
   ctx.fillText(badgeText, badgeX + 12, badgeY + 20)
-  ctx.restore()
 
   // ══ 2. VISITOR IDENTITY FROSTED POD ════════════════════════════════════════
   const idBoxX = cardX + 28
@@ -179,7 +170,7 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Avatar Circle
+  // Avatar Box
   const avX = idBoxX + 24
   const avY = idBoxY + (idBoxH - 96) / 2
   const avSize = 96
@@ -193,29 +184,51 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.lineWidth = 3
   ctx.stroke()
 
-  // Initials
-  const initials = (pass.visitorName || 'Guest')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w[0].toUpperCase())
-    .join('')
-  ctx.fillStyle = '#FFFFFF'
-  ctx.font = 'bold 36px "Bricolage Grotesque", -apple-system, sans-serif'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText(initials, avX + avSize / 2, avY + avSize / 2 + 2)
-  ctx.textAlign = 'left'
-  ctx.textBaseline = 'alphabetic'
+  // Check for visitor photo
+  let photoDrawn = false
+  const photoSrc = (pass as any).visitorPhoto || (pass as any).photoUrl || (() => {
+    try { return localStorage.getItem(`checkpass_photo_${pass.id}`) } catch { return null }
+  })()
+
+  if (photoSrc) {
+    try {
+      const photoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        const timer = setTimeout(() => reject(new Error('timeout')), 1000)
+        img.onload = () => { clearTimeout(timer); resolve(img) }
+        img.onerror = () => { clearTimeout(timer); reject() }
+        img.src = photoSrc
+      })
+      ctx.save()
+      drawRoundedRect(ctx, avX, avY, avSize, avSize, 24)
+      ctx.clip()
+      ctx.drawImage(photoImg, avX, avY, avSize, avSize)
+      ctx.restore()
+      photoDrawn = true
+    } catch {
+      photoDrawn = false
+    }
+  }
+
+  if (!photoDrawn) {
+    const initials = (pass.visitorName || 'Guest')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0].toUpperCase())
+      .join('')
+    ctx.fillStyle = '#FFFFFF'
+    ctx.font = 'bold 36px "Bricolage Grotesque", -apple-system, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(initials, avX + avSize / 2, avY + avSize / 2 + 2)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+  }
 
   // Text info
   const textX = avX + avSize + 22
   let curY = idBoxY + 50
-
-  // Kicker
-  ctx.fillStyle = '#79F3BA'
-  ctx.font = 'bold 13px "DM Sans", -apple-system, sans-serif'
-  ctx.fillText('VERIFIED VISITOR', textX, curY)
 
   // Visitor Name
   curY += 40
@@ -231,12 +244,6 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   const hostLabel = `Host: ${pass.hostName || 'Resident'} · ${pass.hostUnit}`
   const trimmedHost = hostLabel.length > 34 ? hostLabel.slice(0, 33) + '…' : hostLabel
   ctx.fillText(trimmedHost, textX, curY)
-
-  // Pass Reference ID tag
-  curY += 32
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)'
-  ctx.font = '600 13px "DM Sans", -apple-system, sans-serif'
-  ctx.fillText(`Pass #CP-${pass.id.slice(-6).toUpperCase()}`, textX, curY)
   ctx.restore()
 
   // ══ 3. BODY (Seamless White Background) ════════════════════════════════════
@@ -300,9 +307,8 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
     renderCell(ctx, '🚗 VEHICLE PLATE', pass.vehiclePlate.toUpperCase(), col1X, gridY + 192, 'Clearance Registered')
   }
 
-  // ══ 5. CENTERED CLEAN QR POD (No gate barrier text) ════════════════════════
+  // ══ 5. CENTERED CLEAN QR POD (Directly from offscreen canvas) ═════════════
   const qrPodY = gridY + gridH + 34
-  const qrPodSize = 250
   const qrPodX = cardX + (cardW - qrPodSize) / 2
 
   // QR Container Box
@@ -318,14 +324,13 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
   ctx.stroke()
   ctx.restore()
 
-  // Draw QR Image inside
-  const qrInnerPad = 18
+  // Draw QR Image inside directly from offscreen canvas
   ctx.drawImage(
-    qrImg,
+    qrCanvas,
     qrPodX + qrInnerPad,
     qrPodY + qrInnerPad,
-    qrPodSize - qrInnerPad * 2,
-    qrPodSize - qrInnerPad * 2
+    qrTargetSize,
+    qrTargetSize
   )
 
   // ══ 6. CLEAN ATTRIBUTION FOOTER ════════════════════════════════════════════
@@ -385,3 +390,285 @@ function drawCheckpassEmblem(ctx: CanvasRenderingContext2D) {
   ctx.fill(p)
 }
 
+export interface RenderResidentPassOptions {
+  resident: {
+    id?: string
+    name: string
+    flatAddress?: string
+    estateName?: string
+    phone?: string
+    role?: string
+  }
+}
+
+/**
+ * Renders a high-resolution, branded 750x1180px PNG image of the Checkpass Resident ID Pass
+ */
+export async function generateResidentPassImage(options: RenderResidentPassOptions): Promise<string> {
+  const resident = options.resident
+  const width = 750
+  const height = 1180
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Could not get canvas context')
+
+  // Render QR directly to an offscreen canvas
+  const qrPodSize = 250
+  const qrInnerPad = 18
+  const qrTargetSize = qrPodSize - qrInnerPad * 2
+  const qrCanvas = document.createElement('canvas')
+  const qrData = `CHECKPASS:RESIDENT:${resident.id || 'RES'}:${resident.flatAddress || ''}`
+  await QRCode.toCanvas(qrCanvas, qrData, {
+    width: qrTargetSize,
+    margin: 1,
+    color: {
+      dark: '#0A5C38',
+      light: '#FFFFFF',
+    },
+  })
+
+  // Background canvas fill (soft sage light tone)
+  ctx.fillStyle = '#EEF1EE'
+  ctx.fillRect(0, 0, width, height)
+
+  // Card geometry
+  const cardX = 36
+  const cardY = 36
+  const cardW = width - cardX * 2 // 678px
+  const cardH = height - cardY * 2 // 1108px
+  const cardRadius = 32
+
+  // Outer Card Shadow
+  ctx.save()
+  ctx.shadowColor = 'rgba(10, 92, 56, 0.16)'
+  ctx.shadowBlur = 36
+  ctx.shadowOffsetY = 14
+  ctx.fillStyle = '#FFFFFF'
+  drawRoundedRect(ctx, cardX, cardY, cardW, cardH, cardRadius)
+  ctx.fill()
+  ctx.restore()
+
+  // Clip to rounded card
+  ctx.save()
+  drawRoundedRect(ctx, cardX, cardY, cardW, cardH, cardRadius)
+  ctx.clip()
+
+  // ══ 1. HEADER (Deep Emerald Gradient) ══════════════════════════════════════
+  const headerHeight = 330
+  const grad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + headerHeight)
+  grad.addColorStop(0, '#0A5C38')
+  grad.addColorStop(1, '#004422')
+  ctx.fillStyle = grad
+  ctx.fillRect(cardX, cardY, cardW, headerHeight)
+
+  // Subtle Header Watermark Emblem in top right
+  ctx.save()
+  ctx.translate(cardX + cardW - 60, cardY + 50)
+  ctx.scale(1.3, 1.3)
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'
+  drawCheckpassEmblem(ctx)
+  ctx.restore()
+
+  // Top Bar: Checkpass Brand + Resident ID Badge
+  const logoX = cardX + 32
+  const logoY = cardY + 44
+
+  // Small logo icon
+  ctx.save()
+  ctx.translate(logoX, logoY)
+  ctx.scale(0.24, 0.24)
+  ctx.fillStyle = '#FFFFFF'
+  drawCheckpassEmblem(ctx)
+  ctx.restore()
+
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = 'bold 26px "Bricolage Grotesque", -apple-system, sans-serif'
+  ctx.fillText('Checkpass', logoX + 38, logoY + 22)
+
+  // Resident ID Pill Badge
+  const badgeText = 'RESIDENTIAL PASS'
+  ctx.font = 'bold 13px "DM Sans", -apple-system, sans-serif'
+  const badgeW = ctx.measureText(badgeText).width + 24
+  const badgeH = 30
+  const badgeX = cardX + cardW - 32 - badgeW
+  const badgeY = cardY + 36
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.18)'
+  drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 15)
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  ctx.fillStyle = '#E2FDEE'
+  ctx.fillText(badgeText, badgeX + 12, badgeY + 20)
+
+  // ══ 2. RESIDENT IDENTITY FROSTED POD ════════════════════════════════════════
+  const idBoxX = cardX + 28
+  const idBoxY = cardY + 98
+  const idBoxW = cardW - 56
+  const idBoxH = 194
+
+  ctx.save()
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.26)'
+  drawRoundedRect(ctx, idBoxX, idBoxY, idBoxW, idBoxH, 20)
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  // Avatar Box
+  const avX = idBoxX + 24
+  const avY = idBoxY + (idBoxH - 96) / 2
+  const avSize = 96
+  const avGrad = ctx.createLinearGradient(avX, avY, avX + avSize, avY + avSize)
+  avGrad.addColorStop(0, '#00C97A')
+  avGrad.addColorStop(1, '#0A5C38')
+  ctx.fillStyle = avGrad
+  drawRoundedRect(ctx, avX, avY, avSize, avSize, 24)
+  ctx.fill()
+  ctx.strokeStyle = '#00C97A'
+  ctx.lineWidth = 3
+  ctx.stroke()
+
+  const initials = (resident.name || 'Resident')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join('')
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = 'bold 36px "Bricolage Grotesque", -apple-system, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(initials, avX + avSize / 2, avY + avSize / 2 + 2)
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+
+  // Text info
+  const textX = avX + avSize + 22
+  let curY = idBoxY + 50
+
+  // Resident Name
+  curY += 34
+  ctx.fillStyle = '#FFFFFF'
+  ctx.font = 'bold 32px "Bricolage Grotesque", -apple-system, sans-serif'
+  const resName = resident.name.length > 20 ? resident.name.slice(0, 19) + '…' : resident.name
+  ctx.fillText(resName, textX, curY)
+
+  // Estate & Unit line
+  curY += 28
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.90)'
+  ctx.font = '500 17px "DM Sans", -apple-system, sans-serif'
+  const estateLine = `${resident.flatAddress || 'Residence'} · ${resident.estateName || 'Estate'}`
+  const trimmedEstate = estateLine.length > 34 ? estateLine.slice(0, 33) + '…' : estateLine
+  ctx.fillText(trimmedEstate, textX, curY)
+
+  // Verified Badge in Pod
+  curY += 28
+  ctx.fillStyle = '#00E58F'
+  ctx.font = 'bold 14px "DM Sans", -apple-system, sans-serif'
+  ctx.fillText('✓ VERIFIED RESIDENTIAL ACCESS', textX, curY)
+  ctx.restore()
+
+  // ══ 3. BODY ═════════════════════════════════════════════════════════════════
+  const bodyY = cardY + headerHeight
+  const bodyH = cardH - headerHeight
+
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(cardX, bodyY, cardW, bodyH)
+
+  // Subtle Center Emblem Watermark in Body
+  ctx.save()
+  ctx.translate(cardX + cardW / 2 - 120, bodyY + 120)
+  ctx.scale(2.2, 2.2)
+  ctx.fillStyle = 'rgba(10, 92, 56, 0.04)'
+  drawCheckpassEmblem(ctx)
+  ctx.restore()
+
+  // ══ 4. STRUCTURED DETAILS GRID ═════════════════════════════════════════════
+  const gridX = cardX + 32
+  const gridY = bodyY + 36
+  const gridW = cardW - 64
+  const gridH = 160
+
+  ctx.fillStyle = '#F8FAF9'
+  drawRoundedRect(ctx, gridX, gridY, gridW, gridH, 20)
+  ctx.fill()
+  ctx.strokeStyle = '#E8EFEA'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  const col1X = gridX + 24
+  const col2X = gridX + gridW / 2 + 12
+
+  // Row 1: Residence Unit & Estate
+  renderCell(ctx, '📍 UNIT / RESIDENCE', resident.flatAddress || 'Registered Unit', col1X, gridY + 34, 'Official Address')
+  renderCell(ctx, '🏢 ESTATE COMMUNITY', resident.estateName || 'Primary Estate', col2X, gridY + 34, 'Secured Perimeter')
+
+  // Divider line
+  ctx.beginPath()
+  ctx.moveTo(gridX + 16, gridY + 84)
+  ctx.lineTo(gridX + gridW - 16, gridY + 84)
+  ctx.strokeStyle = '#EBF1ED'
+  ctx.lineWidth = 1
+  ctx.stroke()
+
+  // Row 2: Role & Security Status
+  const roleText = resident.role === 'primary' ? 'Primary Resident' : 'Resident Member'
+  renderCell(ctx, '👤 ACCESS ROLE', roleText, col1X, gridY + 118, 'Permanent Clearance')
+  renderCell(ctx, '🛡️ GATE CLEARANCE', 'Verified Active', col2X, gridY + 118, 'Full Access Granted')
+
+  // ══ 5. CENTERED CLEAN QR POD ═══════════════════════════════════════════════
+  const qrPodY = gridY + gridH + 34
+  const qrPodX = cardX + (cardW - qrPodSize) / 2
+
+  ctx.save()
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.05)'
+  ctx.shadowBlur = 16
+  ctx.shadowOffsetY = 6
+  ctx.fillStyle = '#FFFFFF'
+  drawRoundedRect(ctx, qrPodX, qrPodY, qrPodSize, qrPodSize, 22)
+  ctx.fill()
+  ctx.strokeStyle = '#DDE7E1'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+  ctx.restore()
+
+  // Draw QR Image inside directly from offscreen canvas
+  ctx.drawImage(
+    qrCanvas,
+    qrPodX + qrInnerPad,
+    qrPodY + qrInnerPad,
+    qrTargetSize,
+    qrTargetSize
+  )
+
+  // Label under QR pod
+  ctx.fillStyle = '#4A5B52'
+  ctx.font = '600 15px "DM Sans", -apple-system, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('Present to gate security for clearance scan', cardX + cardW / 2, qrPodY + qrPodSize + 32)
+
+  // ══ 6. CLEAN ATTRIBUTION FOOTER ════════════════════════════════════════════
+  const footerY = cardY + cardH - 42
+  ctx.save()
+  ctx.beginPath()
+  ctx.moveTo(cardX + 32, footerY - 24)
+  ctx.lineTo(cardX + cardW - 32, footerY - 24)
+  ctx.strokeStyle = '#EBF1ED'
+  ctx.lineWidth = 1
+  ctx.stroke()
+
+  ctx.fillStyle = '#66756C'
+  ctx.font = '500 14px "DM Sans", -apple-system, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('Checkpass Verified Identity · Sheffy Technologies · checkpass.ng', cardX + cardW / 2, footerY)
+  ctx.restore()
+
+  ctx.restore()
+
+  return canvas.toDataURL('image/png')
+}

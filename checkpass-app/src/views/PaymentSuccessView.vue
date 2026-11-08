@@ -4,11 +4,13 @@
       <div class="success-wrap">
         <!-- Top Status Graphic -->
         <div class="success-top-zone no-print">
-          <div class="success-icon-circle">
-            <ion-icon :icon="checkmarkOutline" class="success-icon" />
+          <div class="success-icon-circle" :class="{ 'pending-circle': isPending }">
+            <ion-icon :icon="isPending ? timeOutline : checkmarkOutline" class="success-icon" />
           </div>
-          <div class="success-title">Payment Confirmed</div>
-          <div class="success-subtitle">Your estate levy payment has been recorded & verified.</div>
+          <div class="success-title">{{ isPending ? 'Transfer Proof Submitted' : 'Payment Confirmed' }}</div>
+          <div class="success-subtitle">
+            {{ isPending ? 'Your bank transfer receipt has been submitted to Estate Finance for verification.' : 'Your estate levy payment has been recorded & verified.' }}
+          </div>
         </div>
 
         <!-- Printable Official Receipt Card (GAP-06) -->
@@ -73,11 +75,11 @@
           <div class="total-block">
             <div class="tb-row">
               <span>Payment Channel:</span>
-              <strong>Paystack Electronic Gateway</strong>
+              <strong>{{ paymentChannel }}</strong>
             </div>
             <div class="tb-row">
               <span>Status:</span>
-              <span class="paid-badge">✓ FULLY PAID & VERIFIED</span>
+              <span class="paid-badge" :class="{ 'pending-badge': isPending }">{{ statusBadgeText }}</span>
             </div>
             <div class="tb-row total-highlight">
               <span class="th-label">TOTAL PAID:</span>
@@ -87,10 +89,10 @@
 
           <!-- Official Stamp -->
           <div class="seal-container">
-            <div class="stamp-box">
+            <div class="stamp-box" :class="{ 'pending-stamp': isPending }">
               <div class="stamp-inner">
-                <span class="stamp-top">CHECKPASS VERIFIED</span>
-                <span class="stamp-mid">PAID</span>
+                <span class="stamp-top">{{ isPending ? 'CHECKPASS AUDIT' : 'CHECKPASS VERIFIED' }}</span>
+                <span class="stamp-mid">{{ isPending ? 'PENDING' : 'PAID' }}</span>
                 <span class="stamp-bottom">{{ shortDate }}</span>
               </div>
             </div>
@@ -123,7 +125,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
-import { checkmarkOutline, documentTextOutline, shareSocialOutline } from 'ionicons/icons'
+import { checkmarkOutline, documentTextOutline, shareSocialOutline, timeOutline } from 'ionicons/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 
@@ -131,6 +133,19 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const { showToast } = useToast()
+
+const paymentChannel = computed(() => {
+  return String(route.query.channel || 'Paystack Electronic Gateway')
+})
+
+const isPending = computed(() => {
+  const st = String(route.query.status || '').toLowerCase()
+  return st.includes('pending')
+})
+
+const statusBadgeText = computed(() => {
+  return isPending.value ? '⏳ PENDING AUDIT VERIFICATION' : '✓ FULLY PAID & VERIFIED'
+})
 
 const txReference = computed(() => {
   return String(route.query.ref || `CP-PAY-${Date.now().toString(36).toUpperCase()}`)
@@ -460,6 +475,32 @@ function goHome() {
   padding: 3px 8px;
   border-radius: 6px;
   border: 1px solid #a7f3d0;
+}
+
+.pending-circle {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2) !important;
+}
+
+.pending-circle .success-icon {
+  color: #d97706 !important;
+}
+
+.pending-badge {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+.pending-stamp {
+  border-color: #b45309 !important;
+}
+
+.pending-stamp .stamp-top,
+.pending-stamp .stamp-mid,
+.pending-stamp .stamp-bottom {
+  color: #b45309 !important;
 }
 
 .total-highlight {

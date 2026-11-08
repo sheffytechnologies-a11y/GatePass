@@ -53,32 +53,125 @@
       </main>
     </div>
 
-    <!-- Toast container -->
-    <div class="toast-container">
-      <div
-        v-for="t in toasts"
-        :key="t.id"
-        class="toast"
-        :class="`toast-${t.type}`"
-      >
-        <span>{{ t.type === 'success' ? '✅' : t.type === 'error' ? '❌' : '⚠️' }}</span>
-        {{ t.message }}
-      </div>
+    <!-- Toast container (Floating Capsule Pills) -->
+    <div v-if="toasts.length > 0" class="toast-container">
+      <transition-group name="toast-anim" tag="div" class="toast-list">
+        <div
+          v-for="t in toasts"
+          :key="t.id"
+          class="toast-pill"
+          :class="`toast-${t.type}`"
+          @click="dismissToast(t.id)"
+        >
+          <!-- Left Icon Badge -->
+          <div class="toast-icon-wrap" :class="`icon-${t.type}`">
+            <!-- Success: Green Circle with Checkmark -->
+            <svg
+              v-if="t.type === 'success'"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+
+            <!-- Warning: Amber Triangle with Exclamation -->
+            <svg
+              v-else-if="t.type === 'warning'"
+              class="toast-svg-poly"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M12 2.8L1.6 20.8C1.4 21.2 1.7 21.8 2.2 21.8H21.8C22.3 21.8 22.6 21.2 22.4 20.8L12 2.8Z"
+                fill="#F59E0B"
+              />
+              <line x1="12" y1="9" x2="12" y2="13.8" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" />
+              <circle cx="12" cy="17.5" r="1.25" fill="#FFFFFF" />
+            </svg>
+
+            <!-- Info: Blue Circle with Exclamation -->
+            <svg
+              v-else-if="t.type === 'info'"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <line x1="12" y1="7.5" x2="12" y2="13" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" />
+              <circle cx="12" cy="17" r="1.3" fill="#FFFFFF" />
+            </svg>
+
+            <!-- Error: Red Octagon with Exclamation -->
+            <svg
+              v-else
+              class="toast-svg-poly"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <polygon
+                points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+                fill="#DC2626"
+              />
+              <line x1="12" y1="8" x2="12" y2="13.2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" />
+              <circle cx="12" cy="17" r="1.25" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <!-- Middle Content (Title + Subtitle) -->
+          <div class="toast-content">
+            <div class="toast-title">{{ t.title }}</div>
+            <div v-if="t.subtitle" class="toast-subtitle">{{ t.subtitle }}</div>
+          </div>
+
+          <!-- Right Close Button -->
+          <button
+            class="toast-close"
+            type="button"
+            @click.stop="dismissToast(t.id)"
+            aria-label="Close"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </transition-group>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import { emergenciesApi } from '@/api/index'
 import EstateSwitcher from '@/components/EstateSwitcher.vue'
 
 const route  = useRoute()
 const router = useRouter()
 const auth   = useAuthStore()
-const { toasts } = useToast()
+const { toasts, dismissToast } = useToast()
 
 const sidebarOpen = ref(false)
 
@@ -86,20 +179,25 @@ const ICONS = {
   dashboard: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>',
   access: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   passes: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/><path d="M7 15h4M15 15h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  properties: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   residents: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 21V12h6v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   users: '<svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   finance: '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/></svg>',
   billing: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 2h12a1 1 0 0 1 1 1v18l-3-2-3 2-3-2-3 2-3-2V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 8h8M8 12h8M8 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   emergencies: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2L12 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  news: '<svg viewBox="0 0 24 24" fill="none"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   notifications: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0 1 12 0c0 6.5 2.5 8.5 2.5 8.5h-17S6 14.5 6 8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   support: '<svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 10h.01M12 10h.01M16 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   artisans: '<svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  crm: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="18" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M14 18h7M14 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
 }
 
 const navItems = computed(() => [
   { path: '/dashboard', label: 'Dashboard', icon: ICONS.dashboard },
+  { path: '/crm', label: 'Sales CRM & Deals', icon: ICONS.crm },
   { path: '/access', label: 'Access', icon: ICONS.access },
   { path: '/passes', label: 'Passes', icon: ICONS.passes },
+  { path: '/properties', label: 'Properties', icon: ICONS.properties },
   { path: '/residents', label: 'Residents', icon: ICONS.residents },
   { path: '/users', label: 'Users', icon: ICONS.users },
   { path: '/fees', label: 'Finance', icon: ICONS.finance },
@@ -120,6 +218,30 @@ const roleLabel = computed(() => auth.isSuperAdmin ? 'Super Admin' : 'Estate Adm
 const userInitial = computed(() => {
   const name = auth.displayName ?? ''
   return name.charAt(0).toUpperCase() || 'A'
+})
+
+
+const activeEmergencyCount = ref(0)
+let emergencyPollTimer: any = null
+
+async function checkActiveEmergencies() {
+  if (!auth.isAuthenticated) return
+  try {
+    const res = await emergenciesApi.getAll({ status: 'sent' })
+    const list = res.data?.emergencies || []
+    activeEmergencyCount.value = list.length
+  } catch (err) {
+    // Silent catch on poll
+  }
+}
+
+onMounted(() => {
+  checkActiveEmergencies()
+  emergencyPollTimer = setInterval(checkActiveEmergencies, 12000)
+})
+
+onUnmounted(() => {
+  if (emergencyPollTimer) clearInterval(emergencyPollTimer)
 })
 
 async function handleLogout() {
@@ -256,4 +378,83 @@ async function handleLogout() {
 @media (max-width: 640px) {
   .toast-container { bottom: 16px; right: 16px; left: 16px; }
 }
+
+.nav-label-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.emergency-nav-badge {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 12px;
+  animation: pulseBadge 1.8s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+  100% { transform: scale(1); }
+}
+
+.emergency-top-alert {
+  background: linear-gradient(90deg, #DC2626 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  position: relative;
+  z-index: 50;
+}
+
+.emergency-alert-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.emergency-pulse-beacon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  animation: whitePulse 1.4s infinite;
+}
+
+@keyframes whitePulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.emergency-text {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.emergency-action-btn {
+  background: #FFFFFF;
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.emergency-action-btn:hover {
+  background: #FEE2E2;
+}
+
 </style>

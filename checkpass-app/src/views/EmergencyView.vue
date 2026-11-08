@@ -51,9 +51,14 @@
         <div class="incidents-section" v-if="recentIncidents.length > 0">
           <div class="section-label">Recent Alerts You Sent</div>
           <div class="incident-list">
-            <div v-for="inc in recentIncidents" :key="inc.id" class="incident-row">
-              <span class="incident-type">{{ inc.type }}</span>
-              <span class="incident-time">{{ fmtRelative(inc.createdAt) }}</span>
+            <div v-for="inc in recentIncidents" :key="inc.id" class="incident-row" :class="inc.status">
+              <div class="incident-info-col">
+                <span class="incident-type">{{ inc.type }}</span>
+                <span class="incident-time">{{ fmtRelative(inc.createdAt) }}</span>
+              </div>
+              <span class="incident-status-badge" :class="statusBadgeClass(inc.status)">
+                {{ inc.status === 'acknowledged' ? '🛡️ Responding' : inc.status === 'resolved' ? '✓ Resolved' : '⏳ Alert Dispatched' }}
+              </span>
             </div>
           </div>
         </div>
@@ -64,13 +69,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonSpinner, alertController } from '@ionic/vue'
 import { callOutline } from 'ionicons/icons'
 import { useToast } from '@/composables/useToast'
 import client from '@/api/client'
 
 const { showToast } = useToast()
+const auth = useAuthStore()
 
 const selectedType = ref('')
 const sending      = ref(false)
@@ -83,13 +90,13 @@ const TYPES = [
   { value: 'Intruder',          label: 'Intruder',          icon: '⚠️' },
 ]
 
-const CONTACTS = [
-  { name: 'PHDL Security Control', phone: '08100000000' },
-  { name: 'Estate Manager',        phone: '08100000001' },
-  { name: 'Fire Service',          phone: '080123456789' },
-]
+const CONTACTS = computed(() => [
+  { name: (auth.resident?.estateName ? `${auth.resident.estateName} Security Control` : 'Estate Security Control'), phone: '0800-CHECKPASS' },
+  { name: 'Rapid Response Unit',   phone: '112' },
+  { name: 'Federal Fire Service',  phone: '08032003557' },
+])
 
-const recentIncidents = ref<{ id: string; type: string; createdAt: string }[]>([])
+const recentIncidents = ref<{ id: string; type: string; status?: string; createdAt: string }[]>([])
 
 async function loadRecentAlerts() {
   try {
@@ -103,7 +110,7 @@ async function loadRecentAlerts() {
 async function confirmSOS() {
   const alert = await alertController.create({
     header: 'Send security alert?',
-    message: 'This will notify PHDL Security immediately. Only use this for real emergencies.',
+    message: `This will instantly trigger a critical alarm at ${auth.resident?.estateName || 'Estate'} security gatehouse and mobile staff dashboards. Only use this for genuine emergencies.`,
     buttons: [
       { text: 'Cancel', role: 'cancel' },
       {
@@ -123,7 +130,7 @@ async function sendSOS() {
       type: selectedType.value || 'Security Incident',
     })
     alertSent.value = true
-    showToast('Alert sent — PHDL Security notified', 'warning')
+    showToast(`Emergency alert dispatched to ${auth.resident?.estateName || 'Estate'} security!`, 'warning')
     if (res.data.emergency) {
       recentIncidents.value.unshift(res.data.emergency)
     }
@@ -143,7 +150,26 @@ function fmtRelative(iso: string) {
   return `${Math.floor(diff/3600)}h ago`
 }
 
-onMounted(loadRecentAlerts)
+
+let alertPollTimer: any = null
+
+function statusBadgeClass(status?: string) {
+  if (status === 'resolved') return 'status-resolved'
+  if (status === 'acknowledged') return 'status-acknowledged'
+  return 'status-sent'
+}
+
+onMounted(() => {
+  loadRecentAlerts()
+  alertPollTimer = setInterval(() => {
+    loadRecentAlerts()
+  }, 6000)
+})
+
+onUnmounted(() => {
+  if (alertPollTimer) clearInterval(alertPollTimer)
+})
+
 </script>
 
 <style scoped>
@@ -188,4 +214,47 @@ onMounted(loadRecentAlerts)
 .incident-row:last-child { border-bottom: none; }
 .incident-type { font-weight: 600; color: var(--w-danger); }
 .incident-time { color: var(--w-muted); font-size: 13px; }
+
+.incident-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.incident-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.incident-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.status-sent {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.status-acknowledged {
+  background: #D1FAE5;
+  color: #065F46;
+  animation: pulseRes 1.6s infinite;
+}
+
+@keyframes pulseRes {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.status-resolved {
+  background: #F1F5F9;
+  color: #475569;
+}
+
 </style>

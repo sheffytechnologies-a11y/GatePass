@@ -17,6 +17,9 @@ export const authApi = {
   forgotPassword: (identifier: string) =>
     client.post('/v1/auth/forgot-password', { identifier }),
 
+  verifyResetOtp: (identifier: string, otp: string) =>
+    client.post('/v1/auth/verify-reset-otp', { identifier, otp }),
+
   resetPassword: (identifier: string, otp: string, newPassword: string) =>
     client.post('/v1/auth/reset-password', { identifier, otp, newPassword }),
 

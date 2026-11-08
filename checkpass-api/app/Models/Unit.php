@@ -15,12 +15,26 @@ class Unit extends Model
         'house',
         'flat',
         'flat_address',
+        'unit_type',
+        'hierarchy_data',
+        'notes',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'hierarchy_data' => 'array',
     ];
+
+    public function isOccupied(): bool
+    {
+        return $this->residents()->where('is_active', true)->exists();
+    }
+
+    public function activeResidents()
+    {
+        return $this->residents()->where('is_active', true);
+    }
 
     public function estate()
     {
