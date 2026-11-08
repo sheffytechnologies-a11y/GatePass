@@ -3124,6 +3124,47 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ── Full Horizontal Viewport Scaling with Padding & Fixed 16:9 Aspect Ratio ── */
+.siteassist-showcase-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
+}
+
+.core-control-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
+}
+
+.siteassist-card {
+  width: 100% !important;
+  aspect-ratio: 16 / 9 !important;
+  height: auto !important;
+  min-height: clamp(480px, 48vw, 980px) !important;
+  max-height: none !important;
+}
+
+.siteassist-inner {
+  padding: clamp(24px, 3.5vw, 60px) !important;
+}
+
+.siteassist-content-wrap {
+  max-width: clamp(480px, 48vw, 880px) !important;
+}
+
+.siteassist-feature-title {
+  font-size: clamp(2rem, 3.0vw, 3.4rem) !important;
+}
+
+.siteassist-feature-body {
+  font-size: clamp(1.15rem, 1.55vw, 1.6rem) !important;
+}
+
 
 /* ── Full-Screen Loading Cover ── */
 .landing-screen-loader {

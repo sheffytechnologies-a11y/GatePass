@@ -1453,11 +1453,11 @@ footer {
 
 /* Full-bleed responsive container for stakeholder showcase - matches unified page width */
 .siteassist-showcase-container {
-  width: 100%;
-  max-width: min(1680px, 92vw);
-  margin: 0 auto;
-  padding: 0 clamp(24px, 4vw, 64px);
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
 }
 @media (max-width: 768px) {
   .siteassist-showcase-container {
@@ -1473,12 +1473,13 @@ footer {
 /* Cinematic Full-Bleed Container: Uniform Aspect Ratio & Proportional Auto-Scaling */
 .siteassist-card{
   position:relative;
-  border-radius:clamp(18px, 1.8vw, 28px);
+  border-radius:clamp(18px, 2vw, 32px);
   overflow:hidden;
-  width:100%;
-  aspect-ratio:16 / 9;
-  min-height:clamp(520px, 48vw, 960px);
-  max-height:min(90vh, 1100px);
+  width:100% !important;
+  aspect-ratio:16 / 9 !important;
+  height:auto !important;
+  min-height:clamp(480px, 48vw, 980px);
+  max-height:none !important;
   border:1px solid rgba(255,255,255,.14);
   box-shadow:0 24px 64px rgba(11,31,23,.28);
   background:#0B1F17;
@@ -4352,11 +4353,11 @@ footer {
 
 .core-control-section .container,
 .core-control-container {
-  width: 100%;
-  max-width: min(1680px, 92vw);
-  margin: 0 auto;
-  padding: 0 clamp(24px, 4vw, 64px);
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 clamp(16px, 3.5vw, 60px) !important;
+  box-sizing: border-box !important;
 }
 
 .core-control-grid {
