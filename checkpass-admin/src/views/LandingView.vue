@@ -363,9 +363,7 @@
                 With <span class="section-b-title-accent">Ease</span>
               </h2>
               <p class="section-b-description">
-                From inviting visitors and managing access passes to<br class="sec-b-sub-br">
-                paying estate dues and receiving important updates,<br class="sec-b-sub-br">
-                everything is easier when it's right on your phone.
+                From inviting visitors and managing access passes to paying estate dues and receiving important updates, everything is easier when it's right on your phone.
               </p>
               <a href="#features" class="section-cta-link sec-b-cta" onclick="showPage('features');return false">
                 <span>Learn more</span>
@@ -496,9 +494,7 @@
                 Every <span class="section-c-title-accent">Entry.</span>
               </h2>
               <p class="section-c-description">
-                Give your security team a reliable way to check visitor passes,<br class="sec-c-sub-br">
-                confirm authorised access and keep records of movement in<br class="sec-c-sub-br">
-                and out of your premises.
+                Give your security team a reliable way to check visitor passes, confirm authorised access and keep records of movement in and out of your premises.
               </p>
               <a href="#features" class="section-cta-link sec-c-cta" onclick="showPage('features');return false">
                 <span>Learn more</span>
