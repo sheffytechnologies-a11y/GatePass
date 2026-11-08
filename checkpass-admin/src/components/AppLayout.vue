@@ -189,10 +189,12 @@ const ICONS = {
   notifications: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0 1 12 0c0 6.5 2.5 8.5 2.5 8.5h-17S6 14.5 6 8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   support: '<svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 10h.01M12 10h.01M16 10h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   artisans: '<svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  crm: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="18" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M14 18h7M14 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
 }
 
 const navItems = computed(() => [
   { path: '/dashboard', label: 'Dashboard', icon: ICONS.dashboard },
+  { path: '/crm', label: 'Sales CRM & Deals', icon: ICONS.crm },
   { path: '/access', label: 'Access', icon: ICONS.access },
   { path: '/passes', label: 'Passes', icon: ICONS.passes },
   { path: '/properties', label: 'Properties', icon: ICONS.properties },

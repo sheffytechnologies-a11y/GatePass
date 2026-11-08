@@ -158,20 +158,6 @@
           </div>
 
           <div class="sheet-modal-body">
-            <!-- Office Quick Action Hotlines -->
-            <div class="office-hotline-card">
-              <div class="hotline-title">Need immediate assistance?</div>
-              <div class="hotline-btns">
-                <a :href="`tel:08000000000`" class="hotline-btn">
-                  <ion-icon :icon="callOutline" />
-                  <span>Call Admin Desk</span>
-                </a>
-                <a :href="`https://wa.me/2348000000000?text=Hello%20Estate%20Office,%20inquiry%20from%20${encodeURIComponent(auth.resident?.name || 'Resident')}%20(${encodeURIComponent(auth.resident?.flatAddress || 'Unit')})`" target="_blank" class="hotline-btn hotline-btn--green">
-                  <span>WhatsApp Desk</span>
-                </a>
-              </div>
-            </div>
-
             <!-- Message Form -->
             <div class="modal-form-section">
               <label class="form-field-label">Topic / Department</label>

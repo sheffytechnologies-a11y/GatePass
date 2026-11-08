@@ -2532,6 +2532,121 @@ function scrollConciergeBottom() {
   })
 }
 
+
+// ── AI Concierge & Lead Extractor Engine ──
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
+
+const CONCIERGE_SYSTEM_PROMPT = `You are the official CheckPass Estate Operations AI Concierge for Nigeria.
+CheckPass is an enterprise digital gate access control and automated dues collection platform for residential gated communities, HOAs, and corporate estates in Nigeria (Lagos, Abuja, Port Harcourt, Ibadan).
+Key capabilities:
+- 4-Second QR code visitor passes shared via WhatsApp/SMS without requiring guests to install an app.
+- Offline guard scanner software that verifies cryptographic tokens without internet during cellular downtime.
+- Automated estate dues & levies (security, diesel surcharge, waste) with instant Paystack online payment and 1-click bank transfer receipt verification.
+- Move-out asset clearance manifest verifying appliances/furniture to prevent unauthorized tenant departures.
+- 1-Tap resident emergency SOS alerting gate security with exact flat unit number.
+- Vetted estate artisan directory (electricians, plumbers).
+Pricing:
+- Boutique: ₦35,000/mo (up to 50 homes)
+- Gated Community: ₦75,000/mo (up to 200 homes)
+- Enterprise: Custom for 500+ units.
+Free 3-unit trial sandbox provisioned in 48 hours.
+
+Answer clearly, politely, and concisely using British/Nigerian English. If the user mentions their name, estate name, flat count, or contact info, acknowledge it warmly and tell them an estate onboarding specialist has received their request.`
+
+function extractLeadFromConversation(userText: string, aiReply: string) {
+  try {
+    const emailMatch = userText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+    const phoneMatch = userText.match(/(?:\+?234|0)[789][01]\d{8}/)
+    const unitsMatch = userText.match(/(\d{1,4})\s*(?:units?|flats?|houses?|homes?|residents?)/i)
+    
+    // Check if user provided contact/estate details
+    const hasEstateIndicator = userText.toLowerCase().includes('estate') || userText.toLowerCase().includes('gated') || userText.toLowerCase().includes('community') || userText.toLowerCase().includes('phase')
+    
+    if (emailMatch || phoneMatch || unitsMatch || hasEstateIndicator) {
+      const units = unitsMatch ? parseInt(unitsMatch[1], 10) : 100
+      const dealValue = units * 1200 * 12
+      
+      let estateName = 'Prospective Estate'
+      const estateRegex = /([A-Z][a-zA-Z0-9\s]{2,25}(?:Estate|Gardens|Court|Hills|Crest|Phase\s*\d|Heights|Valley|View))/i
+      const foundEstate = userText.match(estateRegex)
+      if (foundEstate) estateName = foundEstate[1].trim()
+      
+      let contactName = 'Prospective HOA Exco'
+      const nameRegex = /(?:my name is|i am|this is|i'm)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)/i
+      const foundName = userText.match(nameRegex)
+      if (foundName) contactName = foundName[1].trim()
+
+      const newLead = {
+        id: 'lead-ai-' + Date.now(),
+        estateName,
+        name: contactName,
+        role: 'Inquiring Executive',
+        phone: phoneMatch ? phoneMatch[0] : '',
+        email: emailMatch ? emailMatch[1] : '',
+        city: userText.toLowerCase().includes('abuja') ? 'Abuja' : 'Lagos',
+        units,
+        dealValue,
+        stage: 'new',
+        source: 'AI Concierge',
+        chatTranscript: 'User: ' + userText + '\nAI: ' + aiReply.replace(/<[^>]+>/g, ' '),
+        notes: 'Captured automatically by on-site AI Concierge assistant on ' + new Date().toLocaleString('en-NG'),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      const existingRaw = localStorage.getItem('checkpass_crm_leads')
+      let existingLeads = []
+      try { existingLeads = existingRaw ? JSON.parse(existingRaw) : [] } catch {}
+      existingLeads.unshift(newLead)
+      localStorage.setItem('checkpass_crm_leads', JSON.stringify(existingLeads))
+      console.log('Captured AI Concierge lead to CRM:', newLead)
+    }
+  } catch (err) {
+    console.warn('Lead extraction error:', err)
+  }
+}
+
+async function queryGeminiAPI(userQuery: string): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        role: 'user',
+        parts: [{ text: `${CONCIERGE_SYSTEM_PROMPT}\n\nVisitor Question: ${userQuery}\nProvide a helpful, formatted response:` }]
+      }]
+    })
+  })
+  if (!response.ok) throw new Error('Gemini API request failed')
+  const data = await response.json()
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  return rawText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
+async function queryOpenAIAPI(userQuery: string): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: CONCIERGE_SYSTEM_PROMPT },
+        { role: 'user', content: userQuery }
+      ],
+      temperature: 0.5
+    })
+  })
+  if (!response.ok) throw new Error('OpenAI API request failed')
+  const data = await response.json()
+  const rawText = data.choices?.[0]?.message?.content || ''
+  return rawText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
 function getConciergeAnswer(query: string): string {
   const q = query.toLowerCase()
 
@@ -2663,7 +2778,7 @@ function submitConciergeMessage() {
   conciergeInput.value = ''
 }
 
-function addUserMessage(text: string) {
+async function addUserMessage(text: string) {
   conciergeMessages.value.push({
     sender: 'user',
     text,
@@ -2672,16 +2787,31 @@ function addUserMessage(text: string) {
   scrollConciergeBottom()
 
   isConciergeThinking.value = true
-  setTimeout(() => {
+  let reply = ''
+
+  try {
+    if (GEMINI_API_KEY) {
+      reply = await queryGeminiAPI(text)
+    } else if (OPENAI_API_KEY) {
+      reply = await queryOpenAIAPI(text)
+    } else {
+      reply = getConciergeAnswer(text)
+    }
+  } catch (err) {
+    console.warn('AI API error, using knowledge base fallback:', err)
+    reply = getConciergeAnswer(text)
+  } finally {
     isConciergeThinking.value = false
-    const reply = getConciergeAnswer(text)
-    conciergeMessages.value.push({
-      sender: 'ai',
-      text: reply,
-      time: 'Just now'
-    })
-    scrollConciergeBottom()
-  }, 650)
+  }
+
+  conciergeMessages.value.push({
+    sender: 'ai',
+    text: reply,
+    time: 'Just now'
+  })
+  scrollConciergeBottom()
+
+  extractLeadFromConversation(text, reply)
 }
 
 onUnmounted(() => {

@@ -23,6 +23,7 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/dashboard' },
         { path: '/dashboard', component: () => import('@/views/DashboardView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/crm', component: () => import('@/views/CrmView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/access', component: () => import('@/views/AccessView.vue'), meta: { roles: ['super_admin', 'estate_admin', 'security'] } },
         { path: '/users', component: () => import('@/views/UsersView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/users/new', component: () => import('@/views/UsersCreateView.vue'), meta: { roles: ADMIN_ROLES } },
