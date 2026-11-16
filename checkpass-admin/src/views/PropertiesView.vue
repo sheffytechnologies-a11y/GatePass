@@ -3,29 +3,15 @@
     <!-- Hero Header -->
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
-        <div class="hero-eyebrow">Physical Topology & Unit Inventory</div>
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-outline-white" @click="openStructureModal">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20v-6M6 20V10M18 20V4"/>
-          </svg>
-          Topology Setup
-        </button>
-        <button class="btn btn-emerald-batch" @click="openBatchModal">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
-          Batch Generator
-        </button>
-        <button class="btn btn-primary hero-btn-white" @click="openCreateModal">
+        <button class="btn btn-primary hero-btn-white" @click="openCreateModal('setup')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          New Property
+          Add Property
         </button>
       </div>
     </section>
@@ -135,8 +121,8 @@
       <h3>No properties configured yet</h3>
       <p>Use the Batch Generator to quickly create lanes, buildings, and flats in seconds, or add a single property.</p>
       <div class="empty-actions">
-        <button class="btn btn-primary" @click="openBatchModal">Launch Batch Generator</button>
-        <button class="btn btn-outline" @click="openCreateModal">+ Add Property</button>
+        <button class="btn btn-primary" @click="openCreateModal('batch')">Batch Upload</button>
+        <button class="btn btn-outline" @click="openCreateModal('setup')">+ Add Property</button>
       </div>
     </div>
 
@@ -288,139 +274,54 @@
       </div>
     </div>
 
-    <!-- MODAL 2: Batch Generator -->
-    <div v-if="batchModalOpen" class="modal-backdrop" @click.self="batchModalOpen = false">
-      <div class="modal-card modal-lg">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">Batch Property Generator</h2>
-            <p class="modal-subtitle">Instantly generate complete streets, buildings, and apartments in bulk.</p>
-          </div>
-          <button class="close-btn" @click="batchModalOpen = false">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Property Unit Type</label>
-            <select v-model="batchUnitType" class="form-select">
-              <option value="Apartment">Apartment</option>
-              <option value="Duplex">Duplex</option>
-              <option value="Terrace">Terrace</option>
-              <option value="Penthouse">Penthouse</option>
-              <option value="Bungalow">Bungalow</option>
-              <option value="Plot">Plot</option>
-              <option value="Commercial">Commercial / Shop</option>
-            </select>
-          </div>
-
-          <!-- Configuration for each level -->
-          <div class="batch-levels-box">
-            <div
-              v-for="(lvl, idx) in batchConfigLevels"
-              :key="idx"
-              class="batch-level-card"
-            >
-              <div class="batch-level-head">
-                <span class="level-indicator">Level {{ idx + 1 }}</span>
-                <strong class="level-name">{{ lvl.name }}</strong>
-                <div class="mode-toggles">
-                  <button
-                    type="button"
-                    class="mode-btn"
-                    :class="{ 'mode-btn--active': lvl.mode === 'range' }"
-                    @click="lvl.mode = 'range'"
-                  >
-                    Range (1..N)
-                  </button>
-                  <button
-                    type="button"
-                    class="mode-btn"
-                    :class="{ 'mode-btn--active': lvl.mode === 'custom' }"
-                    @click="lvl.mode = 'custom'"
-                  >
-                    Custom List
-                  </button>
-                </div>
-              </div>
-
-              <!-- Range Mode -->
-              <div v-if="lvl.mode === 'range'" class="range-inputs">
-                <div class="form-group">
-                  <label class="form-label-xs">Prefix</label>
-                  <input v-model="lvl.prefix" class="form-input" placeholder="e.g. Lane " />
-                </div>
-                <div class="form-group">
-                  <label class="form-label-xs">Start #</label>
-                  <input v-model.number="lvl.start" type="number" min="1" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label-xs">End #</label>
-                  <input v-model.number="lvl.end" type="number" min="1" class="form-input" />
-                </div>
-              </div>
-
-              <!-- Custom List Mode -->
-              <div v-else class="custom-inputs">
-                <label class="form-label-xs">Comma-separated entries</label>
-                <input
-                  v-model="lvl.customList"
-                  class="form-input"
-                  placeholder="e.g. Flat A, Flat B, Flat C, Penthouse"
-                />
-              </div>
-
-              <div class="level-preview-count">
-                {{ getTierValues(lvl).length }} items ({{ getTierValues(lvl).slice(0, 4).join(', ') }}{{ getTierValues(lvl).length > 4 ? '...' : '' }})
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Calculator Summary Banner -->
-          <div class="calculator-banner">
-            <div class="calc-math">
-              <span class="calc-label">Calculated Combinations:</span>
-              <span class="calc-formula">{{ batchFormulaString }}</span>
-              <span class="calc-total">= {{ calculatedBatchCount }} Properties</span>
-            </div>
-            <div v-if="calculatedBatchCount > 0" class="calc-preview">
-              <span class="preview-title">Sample Addresses:</span>
-              <div class="sample-pills">
-                <span v-for="(sample, sIdx) in sampleBatchPreview" :key="sIdx" class="sample-pill">
-                  {{ sample }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <p v-if="batchError" class="form-error mt-2">{{ batchError }}</p>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-outline" @click="batchModalOpen = false">Cancel</button>
-          <button
-            class="btn btn-primary"
-            :disabled="generatingBatch || calculatedBatchCount === 0"
-            @click="executeBatchGeneration"
-          >
-            {{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 3: Create / Edit Single Property -->
+    <!-- UNIFIED MODAL: Add / Edit Property (Setup vs Batch Upload) -->
     <div v-if="singleModalOpen" class="modal-backdrop" @click.self="singleModalOpen = false">
-      <div class="modal-card">
+      <div class="modal-card" :class="{ 'modal-lg': addPropertyTab === 'batch' && !editingProperty }">
         <div class="modal-header">
           <div>
-            <h2 class="modal-title">{{ editingProperty ? 'Edit Property' : 'Add New Property' }}</h2>
-            <p class="modal-subtitle">Specify unit identifiers and address for this property.</p>
+            <h2 class="modal-title">
+              {{ editingProperty ? 'Edit Property' : (addPropertyTab === 'setup' ? 'Add Property · Setup' : 'Add Properties · Batch Upload') }}
+            </h2>
+            <p class="modal-subtitle">
+              {{ editingProperty ? 'Update unit identifiers and address.' : (addPropertyTab === 'setup' ? 'Add an individual property unit with automatic address compilation.' : 'Generate or import property units in bulk for your estate.') }}
+            </p>
           </div>
           <button class="close-btn" @click="singleModalOpen = false">✕</button>
         </div>
 
-        <div class="modal-body">
-          <!-- Fallback manual input only if editing legacy property without tiers -->
+        <!-- Mode Toggle Segmented Control (Only shown when adding new, hidden when editing) -->
+        <div v-if="!editingProperty" class="modal-tab-toggle-wrap">
+          <div class="modal-tab-toggle">
+            <button
+              type="button"
+              class="tab-toggle-btn"
+              :class="{ 'is-active': addPropertyTab === 'setup' }"
+              @click="addPropertyTab = 'setup'"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              Setup
+            </button>
+            <button
+              type="button"
+              class="tab-toggle-btn"
+              :class="{ 'is-active': addPropertyTab === 'batch' }"
+              @click="addPropertyTab = 'batch'"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+              Batch Upload
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 1: SETUP (Single Property Addition / Edit) -->
+        <div v-if="addPropertyTab === 'setup' || editingProperty" class="modal-body">
+          <!-- Fallback input only if editing legacy property without tiers -->
           <div v-if="editingProperty && !computedAddress" class="form-group">
             <label class="form-label">Full Address / Code <span class="req">*</span></label>
             <input
@@ -469,7 +370,10 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Notes (Optional)</label>
+            <div class="form-label-row">
+              <label class="form-label">Notes (Optional)</label>
+              <button type="button" class="btn-link-topology" @click="openStructureModal">⚙️ Configure Estate Tiers</button>
+            </div>
             <textarea
               v-model="singleForm.notes"
               class="form-input"
@@ -481,11 +385,203 @@
           <p v-if="singleError" class="form-error">{{ singleError }}</p>
         </div>
 
+        <!-- TAB 2: BATCH UPLOAD (Batch Generator & CSV Import) -->
+        <div v-else class="modal-body">
+          <div class="batch-subnav">
+            <button
+              type="button"
+              class="subnav-pill"
+              :class="{ 'is-active': batchMethod === 'generator' }"
+              @click="batchMethod = 'generator'"
+            >
+              ⚡ Rule-based Generator
+            </button>
+            <button
+              type="button"
+              class="subnav-pill"
+              :class="{ 'is-active': batchMethod === 'csv' }"
+              @click="batchMethod = 'csv'"
+            >
+              📄 CSV Spreadsheet Upload
+            </button>
+          </div>
+
+          <!-- SUB-MODE 1: Rule-based Generator -->
+          <div v-if="batchMethod === 'generator'">
+            <div class="form-group mb-3">
+              <label class="form-label">Property Unit Type</label>
+              <select v-model="batchUnitType" class="form-select">
+                <option value="Apartment">Apartment</option>
+                <option value="Duplex">Duplex</option>
+                <option value="Terrace">Terrace</option>
+                <option value="Penthouse">Penthouse</option>
+                <option value="Bungalow">Bungalow</option>
+                <option value="Plot">Plot</option>
+                <option value="Commercial">Commercial / Shop</option>
+              </select>
+            </div>
+
+            <!-- Configuration for each level -->
+            <div class="batch-levels-box">
+              <div
+                v-for="(lvl, idx) in batchConfigLevels"
+                :key="idx"
+                class="batch-level-card"
+              >
+                <div class="batch-level-head">
+                  <span class="level-indicator">Level {{ idx + 1 }}</span>
+                  <strong class="level-name">{{ lvl.name }}</strong>
+                  <div class="mode-toggles">
+                    <button
+                      type="button"
+                      class="mode-btn"
+                      :class="{ 'mode-btn--active': lvl.mode === 'range' }"
+                      @click="lvl.mode = 'range'"
+                    >
+                      Range (1..N)
+                    </button>
+                    <button
+                      type="button"
+                      class="mode-btn"
+                      :class="{ 'mode-btn--active': lvl.mode === 'custom' }"
+                      @click="lvl.mode = 'custom'"
+                    >
+                      Custom List
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Range Mode -->
+                <div v-if="lvl.mode === 'range'" class="range-inputs">
+                  <div class="form-group">
+                    <label class="form-label-xs">Prefix</label>
+                    <input v-model="lvl.prefix" class="form-input" placeholder="e.g. Lane " />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-xs">Start #</label>
+                    <input v-model.number="lvl.start" type="number" min="1" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-xs">End #</label>
+                    <input v-model.number="lvl.end" type="number" min="1" class="form-input" />
+                  </div>
+                </div>
+
+                <!-- Custom List Mode -->
+                <div v-else class="custom-inputs">
+                  <label class="form-label-xs">Comma-separated entries</label>
+                  <input
+                    v-model="lvl.customList"
+                    class="form-input"
+                    placeholder="e.g. Flat A, Flat B, Flat C, Penthouse"
+                  />
+                </div>
+
+                <div class="level-preview-count">
+                  {{ getTierValues(lvl).length }} items ({{ getTierValues(lvl).slice(0, 4).join(', ') }}{{ getTierValues(lvl).length > 4 ? '...' : '' }})
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Calculator Summary Banner -->
+            <div class="calculator-banner">
+              <div class="calc-math">
+                <span class="calc-label">Calculated Combinations:</span>
+                <span class="calc-formula">{{ batchFormulaString }}</span>
+                <span class="calc-total">= {{ calculatedBatchCount }} Properties</span>
+              </div>
+              <div v-if="calculatedBatchCount > 0" class="calc-preview">
+                <span class="preview-title">Sample Addresses:</span>
+                <div class="sample-pills">
+                  <span v-for="(sample, sIdx) in sampleBatchPreview" :key="sIdx" class="sample-pill">
+                    {{ sample }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-MODE 2: CSV Upload -->
+          <div v-else class="csv-upload-box">
+            <div class="csv-template-notice">
+              <div>
+                <strong>Import properties from CSV</strong>
+                <p class="text-hint">Columns: {{ structureLevels.map(l => l.name).join(', ') }}, Unit Type, Notes</p>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline" @click="downloadSampleCsv">
+                📥 Download Template
+              </button>
+            </div>
+
+            <div class="csv-dropzone" @click="triggerCsvFileInput">
+              <input
+                ref="csvFileInputRef"
+                type="file"
+                accept=".csv,text/csv"
+                class="sr-only"
+                @change="handleCsvFileSelect"
+              />
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <div v-if="csvFileName" class="csv-chosen-name">
+                <strong>{{ csvFileName }}</strong>
+                <span class="text-emerald">({{ csvProperties.length }} properties detected)</span>
+              </div>
+              <div v-else class="csv-prompt">
+                <span class="drop-title">Click to choose or drop a CSV file</span>
+                <span class="drop-sub">Formatted with {{ structureLevels[0]?.name || 'Lane' }}, {{ structureLevels[1]?.name || 'House' }}, {{ structureLevels[2]?.name || 'Flat' }} columns</span>
+              </div>
+            </div>
+
+            <div v-if="csvProperties.length > 0" class="csv-preview-list">
+              <span class="preview-title">Detected Properties (First 4):</span>
+              <div class="sample-pills">
+                <span v-for="(p, pIdx) in csvProperties.slice(0, 4)" :key="pIdx" class="sample-pill">
+                  {{ p.flat_address }} ({{ p.unit_type }})
+                </span>
+                <span v-if="csvProperties.length > 4" class="sample-pill">
+                  + {{ csvProperties.length - 4 }} more
+                </span>
+              </div>
+            </div>
+
+            <p v-if="csvError" class="form-error mt-2">{{ csvError }}</p>
+          </div>
+
+          <p v-if="batchError" class="form-error mt-2">{{ batchError }}</p>
+        </div>
+
         <div class="modal-footer">
           <button class="btn btn-outline" @click="singleModalOpen = false">Cancel</button>
-          <button class="btn btn-primary" :disabled="savingSingle" @click="saveSingleProperty">
-            {{ savingSingle ? 'Saving...' : 'Save Property' }}
+
+          <!-- Setup Mode Save Button -->
+          <button
+            v-if="addPropertyTab === 'setup' || editingProperty"
+            class="btn btn-primary"
+            :disabled="savingSingle"
+            @click="saveSingleProperty"
+          >
+            {{ savingSingle ? 'Saving...' : (editingProperty ? 'Update Property' : 'Save Property') }}
           </button>
+
+          <!-- Batch Mode Action Buttons -->
+          <template v-else>
+            <button
+              v-if="batchMethod === 'generator'"
+              class="btn btn-primary"
+              :disabled="generatingBatch || calculatedBatchCount === 0"
+              @click="executeBatchGeneration"
+            >
+              {{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}
+            </button>
+            <button
+              v-else
+              class="btn btn-primary"
+              :disabled="generatingBatch || csvProperties.length === 0"
+              @click="uploadCsvBatch"
+            >
+              {{ generatingBatch ? 'Importing Properties...' : `Import ${csvProperties.length} Properties` }}
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -672,15 +768,22 @@ function openStructureModal() {
   structureModalOpen.value = true
 }
 
-// Batch Generator State
-const batchModalOpen = ref(false)
+// Batch Generator & Unified Modal State
+const addPropertyTab = ref<'setup' | 'batch'>('setup')
+const batchMethod = ref<'generator' | 'csv'>('generator')
 const batchUnitType = ref('Apartment')
 const batchConfigLevels = ref<any[]>([])
 const generatingBatch = ref(false)
 const batchError = ref('')
 
-function openBatchModal() {
-  batchError.value = ''
+// CSV Upload State
+const csvFileInputRef = ref<HTMLInputElement | null>(null)
+const csvFileName = ref('')
+const csvProperties = ref<any[]>([])
+const csvParsing = ref(false)
+const csvError = ref('')
+
+function initBatchConfig() {
   batchConfigLevels.value = structureLevels.value.map(lvl => ({
     name: lvl.name,
     mode: 'range',
@@ -689,7 +792,104 @@ function openBatchModal() {
     end: lvl.name.includes('Flat') ? 4 : (lvl.name.includes('House') ? 5 : 2),
     customList: '',
   }))
-  batchModalOpen.value = true
+}
+
+
+function triggerCsvFileInput() {
+  csvFileInputRef.value?.click()
+}
+
+function handleCsvFileSelect(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  csvFileName.value = file.name
+  csvError.value = ''
+  csvParsing.value = true
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const text = (e.target?.result as string) || ''
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+      if (lines.length < 2) {
+        csvError.value = 'CSV file must have a header row and at least 1 data row.'
+        csvProperties.value = []
+        return
+      }
+
+      const rows: any[] = []
+      // Parse data rows
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''))
+        const lane = cols[0] || ''
+        const house = cols[1] || ''
+        const flat = cols[2] || ''
+        const unit_type = cols[3] || batchUnitType.value || 'Apartment'
+        const notes = cols[4] || ''
+        const flat_address = [flat, house, lane].filter(Boolean).join(', ')
+        if (flat_address) {
+          rows.push({ lane, house, flat, unit_type, notes, flat_address })
+        }
+      }
+      csvProperties.value = rows
+      if (rows.length === 0) {
+        csvError.value = 'No valid property addresses found in CSV.'
+      }
+    } catch (err: any) {
+      csvError.value = 'Failed to parse CSV: ' + err.message
+    } finally {
+      csvParsing.value = false
+    }
+  }
+  reader.onerror = () => {
+    csvError.value = 'Error reading CSV file.'
+    csvParsing.value = false
+  }
+  reader.readAsText(file)
+}
+
+function downloadSampleCsv() {
+  const l1 = structureLevels.value[0]?.name || 'Lane'
+  const l2 = structureLevels.value[1]?.name || 'House'
+  const l3 = structureLevels.value[2]?.name || 'Flat'
+  const header = `${l1},${l2},${l3},Unit Type,Notes\r\n`
+  const row1 = `${l1} 1,${l2} 1,${l3} 101,Apartment,Block A ground floor\r\n`
+  const row2 = `${l1} 1,${l2} 1,${l3} 102,Apartment,Block A first floor\r\n`
+  const row3 = `${l1} 2,${l2} 4,,Duplex,Corner unit\r\n`
+  const blob = new Blob([header + row1 + row2 + row3], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `checkpass_${auth.activeEstateName || 'estate'}_properties_template.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+async function uploadCsvBatch() {
+  if (!activeEstateId.value || csvProperties.value.length === 0) return
+  generatingBatch.value = true
+  batchError.value = ''
+  try {
+    for (const prop of csvProperties.value) {
+      await propertiesApi.create({
+        estate_id: activeEstateId.value,
+        flat_address: prop.flat_address,
+        unit_type: prop.unit_type,
+        lane: prop.lane,
+        house: prop.house,
+        flat: prop.flat,
+        notes: prop.notes,
+      })
+    }
+    showToast(`Successfully uploaded ${csvProperties.value.length} properties!`, 'success')
+    singleModalOpen.value = false
+    await loadProperties()
+    await loadStats()
+  } catch (err: any) {
+    batchError.value = err.response?.data?.message || 'Failed to import CSV properties.'
+  } finally {
+    generatingBatch.value = false
+  }
 }
 
 function getTierValues(tier: any): string[] {
@@ -770,7 +970,7 @@ async function executeBatchGeneration() {
       levels: levelsPayload,
     })
     showToast(`Successfully created ${res.data?.createdCount || calculatedBatchCount.value} properties!`, 'success')
-    batchModalOpen.value = false
+    singleModalOpen.value = false
     await loadProperties()
     await loadStats()
   } catch (err: any) {
@@ -780,7 +980,7 @@ async function executeBatchGeneration() {
   }
 }
 
-// Single Property Modal
+// Single / Setup Property Modal State
 const singleModalOpen = ref(false)
 const editingProperty = ref<any>(null)
 const savingSingle = ref(false)
@@ -815,8 +1015,10 @@ const effectiveAddress = computed(() => {
   return computedAddress.value || singleForm.value.flat_address.trim()
 })
 
-function openCreateModal() {
+function openCreateModal(tab?: 'setup' | 'batch' | Event) {
+  const resolvedTab = (typeof tab === 'string' && (tab === 'setup' || tab === 'batch')) ? tab : 'setup'
   editingProperty.value = null
+  addPropertyTab.value = resolvedTab
   singleForm.value = {
     flat_address: '',
     unit_type: 'Apartment',
@@ -826,11 +1028,17 @@ function openCreateModal() {
     notes: '',
   }
   singleError.value = ''
+  batchError.value = ''
+  csvError.value = ''
+  csvFileName.value = ''
+  csvProperties.value = []
+  initBatchConfig()
   singleModalOpen.value = true
 }
 
 function openEditModal(prop: any) {
   editingProperty.value = prop
+  addPropertyTab.value = 'setup'
   singleForm.value = {
     flat_address: prop.flatAddress || '',
     unit_type: prop.unitType || 'Apartment',
@@ -1727,6 +1935,49 @@ onMounted(() => {
   gap: 8px;
 }
 
+/* Modal Tab Toggle (Setup vs Batch Upload) */
+.modal-tab-toggle-wrap {
+  padding: 0 24px 14px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-tab-toggle {
+  display: flex;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.tab-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: none;
+  background: transparent;
+  color: #4B5563;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-toggle-btn.is-active {
+  background: #FFFFFF;
+  color: #047857;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tab-toggle-btn:hover:not(.is-active) {
+  color: #111827;
+}
+
+/* Live Generated Address Preview Box */
 .address-preview-box {
   background: #F0FDF4;
   border: 1.5px dashed #86EFAC;
@@ -1765,6 +2016,140 @@ onMounted(() => {
   font-size: 12.5px;
   color: #6B7280;
   font-style: italic;
+}
+
+/* Form label row with action */
+.form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-link-topology {
+  background: none;
+  border: none;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.btn-link-topology:hover {
+  text-decoration: underline;
+}
+
+/* Hierarchy Structure Card Clickable */
+.stat-card--clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+.topology-link {
+  color: #1D4ED8;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Batch Sub-Nav & CSV Upload */
+.batch-subnav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #F3F4F6;
+  padding-bottom: 10px;
+}
+
+.subnav-pill {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  background: white;
+  color: #4B5563;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.subnav-pill.is-active {
+  background: #ECFDF5;
+  color: #047857;
+  border-color: #A7F3D0;
+}
+
+.csv-upload-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.csv-template-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.csv-dropzone {
+  border: 2px dashed #D1D5DB;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  background: #FAFAFA;
+}
+
+.csv-dropzone:hover {
+  border-color: #047857;
+  background: #F0FDF4;
+}
+
+.drop-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  display: block;
+}
+
+.drop-sub {
+  font-size: 12px;
+  color: #6B7280;
+  display: block;
+}
+
+.csv-chosen-name {
+  font-size: 13.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.csv-preview-list {
+  background: #F9FAFB;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 .form-error {
