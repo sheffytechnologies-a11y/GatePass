@@ -999,15 +999,40 @@ const tier1Label = computed(() => structureLevels.value[0]?.name ? `Tier 1 (${st
 const tier2Label = computed(() => structureLevels.value[1]?.name ? `Tier 2 (${structureLevels.value[1].name})` : 'Tier 2 (House/Floor)')
 const tier3Label = computed(() => structureLevels.value[2]?.name ? `Tier 3 (${structureLevels.value[2].name})` : 'Tier 3 (Flat/Unit)')
 
-const tier1Placeholder = computed(() => structureLevels.value[0]?.name ? `e.g. ${structureLevels.value[0].name} 1` : 'e.g. Lane 1')
-const tier2Placeholder = computed(() => structureLevels.value[1]?.name ? `e.g. ${structureLevels.value[1].name} 4` : 'e.g. House 4')
-const tier3Placeholder = computed(() => structureLevels.value[2]?.name ? `e.g. ${structureLevels.value[2].name} 2` : 'e.g. Flat 2')
+// Clean placeholders: 1, A, 4 etc. instead of repeating tier words (system auto-prefixes the tier name)
+const tier1Placeholder = computed(() => 'e.g. 1, A, 4')
+const tier2Placeholder = computed(() => 'e.g. 4, 12, B')
+const tier3Placeholder = computed(() => 'e.g. B, 1, 2')
 
-// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane
+// Helper to auto-prefix tier label if not already present (e.g. '1' -> 'Lane 1', '4' -> 'House 4', 'B' -> 'Flat B')
+function formatTierDisplay(val: string, tierName?: string): string {
+  const cleanVal = (val || '').trim()
+  if (!cleanVal) return ''
+  const cleanTier = (tierName || '').trim()
+  if (!cleanTier) return cleanVal
+
+  const lowerVal = cleanVal.toLowerCase()
+  const lowerTier = cleanTier.toLowerCase()
+
+  // If the user already typed the tier name (e.g. "Lane 1" or "Flat B"), don't duplicate it
+  if (lowerVal.startsWith(lowerTier)) {
+    return cleanVal
+  }
+
+  return `${cleanTier} ${cleanVal}`
+}
+
+// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane (auto-prefixed with tier names)
 const computedAddress = computed(() => {
-  const parts = [singleForm.value.flat, singleForm.value.house, singleForm.value.lane]
-    .map(s => (s || '').trim())
-    .filter(Boolean)
+  const t3Name = structureLevels.value[2]?.name || 'Flat'
+  const t2Name = structureLevels.value[1]?.name || 'House'
+  const t1Name = structureLevels.value[0]?.name || 'Lane'
+
+  const t3Formatted = formatTierDisplay(singleForm.value.flat, t3Name)
+  const t2Formatted = formatTierDisplay(singleForm.value.house, t2Name)
+  const t1Formatted = formatTierDisplay(singleForm.value.lane, t1Name)
+
+  const parts = [t3Formatted, t2Formatted, t1Formatted].filter(Boolean)
   return parts.join(', ')
 })
 
@@ -1055,20 +1080,32 @@ async function saveSingleProperty() {
   if (!activeEstateId.value) return
   const addressToSave = effectiveAddress.value
   if (!addressToSave) {
-    singleError.value = 'Please provide at least one address tier (e.g. Flat/Unit, House, or Lane/Block).'
+    singleError.value = 'Please provide at least one address tier (e.g. 1, 4, B).'
     return
   }
   singleError.value = ''
   savingSingle.value = true
+
+  const hierarchyData: Record<string, string> = {}
+  if (structureLevels.value[0]?.name && singleForm.value.lane) {
+    hierarchyData[structureLevels.value[0].name] = singleForm.value.lane.trim()
+  }
+  if (structureLevels.value[1]?.name && singleForm.value.house) {
+    hierarchyData[structureLevels.value[1].name] = singleForm.value.house.trim()
+  }
+  if (structureLevels.value[2]?.name && singleForm.value.flat) {
+    hierarchyData[structureLevels.value[2].name] = singleForm.value.flat.trim()
+  }
 
   try {
     if (editingProperty.value) {
       await propertiesApi.update(editingProperty.value.id, {
         flat_address: addressToSave,
         unit_type: singleForm.value.unit_type,
-        lane: singleForm.value.lane,
-        house: singleForm.value.house,
-        flat: singleForm.value.flat,
+        lane: singleForm.value.lane.trim(),
+        house: singleForm.value.house.trim(),
+        flat: singleForm.value.flat.trim(),
+        hierarchy_data: Object.keys(hierarchyData).length > 0 ? hierarchyData : undefined,
         notes: singleForm.value.notes,
       })
       showToast('Property updated successfully.', 'success')
@@ -1077,9 +1114,10 @@ async function saveSingleProperty() {
         estate_id: activeEstateId.value,
         flat_address: addressToSave,
         unit_type: singleForm.value.unit_type,
-        lane: singleForm.value.lane,
-        house: singleForm.value.house,
-        flat: singleForm.value.flat,
+        lane: singleForm.value.lane.trim(),
+        house: singleForm.value.house.trim(),
+        flat: singleForm.value.flat.trim(),
+        hierarchy_data: Object.keys(hierarchyData).length > 0 ? hierarchyData : undefined,
         notes: singleForm.value.notes,
       })
       showToast('Property created successfully.', 'success')
