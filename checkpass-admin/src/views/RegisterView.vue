@@ -4,6 +4,13 @@
     <!-- ─── FULL-SCREEN SPLIT CONTAINER (NO OUTER VOID) ─── -->
     <div class="auth-container">
 
+      <!-- Mobile Top Primary Header (Shown on mobile screens <= 960px, matches mobile app 1:1) -->
+      <div class="mobile-primary-header">
+        <router-link to="/" class="mobile-brand-link" aria-label="Checkpass Home">
+          <img src="/checkpass-logo-white.svg" alt="Checkpass" class="mobile-brand-logo-white" />
+        </router-link>
+      </div>
+
       <!-- ─── LEFT HERO PANEL: SLIDER CAPTURING MORE SPACE (58%-60%) ─── -->
       <div class="hero-panel" @mouseenter="pauseRotation" @mouseleave="resumeRotation">
         <div class="hero-pattern-overlay"></div>
@@ -1547,29 +1554,65 @@ async function handleRegister() {
   transform: translateX(-12px);
 }
 
+/* Mobile Primary Header (Hidden by default on desktop) */
+.mobile-primary-header {
+  display: none;
+}
+
 /* ── Responsive Mobile & Tablet ── */
 @media (max-width: 960px) {
+  .auth-page {
+    background: #0A5C38 !important;
+    min-height: 100vh !important;
+  }
   .auth-container {
-    flex-direction: column;
-    min-height: 100vh;
+    flex-direction: column !important;
+    background: #0A5C38 !important;
+    min-height: 100vh !important;
+    width: 100% !important;
   }
+  /* Slider completely hidden on mobile view */
   .hero-panel {
-    flex: none;
-    width: 100%;
-    min-height: 420px;
-    padding: 28px 24px 32px;
+    display: none !important;
   }
-  .hero-stage-img {
-    object-position: center 25%;
+  .mobile-primary-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #0A5C38 !important;
+    padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px 32px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .mobile-brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .mobile-brand-logo-white {
+    height: 28px !important;
+    width: auto !important;
+    max-width: 170px !important;
+    object-fit: contain !important;
+    display: block !important;
   }
   .form-panel {
-    flex: none;
-    width: 100%;
-    min-height: auto;
-    padding: 36px 24px 48px;
+    flex: 1 !important;
+    background: #FFFFFF !important;
+    border-top-left-radius: 32px !important;
+    border-top-right-radius: 32px !important;
+    padding: 32px 24px 48px !important;
+    min-height: auto !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+  .form-panel-inner {
+    max-width: 100% !important;
+    margin: 0 !important;
   }
   .password-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 }
 

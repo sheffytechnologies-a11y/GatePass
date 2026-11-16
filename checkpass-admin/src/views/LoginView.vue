@@ -2,6 +2,13 @@
   <div class="auth-page">
     <div class="auth-container">
 
+      <!-- Mobile Top Primary Header (Shown on mobile screens <= 960px, matches mobile app 1:1) -->
+      <div class="mobile-primary-header">
+        <router-link to="/" class="mobile-brand-link" aria-label="Checkpass Home">
+          <img src="/checkpass-logo-white.svg" alt="Checkpass" class="mobile-brand-logo-white" />
+        </router-link>
+      </div>
+
       <!-- ─── LEFT HERO PANEL: SLIDER CONSISTENT WITH CREATE ACCOUNT ─── -->
       <div class="hero-panel" @mouseenter="pauseRotation" @mouseleave="resumeRotation">
         <div class="hero-pattern-overlay"></div>
@@ -66,9 +73,10 @@
           <!-- ════════════════════════════════════════════════════════════════ -->
           <div v-if="!showForgotView">
 
-            <!-- Top Header: "Log in as" -->
+            <!-- Top Header: "Log In" -->
             <div class="form-header-group">
-              <h1 class="form-title">Log in as</h1>
+              <h1 class="form-title">Log In</h1>
+              <p class="form-subtitle">Securely access visitor passes, gate alerts, and estate clearance.</p>
             </div>
 
             <!-- Followed by Role Navigation Bar with Person icon for Resident -->
@@ -1049,6 +1057,13 @@ async function handleLogin() {
   font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", sans-serif;
 }
 
+.form-subtitle {
+  font-size: 14px;
+  color: #64748B;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
 /* ── ALERTS & BANNERS ── */
 .auth-alert {
   display: flex;
@@ -1403,9 +1418,61 @@ async function handleLogin() {
   color: #64748B;
 }
 
+/* Mobile Primary Header (Hidden by default on desktop) */
+.mobile-primary-header {
+  display: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 960px) {
-  .hero-panel { display: none; }
-  .form-interaction-section { flex: 1 1 100%; min-height: 100vh; padding: 24px 16px; }
+  .auth-page {
+    background: #0A5C38 !important;
+    min-height: 100vh !important;
+  }
+  .auth-container {
+    flex-direction: column !important;
+    background: #0A5C38 !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+  }
+  .hero-panel {
+    display: none !important;
+  }
+  .mobile-primary-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #0A5C38 !important;
+    padding: calc(env(safe-area-inset-top, 0px) + 32px) 24px 32px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .mobile-brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .mobile-brand-logo-white {
+    height: 28px !important;
+    width: auto !important;
+    max-width: 170px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+  .form-interaction-section {
+    flex: 1 !important;
+    background: #FFFFFF !important;
+    border-top-left-radius: 32px !important;
+    border-top-right-radius: 32px !important;
+    padding: 32px 24px 48px !important;
+    min-height: auto !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+  .form-inner-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
 }
 </style>
