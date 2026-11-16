@@ -1340,9 +1340,22 @@ footer {
 .pricing-toggle-btn.active{background:var(--p);color:#fff;box-shadow:var(--sh-sm)}
 .save-badge{background:rgba(244,200,74,.2);color:#8A6A00;font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:100px;border:1px solid rgba(244,200,74,.4)}
 
-.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:stretch;margin-bottom:48px}
-@media(max-width:1100px){.pricing-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.pricing-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch;margin-bottom:48px;width:100%}
+@media(max-width:1024px){.pricing-grid{grid-template-columns:repeat(2,1fr) !important;gap:20px !important}}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr !important;max-width:480px !important;width:100% !important;margin-left:auto !important;margin-right:auto !important;gap:28px !important}}
+.pricing-save-badge{background:#044B2B;color:#96D0B6;padding:2px 8px;border-radius:100px;font-size:.72rem;margin-left:6px;font-weight:800;white-space:nowrap;display:inline-flex;align-items:center}
+.pricing-save-badge .badge-short{display:none}
+.pricing-save-badge .badge-full{display:inline}
+
+@media(max-width:640px){
+  .pricing-toggle-wrap{width:100% !important;padding:0 8px !important;box-sizing:border-box !important;margin:18px 0 32px !important}
+  .pricing-toggle{width:100% !important;max-width:380px !important;display:flex !important;justify-content:space-between !important;padding:4px !important;border-radius:999px !important;box-sizing:border-box !important}
+  .pricing-toggle-btn{flex:1 1 50% !important;padding:8px 6px !important;font-size:.8rem !important;display:flex !important;align-items:center !important;justify-content:center !important;text-align:center !important;white-space:nowrap !important;border-radius:999px !important}
+  .pricing-save-badge{margin-left:4px !important;padding:2px 6px !important;font-size:.68rem !important}
+  .pricing-save-badge .badge-full{display:none !important}
+  .pricing-save-badge .badge-short{display:inline !important}
+  .pricing-consult-card{padding:28px 20px !important}
+}
 
 .pricing-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);padding:30px 22px;display:flex;flex-direction:column;position:relative;transition:all var(--t);box-shadow:var(--sh-sm)}
 .pricing-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md);border-color:var(--p-h)}

@@ -1642,12 +1642,12 @@
       <div class="pricing-toggle-wrap" data-reveal>
         <div class="pricing-toggle">
           <button id="pricingToggleMonthly" class="pricing-toggle-btn active" onclick="setBillingCycle('monthly')">Monthly Billing</button>
-          <button id="pricingToggleAnnual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">Annual Billing <span style="background:#044B2B;color:#96D0B6;padding:2px 8px;border-radius:100px;font-size:.72rem;margin-left:6px;font-weight:800">Save 20% • 2 Months Free</span></button>
+          <button id="pricingToggleAnnual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">Annual Billing <span class="pricing-save-badge"><span class="badge-full">Save 20% • 2 Months Free</span><span class="badge-short">Save 20%</span></span></button>
         </div>
       </div>
 
       <!-- 3 Tier Pricing Cards Grid -->
-      <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="pricing-grid">
         <!-- Boutique Estate Tier -->
         <div class="pricing-consult-card" data-reveal data-delay="1">
           <div class="pricing-capacity-badge">Up to 50 Units</div>
