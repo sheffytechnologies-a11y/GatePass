@@ -192,21 +192,32 @@ const ICONS = {
   crm: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="18" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M14 18h7M14 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
 }
 
-const navItems = computed(() => [
-  { path: '/dashboard', label: 'Dashboard', icon: ICONS.dashboard },
-  { path: '/crm', label: 'Sales CRM & Deals', icon: ICONS.crm },
-  { path: '/access', label: 'Access', icon: ICONS.access },
-  { path: '/passes', label: 'Passes', icon: ICONS.passes },
-  { path: '/properties', label: 'Properties', icon: ICONS.properties },
-  { path: '/residents', label: 'Residents', icon: ICONS.residents },
-  { path: '/users', label: 'Users', icon: ICONS.users },
-  { path: '/fees', label: 'Finance', icon: ICONS.finance },
-  { path: '/support', label: 'Support & Tickets', icon: ICONS.support },
-  { path: '/artisans', label: 'Artisans & Services', icon: ICONS.artisans },
-  { path: '/billing', label: 'Billing', icon: ICONS.billing },
-  { path: '/emergencies', label: 'Emergencies', icon: ICONS.emergencies },
-  { path: '/notifications', label: 'Notifications', icon: ICONS.notifications },
-])
+const navItems = computed(() => {
+  const items = [
+    { path: '/dashboard', label: 'Dashboard', icon: ICONS.dashboard },
+  ]
+
+  // Super Admin internal sales pipeline & AI lead conversions
+  if (auth.isSuperAdmin) {
+    items.push({ path: '/crm', label: 'Sales CRM & Deals', icon: ICONS.crm })
+  }
+
+  items.push(
+    { path: '/access', label: 'Access', icon: ICONS.access },
+    { path: '/passes', label: 'Passes', icon: ICONS.passes },
+    { path: '/properties', label: 'Properties', icon: ICONS.properties },
+    { path: '/residents', label: 'Residents', icon: ICONS.residents },
+    { path: '/users', label: 'Users', icon: ICONS.users },
+    { path: '/fees', label: 'Finance', icon: ICONS.finance },
+    { path: '/support', label: 'Support & Tickets', icon: ICONS.support },
+    { path: '/artisans', label: 'Artisans & Services', icon: ICONS.artisans },
+    { path: '/billing', label: 'Billing', icon: ICONS.billing },
+    { path: '/emergencies', label: 'Emergencies', icon: ICONS.emergencies },
+    { path: '/notifications', label: 'Notifications', icon: ICONS.notifications },
+  )
+
+  return items
+})
 
 const pageTitle = computed(() => {
   const match = navItems.value.find(n => route.path.startsWith(n.path))
