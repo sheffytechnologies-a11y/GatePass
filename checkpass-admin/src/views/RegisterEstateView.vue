@@ -95,28 +95,10 @@
                 </div>
               </div>
 
-              <!-- City & State Row -->
-              <div class="location-grid">
-                <div class="input-block">
-                  <label class="input-label" for="estate-city">City</label>
-                  <div class="input-wrapper">
-                    <span class="input-icon">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                    </span>
-                    <input
-                      id="estate-city"
-                      v-model="city"
-                      type="text"
-                      class="text-input"
-                      placeholder="e.g. Lekki"
-                    />
-                  </div>
-                </div>
-
-                <div class="input-block">
-                  <label class="input-label">State</label>
-                  <StateSelect v-model="state" placeholder="Select Nigerian State" />
-                </div>
+              <!-- State -->
+              <div class="input-block">
+                <label class="input-label">State</label>
+                <StateSelect v-model="state" placeholder="Select Nigerian State" />
               </div>
 
               <!-- Authorization & Master Services Agreement Consent -->
@@ -245,7 +227,6 @@ const router = useRouter()
 
 const name = ref('')
 const address = ref('')
-const city = ref('')
 const state = ref('')
 const agreeCommunityTerms = ref(false)
 const legalModalOpen = ref(false)
@@ -276,7 +257,6 @@ async function handleCreateEstate() {
     const res = await onboardingApi.createEstate({
       name: name.value,
       address: address.value || undefined,
-      city: city.value || undefined,
       state: state.value || undefined,
     })
     estateName.value = res.data?.estate?.name ?? name.value
