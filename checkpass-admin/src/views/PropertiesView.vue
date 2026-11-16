@@ -331,6 +331,26 @@
             />
           </div>
 
+          <!-- Naming Structure Preset Selection (Lane / Block / Street setup) -->
+          <div v-if="!editingProperty" class="form-group structure-preset-box">
+            <div class="form-label-row">
+              <label class="form-label mb-0">Estate Layout (Defines your naming setup)</label>
+              <button type="button" class="btn-link-topology" @click="openStructureModal">⚙️ Custom Names</button>
+            </div>
+            <div class="preset-pill-selector">
+              <button
+                v-for="p in PRESETS"
+                :key="p.id"
+                type="button"
+                class="preset-pill-btn"
+                :class="{ 'is-active': structurePreset === p.id }"
+                @click="applyPreset(p)"
+              >
+                {{ p.label }}
+              </button>
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Unit Type</label>
             <select v-model="singleForm.unit_type" class="form-select">
@@ -344,7 +364,8 @@
             </select>
           </div>
 
-          <div class="address-grid-3">
+          <!-- Unit Identifier Inputs (User inputs just the number/letter) -->
+          <div :class="structureLevels.length === 2 ? 'address-grid-2' : 'address-grid-3'">
             <div class="form-group">
               <label class="form-label">{{ tier1Label }}</label>
               <input v-model="singleForm.lane" class="form-input" :placeholder="tier1Placeholder" />
@@ -353,7 +374,7 @@
               <label class="form-label">{{ tier2Label }}</label>
               <input v-model="singleForm.house" class="form-input" :placeholder="tier2Placeholder" />
             </div>
-            <div class="form-group">
+            <div v-if="structureLevels.length > 2" class="form-group">
               <label class="form-label">{{ tier3Label }}</label>
               <input v-model="singleForm.flat" class="form-input" :placeholder="tier3Placeholder" />
             </div>
@@ -365,15 +386,12 @@
             <div class="preview-address-display">
               <span class="preview-icon">📍</span>
               <span v-if="effectiveAddress" class="preview-val">{{ effectiveAddress }}</span>
-              <span v-else class="preview-hint">Enter unit tiers above to automatically generate address</span>
+              <span v-else class="preview-hint">Enter {{ tier1Label }}, {{ tier2Label }}<span v-if="structureLevels.length > 2">, and {{ tier3Label }}</span> number above</span>
             </div>
           </div>
 
           <div class="form-group">
-            <div class="form-label-row">
-              <label class="form-label">Notes (Optional)</label>
-              <button type="button" class="btn-link-topology" @click="openStructureModal">⚙️ Configure Estate Tiers</button>
-            </div>
+            <label class="form-label">Notes (Optional)</label>
             <textarea
               v-model="singleForm.notes"
               class="form-input"
@@ -651,7 +669,7 @@ function debounceLoad() {
 const PRESETS = [
   {
     id: 'lane_house_flat',
-    label: 'Gated Community',
+    label: 'Lane · House · Flat',
     description: 'Classic residential layout with lanes, buildings, and flats.',
     levels: [
       { level: 1, name: 'Lane', slug: 'lane', required: true },
@@ -660,28 +678,28 @@ const PRESETS = [
     ],
   },
   {
-    id: 'block_floor_suite',
-    label: 'High-Rise / Towers',
+    id: 'block_floor_flat',
+    label: 'Block · Floor · Flat',
     description: 'Multi-story apartment blocks or modern towers.',
     levels: [
-      { level: 1, name: 'Block / Tower', slug: 'block', required: true },
+      { level: 1, name: 'Block', slug: 'block', required: true },
       { level: 2, name: 'Floor', slug: 'floor', required: true },
-      { level: 3, name: 'Suite / Apt', slug: 'suite', required: true },
+      { level: 3, name: 'Flat', slug: 'flat', required: true },
     ],
   },
   {
     id: 'street_house',
-    label: 'Street / Crescent',
+    label: 'Street · House',
     description: 'Simple two-tier naming with street and house number.',
     levels: [
-      { level: 1, name: 'Street / Crescent', slug: 'street', required: true },
-      { level: 2, name: 'House No.', slug: 'house', required: true },
+      { level: 1, name: 'Street', slug: 'street', required: true },
+      { level: 2, name: 'House', slug: 'house', required: true },
     ],
   },
   {
-    id: 'custom',
-    label: 'Custom Hierarchy',
-    description: 'User-defined custom hierarchy naming and depth.',
+    id: 'zone_plot',
+    label: 'Zone · Plot',
+    description: 'Numbered estate zones and plots.',
     levels: [
       { level: 1, name: 'Zone', slug: 'zone', required: true },
       { level: 2, name: 'Plot', slug: 'plot', required: true },
@@ -708,6 +726,14 @@ const currentPresetLabel = computed(() => {
 function applyPreset(p: any) {
   structurePreset.value = p.id
   structureLevels.value = JSON.parse(JSON.stringify(p.levels))
+  initBatchConfig()
+  if (activeEstateId.value) {
+    propertiesApi.updateStructure(activeEstateId.value, {
+      preset: p.id,
+      levels: p.levels,
+      relabel_existing_units: false
+    }).catch(() => {})
+  }
 }
 
 function addTier() {
@@ -994,15 +1020,21 @@ const singleForm = ref({
   notes: '',
 })
 
-// Dynamic tier labels and placeholders based on configured estate structure
-const tier1Label = computed(() => structureLevels.value[0]?.name ? `Tier 1 (${structureLevels.value[0].name})` : 'Tier 1 (Lane/Block)')
-const tier2Label = computed(() => structureLevels.value[1]?.name ? `Tier 2 (${structureLevels.value[1].name})` : 'Tier 2 (House/Floor)')
-const tier3Label = computed(() => structureLevels.value[2]?.name ? `Tier 3 (${structureLevels.value[2].name})` : 'Tier 3 (Flat/Unit)')
+// Dynamic defined labels (e.g. 'Lane' or 'Block'), never showing generic 'Tier 1'
+const tier1Label = computed(() => structureLevels.value[0]?.name || 'Lane')
+const tier2Label = computed(() => structureLevels.value[1]?.name || 'House')
+const tier3Label = computed(() => structureLevels.value[2]?.name || 'Flat')
 
-// Clean placeholders: 1, A, 4 etc. instead of repeating tier words (system auto-prefixes the tier name)
-const tier1Placeholder = computed(() => 'e.g. 1, A, 4')
-const tier2Placeholder = computed(() => 'e.g. 4, 12, B')
-const tier3Placeholder = computed(() => 'e.g. B, 1, 2')
+// Clean placeholders: simple number / letter examples for the user to input
+const tier1Placeholder = computed(() => {
+  const name = (structureLevels.value[0]?.name || '').toLowerCase()
+  return name.includes('block') ? 'e.g. A or 1' : 'e.g. 1'
+})
+const tier2Placeholder = computed(() => {
+  const name = (structureLevels.value[1]?.name || '').toLowerCase()
+  return name.includes('floor') ? 'e.g. 2 or 3' : 'e.g. 4'
+})
+const tier3Placeholder = computed(() => 'e.g. B or 1')
 
 // Helper to auto-prefix tier label if not already present (e.g. '1' -> 'Lane 1', '4' -> 'House 4', 'B' -> 'Flat B')
 function formatTierDisplay(val: string, tierName?: string): string {
@@ -1014,7 +1046,7 @@ function formatTierDisplay(val: string, tierName?: string): string {
   const lowerVal = cleanVal.toLowerCase()
   const lowerTier = cleanTier.toLowerCase()
 
-  // If the user already typed the tier name (e.g. "Lane 1" or "Flat B"), don't duplicate it
+  // If the user already typed the tier name (e.g. "Lane 1" or "Block A"), don't duplicate it
   if (lowerVal.startsWith(lowerTier)) {
     return cleanVal
   }
@@ -1022,17 +1054,24 @@ function formatTierDisplay(val: string, tierName?: string): string {
   return `${cleanTier} ${cleanVal}`
 }
 
-// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane (auto-prefixed with tier names)
+// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane (auto-prefixed with defined names)
 const computedAddress = computed(() => {
-  const t3Name = structureLevels.value[2]?.name || 'Flat'
+  const parts: string[] = []
+
+  if (structureLevels.value.length >= 3) {
+    const t3Name = structureLevels.value[2]?.name || 'Flat'
+    const t3Formatted = formatTierDisplay(singleForm.value.flat, t3Name)
+    if (t3Formatted) parts.push(t3Formatted)
+  }
+
   const t2Name = structureLevels.value[1]?.name || 'House'
-  const t1Name = structureLevels.value[0]?.name || 'Lane'
-
-  const t3Formatted = formatTierDisplay(singleForm.value.flat, t3Name)
   const t2Formatted = formatTierDisplay(singleForm.value.house, t2Name)
-  const t1Formatted = formatTierDisplay(singleForm.value.lane, t1Name)
+  if (t2Formatted) parts.push(t2Formatted)
 
-  const parts = [t3Formatted, t2Formatted, t1Formatted].filter(Boolean)
+  const t1Name = structureLevels.value[0]?.name || 'Lane'
+  const t1Formatted = formatTierDisplay(singleForm.value.lane, t1Name)
+  if (t1Formatted) parts.push(t1Formatted)
+
   return parts.join(', ')
 })
 
@@ -1971,6 +2010,52 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+.address-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.structure-preset-box {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.preset-pill-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.preset-pill-btn {
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-pill-btn:hover {
+  border-color: #047857;
+  color: #047857;
+  background: #F0FDF4;
+}
+
+.preset-pill-btn.is-active {
+  background: #047857;
+  border-color: #047857;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(4, 120, 87, 0.25);
 }
 
 /* Modal Tab Toggle (Setup vs Batch Upload) */
