@@ -521,10 +521,22 @@
 
             <!-- Master Services Agreement & DPA Tab -->
             <div v-else-if="legalTab === 'agreement'" class="legal-text-flow">
-              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:14px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+              <!-- Official Document Header with Checkpass Logo -->
+              <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0A5C38;padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap;gap:12px">
                 <div>
-                  <strong style="color:#166534;font-size:13.5px">📄 Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
-                  <p style="font-size:12px;color:#15803D;margin:3px 0 0">Universal proptech contract for Estates, CDAs, Facilities &amp; Corporate Parks &middot; Form Ref: CP-MSA-2026-V4</p>
+                  <img src="/checkpass-logo.svg" alt="Checkpass" style="height:30px;width:auto;display:block;margin-bottom:4px" />
+                  <div style="font-size:10.5px;color:#64748B;font-weight:700;letter-spacing:0.04em;text-transform:uppercase">Enterprise Proptech &amp; Perimeter Intelligence Platform</div>
+                </div>
+                <div style="text-align:right">
+                  <span style="background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;display:inline-block">OFFICIAL LEGAL INSTRUMENT</span>
+                  <div style="font-size:11px;color:#475569;margin-top:3px">Ref: CP-MSA-2026-V4 &middot; Federal Republic of Nigeria</div>
+                </div>
+              </div>
+
+              <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:12px 16px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                <div>
+                  <strong style="color:#166534;font-size:13px">📄 Master Services Agreement &amp; Data Processing Addendum (MSA &amp; DPA)</strong>
+                  <p style="font-size:11.5px;color:#15803D;margin:2px 0 0">Standard proptech commercial contract for Estates, CDAs, Facilities &amp; Corporate Parks</p>
                 </div>
                 <button
                   type="button"
@@ -562,18 +574,14 @@
 
               <p><strong>8. Data Breach Notification:</strong> In the event of a confirmed security incident, CheckPass covenants to notify the Subscriber within seventy-two (72) hours in compliance with Section 40 NDPA 2023.</p>
 
-              <h4>PART 3 &middot; SIGNATURE EXECUTION BLOCK</h4>
-              <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:20px;border-top:1px solid #E2E8F0;padding-top:16px;background:#F8FAFC;padding:16px;border-radius:10px">
-                <div>
-                  <p style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:14px">FOR: SHEFFY TECHNOLOGIES LIMITED</p>
-                  <div style="border-bottom:1px solid #475569;width:80%;height:20px"></div>
-                  <p style="font-size:11px;color:#64748B;margin:4px 0 0">Authorized Executive Signatory &middot; RC 1928471</p>
-                </div>
-                <div>
-                  <p style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:14px">FOR: SUBSCRIBING CLIENT / ESTATE BOARD</p>
-                  <div style="border-bottom:1px solid #475569;width:80%;height:20px"></div>
-                  <p style="font-size:11px;color:#64748B;margin:4px 0 0">Chairman / Secretary / Facility Manager</p>
-                </div>
+              <h4>PART 3 &middot; ELECTRONIC EXECUTION &amp; BINDING ACCEPTANCE</h4>
+              <div style="margin-top:14px;background:#F0FDF4;border:1px solid #BBF7D0;border-left:4px solid #0A5C38;padding:14px 16px;border-radius:10px">
+                <p style="margin:0;font-size:12.5px;color:#166534;line-height:1.6">
+                  <strong>Digital Execution &amp; Binding Agreement:</strong> In accordance with the Nigerian Evidence Act 2023 and Electronic Transactions regulations, checking the agreement confirmation box and clicking <strong>&ldquo;Create Free Account&rdquo;</strong> (or clicking <strong>&ldquo;I Understand &amp; Agree&rdquo;</strong> below) constitutes legally binding electronic execution of this Agreement by the authorized estate representative.
+                </p>
+                <p style="margin:8px 0 0;font-size:11.5px;color:#15803D;line-height:1.5">
+                  <em>Does your executive committee or facility board require a physical countersigned copy for filing? Click <strong>Download PDF Agreement</strong> to download or print the bilateral agreement with formal execution lines.</em>
+                </p>
               </div>
             </div>
           </div>
