@@ -110,8 +110,10 @@ h1,h2,h3,h4,h5,h6{font-family:'Cabinet Grotesk',sans-serif;font-weight:800;line-
 .navbar.scrolled .nav-hamburger{color:#0B1F17}
 .nav-mobile{position:fixed;top:var(--nav-h);left:0;right:0;background:#fff;border-bottom:1px solid var(--border);padding:16px 24px 24px;display:none;flex-direction:column;gap:4px;box-shadow:var(--sh-md);z-index:999}
 .nav-mobile.open{display:flex}
-.nav-mobile .nav-link{color:#374038;padding:12px 16px;font-size:1rem}
-.nav-mobile .btn{width:100%;justify-content:center;margin-top:8px}
+.nav-mobile .nav-link{color:#374038;padding:12px 16px;font-size:1rem;font-weight:600}
+.nav-mobile .btn{width:100%;justify-content:center;min-height:48px;border-radius:12px;font-size:1rem;font-weight:700}
+.nav-mobile .nav-mobile-login-btn{border:1.5px solid #CBD5E1;color:var(--c-primary,#0A5C38);background:#FFFFFF;transition:all var(--t)}
+.nav-mobile .nav-mobile-login-btn:hover{background:rgba(10,92,56,0.06);border-color:var(--c-primary,#0A5C38)}
 @media(max-width:900px){
   .nav-links,
   .nav-cta{
@@ -1315,13 +1317,15 @@ footer {
 .text-green{color:var(--p)}.text-gold{color:var(--gold)}.text-center{text-align:center}
 .mt-4{margin-top:16px}.mt-6{margin-top:24px}.mt-8{margin-top:32px}
 
-@media(max-width:640px){
-  .hero h1{font-size:2rem;max-width:100%}
-  .hero-sub{max-width:100%;margin-bottom:28px}
+@media(max-width:768px){
+  .hero-inner{max-width:100% !important;width:100% !important}
+  .hero-content{padding:0 20px !important;padding-top:calc(var(--nav-h) + 24px) !important;max-width:100% !important;width:100% !important;box-sizing:border-box !important}
+  .hero h1{font-size:clamp(2.1rem,7.5vw,2.75rem) !important;max-width:100% !important;line-height:1.08 !important}
+  .hero-sub{max-width:100% !important;margin-bottom:24px !important;font-size:1rem !important;line-height:1.5 !important}
   .hero-sub br{display:none}
-  .hero-actions{flex-direction:column}
-  .hero-actions .btn{width:100%;justify-content:center}
-  .hero-trust{flex-direction:column;gap:12px;align-items:flex-start}
+  .hero-actions{display:flex !important;flex-direction:column !important;width:100% !important;gap:12px !important;margin-bottom:28px !important}
+  .hero-actions .btn{width:100% !important;max-width:100% !important;min-height:52px !important;justify-content:center !important;display:flex !important;align-items:center !important;box-sizing:border-box !important;font-size:1.05rem !important}
+  .hero-trust{display:none !important}
   .nav-logo-lockup{min-width:120px;width:min(172px,44vw);height:32px}
   .section{padding:56px 0}
   .display-md{font-size:1.65rem}
@@ -1441,6 +1445,9 @@ footer {
 .demo-modal-header h3{font-size:1.45rem;color:#fff;display:flex;align-items:center;gap:10px}
 .demo-video-frame{width:100%;border-radius:var(--r-md);overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 36px rgba(0,0,0,.5);position:relative;aspect-ratio:16/9}
 .demo-video-frame video{width:100%;height:100%;object-fit:cover;display:block}
+.demo-video-controls-overlay{position:absolute;bottom:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:6}
+.demo-sound-toggle,.demo-replay-btn{background:rgba(11,31,23,.82);backdrop-filter:blur(8px);color:#FFFFFF;border:1px solid rgba(255,255,255,.24);padding:6px 14px;border-radius:999px;font-size:.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--t);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.demo-sound-toggle:hover,.demo-replay-btn:hover{background:rgba(10,92,56,.92);border-color:#fff;transform:translateY(-1px)}
 .demo-steps-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
 @media(max-width:768px){.demo-steps-strip{grid-template-columns:1fr}}
 .demo-step-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-md);padding:14px 16px;display:flex;align-items:center;gap:12px}
@@ -4254,6 +4261,9 @@ footer {
     font-size: clamp(1.65rem, 6.5vw, 2rem);
     line-height: 1.18;
     margin-bottom: 14px;
+  }
+  .section-b-title {
+    font-size: clamp(1.35rem, 5.4vw, 1.95rem) !important;
   }
   .sec-a-sub-br {
     display: none;
