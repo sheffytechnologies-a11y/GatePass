@@ -420,7 +420,8 @@
         </div>
 
         <div class="modal-body">
-          <div class="form-group">
+          <!-- Fallback manual input only if editing legacy property without tiers -->
+          <div v-if="editingProperty && !computedAddress" class="form-group">
             <label class="form-label">Full Address / Code <span class="req">*</span></label>
             <input
               v-model="singleForm.flat_address"
@@ -444,16 +445,26 @@
 
           <div class="address-grid-3">
             <div class="form-group">
-              <label class="form-label">Tier 1 (Lane/Block)</label>
-              <input v-model="singleForm.lane" class="form-input" placeholder="e.g. Lane 1" />
+              <label class="form-label">{{ tier1Label }}</label>
+              <input v-model="singleForm.lane" class="form-input" :placeholder="tier1Placeholder" />
             </div>
             <div class="form-group">
-              <label class="form-label">Tier 2 (House/Floor)</label>
-              <input v-model="singleForm.house" class="form-input" placeholder="e.g. House 4" />
+              <label class="form-label">{{ tier2Label }}</label>
+              <input v-model="singleForm.house" class="form-input" :placeholder="tier2Placeholder" />
             </div>
             <div class="form-group">
-              <label class="form-label">Tier 3 (Flat/Unit)</label>
-              <input v-model="singleForm.flat" class="form-input" placeholder="e.g. Flat 2" />
+              <label class="form-label">{{ tier3Label }}</label>
+              <input v-model="singleForm.flat" class="form-input" :placeholder="tier3Placeholder" />
+            </div>
+          </div>
+
+          <!-- Live Generated Address Preview Badge -->
+          <div class="address-preview-box">
+            <span class="preview-tag">Generated Address</span>
+            <div class="preview-address-display">
+              <span class="preview-icon">📍</span>
+              <span v-if="effectiveAddress" class="preview-val">{{ effectiveAddress }}</span>
+              <span v-else class="preview-hint">Enter unit tiers above to automatically generate address</span>
             </div>
           </div>
 
@@ -783,6 +794,27 @@ const singleForm = ref({
   notes: '',
 })
 
+// Dynamic tier labels and placeholders based on configured estate structure
+const tier1Label = computed(() => structureLevels.value[0]?.name ? `Tier 1 (${structureLevels.value[0].name})` : 'Tier 1 (Lane/Block)')
+const tier2Label = computed(() => structureLevels.value[1]?.name ? `Tier 2 (${structureLevels.value[1].name})` : 'Tier 2 (House/Floor)')
+const tier3Label = computed(() => structureLevels.value[2]?.name ? `Tier 3 (${structureLevels.value[2].name})` : 'Tier 3 (Flat/Unit)')
+
+const tier1Placeholder = computed(() => structureLevels.value[0]?.name ? `e.g. ${structureLevels.value[0].name} 1` : 'e.g. Lane 1')
+const tier2Placeholder = computed(() => structureLevels.value[1]?.name ? `e.g. ${structureLevels.value[1].name} 4` : 'e.g. House 4')
+const tier3Placeholder = computed(() => structureLevels.value[2]?.name ? `e.g. ${structureLevels.value[2].name} 2` : 'e.g. Flat 2')
+
+// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane
+const computedAddress = computed(() => {
+  const parts = [singleForm.value.flat, singleForm.value.house, singleForm.value.lane]
+    .map(s => (s || '').trim())
+    .filter(Boolean)
+  return parts.join(', ')
+})
+
+const effectiveAddress = computed(() => {
+  return computedAddress.value || singleForm.value.flat_address.trim()
+})
+
 function openCreateModal() {
   editingProperty.value = null
   singleForm.value = {
@@ -800,7 +832,7 @@ function openCreateModal() {
 function openEditModal(prop: any) {
   editingProperty.value = prop
   singleForm.value = {
-    flat_address: prop.flatAddress,
+    flat_address: prop.flatAddress || '',
     unit_type: prop.unitType || 'Apartment',
     lane: prop.lane || '',
     house: prop.house || '',
@@ -813,8 +845,9 @@ function openEditModal(prop: any) {
 
 async function saveSingleProperty() {
   if (!activeEstateId.value) return
-  if (!singleForm.value.flat_address.trim()) {
-    singleError.value = 'Address is required.'
+  const addressToSave = effectiveAddress.value
+  if (!addressToSave) {
+    singleError.value = 'Please provide at least one address tier (e.g. Flat/Unit, House, or Lane/Block).'
     return
   }
   singleError.value = ''
@@ -823,7 +856,7 @@ async function saveSingleProperty() {
   try {
     if (editingProperty.value) {
       await propertiesApi.update(editingProperty.value.id, {
-        flat_address: singleForm.value.flat_address,
+        flat_address: addressToSave,
         unit_type: singleForm.value.unit_type,
         lane: singleForm.value.lane,
         house: singleForm.value.house,
@@ -834,7 +867,7 @@ async function saveSingleProperty() {
     } else {
       await propertiesApi.create({
         estate_id: activeEstateId.value,
-        flat_address: singleForm.value.flat_address,
+        flat_address: addressToSave,
         unit_type: singleForm.value.unit_type,
         lane: singleForm.value.lane,
         house: singleForm.value.house,
@@ -1692,6 +1725,46 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+.address-preview-box {
+  background: #F0FDF4;
+  border: 1.5px dashed #86EFAC;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #15803D;
+}
+
+.preview-address-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-icon {
+  font-size: 14px;
+}
+
+.preview-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #065F46;
+}
+
+.preview-hint {
+  font-size: 12.5px;
+  color: #6B7280;
+  font-style: italic;
 }
 
 .form-error {
