@@ -69,146 +69,73 @@
 
       <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="filteredResidents.length === 0" class="empty-state">No residents found.</div>
-      <div v-else class="stack-list">
-        <article v-for="resident in filteredResidents" :key="resident.id" class="record-card card">
-          <div class="record-top">
-            <div>
-              <h3 class="record-title">{{ resident.user?.name ?? '—' }}</h3>
-              <p class="record-meta">{{ resident.user?.phone ?? '—' }}</p>
+      <div v-else class="resident-cards-list">
+        <article
+          v-for="resident in filteredResidents"
+          :key="resident.id"
+          class="resident-card"
+          tabindex="0"
+          role="button"
+          :aria-label="'View ' + (resident.user?.name ?? 'resident') + ' details'"
+          @click="goToDetail(resident.id)"
+          @keydown.enter="goToDetail(resident.id)"
+        >
+          <div class="card-left">
+            <div class="avatar-box">
+              <div
+                v-if="resident.user?.avatar"
+                class="avatar-photo"
+                :style="{ backgroundImage: `url(${resident.user.avatar})` }"
+              />
+              <div v-else class="avatar-initials">
+                {{ initials(resident.user?.name) }}
+              </div>
+              <span
+                class="status-dot"
+                :class="resident.isActive ? 'dot-active' : 'dot-inactive'"
+                :title="resident.isActive ? 'Active' : 'Inactive'"
+              />
             </div>
-            <div class="record-badges">
-              <span :class="resident.role === 'owner' ? 'badge badge-blue' : 'badge badge-gray'">{{ resident.role ?? 'tenant' }}</span>
-              <span :class="resident.isActive ? 'badge badge-green' : 'badge badge-gray'">{{ resident.isActive ? 'Active' : 'Inactive' }}</span>
+
+            <div class="resident-primary-info">
+              <div class="resident-name-row">
+                <h3 class="resident-name">{{ resident.user?.name ?? '—' }}</h3>
+                <span :class="resident.role === 'owner' ? 'badge-role badge-role--owner' : 'badge-role badge-role--tenant'">
+                  {{ resident.role === 'owner' ? 'Owner' : 'Tenant' }}
+                </span>
+              </div>
+
+              <div class="unit-location-row">
+                <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="unit-name">{{ resident.unit?.flatAddress || 'No unit assigned' }}</span>
+              </div>
             </div>
           </div>
-          <div class="detail-grid">
-            <div>
-              <span class="detail-label">Estate</span>
-              <strong>{{ resident.estate?.name ?? '—' }}</strong>
-            </div>
-            <div>
-              <span class="detail-label">Unit</span>
-              <strong>{{ resident.unit?.flatAddress ?? '—' }}</strong>
-            </div>
-          </div>
-          <div class="record-bottom">
-            <span class="record-sub">Joined {{ fmtDate(resident.createdAt) }}</span>
-            <div class="row-actions">
-              <button class="btn btn-sm btn-outline" @click="openEdit(resident)">Edit</button>
-              <button class="btn btn-sm btn-danger" @click="confirmDelete(resident)">Delete</button>
+
+          <div class="card-right">
+            <span class="join-date">Joined {{ fmtDate(resident.createdAt) }}</span>
+            <div class="arrow-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
             </div>
           </div>
         </article>
       </div>
     </section>
-
-    <!-- Sheet for edit -->
-    <div v-if="modalOpen && editing" class="sheet-overlay" @click.self="closeModal">
-      <div class="sheet card">
-        <div class="sheet-head">
-          <h3 class="sheet-title">Edit Resident</h3>
-          <button class="sheet-close" @click="closeModal">✕</button>
-        </div>
-        <div class="sheet-body">
-          <div class="form-group">
-            <label class="form-label">Estate</label>
-            <select v-model="form.estate_id" class="form-select" @change="loadUnits">
-              <option value="">Select estate…</option>
-              <option v-for="estate in estates" :key="estate.id" :value="estate.id">{{ estate.name }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <div class="label-row">
-              <label class="form-label">Unit</label>
-              <button type="button" class="unit-add-link" :disabled="!form.estate_id" @click="showAddUnit = !showAddUnit">
-                {{ showAddUnit ? 'Cancel' : '+ New unit' }}
-              </button>
-            </div>
-            <select v-model="form.unit_id" class="form-select" :disabled="!form.estate_id">
-              <option value="">Select unit…</option>
-              <option v-for="unit in units" :key="unit.id" :value="unit.id">{{ unit.flatAddress || unit.flat_address }}</option>
-            </select>
-            <div v-if="showAddUnit" class="unit-add-box">
-              <input v-model="newUnitAddress" class="form-input" placeholder="e.g. L3, H7, FA" />
-              <button type="button" class="btn btn-sm btn-primary" :disabled="creatingUnit" @click="createUnit">
-                {{ creatingUnit ? 'Adding…' : 'Add' }}
-              </button>
-            </div>
-            <p v-if="unitError" class="form-error">{{ unitError }}</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Role</label>
-            <div class="chip-row">
-              <button class="chip" :class="{ active: form.role === 'tenant' }" @click="form.role = 'tenant'">Tenant</button>
-              <button class="chip" :class="{ active: form.role === 'owner' }" @click="form.role = 'owner'">Owner</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Status</label>
-            <div class="chip-row">
-              <button class="chip" :class="{ active: form.is_active }" @click="form.is_active = true">Active</button>
-              <button class="chip" :class="{ active: !form.is_active }" @click="form.is_active = false">Inactive</button>
-            </div>
-          </div>
-          <p v-if="formError" class="form-error">{{ formError }}</p>
-        </div>
-        <div class="sheet-actions">
-          <button class="btn btn-outline" @click="closeModal">Cancel</button>
-          <button class="btn btn-primary" :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save Changes' }}</button>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="deleteTarget" class="sheet-overlay" @click.self="deleteTarget = null">
-      <div class="sheet sheet-sm card">
-        <div class="sheet-head">
-          <div>
-            <div class="sheet-eyebrow">Delete resident</div>
-            <h3 class="sheet-title">Remove {{ deleteTarget.user?.name }}?</h3>
-          </div>
-          <button class="sheet-close" @click="deleteTarget = null">✕</button>
-        </div>
-        <p class="confirm-copy">This resident record and assignment will be removed permanently.</p>
-        <div class="sheet-actions">
-          <button class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
-          <button class="btn btn-danger" :disabled="saving" @click="doDelete">{{ saving ? 'Deleting…' : 'Delete' }}</button>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="newCredentials" class="sheet-overlay" @click.self="newCredentials = null">
-      <div class="sheet card">
-        <div class="sheet-head">
-          <div>
-            <div class="sheet-eyebrow">Save these credentials</div>
-            <h3 class="sheet-title">Resident login details</h3>
-          </div>
-          <button class="sheet-close" @click="newCredentials = null">✕</button>
-        </div>
-        <p class="confirm-copy">Share these temporary passwords with each resident — they won't be shown again.</p>
-        <div class="credentials-list">
-          <div v-for="(c, i) in newCredentials" :key="i" class="credential-row">
-            <div>
-              <strong>{{ c.name }}</strong>
-              <span class="record-sub">{{ c.phone }}</span>
-            </div>
-            <code class="credential-password">{{ c.password }}</code>
-          </div>
-        </div>
-        <div class="sheet-actions">
-          <button class="btn btn-primary" @click="newCredentials = null">Done</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { residentsApi, estatesApi, unitsApi } from '@/api/index'
+import { residentsApi, estatesApi } from '@/api/index'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
+import BrandSpinner from '@/components/BrandSpinner.vue'
 
 const router = useRouter()
 const { showToast } = useToast()
@@ -217,7 +144,6 @@ const auth = useAuthStore()
 const loading = ref(true)
 const residents = ref<any[]>([])
 const estates = ref<any[]>([])
-const units = ref<any[]>([])
 const search = ref('')
 const estateFilter = ref('')
 const roleFilter = ref('all')
@@ -236,29 +162,6 @@ const filteredResidents = computed(() => {
     }
     return true
   })
-})
-
-const modalOpen = ref(false)
-const editing = ref<any>(null)
-const saving = ref(false)
-const formError = ref('')
-const deleteTarget = ref<any>(null)
-const showAddUnit = ref(false)
-const newUnitAddress = ref('')
-const creatingUnit = ref(false)
-const unitError = ref('')
-const newCredentials = ref<{ name: string; phone: string; password: string }[] | null>(null)
-
-const form = ref({
-  name: '', phone: '', email: '', avatar: '',
-  lane: '', house: '', flat: '',
-  landlordIsOccupant: false,
-  tenants: [] as { name: string; phone: string; email: string; avatar?: string }[],
-  // edit-only fields
-  estate_id: '' as number | '',
-  unit_id: '' as number | '',
-  role: 'tenant',
-  is_active: true,
 })
 
 let searchTimer: ReturnType<typeof setTimeout>
@@ -289,16 +192,6 @@ async function loadEstates() {
   } catch {/* ignore */}
 }
 
-async function loadUnits() {
-  units.value = []
-  form.value.unit_id = ''
-  if (!form.value.estate_id) return
-  try {
-    const res = await estatesApi.getUnits(form.value.estate_id as number)
-    units.value = res.data.units
-  } catch {/* ignore */}
-}
-
 function openCreate() {
   const currentEstateId = estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')
   if (currentEstateId) {
@@ -308,163 +201,15 @@ function openCreate() {
   }
 }
 
-function openEdit(r: any) {
-  editing.value = r
-  form.value = {
-    name: r.user?.name ?? '',
-    phone: r.user?.phone ?? '',
-    email: r.user?.email ?? '',
-    avatar: r.user?.avatar ?? '',
-    lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
-    estate_id: r.estate?.id ?? '',
-    unit_id: r.unit?.id ?? '',
-    role: r.role ?? 'tenant',
-    is_active: r.isActive,
-  }
-  formError.value = ''
-  if (r.estate?.id) loadUnitsById(r.estate.id)
-  modalOpen.value = true
+function goToDetail(id: number) {
+  router.push(`/residents/${id}`)
 }
 
-async function loadUnitsById(estateId: number) {
-  try {
-    const res = await estatesApi.getUnits(estateId)
-    units.value = res.data.units
-  } catch {/* ignore */}
-}
-
-function closeModal() { modalOpen.value = false; editing.value = null }
-
-async function createUnit() {
-  unitError.value = ''
-  if (!form.value.estate_id || !newUnitAddress.value.trim()) {
-    unitError.value = 'Enter a unit/flat address.'
-    return
-  }
-  creatingUnit.value = true
-  try {
-    const res = await unitsApi.create({
-      estate_id: form.value.estate_id,
-      flat_address: newUnitAddress.value.trim(),
-    })
-    await loadUnits()
-    form.value.unit_id = res.data.unit.id
-    newUnitAddress.value = ''
-    showAddUnit.value = false
-    showToast('Unit added.', 'success')
-  } catch (err: any) {
-    unitError.value = err?.response?.data?.message ?? 'Could not add unit.'
-  } finally {
-    creatingUnit.value = false
-  }
-}
-
-async function save() {
-  formError.value = ''
-  saving.value = true
-  try {
-    if (editing.value) {
-      const payload: Record<string, unknown> = {
-        role: form.value.role,
-        is_active: form.value.is_active,
-      }
-      if (form.value.estate_id) payload.estate_id = form.value.estate_id
-      if (form.value.unit_id)   payload.unit_id   = form.value.unit_id
-      await residentsApi.update(editing.value.id, payload)
-      showToast('Resident updated successfully.', 'success')
-    } else {
-      if (!form.value.name.trim()) {
-        formError.value = 'Owner name is required.'
-        showToast(formError.value, 'error')
-        saving.value = false
-        return
-      }
-      if (!form.value.phone.trim()) {
-        formError.value = 'Phone number is required.'
-        showToast(formError.value, 'error')
-        saving.value = false
-        return
-      }
-      if (!form.value.unit_id && !form.value.lane?.trim() && !form.value.house?.trim() && !form.value.flat?.trim()) {
-        formError.value = 'Please select a configured unit or enter an address.'
-        showToast(formError.value, 'error')
-        saving.value = false
-        return
-      }
-
-      const ownerPayload: Record<string, unknown> = {
-        name: form.value.name.trim(),
-        phone: form.value.phone.trim(),
-        role: 'owner',
-        lane: form.value.lane,
-        house: form.value.house,
-        flat: form.value.flat,
-        landlord_is_occupant: form.value.landlordIsOccupant,
-      }
-      if (form.value.email?.trim()) ownerPayload.email = form.value.email.trim()
-      if (form.value.avatar) ownerPayload.avatar = form.value.avatar
-      if (form.value.unit_id) ownerPayload.unit_id = form.value.unit_id
-      if (form.value.estate_id) ownerPayload.estate_id = form.value.estate_id
-
-      const ownerRes = await residentsApi.create(ownerPayload)
-      const credentials: { name: string; phone: string; password: string }[] = []
-      if (ownerRes.data?.temporaryPassword) {
-        credentials.push({ name: form.value.name, phone: form.value.phone, password: ownerRes.data.temporaryPassword })
-      }
-
-      for (const t of form.value.tenants) {
-        if (!t.name.trim() || !t.phone.trim()) continue
-        const tp: Record<string, unknown> = {
-          name: t.name.trim(),
-          phone: t.phone.trim(),
-          role: 'tenant',
-          lane: form.value.lane,
-          house: form.value.house,
-          flat: form.value.flat,
-        }
-        if (t.email?.trim()) tp.email = t.email.trim()
-        if (t.avatar) tp.avatar = t.avatar
-        if (form.value.unit_id) tp.unit_id = form.value.unit_id
-        if (form.value.estate_id) tp.estate_id = form.value.estate_id
-        const tenantRes = await residentsApi.create(tp)
-        if (tenantRes.data?.temporaryPassword) {
-          credentials.push({ name: t.name, phone: t.phone, password: tenantRes.data.temporaryPassword })
-        }
-      }
-
-      showToast('Resident registered successfully!', 'success')
-      closeModal()
-      if (credentials.length > 0) {
-        newCredentials.value = credentials
-      }
-      await load()
-      return
-    }
-    closeModal()
-    await load()
-  } catch (err: any) {
-    formError.value = err?.response?.data?.message ?? 'Something went wrong.'
-    showToast(formError.value, 'error')
-  } finally {
-    saving.value = false
-  }
-}
-
-function confirmDelete(r: any) { deleteTarget.value = r }
-
-async function doDelete() {
-  if (!deleteTarget.value) return
-  saving.value = true
-  try {
-    await residentsApi.delete(deleteTarget.value.id)
-    showToast('Resident deleted.', 'success')
-    deleteTarget.value = null
-    load()
-  } catch {
-    showToast('Failed to delete resident.', 'error')
-  } finally {
-    saving.value = false
-  }
+function initials(name?: string) {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
 function fmtDate(iso: string | null): string {
@@ -603,6 +348,192 @@ onMounted(() => { load(); loadEstates() })
 .section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
 .loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }
 .stack-list { display: flex; flex-direction: column; gap: 10px; }
+.resident-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resident-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.resident-card:hover {
+  transform: translateY(-2px);
+  border-color: #D1D5DB;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.resident-card:focus-visible {
+  outline: none;
+  border-color: #0A5C38;
+  box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.2);
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.avatar-box {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #E5E7EB;
+}
+
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #374151;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #E5E7EB;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.dot-active {
+  background: #10B981;
+}
+
+.dot-inactive {
+  background: #9CA3AF;
+}
+
+.resident-primary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.resident-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.resident-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge-role--owner {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+.badge-role--tenant {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.unit-location-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: #4B5563;
+}
+
+.unit-name {
+  color: #374151;
+  font-weight: 500;
+}
+
+.card-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.join-date {
+  font-size: 12px;
+  color: #6B7280;
+  white-space: nowrap;
+}
+
+.arrow-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+  background: #F9FAFB;
+  transition: all 160ms ease;
+}
+
+.resident-card:hover .arrow-wrap {
+  transform: translateX(3px);
+  color: #0A5C38;
+  background: #ECFDF5;
+}
+
+@media (max-width: 580px) {
+  .join-date {
+    display: none;
+  }
+  .resident-card {
+    padding: 12px 14px;
+  }
+}
+
 .record-card { padding: 16px; border-radius: 20px; }
 .record-top, .record-bottom { display: flex; justify-content: space-between; gap: 12px; }
 .record-bottom { margin-top: 14px; align-items: center; }

@@ -156,7 +156,55 @@ class AdminController extends Controller
     {
         $resident = Resident::with(['user', 'unit', 'estate'])->findOrFail($id);
         $this->assertEstateAccess($request, $resident->estate_id);
-        return response()->json(['resident' => $this->formatResident($resident)]);
+
+        // Fetch co-residents in the same unit
+        $coResidents = [];
+        if ($resident->unit_id) {
+            $coResidents = Resident::where('unit_id', $resident->unit_id)
+                ->where('id', '!=', $resident->id)
+                ->with(['user', 'unit'])
+                ->get()
+                ->map(fn($cr) => $this->formatResident($cr));
+        }
+
+        // Fetch recent passes issued by this resident
+        $passes = Pass::where('resident_id', $resident->id)
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(fn($p) => $this->formatPassAdmin($p));
+
+        // Fetch dues / fee records
+        $dues = [];
+        if ($resident->user_id) {
+            $dues = \DB::table('fee_user')
+                ->where('fee_user.user_id', $resident->user_id)
+                ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                ->select(
+                    'fee_user.id',
+                    'fees.name as fee_name',
+                    'fees.amount',
+                    'fee_user.status',
+                    'fee_user.paid_at',
+                    'fee_user.created_at'
+                )
+                ->latest('fee_user.created_at')
+                ->take(20)
+                ->get();
+        }
+
+        // Sibling resident IDs in current estate for fast navigation
+        $navIds = Resident::where('estate_id', $resident->estate_id)
+            ->orderBy('id')
+            ->pluck('id');
+
+        return response()->json([
+            'resident'    => $this->formatResident($resident),
+            'coResidents' => $coResidents,
+            'passes'      => $passes,
+            'dues'        => $dues,
+            'navIds'      => $navIds,
+        ]);
     }
 
     /**
@@ -310,15 +358,43 @@ class AdminController extends Controller
         $this->assertEstateAccess($request, $resident->estate_id);
 
         $data = $request->validate([
-            'unit_id'   => 'sometimes|exists:units,id',
+            'name'      => 'sometimes|string|max:255',
+            'phone'     => 'sometimes|string|max:30',
+            'email'     => 'nullable|email|max:255',
+            'avatar'    => 'nullable|string',
+            'unit_id'   => 'nullable|exists:units,id',
             'estate_id' => 'sometimes|exists:estates,id',
             'role'      => 'sometimes|string|in:owner,tenant',
             'is_active' => 'sometimes|boolean',
         ]);
 
-        $resident->update($data);
+        \DB::transaction(function () use ($resident, $data) {
+            // Update user details if supplied
+            $userFields = array_intersect_key($data, array_flip(['name', 'phone', 'email', 'avatar', 'is_active']));
+            if (! empty($userFields) && $resident->user) {
+                // If phone is being changed, ensure it doesn't collide with another user
+                if (isset($userFields['phone'])) {
+                    $existingUser = User::where('phone', $userFields['phone'])->where('id', '!=', $resident->user_id)->first();
+                    if ($existingUser) {
+                        abort(422, 'Another account with this phone number already exists.');
+                    }
+                }
+                $resident->user->update($userFields);
+            }
 
-        return response()->json(['resident' => $this->formatResident($resident->fresh()->load(['user', 'unit', 'estate']))]);
+            // Update resident fields
+            $residentFields = array_intersect_key($data, array_flip(['unit_id', 'estate_id', 'role', 'is_active']));
+            if (! empty($residentFields)) {
+                $resident->update($residentFields);
+            }
+        });
+
+        $resident->refresh()->load(['user', 'unit', 'estate']);
+
+        return response()->json([
+            'resident' => $this->formatResident($resident),
+            'message'  => 'Resident updated successfully.',
+        ]);
     }
 
     /**
