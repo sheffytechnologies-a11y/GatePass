@@ -557,41 +557,51 @@
           <p v-if="batchError" class="form-error mt-2">{{ batchError }}</p>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-outline" @click="singleModalOpen = false">Cancel</button>
+        <div class="modal-footer-wrapper">
+          <div v-if="batchError && addPropertyTab === 'batch'" class="modal-footer-alert">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ batchError }}</span>
+          </div>
+          <div v-if="singleError && addPropertyTab === 'setup'" class="modal-footer-alert">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ singleError }}</span>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" @click="singleModalOpen = false">Cancel</button>
 
-          <!-- Setup Mode Save Button -->
-          <button
-            v-if="addPropertyTab === 'setup' || editingProperty"
-            class="btn btn-primary btn-with-spinner"
-            :disabled="savingSingle"
-            @click="saveSingleProperty"
-          >
-            <BrandSpinner v-if="savingSingle" :size="16" color="#ffffff" />
-            <span>{{ savingSingle ? 'Saving...' : (editingProperty ? 'Update Property' : 'Save Property') }}</span>
-          </button>
+            <!-- Setup Mode Save Button -->
+            <button
+              v-if="addPropertyTab === 'setup' || editingProperty"
+              class="btn btn-primary btn-with-spinner"
+              :disabled="savingSingle"
+              @click="saveSingleProperty"
+            >
+              <BrandSpinner v-if="savingSingle" :size="16" color="#ffffff" />
+              <span>{{ savingSingle ? 'Saving...' : (editingProperty ? 'Update Property' : 'Save Property') }}</span>
+            </button>
 
-          <!-- Batch Mode Action Buttons -->
-          <template v-else>
-            <button
-              v-if="batchMethod === 'generator'"
-              class="btn btn-primary btn-with-spinner"
-              :disabled="generatingBatch || calculatedBatchCount === 0"
-              @click="executeBatchGeneration"
-            >
-              <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
-              <span>{{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}</span>
-            </button>
-            <button
-              v-else
-              class="btn btn-primary btn-with-spinner"
-              :disabled="generatingBatch || csvProperties.length === 0"
-              @click="uploadCsvBatch"
-            >
-              <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
-              <span>{{ generatingBatch ? 'Importing Properties...' : `Import ${csvProperties.length} Properties` }}</span>
-            </button>
-          </template>
+            <!-- Batch Mode Action Buttons -->
+            <template v-else>
+              <button
+                v-if="batchMethod === 'generator'"
+                class="btn btn-primary btn-with-spinner"
+                :disabled="generatingBatch || calculatedBatchCount === 0"
+                @click="executeBatchGeneration"
+              >
+                <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
+                <span>{{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}</span>
+              </button>
+              <button
+                v-else
+                class="btn btn-primary btn-with-spinner"
+                :disabled="generatingBatch || csvProperties.length === 0"
+                @click="uploadCsvBatch"
+              >
+                <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
+                <span>{{ generatingBatch ? 'Importing Properties...' : `Import ${csvProperties.length} Properties` }}</span>
+              </button>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -1113,7 +1123,9 @@ async function uploadCsvBatch() {
     await loadProperties()
     await loadStats()
   } catch (err: any) {
-    batchError.value = err.response?.data?.message || 'Failed to import CSV properties.'
+    const msg = err.response?.data?.message || 'Failed to import CSV properties.'
+    batchError.value = msg
+    showToast(msg, 'error')
   } finally {
     generatingBatch.value = false
   }
@@ -1179,7 +1191,10 @@ const sampleBatchPreview = computed(() => {
 })
 
 async function executeBatchGeneration() {
-  if (!activeEstateId.value) return
+  if (!activeEstateId.value) {
+    showToast('No active estate selected.', 'error')
+    return
+  }
   batchError.value = ''
   generatingBatch.value = true
 
@@ -1194,12 +1209,15 @@ async function executeBatchGeneration() {
       unit_type: batchUnitType.value,
       levels: levelsPayload,
     })
-    showToast(`Successfully created ${res.data?.createdCount || calculatedBatchCount.value} properties!`, 'success')
+    const count = res.data?.createdCount ?? calculatedBatchCount.value
+    showToast(`Successfully created ${count} properties!`, 'success')
     singleModalOpen.value = false
     await loadProperties()
     await loadStats()
   } catch (err: any) {
-    batchError.value = err.response?.data?.message || 'Failed to generate batch properties.'
+    const msg = err.response?.data?.message || 'Failed to generate batch properties.'
+    batchError.value = msg
+    showToast(msg, 'error')
   } finally {
     generatingBatch.value = false
   }
@@ -1364,7 +1382,9 @@ async function saveSingleProperty() {
     await loadProperties()
     await loadStats()
   } catch (err: any) {
-    singleError.value = err.response?.data?.message || 'Failed to save property.'
+    const msg = err.response?.data?.message || 'Failed to save property.'
+    singleError.value = msg
+    showToast(msg, 'error')
   } finally {
     savingSingle.value = false
   }
@@ -2436,13 +2456,30 @@ onUnmounted(() => {
   gap: 16px;
 }
 
+.modal-footer-wrapper {
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+}
+
+.modal-footer-alert {
+  padding: 10px 20px;
+  background: #FEF2F2;
+  border-bottom: 1px solid #FEE2E2;
+  color: #B91C1C;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid #E5E7EB;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  background: #F9FAFB;
+  background: transparent;
 }
 
 /* Preset Cards */

@@ -252,7 +252,7 @@ export const propertiesApi = {
             const lane = combo[0] || ''
             const house = combo[1] || ''
             const flat = combo[2] || ''
-            const flat_address = [flat, house, lane].filter(Boolean).join(', ')
+            const flat_address = [lane, house, flat].filter(Boolean).join(', ')
             if (flat_address) {
               await client.post('/v1/admin/units', {
                 estate_id: estateId,

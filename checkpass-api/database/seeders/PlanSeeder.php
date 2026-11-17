@@ -13,8 +13,8 @@ class PlanSeeder extends Seeder
             [
                 'code' => 'free_trial',
                 'name' => 'Free Trial',
-                'unit_limit' => 3,
-                'resident_limit' => 9,
+                'unit_limit' => 50,
+                'resident_limit' => 150,
                 'price_monthly' => 0,
                 'price_yearly' => 0,
                 'price_addon_unit_monthly' => 800,
