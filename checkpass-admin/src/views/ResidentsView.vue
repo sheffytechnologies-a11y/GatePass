@@ -2,6 +2,7 @@
   <div class="mobile-page">
     <section class="hero-card hero-card--sand">
       <div class="hero-title-group">
+        <div class="hero-eyebrow">Resident Registry</div>
         <h1 class="hero-title">Assign residents to estates and units from a mobile-first flow.</h1>
       </div>
       <button class="btn btn-primary hero-button" @click="openCreate">
@@ -888,6 +889,14 @@ onMounted(() => { load(); loadEstates() })
 .hero-title-group {
   flex: 1;
   min-width: 240px;
+}
+.hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.74);
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 .hero-title {
   font-size: 24px;

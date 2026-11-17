@@ -3,6 +3,7 @@
     <!-- Hero Header -->
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
+        <div class="hero-eyebrow">Estate Properties</div>
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
       </div>
       <div class="hero-actions">
@@ -1301,8 +1302,8 @@ onUnmounted(() => {
 .hero-eyebrow {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.85;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.74);
   font-weight: 700;
   margin-bottom: 6px;
 }
