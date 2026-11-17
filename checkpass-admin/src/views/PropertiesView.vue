@@ -404,7 +404,7 @@
                 <div v-if="lvl.mode === 'range'" class="range-inputs">
                   <div class="form-group">
                     <label class="form-label-xs">Prefix</label>
-                    <input v-model="lvl.prefix" class="form-input" placeholder="e.g. Lane " />
+                    <input v-model="lvl.prefix" class="form-input" :placeholder="`e.g. ${lvl.name} `" />
                   </div>
                   <div class="form-group">
                     <label class="form-label-xs">Start #</label>
@@ -440,7 +440,7 @@
                 <span class="calc-total">= {{ calculatedBatchCount }} Properties</span>
               </div>
               <div v-if="calculatedBatchCount > 0" class="calc-preview">
-                <span class="preview-title">Sample Addresses:</span>
+                <span class="preview-title">Address Preview:</span>
                 <div class="sample-pills">
                   <span v-for="(sample, sIdx) in sampleBatchPreview" :key="sIdx" class="sample-pill">
                     {{ sample }}
@@ -714,14 +714,21 @@ const csvParsing = ref(false)
 const csvError = ref('')
 
 function initBatchConfig() {
-  batchConfigLevels.value = structureLevels.value.map(lvl => ({
-    name: lvl.name,
-    mode: 'range',
-    prefix: lvl.name.includes('Lane') || lvl.name.includes('Street') ? 'Lane ' : (lvl.name.includes('House') ? 'House ' : 'Flat '),
-    start: 1,
-    end: lvl.name.includes('Flat') ? 4 : (lvl.name.includes('House') ? 5 : 2),
-    customList: '',
-  }))
+  batchConfigLevels.value = structureLevels.value.map(lvl => {
+    const rawName = (lvl.name || '').trim()
+    const defaultPrefix = rawName ? `${rawName} ` : ''
+    const lower = rawName.toLowerCase()
+    const defaultEnd = (lower.includes('flat') || lower.includes('apt') || lower.includes('unit')) ? 4 : 2
+
+    return {
+      name: lvl.name,
+      mode: 'range',
+      prefix: defaultPrefix,
+      start: 1,
+      end: defaultEnd,
+      customList: '',
+    }
+  })
 }
 
 
@@ -857,29 +864,27 @@ const sampleBatchPreview = computed(() => {
   const tierVals = batchConfigLevels.value.map(lvl => getTierValues(lvl))
   const samples: string[] = []
   
-  // Create first 3 combinations
-  const l1 = tierVals[0] || []
-  const l2 = tierVals[1] || []
-  const l3 = tierVals[2] || []
-
-  for (const v1 of l1) {
-    if (l2.length > 0) {
-      for (const v2 of l2) {
-        if (l3.length > 0) {
-          for (const v3 of l3) {
-            samples.push(`${v3}, ${v2}, ${v1}`)
-            if (samples.length >= 4) return samples
-          }
-        } else {
-          samples.push(`${v2}, ${v1}`)
-          if (samples.length >= 4) return samples
-        }
+  // Recursively compile combinations in reverse tier order (e.g. Unit -> House -> Street)
+  function buildCombos(tierIdx: number, currentCombo: string[]) {
+    if (samples.length >= 6) return
+    if (tierIdx >= tierVals.length) {
+      if (currentCombo.length > 0) {
+        samples.push([...currentCombo].reverse().join(', '))
       }
+      return
+    }
+    const currentValues = tierVals[tierIdx] || []
+    if (currentValues.length === 0) {
+      buildCombos(tierIdx + 1, currentCombo)
     } else {
-      samples.push(v1)
-      if (samples.length >= 4) return samples
+      for (const val of currentValues) {
+        buildCombos(tierIdx + 1, [...currentCombo, val])
+        if (samples.length >= 6) return
+      }
     }
   }
+
+  buildCombos(0, [])
   return samples
 })
 
