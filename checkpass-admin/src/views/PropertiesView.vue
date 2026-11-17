@@ -246,12 +246,6 @@
             No residents assigned. Ready for assignment.
           </div>
         </div>
-
-        <!-- Card Footer -->
-        <div class="property-footer">
-          <span class="prop-id">ID: #{{ prop.id }}</span>
-          <span class="card-click-hint">View details →</span>
-        </div>
       </div>
     </div>
 
