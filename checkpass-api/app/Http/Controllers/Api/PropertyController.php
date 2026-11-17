@@ -110,18 +110,24 @@ class PropertyController extends Controller
         $this->assertNotPastDue($estate, $request->user());
 
         $data = $request->validate([
-            'preset' => 'required|string|max:50',
+            'preset' => 'required|string|max:100',
             'levels' => 'required|array|min:1',
             'levels.*.level'    => 'required|integer',
             'levels.*.name'     => 'required|string|max:100',
             'levels.*.slug'     => 'nullable|string|max:100',
             'levels.*.required' => 'nullable|boolean',
+            'custom_templates'  => 'nullable|array',
         ]);
 
+        $existingCustom = (is_array($estate->property_structure) && isset($estate->property_structure['custom_templates']))
+            ? $estate->property_structure['custom_templates']
+            : [];
+
         $estate->property_structure = [
-            'preset' => $data['preset'],
-            'levels' => $data['levels'],
-            'configured' => true,
+            'preset'           => $data['preset'],
+            'levels'           => $data['levels'],
+            'custom_templates' => $data['custom_templates'] ?? $existingCustom,
+            'configured'       => true,
         ];
         $estate->save();
 

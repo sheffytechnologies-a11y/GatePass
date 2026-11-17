@@ -31,6 +31,7 @@ const router = createRouter({
         { path: '/passes', component: () => import('@/views/PassesView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/passes/:id', component: () => import('@/views/PassDetailView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/properties', component: () => import('@/views/PropertiesView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/properties/setup', component: () => import('@/views/PropertySetupView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/residents', component: () => import('@/views/ResidentsView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/emergencies', component: () => import('@/views/EmergenciesView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/notifications', component: () => import('@/views/NotificationsView.vue'), meta: { roles: ADMIN_ROLES } },

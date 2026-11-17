@@ -33,12 +33,14 @@ class Estate extends Model
         if (! empty($this->property_structure)) {
             $struct = $this->property_structure;
             $struct['configured'] = true;
+            $struct['custom_templates'] = $struct['custom_templates'] ?? [];
             return $struct;
         }
 
         return [
             'preset' => 'lane_house_flat',
             'configured' => false,
+            'custom_templates' => [],
             'levels' => [
                 ['level' => 1, 'name' => 'Lane', 'slug' => 'lane', 'required' => true],
                 ['level' => 2, 'name' => 'House', 'slug' => 'house', 'required' => true],

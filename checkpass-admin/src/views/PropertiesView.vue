@@ -4,7 +4,7 @@
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
-        <div class="hero-setup-meta">
+        <div class="hero-setup-meta" @click="goToPropertySetup" style="cursor: pointer;" title="Configure Estate Property Structure">
           <span class="setup-dot" :class="isStructureConfigured ? 'setup-dot--active' : 'setup-dot--pending'"></span>
           <span class="setup-label">Property Setup:</span>
           <span class="setup-value">
@@ -20,7 +20,7 @@
           </svg>
           Add Property
         </button>
-        <button class="hero-btn-outline-white" @click="openStructureModal">
+        <button class="hero-btn-outline-white" @click="goToPropertySetup">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -125,7 +125,7 @@
       <h3>Property Setup Required</h3>
       <p>Before adding properties or generating units, you must define your estate's physical layout. This ensures all unit codes, addresses, and visitor passes are formatted accurately and consistently across your estate.</p>
       <div class="empty-actions">
-        <button class="btn btn-primary" @click="openStructureModal">
+        <button class="btn btn-primary" @click="goToPropertySetup">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Setup Property Structure
         </button>
@@ -252,91 +252,8 @@
           <button class="prompt-btn prompt-btn--cancel" @click="setupRequiredModalOpen = false">
             Cancel
           </button>
-          <button class="prompt-btn prompt-btn--confirm" @click="goToSetupFromAlert">
+          <button class="prompt-btn prompt-btn--confirm" @click="goToPropertySetup">
             Set Up Structure
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 1: Topology Structure Setup -->
-    <div v-if="structureModalOpen" class="modal-backdrop" @click.self="structureModalOpen = false">
-      <div class="modal-card modal-lg">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">Configure Estate Property Topology</h2>
-            <p class="modal-subtitle">Choose a naming layout that matches how your estate is physically organized.</p>
-          </div>
-          <button class="close-btn" @click="structureModalOpen = false">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Topology Preset</label>
-            <div class="preset-grid">
-              <div
-                v-for="p in PRESETS"
-                :key="p.id"
-                class="preset-card"
-                :class="{ 'preset-card--active': structurePreset === p.id }"
-                @click="applyPreset(p)"
-              >
-                <div class="preset-title">{{ p.label }}</div>
-                <div class="preset-desc">{{ p.description }}</div>
-                <div class="preset-sample">{{ p.levels.map(l => l.name).join(' → ') }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group tiers-section">
-            <div class="tiers-header">
-              <label class="form-label tiers-label">Hierarchy Levels (Tiers)</label>
-              <button
-                type="button"
-                class="btn-add-tier-action"
-                @click="addTier"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"/>
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Add Another Tier
-              </button>
-            </div>
-            <div class="tiers-editor">
-              <div v-for="(lvl, idx) in structureLevels" :key="idx" class="tier-row">
-                <span class="tier-num">Level {{ lvl.level }}</span>
-                <input
-                  v-model="lvl.name"
-                  class="form-input flex-1"
-                  placeholder="e.g. Lane, Block, House, Suite"
-                />
-                <button
-                  v-if="structureLevels.length > 1"
-                  class="btn btn-sm btn-outline-danger"
-                  @click="removeTier(idx)"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group relabel-box">
-            <label class="toggle-control">
-              <input type="checkbox" v-model="relabelExistingUnits" />
-              <span>
-                <strong>Apply to existing properties in this estate</strong>
-                <small class="d-block text-muted">Safely re-labels existing units with the new tier names while preserving resident assignments and gate pass history.</small>
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-outline" @click="structureModalOpen = false">Cancel</button>
-          <button class="btn btn-primary" :disabled="savingStructure" @click="saveStructure">
-            {{ savingStructure ? 'Saving...' : 'Save Topology' }}
           </button>
         </div>
       </div>
@@ -403,7 +320,7 @@
           <div v-if="!editingProperty" class="form-group structure-preset-box">
             <div class="form-label-row">
               <label class="form-label mb-0">Estate Layout (Defines your naming setup)</label>
-              <button type="button" class="btn-link-topology" @click="openStructureModal">⚙️ Custom Names</button>
+              <button type="button" class="btn-link-topology" @click="goToPropertySetup">⚙️ Custom Names</button>
             </div>
             <div class="preset-pill-selector">
               <button
@@ -412,7 +329,7 @@
                 type="button"
                 class="preset-pill-btn"
                 :class="{ 'is-active': structurePreset === p.id }"
-                @click="applyPreset(p)"
+                @click="selectLocalPreset(p)"
               >
                 {{ p.label }}
               </button>
@@ -700,10 +617,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { propertiesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 
+const router = useRouter()
 const auth = useAuthStore()
 const { showToast } = useToast()
 
@@ -778,15 +697,12 @@ const PRESETS = [
 // Topology Structure
 const isStructureConfigured = ref(false)
 const setupRequiredModalOpen = ref(false)
-const relabelExistingUnits = ref(true)
-const structureModalOpen = ref(false)
 const structurePreset = ref('lane_house_flat')
 const structureLevels = ref<any[]>([
   { level: 1, name: 'Lane', slug: 'lane', required: true },
   { level: 2, name: 'House', slug: 'house', required: true },
   { level: 3, name: 'Flat', slug: 'flat', required: false },
 ])
-const savingStructure = ref(false)
 
 function handlePrimaryAddProperty() {
   if (!isStructureConfigured.value && properties.value.length === 0) {
@@ -796,9 +712,10 @@ function handlePrimaryAddProperty() {
   openCreateModal('setup')
 }
 
-function goToSetupFromAlert() {
+function goToPropertySetup() {
+  singleModalOpen.value = false
   setupRequiredModalOpen.value = false
-  openStructureModal()
+  router.push('/properties/setup')
 }
 
 const currentPresetLabel = computed(() => {
@@ -806,34 +723,10 @@ const currentPresetLabel = computed(() => {
   return match?.label || 'Custom Hierarchy'
 })
 
-function applyPreset(p: any) {
+function selectLocalPreset(p: any) {
   structurePreset.value = p.id
   structureLevels.value = JSON.parse(JSON.stringify(p.levels))
   initBatchConfig()
-  if (activeEstateId.value) {
-    propertiesApi.updateStructure(activeEstateId.value, {
-      preset: p.id,
-      levels: p.levels,
-      relabel_existing_units: false
-    }).catch(() => {})
-  }
-}
-
-function addTier() {
-  const nextLvl = structureLevels.value.length + 1
-  structureLevels.value.push({
-    level: nextLvl,
-    name: `Tier ${nextLvl}`,
-    slug: `tier_${nextLvl}`,
-    required: false,
-  })
-}
-
-function removeTier(index: number) {
-  structureLevels.value.splice(index, 1)
-  structureLevels.value.forEach((l, idx) => {
-    l.level = idx + 1
-  })
 }
 
 async function loadStructure() {
@@ -850,41 +743,6 @@ async function loadStructure() {
   } catch (err) {
     isStructureConfigured.value = properties.value.length > 0
   }
-}
-
-async function saveStructure() {
-  if (!activeEstateId.value) return
-  savingStructure.value = true
-
-  const structurePayload = {
-    preset: structurePreset.value,
-    levels: structureLevels.value,
-    relabel_existing_units: relabelExistingUnits.value,
-  }
-  localStorage.setItem(`estate_structure_${activeEstateId.value}`, JSON.stringify(structurePayload))
-  localStorage.setItem(`estate_structure_configured_${activeEstateId.value}`, 'true')
-  isStructureConfigured.value = true
-
-  try {
-    const res = await propertiesApi.updateStructure(activeEstateId.value, structurePayload)
-    if (res.data?.relabelledCount > 0) {
-      showToast(`Topology updated and ${res.data.relabelledCount} properties re-labeled.`, 'success')
-    } else {
-      showToast('Topology structure updated successfully.', 'success')
-    }
-  } catch (err: any) {
-    // Graceful offline/fallback save when remote API route is not yet deployed
-    showToast('Topology structure updated successfully.', 'success')
-  } finally {
-    savingStructure.value = false
-    structureModalOpen.value = false
-    initBatchConfig()
-    await loadProperties()
-  }
-}
-
-function openStructureModal() {
-  structureModalOpen.value = true
 }
 
 // Batch Generator & Unified Modal State
