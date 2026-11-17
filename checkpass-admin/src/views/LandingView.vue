@@ -3555,6 +3555,32 @@ onUnmounted(() => {
   align-items: center !important;
   justify-content: center !important;
   white-space: nowrap !important;
+  transition: all 0.22s ease !important;
+}
+
+.navbar.hero-nav .nav-cta .btn-login,
+.navbar:not(.scrolled):not(.dark-nav) .nav-cta .btn-login {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+.navbar.hero-nav .nav-cta .btn-login:hover,
+.navbar:not(.scrolled):not(.dark-nav) .nav-cta .btn-login:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+.navbar.scrolled .nav-cta .btn-login,
+.navbar.dark-nav .nav-cta .btn-login {
+  color: #0B1F17 !important;
+  background: #ffffff !important;
+  border: 1px solid #E5E7EB !important;
+}
+.navbar.scrolled .nav-cta .btn-login:hover,
+.navbar.dark-nav .nav-cta .btn-login:hover {
+  background: #F9FAFB !important;
+  border-color: #D1D5DB !important;
 }
 
 /* ── Full Horizontal Viewport Scaling with Padding & Fixed 16:9 Aspect Ratio ── */
@@ -3651,9 +3677,9 @@ onUnmounted(() => {
   box-sizing: border-box !important;
 }
 .nav-inner {
-  max-width: 1200px !important;
+  max-width: min(1560px, 100%) !important;
   margin: 0 auto !important;
-  padding: 0 20px !important;
+  padding: 0 clamp(24px, 4vw, 56px) !important;
   width: 100% !important;
   display: flex !important;
   align-items: center !important;
@@ -3668,9 +3694,9 @@ onUnmounted(() => {
 }
 .nav-logo-lockup {
   position: relative !important;
-  width: min(180px, 42vw) !important;
-  min-width: 130px !important;
-  height: 34px !important;
+  width: clamp(180px, 14vw, 225px) !important;
+  min-width: 160px !important;
+  height: clamp(38px, 4.4vh, 44px) !important;
   display: block !important;
   flex-shrink: 0 !important;
   overflow: hidden !important;
@@ -3694,14 +3720,55 @@ onUnmounted(() => {
 .navbar.scrolled .nav-logo .logo-light { opacity: 0 !important; }
 
 .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 2px;
+  display: flex !important;
+  align-items: center !important;
+  gap: clamp(10px, 1.4vw, 24px) !important;
 }
+.nav-link {
+  font-family: inherit !important;
+  font-size: clamp(1.02rem, 1.1vw, 1.14rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.012em !important;
+  padding: 8px 18px !important;
+  border-radius: 9999px !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  white-space: nowrap !important;
+}
+.nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+.nav-link.active-nav {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  font-weight: 700 !important;
+}
+
+/* Scrolled / Light Navbar States for Links */
+.navbar.scrolled .nav-link,
+.navbar.dark-nav .nav-link {
+  color: #1F2937 !important;
+}
+.navbar.scrolled .nav-link:hover,
+.navbar.dark-nav .nav-link:hover {
+  color: #0A5C38 !important;
+  background: rgba(10, 92, 56, 0.08) !important;
+}
+.navbar.scrolled .nav-link.active-nav,
+.navbar.dark-nav .nav-link.active-nav {
+  color: #0A5C38 !important;
+  background: rgba(10, 92, 56, 0.12) !important;
+  font-weight: 700 !important;
+}
+
 .nav-cta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 .nav-hamburger {
   display: none !important;
