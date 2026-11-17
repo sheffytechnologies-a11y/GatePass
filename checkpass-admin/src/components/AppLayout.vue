@@ -197,9 +197,10 @@ const navItems = computed(() => {
     { path: '/dashboard', label: 'Dashboard', icon: ICONS.dashboard },
   ]
 
-  // Super Admin internal sales pipeline & AI lead conversions
+  // Super Admin internal platform modules (CRM & CheckPass Helpdesk / Tickets)
   if (auth.isSuperAdmin) {
     items.push({ path: '/crm', label: 'Sales CRM & Deals', icon: ICONS.crm })
+    items.push({ path: '/support', label: 'Support & Tickets', icon: ICONS.support })
   }
 
   items.push(
@@ -209,7 +210,6 @@ const navItems = computed(() => {
     { path: '/residents', label: 'Residents', icon: ICONS.residents },
     { path: '/users', label: 'Users', icon: ICONS.users },
     { path: '/fees', label: 'Finance', icon: ICONS.finance },
-    { path: '/support', label: 'Support & Tickets', icon: ICONS.support },
     { path: '/artisans', label: 'Artisans & Services', icon: ICONS.artisans },
     { path: '/billing', label: 'Billing', icon: ICONS.billing },
     { path: '/emergencies', label: 'Emergencies', icon: ICONS.emergencies },

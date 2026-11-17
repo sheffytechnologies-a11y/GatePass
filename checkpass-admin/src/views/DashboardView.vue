@@ -1,8 +1,44 @@
 <template>
   <div class="dashboard-page">
     <section class="hero-card">
-      <h1 class="hero-title">Run estate operations from the same mobile workflow.</h1>
-      <p class="hero-copy">Create residents and security staff, track gate activity, and stay on top of emergencies without leaving the phone shell.</p>
+      <div class="hero-top-row">
+        <div class="hero-title-group">
+          <div class="hero-badge-row">
+            <span class="hero-eyebrow">Estate Operational Center</span>
+            <span class="gate-status-pill">
+              <span class="status-dot"></span>
+              Gate Active &bull; Shift Live
+            </span>
+          </div>
+          <h1 class="hero-title">Estate Command & Security Overview</h1>
+          <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
+        </div>
+        <div class="hero-actions-group">
+          <router-link to="/passes" class="btn btn-hero-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="12" y1="11" x2="12" y2="15"/>
+              <line x1="10" y1="13" x2="14" y2="13"/>
+            </svg>
+            Issue Pass
+          </router-link>
+          <router-link to="/properties" class="btn btn-hero-action">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Properties
+          </router-link>
+          <router-link to="/news" class="btn btn-hero-action btn-hero-action--subtle">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Broadcast
+          </router-link>
+        </div>
+      </div>
       <div class="hero-switcher-row">
         <EstateSwitcher variant="hero" />
       </div>
@@ -25,89 +61,93 @@
     </div>
 
     <template v-else>
+      <!-- Operational KPI Stat Cards with SVG Icons -->
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--blue">👤</div>
+        <router-link to="/users" class="stat-card">
+          <div class="stat-icon stat-icon--blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
           <div class="stat-body">
             <div class="stat-value">{{ stats.totalUsers }}</div>
             <div class="stat-label">Total Users</div>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--green">🏠</div>
+        </router-link>
+
+        <router-link to="/residents" class="stat-card">
+          <div class="stat-icon stat-icon--green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
           <div class="stat-body">
             <div class="stat-value">{{ stats.totalResidents }}</div>
             <div class="stat-label">Residents</div>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--teal">🎫</div>
+        </router-link>
+
+        <router-link to="/passes" class="stat-card">
+          <div class="stat-icon stat-icon--teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="3"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+              <line x1="7" y1="15" x2="7.01" y2="15"/>
+              <line x1="11" y1="15" x2="13" y2="15"/>
+            </svg>
+          </div>
           <div class="stat-body">
             <div class="stat-value">{{ stats.activePasses }}</div>
             <div class="stat-label">Active Passes</div>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--teal">📍</div>
+        </router-link>
+
+        <router-link to="/access" class="stat-card">
+          <div class="stat-icon stat-icon--teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
           <div class="stat-body">
             <div class="stat-value">{{ stats.onSite }}</div>
             <div class="stat-label">On-Site Now</div>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--red">🚨</div>
+        </router-link>
+
+        <router-link to="/emergencies" class="stat-card" :class="{ 'stat-card--alert': stats.todayEmergencies > 0 }">
+          <div class="stat-icon stat-icon--red">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
           <div class="stat-body">
-            <div class="stat-value">{{ stats.todayEmergencies }}</div>
+            <div class="stat-value" :class="{ 'text-danger': stats.todayEmergencies > 0 }">{{ stats.todayEmergencies }}</div>
             <div class="stat-label">Emergencies Today</div>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--yellow">🚩</div>
+        </router-link>
+
+        <router-link to="/access" class="stat-card" :class="{ 'stat-card--warning': stats.flaggedItems > 0 }">
+          <div class="stat-icon stat-icon--yellow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+          </div>
           <div class="stat-body">
             <div class="stat-value">{{ stats.flaggedItems }}</div>
             <div class="stat-label">Flagged Item Passes</div>
           </div>
-        </div>
-      </div>
-
-      <div class="quick-grid">
-        <router-link to="/users" class="quick-card card">
-          <span class="quick-icon">👥</span>
-          <strong>Manage users</strong>
-          <span>Create or update resident and security accounts.</span>
-        </router-link>
-        <router-link to="/residents" class="quick-card card">
-          <span class="quick-icon">🏠</span>
-          <strong>Residents</strong>
-          <span>Assign estates, units, and resident status.</span>
-        </router-link>
-        <router-link to="/access" class="quick-card card">
-          <span class="quick-icon">🛡️</span>
-          <strong>Access feed</strong>
-          <span>Review gate traffic and flagged visitor passes.</span>
-        </router-link>
-        <router-link to="/passes" class="quick-card card">
-          <span class="quick-icon">🎟️</span>
-          <strong>Passes</strong>
-          <span>Create passes and monitor expiry or revocation status.</span>
-        </router-link>
-        <router-link to="/news" class="quick-card card">
-          <span class="quick-icon">📢</span>
-          <strong>Broadcasts</strong>
-          <span>Publish news and notices to resident mobile feeds.</span>
-        </router-link>
-        <router-link to="/notifications" class="quick-card card">
-          <span class="quick-icon">🔔</span>
-          <strong>Messages</strong>
-          <span>Check system notifications sent to residents.</span>
-        </router-link>
-        <router-link to="/billing" class="quick-card card">
-          <span class="quick-icon">💳</span>
-          <strong>Billing</strong>
-          <span>Manage your plan, usage, and payments.</span>
         </router-link>
       </div>
 
+      <!-- Real-time Operational Panels (Recent Passes & Emergencies) directly visible without redundant quick-grid -->
       <div class="dashboard-panels">
         <div class="card">
           <div class="card-header">
@@ -337,13 +377,126 @@ onUnmounted(() => {
   background: radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 38%), linear-gradient(150deg, #102a21 0%, #0a5c38 60%, #78cca2 100%);
   color: white;
   border-radius: 28px;
-  padding: 22px;
+  padding: 26px 28px;
   box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
-.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
-.hero-title { margin-top: 10px; font-size: 28px; line-height: 1.04; font-family: var(--font-display); }
-.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.80); font-size: 14px; line-height: 1.5; }
-.hero-switcher-row { margin-top: 14px; display: flex; align-items: center; }
+
+.hero-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.hero-title-group {
+  flex: 1;
+  min-width: 280px;
+}
+
+.hero-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+}
+
+.gate-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  display: inline-block;
+}
+
+.hero-title {
+  font-size: 26px;
+  line-height: 1.15;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.hero-copy {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 620px;
+}
+
+.hero-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-hero-action {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.btn-hero-action:hover {
+  background: #ffffff;
+  color: #0a5c38;
+  transform: translateY(-1px);
+}
+
+.btn-hero-action:active {
+  transform: translateY(0);
+}
+
+.btn-hero-action--subtle {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.hero-switcher-row {
+  display: flex;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
 
 .loading-state {
   display: flex;
@@ -356,53 +509,75 @@ onUnmounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
+
 .stat-card {
   background: var(--c-surface);
-  border-radius: 22px;
-  padding: 18px;
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 14px;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  cursor: pointer;
 }
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  border-color: #CBD5E1;
+}
+
+.stat-card--alert {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FEF2F2 100%);
+}
+
+.stat-card--warning {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.text-danger {
+  color: #DC2626 !important;
+}
+
 .stat-icon {
-  width: 44px; height: 44px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: transform 200ms ease;
 }
-.stat-icon--blue   { background: #EFF6FF; }
-.stat-icon--green  { background: var(--c-success-light); }
-.stat-icon--teal   { background: var(--c-primary-light); }
-.stat-icon--red    { background: var(--c-danger-light); }
-.stat-icon--yellow { background: var(--c-warning-light); }
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.04);
+}
+
+.stat-icon--blue   { background: #EFF6FF; color: #2563EB; }
+.stat-icon--green  { background: #ECFDF5; color: #059669; }
+.stat-icon--teal   { background: #F0FDF4; color: #0A5C38; }
+.stat-icon--red    { background: #FEF2F2; color: #DC2626; }
+.stat-icon--yellow { background: #FFFBEB; color: #D97706; }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   line-height: 1;
   color: var(--c-text);
+  font-family: var(--font-display, inherit);
 }
+
 .stat-label {
   font-size: 12px;
+  font-weight: 600;
   color: var(--c-muted);
   margin-top: 4px;
 }
-
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-}
-.quick-card {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.quick-icon { font-size: 22px; }
-.quick-card strong { font-size: 16px; color: var(--c-text); }
-.quick-card span:last-child { color: var(--c-muted); font-size: 13px; }
 
 .dashboard-panels {
   display: grid;
@@ -440,34 +615,6 @@ onUnmounted(() => {
 
 @media (max-width: 500px) {
   .stats-grid { grid-template-columns: 1fr; }
-}
-
-.hero-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.btn-hero-action {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(8px);
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn-hero-action:hover {
-  background: #fff;
-  color: #0a5c38;
 }
 
 .estate-setup-banner {
