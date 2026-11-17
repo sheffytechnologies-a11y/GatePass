@@ -1,258 +1,306 @@
 <template>
-  <!-- ── FORM OVERLAY ── -->
-  <div v-if="screen !== 'list'" class="form-overlay">
-    <!-- Step 1: Select user type -->
-    <div v-if="screen === 'type-select'" class="form-page">
-      <div class="form-nav">
-        <button class="nav-back" @click="screen = 'list'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <span class="nav-title">Add User</span>
-        <div class="nav-spacer"></div>
+  <div class="mobile-page users-management-page">
+    <!-- Hero Header Card -->
+    <section class="hero-card hero-card--emerald">
+      <div class="hero-title-group">
+        <div class="hero-eyebrow">USER DIRECTORY & ACCESS CONTROL</div>
+        <h1 class="hero-title">Manage community members, admins, and gate security staff.</h1>
+        <p class="hero-subtext">Review roles, verify property assignments, and monitor active account statuses across the community.</p>
       </div>
-      <div class="form-scroll">
-        <h2 class="type-heading">Select User Type</h2>
-        <div class="type-list">
-          <label v-for="opt in typeOptions" :key="opt.value" class="type-option" :class="{ 'type-option--selected': selectedType === opt.value }">
-            <span class="type-label">{{ opt.label }}</span>
-            <div class="radio-ring" :class="{ 'radio-ring--filled': selectedType === opt.value }">
-              <div v-if="selectedType === opt.value" class="radio-dot"></div>
-            </div>
-            <input type="radio" :value="opt.value" v-model="selectedType" class="sr-only" />
-          </label>
+      <button class="btn btn-primary hero-button" @click="startAdd">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        <span>Add User</span>
+      </button>
+    </section>
+
+    <!-- Unified Stats Metric Row -->
+    <div class="stats-metric-strip">
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-blue-subtle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ allUsers.length }}</span>
+          <span class="stat-title">Total Users</span>
         </div>
       </div>
-      <div class="form-footer">
-        <button class="btn btn-primary btn-block" @click="screen = 'form'">Continue</button>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-emerald-subtle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-num-row">
+            <span class="stat-number">{{ allStats.residents }}</span>
+            <span class="stat-pill-hint">{{ allStats.landlords }} owners • {{ allStats.tenants }} tenants</span>
+          </div>
+          <span class="stat-title">Residents</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-purple-subtle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ allStats.admins }}</span>
+          <span class="stat-title">Admins</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-amber-subtle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ allStats.securities }}</span>
+          <span class="stat-title">Gate Security</span>
+        </div>
       </div>
     </div>
 
-    <!-- Step 2: Fill in details -->
-    <div v-else-if="screen === 'form'" class="form-page">
-      <div class="form-nav">
-        <button class="nav-back" @click="screen = 'type-select'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <span class="nav-title">{{ formTitle }}</span>
-        <button class="nav-close" @click="screen = 'list'">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7B7E87" stroke-width="1.5"/><path d="M9 9l6 6M15 9l-6 6" stroke="#7B7E87" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Close
-        </button>
+    <!-- Filter & Search Toolbar (consistent with Residents & Properties tabs) -->
+    <div class="toolbar-card">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          v-model="search"
+          type="search"
+          placeholder="Search by name, phone, or email..."
+          class="search-input"
+          @input="debouncedLoad"
+        />
       </div>
-      <div class="form-scroll">
-        <!-- Resident form -->
-        <template v-if="selectedType === 'resident'">
-          <h3 class="form-section-heading">Residency Details</h3>
-          <div class="form-group">
-            <label class="form-label">Owner's Full Name</label>
-            <input v-model="form.name" class="form-input" placeholder="Enter Full Name" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Owner's Phone No.</label>
-            <input v-model="form.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Owner's Email Address</label>
-            <input v-model="form.email" class="form-input" type="email" placeholder="Enter Email Address" />
-          </div>
-          <div class="address-row">
-            <div class="form-group">
-              <label class="form-label">Lane</label>
-              <input v-model="form.lane" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">House</label>
-              <input v-model="form.house" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Flat</label>
-              <input v-model="form.flat" class="form-input" />
-            </div>
-          </div>
-          <div class="toggle-row">
-            <label class="toggle-switch">
-              <input type="checkbox" v-model="form.landlordIsOccupant" />
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            </label>
-            <span class="toggle-label">Landlord is occupant</span>
-          </div>
-          <div class="occupants-head">
-            <h3 class="form-section-heading">Occupants</h3>
-            <button type="button" class="btn btn-sm btn-primary btn-add-tenant" @click="addTenant">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.25" stroke="white" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-              Add Tenant
-            </button>
-          </div>
-          <div v-for="(tenant, i) in form.tenants" :key="i" class="tenant-block">
-            <div class="form-group">
-              <div class="label-row">
-                <label class="form-label">Full Name</label>
-                <button type="button" class="tenant-del" @click="removeTenant(i)">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </div>
-              <input v-model="tenant.name" class="form-input" placeholder="Enter Full Name" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone No.</label>
-              <input v-model="tenant.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email Address</label>
-              <input v-model="tenant.email" class="form-input" type="email" placeholder="Enter Email Address" />
-            </div>
-          </div>
-        </template>
 
-        <!-- Admin / Security form -->
-        <template v-else>
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input v-model="form.name" class="form-input" placeholder="Enter Full Name" />
+      <div class="filter-group">
+        <select v-model="typeFilter" class="toolbar-select" @change="load">
+          <option value="">All User Types</option>
+          <option value="resident">Residents</option>
+          <option value="admin">Administrators</option>
+          <option value="security">Security Personnel</option>
+        </select>
+
+        <select v-model="occupantFilter" class="toolbar-select">
+          <option value="all">All Occupancy</option>
+          <option value="owner">Homeowners Only</option>
+          <option value="tenant">Tenants Only</option>
+        </select>
+
+        <select v-model="statusFilter" class="toolbar-select" @change="load">
+          <option value="">All Status</option>
+          <option value="active">Active Accounts</option>
+          <option value="inactive">Disabled / Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main List Section -->
+    <section class="card section-card">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Directory</h2>
+          <p class="section-copy">{{ filteredUsers.length }} account{{ filteredUsers.length === 1 ? '' : 's' }} loaded.</p>
+        </div>
+      </div>
+
+      <div v-if="loading" class="loading-state">
+        <BrandSpinner :size="40" color="var(--c-primary)" />
+      </div>
+
+      <div v-else-if="filteredUsers.length === 0" class="empty-state">
+        No accounts found matching your filters.
+      </div>
+
+      <!-- Taste Skill User Cards List -->
+      <div v-else class="user-cards-list">
+        <article
+          v-for="user in filteredUsers"
+          :key="user.id"
+          class="user-card"
+          tabindex="0"
+          role="button"
+          :aria-label="'View ' + user.name + ' profile'"
+          @click="handleUserClick(user)"
+          @keydown.enter="handleUserClick(user)"
+        >
+          <!-- Left: Avatar, Name, Role Pills, Unit -->
+          <div class="card-left">
+            <div class="avatar-box">
+              <div
+                v-if="user.avatar"
+                class="avatar-photo"
+                :style="{ backgroundImage: `url(${user.avatar})` }"
+              />
+              <div v-else class="avatar-initials" :style="{ background: avatarBg(user.id) }">
+                {{ initials(user.name) }}
+              </div>
+              <span
+                class="status-dot"
+                :class="user.isActive ? 'dot-active' : 'dot-inactive'"
+                :title="user.isActive ? 'Active' : 'Disabled'"
+              />
+            </div>
+
+            <div class="user-primary-info">
+              <div class="user-name-row">
+                <h3 class="user-name">{{ user.name }}</h3>
+
+                <!-- Role Badges -->
+                <div class="badge-row">
+                  <!-- Type badge -->
+                  <span
+                    class="badge-type"
+                    :class="'badge-type--' + (user.type || 'resident')"
+                  >
+                    {{ formatTypeLabel(user.type) }}
+                  </span>
+
+                  <!-- Occupancy Role if Resident -->
+                  <span
+                    v-if="user.residentRole"
+                    class="badge-role"
+                    :class="user.residentRole === 'owner' ? 'badge-role--owner' : 'badge-role--tenant'"
+                  >
+                    {{ user.residentRole === 'owner' ? 'Homeowner' : 'Tenant' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Unit Location if Resident (No estate name clutter) -->
+              <div v-if="user.unitAddress || addressLine(user)" class="unit-location-row">
+                <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="unit-name">{{ user.unitAddress || addressLine(user) }}</span>
+              </div>
+              <div v-else-if="user.email" class="email-subtext">
+                {{ user.email }}
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Phone No.</label>
-            <input v-model="form.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
+
+          <!-- Right: Status, Join Date & Interactive Chevron -->
+          <div class="card-right">
+            <span class="status-pill" :class="user.isActive ? 'status-active' : 'status-disabled'">
+              <span class="pill-dot"></span>
+              {{ user.isActive ? 'Active' : 'Disabled' }}
+            </span>
+
+            <span v-if="user.createdAt" class="join-date">Joined {{ fmtDate(user.createdAt) }}</span>
+
+            <div class="arrow-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
           </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- EDIT / MANAGE MODAL (for Admin & Security accounts) -->
+    <div v-if="editTarget" class="modal-overlay" @click.self="editTarget = null">
+      <div class="modal-card">
+        <header class="modal-header">
+          <div>
+            <div class="modal-eyebrow">{{ (editTarget.type || 'USER').toUpperCase() }} ACCOUNT</div>
+            <h3 class="modal-title">Edit {{ editTarget.name }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="editTarget = null">✕</button>
+        </header>
+
+        <form class="modal-body" @submit.prevent="saveEdit">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input v-model="editForm.name" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone Number <span class="req">*</span></label>
+            <input v-model="editForm.phone" class="form-input" type="tel" required />
+          </div>
+
           <div class="form-group">
             <label class="form-label">Email Address</label>
-            <input v-model="form.email" class="form-input" type="email" placeholder="Enter Email Address" />
-          </div>
-        </template>
-
-        <p v-if="formError" class="form-error err-top">{{ formError }}</p>
-      </div>
-      <div class="form-footer">
-        <button class="btn btn-primary btn-block" :disabled="saving" @click="save">
-          {{ saving ? 'Saving…' : 'Save' }}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── LIST VIEW ── -->
-  <div class="users-page">
-    <!-- Search -->
-    <div class="search-bar">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#AAAAAA" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
-      <input v-model="search" class="search-input" placeholder="Search" @input="debouncedLoad" />
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-cell">
-        <span class="stat-num">{{ allStats.admins }}</span>
-        <span class="stat-lbl">Admins</span>
-      </div>
-      <div class="stat-sep"></div>
-      <div class="stat-cell">
-        <span class="stat-num">{{ allStats.residents }}</span>
-        <span class="stat-lbl">Residents</span>
-      </div>
-      <div class="stat-sep"></div>
-      <div class="stat-cell">
-        <span class="stat-num">{{ allStats.securities }}</span>
-        <span class="stat-lbl">Securities</span>
-      </div>
-    </div>
-    <div class="stats-grid stats-grid-2">
-      <div class="stat-cell">
-        <span class="stat-num">{{ allStats.tenants }}</span>
-        <span class="stat-lbl">Tenants</span>
-      </div>
-      <div class="stat-sep"></div>
-      <div class="stat-cell">
-        <span class="stat-num">{{ allStats.landlords }}</span>
-        <span class="stat-lbl">Landlords</span>
-      </div>
-    </div>
-
-    <!-- Filters + Add -->
-    <div class="filter-bar">
-      <select v-model="typeFilter" class="filter-select" @change="load">
-        <option value="">User Type</option>
-        <option value="admin">Admin</option>
-        <option value="resident">Resident</option>
-        <option value="security">Security</option>
-      </select>
-      <select v-model="statusFilter" class="filter-select" @change="load">
-        <option value="">Status</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-      <button class="btn btn-primary btn-add" @click="startAdd">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.25" stroke="white" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Add User
-      </button>
-    </div>
-
-    <!-- User list -->
-    <div v-if="loading" class="state-box"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
-    <div v-else-if="users.length === 0" class="state-box">No users found.</div>
-    <div v-else class="user-list">
-      <article v-for="user in users" :key="user.id" class="user-row" @click="openEdit(user)">
-        <div class="user-avatar" :style="{ background: avatarBg(user.id) }">{{ initial(user.name) }}</div>
-        <div class="user-details">
-          <p class="user-name">{{ user.name }}</p>
-          <p v-if="addressLine(user)" class="user-meta">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#9CA3AF"/></svg>
-            {{ addressLine(user) }}
-          </p>
-          <p class="user-meta">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {{ capitalize(user.type) }}
-          </p>
-        </div>
-        <span :class="statusBadgeClass(user)">{{ statusLabel(user) }}</span>
-      </article>
-    </div>
-
-    <!-- Edit sheet -->
-    <div v-if="editTarget" class="sheet-overlay" @click.self="editTarget = null">
-      <div class="sheet card">
-        <div class="sheet-head">
-          <h3 class="sheet-title">Edit {{ editTarget.name }}</h3>
-          <button class="sheet-close" @click="editTarget = null">✕</button>
-        </div>
-        <div class="sheet-body">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input v-model="editForm.name" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input v-model="editForm.phone" class="form-input" type="tel" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
             <input v-model="editForm.email" class="form-input" type="email" />
           </div>
+
           <div class="form-group">
-            <label class="form-label">Status</label>
-            <div class="chip-row">
-              <button class="chip" :class="{ active: editForm.is_active }" @click="editForm.is_active = true">Active</button>
-              <button class="chip" :class="{ active: !editForm.is_active }" @click="editForm.is_active = false">Inactive</button>
+            <label class="form-label">Account Access Status</label>
+            <div class="status-choice-group">
+              <label class="status-radio-card" :class="{ active: editForm.is_active }">
+                <input v-model="editForm.is_active" type="radio" :value="true" class="sr-only" />
+                <div class="radio-indicator active-indicator"></div>
+                <div>
+                  <strong>Active Account</strong>
+                  <p>Allowed to log in and access system functions.</p>
+                </div>
+              </label>
+
+              <label class="status-radio-card" :class="{ active: !editForm.is_active }">
+                <input v-model="editForm.is_active" type="radio" :value="false" class="sr-only" />
+                <div class="radio-indicator disabled-indicator"></div>
+                <div>
+                  <strong>Disabled Account</strong>
+                  <p>Account suspended from portal access.</p>
+                </div>
+              </label>
             </div>
           </div>
-          <p v-if="formError" class="form-error">{{ formError }}</p>
-        </div>
-        <div class="sheet-actions">
-          <button class="btn btn-danger btn-sm" @click="confirmDelete(editTarget)">Delete</button>
-          <button class="btn btn-primary" style="flex:1;justify-content:center" :disabled="saving" @click="saveEdit">{{ saving ? 'Saving…' : 'Save Changes' }}</button>
-        </div>
+
+          <p v-if="formError" class="modal-error">{{ formError }}</p>
+
+          <footer class="modal-footer">
+            <button type="button" class="btn btn-outline btn-danger-outline" @click="confirmDelete(editTarget)">Delete User</button>
+            <button type="submit" class="btn btn-primary" :disabled="saving">
+              <BrandSpinner v-if="saving" :size="16" color="#ffffff" />
+              <span>{{ saving ? 'Saving...' : 'Save Changes' }}</span>
+            </button>
+          </footer>
+        </form>
       </div>
     </div>
 
-    <div v-if="deleteTarget" class="sheet-overlay" @click.self="deleteTarget = null">
-      <div class="sheet sheet-sm card">
-        <div class="sheet-head">
-          <h3 class="sheet-title">Remove {{ deleteTarget.name }}?</h3>
-          <button class="sheet-close" @click="deleteTarget = null">✕</button>
-        </div>
-        <p class="confirm-copy">This account will be permanently removed.</p>
-        <div class="sheet-actions">
-          <button class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
-          <button class="btn btn-danger" :disabled="saving" @click="doDelete">{{ saving ? 'Deleting…' : 'Delete' }}</button>
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div v-if="deleteTarget" class="modal-overlay" @click.self="deleteTarget = null">
+      <div class="modal-card modal-card-sm">
+        <header class="modal-header">
+          <div>
+            <div class="modal-eyebrow text-red">DELETE USER</div>
+            <h3 class="modal-title">Remove {{ deleteTarget.name }}?</h3>
+          </div>
+          <button type="button" class="btn-close" @click="deleteTarget = null">✕</button>
+        </header>
+        <div class="modal-body">
+          <p class="confirm-copy">This user account and associated system access credentials will be permanently removed.</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
+            <button type="button" class="btn btn-danger" :disabled="saving" @click="doDelete">
+              {{ saving ? 'Deleting...' : 'Delete Account' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -264,106 +312,138 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usersApi, residentsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
+import BrandSpinner from '@/components/BrandSpinner.vue'
 
 const { showToast } = useToast()
 const router = useRouter()
 
-// ── Screen state ──────────────────────────────────────────────────
-type Screen = 'list' | 'type-select' | 'form'
-const screen = ref<Screen>('list')
-const selectedType = ref<'resident' | 'admin' | 'security'>('resident')
-const typeOptions = [
-  { label: 'Resident', value: 'resident' as const },
-  { label: 'Admin',    value: 'admin'    as const },
-  { label: 'Security', value: 'security' as const },
-]
-
-// ── List state ────────────────────────────────────────────────────
-const loading    = ref(true)
-const users      = ref<any[]>([])
-const allUsers   = ref<any[]>([])
+// ── State ─────────────────────────────────────────────────────────
+const loading = ref(true)
+const users = ref<any[]>([])
+const allUsers = ref<any[]>([])
 const allResidents = ref<any[]>([])
-const search     = ref('')
+
+const search = ref('')
 const typeFilter = ref('')
+const occupantFilter = ref('all')
 const statusFilter = ref('')
 
-// ── Add-user form ─────────────────────────────────────────────────
-const saving    = ref(false)
+const saving = ref(false)
 const formError = ref('')
-const form = ref({
-  name: '', phone: '', email: '',
-  lane: '', house: '', flat: '',
-  landlordIsOccupant: false,
-  tenants: [] as { name: string; phone: string; email: string }[],
-})
-
-// ── Edit form ─────────────────────────────────────────────────────
 const editTarget = ref<any>(null)
-const editForm   = ref({ name: '', phone: '', email: '', is_active: true })
+const editForm = ref({ name: '', phone: '', email: '', is_active: true })
 const deleteTarget = ref<any>(null)
 
-// ── Stats ─────────────────────────────────────────────────────────
+// ── Computed Stats ────────────────────────────────────────────────
 const allStats = computed(() => ({
-  admins:    allUsers.value.filter(u => u.type === 'admin').length,
+  admins: allUsers.value.filter(u => u.type === 'admin').length,
   residents: allUsers.value.filter(u => u.type === 'resident').length,
   securities: allUsers.value.filter(u => u.type === 'security').length,
-  tenants:   allResidents.value.filter(r => r.role === 'tenant').length,
+  tenants: allResidents.value.filter(r => r.role === 'tenant').length,
   landlords: allResidents.value.filter(r => r.role === 'owner').length,
 }))
 
-const formTitle = computed(() => {
-  if (selectedType.value === 'admin')    return 'Add Admin'
-  if (selectedType.value === 'security') return 'Add Security'
-  return 'Add Resident'
+// ── Filtered List ─────────────────────────────────────────────────
+const filteredUsers = computed(() => {
+  return users.value.filter(u => {
+    // Occupancy role filter (homeowner vs tenant)
+    if (occupantFilter.value !== 'all') {
+      const resRole = u.residentRole || getResidentRole(u.id)
+      if (resRole !== occupantFilter.value) {
+        return false
+      }
+    }
+    return true
+  })
 })
 
-// ── Avatar helpers ────────────────────────────────────────────────
-const COLORS = ['#F97316','#22C55E','#8B5CF6','#EC4899','#06B6D4','#F59E0B','#EF4444','#3B82F6']
-function avatarBg(id: number): string { return COLORS[id % COLORS.length] }
-function initial(name: string): string { return (name ?? '?').charAt(0).toUpperCase() }
-function capitalize(s: string): string { return s ? s.charAt(0).toUpperCase() + s.slice(1) : '' }
+function getResidentRole(userId: number): string | null {
+  const r = allResidents.value.find(res => res.user?.id === userId)
+  return r ? r.role : null
+}
+
+function getResidentId(user: any): number | null {
+  if (user.residentId) return user.residentId
+  const r = allResidents.value.find(res => res.user?.id === user.id)
+  return r ? r.id : null
+}
+
+// ── Avatar & Color helpers ────────────────────────────────────────
+const COLORS = [
+  '#0A5C38', '#1D4ED8', '#B45309', '#7C3AED',
+  '#BE185D', '#047857', '#C2410C', '#4338CA'
+]
+
+function avatarBg(id: number): string {
+  return COLORS[id % COLORS.length]
+}
+
+function initials(name?: string): string {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+function formatTypeLabel(type?: string): string {
+  switch ((type || '').toLowerCase()) {
+    case 'admin': return 'Admin'
+    case 'security': return 'Security'
+    default: return 'Resident'
+  }
+}
 
 function addressLine(user: any): string {
-  const r = user.residency ?? user.resident
-  if (!r) return ''
-  const u = r.unit
-  if (!u) return ''
-  const parts: string[] = []
-  if (u.lane)   parts.push(`L${u.lane}`)
-  if (u.house)  parts.push(`H${u.house}`)
-  if (u.flat)   parts.push(String(u.flat))
-  if (parts.length) return parts.join(',')
-  if (u.number) return u.number
-  return ''
+  if (user.unitAddress) return user.unitAddress
+  const r = allResidents.value.find(res => res.user?.id === user.id)
+  return r?.unit?.flatAddress || r?.unit?.flat_address || ''
 }
 
-function statusBadgeClass(user: any): string {
-  if (user.status === 'pending') return 'badge badge-yellow'
-  return user.isActive ? 'badge badge-green' : 'badge badge-red'
+function fmtDate(iso: string | null): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
-function statusLabel(user: any): string {
-  if (user.status === 'pending') return 'Pending'
-  return user.isActive ? 'Active' : 'In-active'
+
+// ── Interactive Navigation on Card Click ──────────────────────────
+function handleUserClick(user: any) {
+  const residentId = getResidentId(user)
+  if (user.type === 'resident' || residentId) {
+    if (residentId) {
+      router.push(`/residents/${residentId}`)
+      return
+    }
+  }
+  // Otherwise open modal for admin or security
+  openEdit(user)
+}
+
+function startAdd() {
+  router.push('/users/new')
 }
 
 // ── Data loading ──────────────────────────────────────────────────
 let searchTimer: ReturnType<typeof setTimeout>
-function debouncedLoad() { clearTimeout(searchTimer); searchTimer = setTimeout(load, 350) }
+function debouncedLoad() {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(load, 350)
+}
 
 async function loadStats() {
   try {
     const [ur, rr] = await Promise.all([usersApi.getAll(), residentsApi.getAll()])
-    allUsers.value     = ur.data.users     ?? []
+    allUsers.value = ur.data.users ?? []
     allResidents.value = rr.data.residents ?? []
-  } catch {/* non-critical */}
+  } catch (e) {
+    console.error('Failed loading stats:', e)
+  }
 }
 
 async function load() {
   loading.value = true
   try {
     const p: Record<string, unknown> = {}
-    if (search.value)       p.search = search.value
-    if (typeFilter.value)   p.type   = typeFilter.value
+    if (search.value) p.search = search.value
+    if (typeFilter.value) p.type = typeFilter.value
     if (statusFilter.value) p.status = statusFilter.value
     const res = await usersApi.getAll(p)
     users.value = res.data.users ?? []
@@ -374,64 +454,16 @@ async function load() {
   }
 }
 
-// ── Add user flow ─────────────────────────────────────────────────
-function startAdd() {
-  router.push('/users/new')
-}
-function addTenant()         { form.value.tenants.push({ name: '', phone: '', email: '' }) }
-function removeTenant(i: number) { form.value.tenants.splice(i, 1) }
-
-async function save() {
-  formError.value = ''
-  if (!form.value.name.trim())  { formError.value = 'Name is required.'; return }
-  if (!form.value.phone.trim()) { formError.value = 'Phone number is required.'; return }
-  saving.value = true
-  try {
-    if (selectedType.value === 'resident') {
-      const ownerPayload: Record<string, unknown> = {
-        name: form.value.name,
-        phone: form.value.phone,
-        role: 'owner',
-        lane: form.value.lane,
-        house: form.value.house,
-        flat: form.value.flat,
-        landlord_is_occupant: form.value.landlordIsOccupant,
-      }
-      if (form.value.email) ownerPayload.email = form.value.email
-      await residentsApi.create(ownerPayload)
-      for (const t of form.value.tenants) {
-        if (!t.name.trim() || !t.phone.trim()) continue
-        const tp: Record<string, unknown> = {
-          name: t.name, phone: t.phone, role: 'tenant',
-          lane: form.value.lane, house: form.value.house, flat: form.value.flat,
-        }
-        if (t.email) tp.email = t.email
-        await residentsApi.create(tp)
-      }
-    } else {
-      const payload: Record<string, unknown> = {
-        name: form.value.name,
-        phone: form.value.phone,
-        type: selectedType.value,
-      }
-      if (form.value.email) payload.email = form.value.email
-      await usersApi.create(payload)
-    }
-    showToast(`${formTitle.value.replace('Add ', '')} created.`, 'success')
-    screen.value = 'list'
-    await Promise.all([load(), loadStats()])
-  } catch (err: any) {
-    formError.value = err?.response?.data?.message ?? 'Something went wrong.'
-  } finally {
-    saving.value = false
-  }
-}
-
-// ── Edit / Delete ─────────────────────────────────────────────────
+// ── Edit & Delete for Non-resident accounts ───────────────────────
 function openEdit(user: any) {
   editTarget.value = user
-  editForm.value   = { name: user.name, phone: user.phone ?? '', email: user.email ?? '', is_active: user.isActive }
-  formError.value  = ''
+  editForm.value = {
+    name: user.name,
+    phone: user.phone ?? '',
+    email: user.email ?? '',
+    is_active: !!user.isActive,
+  }
+  formError.value = ''
 }
 
 async function saveEdit() {
@@ -440,12 +472,12 @@ async function saveEdit() {
   saving.value = true
   try {
     await usersApi.update(editTarget.value.id, {
-      name: editForm.value.name,
-      phone: editForm.value.phone,
-      email: editForm.value.email,
+      name: editForm.value.name.trim(),
+      phone: editForm.value.phone.trim(),
+      email: editForm.value.email.trim() || null,
       is_active: editForm.value.is_active,
     })
-    showToast('User updated.', 'success')
+    showToast('User account updated successfully.', 'success')
     editTarget.value = null
     await Promise.all([load(), loadStats()])
   } catch (err: any) {
@@ -455,14 +487,17 @@ async function saveEdit() {
   }
 }
 
-function confirmDelete(user: any) { deleteTarget.value = user; editTarget.value = null }
+function confirmDelete(user: any) {
+  deleteTarget.value = user
+  editTarget.value = null
+}
 
 async function doDelete() {
   if (!deleteTarget.value) return
   saving.value = true
   try {
     await usersApi.delete(deleteTarget.value.id)
-    showToast('User deleted.', 'success')
+    showToast('User deleted successfully.', 'success')
     deleteTarget.value = null
     await Promise.all([load(), loadStats()])
   } catch {
@@ -472,148 +507,735 @@ async function doDelete() {
   }
 }
 
-onMounted(() => { load(); loadStats() })
+onMounted(() => {
+  load()
+  loadStats()
+})
 </script>
 
 <style scoped>
-/* ── List page ──────────────────────────────── */
-.users-page {
-  margin: -8px -16px -18px;
-  background: #fff;
-  min-height: calc(100% + 26px);
+.users-management-page {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.search-bar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #F0F0F0;
-}
-.search-input {
-  flex: 1; border: none; outline: none;
-  font-size: 15px; background: transparent; color: #1A1A1A;
-}
-.search-input::placeholder { color: #C0C0C0; }
-.stats-grid {
-  display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
-  padding: 14px 16px; border-bottom: 1px solid #F5F5F5; text-align: center;
-}
-.stats-grid-2 {
-  grid-template-columns: 1fr auto 1fr;
-  border-bottom: 1.5px solid #EBEBEB;
-}
-.stat-cell { display: flex; flex-direction: column; gap: 2px; padding: 3px 0; }
-.stat-num  { font-size: 20px; font-weight: 700; color: #1A1A1A; }
-.stat-lbl  { font-size: 11px; color: #9CA3AF; }
-.stat-sep  { width: 1px; background: #E5E5E5; margin: 4px 0; }
-.filter-bar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px; border-bottom: 1px solid #F0F0F0;
-}
-.filter-select {
-  flex: 1; padding: 8px 10px; border: 1.5px solid #E5E3DF;
-  border-radius: 10px; background: white; color: #1A1A1A;
-  font-size: 13px; outline: none; cursor: pointer;
-}
-.btn-add { display: flex; align-items: center; gap: 5px; padding: 8px 14px; font-size: 13px; border-radius: 10px; }
-.user-list { display: flex; flex-direction: column; }
-.user-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; border-bottom: 1px solid #F5F5F5; cursor: pointer;
-}
-.user-row:last-child { border-bottom: none; }
-.user-avatar {
-  width: 46px; height: 46px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 19px; font-weight: 700; color: #fff; flex-shrink: 0;
-}
-.user-details { flex: 1; min-width: 0; }
-.user-name { font-size: 15px; font-weight: 700; color: #1A1A1A; }
-.user-meta { font-size: 12px; color: #9CA3AF; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-.state-box { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); font-size: 14px; }
-</style>
-/* ── Edit / delete sheets ──────────────────── */
-.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.5); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
-.sheet { width: min(var(--shell-width), 100%); border-radius: 28px; padding: 20px; }
-.sheet-sm { max-width: 420px; }
-.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.sheet-title { font-size: 18px; font-weight: 700; }
-.sheet-close { width: 32px; height: 32px; border: none; border-radius: 50%; background: #edf2ee; color: var(--c-text); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.sheet-body { display: flex; flex-direction: column; gap: 14px; }
-.sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
-.confirm-copy { color: var(--c-muted); font-size: 14px; margin-bottom: 4px; }
-.chip-row { display: flex; gap: 8px; }
-.chip { border: none; border-radius: 999px; padding: 8px 14px; background: #edf2ee; color: #4f5f56; font-weight: 600; font-size: 13px; }
-.chip.active { background: var(--c-primary); color: white; }
 
-/* ── Form overlay ──────────────────────────── */
-.form-overlay {
-  position: fixed; inset: 0; background: #fff; z-index: 200;
-  display: flex; justify-content: center;
+/* ── Hero Card ─────────────────────────────────────── */
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  color: white;
 }
-.form-page {
-  width: 100%; max-width: var(--shell-width);
-  height: 100%; display: flex; flex-direction: column; overflow: hidden;
+
+.hero-card--emerald {
+  background: linear-gradient(145deg, #063923 0%, #0A5C38 60%, #168051 100%);
+  box-shadow: 0 4px 18px rgba(10, 92, 56, 0.16);
 }
-.form-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 16px; border-bottom: 1px solid #F0F0F0; flex-shrink: 0;
+
+.hero-title-group {
+  flex: 1;
+  min-width: 240px;
 }
-.nav-back {
-  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  background: none; border: none; cursor: pointer;
+
+.hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 700;
+  margin-bottom: 6px;
 }
-.nav-title { font-size: 16px; font-weight: 700; color: #1A1A1A; }
-.nav-spacer { width: 36px; }
-.nav-close {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 13px; color: #7B7E87; background: none; border: none; cursor: pointer;
+
+.hero-title {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
 }
-.form-scroll {
-  flex: 1; overflow-y: auto; padding: 20px 16px;
-  display: flex; flex-direction: column; gap: 16px;
+
+.hero-subtext {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 6px 0 0;
+  max-width: 580px;
 }
-/* Type selection */
-.type-heading { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.type-list { display: flex; flex-direction: column; }
-.type-option {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 0; border-bottom: 1px solid #F0F0F0; cursor: pointer;
+
+.hero-button {
+  background: #ffffff;
+  color: #0A5C38;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
-.type-option:first-child { border-top: 1px solid #F0F0F0; }
-.type-option--selected .type-label { font-weight: 600; color: #1A1A1A; }
-.type-label { font-size: 15px; color: #1A1A1A; }
-.radio-ring {
-  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #D0D0D0;
-  display: flex; align-items: center; justify-content: center;
+
+.hero-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  background: #F0FDF4;
 }
-.radio-ring--filled { border-color: var(--c-primary); }
-.radio-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c-primary); }
-/* Resident form extras */
-.form-section-heading { font-size: 18px; font-weight: 700; color: #1A1A1A; }
-.address-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
-.toggle-row { display: flex; align-items: center; gap: 12px; }
-.toggle-switch { position: relative; display: inline-flex; cursor: pointer; }
-.toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-.toggle-track {
-  width: 44px; height: 26px; background: #E0E0E0; border-radius: 13px;
-  transition: background 0.2s; position: relative; display: block;
+
+/* ── Unified Stats Metric Strip ────────────────────── */
+.stats-metric-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
-.toggle-switch input:checked + .toggle-track { background: var(--c-primary); }
-.toggle-thumb {
-  position: absolute; top: 3px; left: 3px;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: white; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
-.toggle-switch input:checked + .toggle-track .toggle-thumb { left: 21px; }
-.toggle-label { font-size: 14px; color: #1A1A1A; }
-.occupants-head { display: flex; align-items: center; justify-content: space-between; }
-.btn-add-tenant { display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 14px; }
-.tenant-block { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid #F0F0F0; }
-.label-row { display: flex; align-items: center; justify-content: space-between; }
-.tenant-del { background: none; border: none; padding: 0; cursor: pointer; display: flex; }
-.err-top { margin-top: 4px; }
-.form-footer {
-  padding: 14px 16px; border-top: 1px solid #F0F0F0; flex-shrink: 0;
+
+.stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.btn-block { width: 100%; justify-content: center; border-radius: 14px; padding: 15px; font-size: 16px; }
+
+.bg-blue-subtle { background: #EFF6FF; }
+.bg-emerald-subtle { background: #ECFDF5; }
+.bg-purple-subtle { background: #F5F3FF; }
+.bg-amber-subtle { background: #FEF3C7; }
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stat-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stat-number {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-pill-hint {
+  font-size: 11px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.stat-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── Filter & Search Toolbar ───────────────────────── */
+.toolbar-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: #111827;
+  width: 100%;
+  background: transparent;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.toolbar-select {
+  padding: 7px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: #F9FAFB;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #374151;
+  outline: none;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.toolbar-select:hover {
+  border-color: #D1D5DB;
+  background: #ffffff;
+}
+
+.toolbar-select:focus {
+  border-color: #0A5C38;
+}
+
+/* ── Section Card & List ───────────────────────────── */
+.section-card {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.section-copy {
+  margin-top: 2px;
+  color: #6B7280;
+  font-size: 12.5px;
+}
+
+.loading-state, .empty-state {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  font-size: 13.5px;
+}
+
+/* ── User Cards List ───────────────────────────────── */
+.user-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  border-color: #D1D5DB;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.user-card:focus-visible {
+  outline: none;
+  border-color: #0A5C38;
+  box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.2);
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.avatar-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #E5E7EB;
+}
+
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.dot-active {
+  background: #10B981;
+}
+
+.dot-inactive {
+  background: #9CA3AF;
+}
+
+.user-primary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-type {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge-type--resident {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.badge-type--admin {
+  background: #F5F3FF;
+  color: #7C3AED;
+  border: 1px solid #DDD6FE;
+}
+
+.badge-type--security {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.badge-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge-role--owner {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+.badge-role--tenant {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.unit-location-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: #4B5563;
+}
+
+.unit-name {
+  color: #374151;
+  font-weight: 500;
+}
+
+.email-subtext {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.card-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.status-active {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.status-disabled {
+  background: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.join-date {
+  font-size: 12px;
+  color: #6B7280;
+  white-space: nowrap;
+}
+
+.arrow-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+  background: #F9FAFB;
+  transition: all 160ms ease;
+}
+
+.user-card:hover .arrow-wrap {
+  transform: translateX(3px);
+  color: #0A5C38;
+  background: #ECFDF5;
+}
+
+/* ── Modal Architecture ────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-card-sm {
+  max-width: 420px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #0A5C38;
+}
+
+.text-red {
+  color: #DC2626 !important;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 2px 0 0;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #9CA3AF;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.btn-close:hover {
+  color: #111827;
+  background: #F3F4F6;
+}
+
+.modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.req {
+  color: #DC2626;
+}
+
+.form-input {
+  padding: 9px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #111827;
+  background: #ffffff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0A5C38;
+  box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.15);
+}
+
+.status-choice-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.status-radio-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 140ms ease;
+  background: #ffffff;
+}
+
+.status-radio-card:hover {
+  border-color: #D1D5DB;
+}
+
+.status-radio-card.active {
+  border-color: #0A5C38;
+  background: #F0FDF4;
+}
+
+.radio-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.active-indicator {
+  background: #10B981;
+}
+
+.disabled-indicator {
+  background: #EF4444;
+}
+
+.status-radio-card strong {
+  font-size: 13px;
+  color: #111827;
+}
+
+.status-radio-card p {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin: 2px 0 0;
+  line-height: 1.35;
+}
+
+.modal-error {
+  color: #DC2626;
+  font-size: 12.5px;
+  margin: 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.btn-danger-outline {
+  color: #DC2626;
+  border-color: #FCA5A5;
+}
+
+.btn-danger-outline:hover {
+  background: #FEF2F2;
+}
+
+.confirm-copy {
+  font-size: 13.5px;
+  color: #4B5563;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .stats-metric-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-group {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .toolbar-select {
+    flex: 1 1 calc(50% - 6px);
+  }
+}
+
+@media (max-width: 580px) {
+  .stats-metric-strip {
+    grid-template-columns: 1fr;
+  }
+  .join-date {
+    display: none;
+  }
+  .status-choice-group {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

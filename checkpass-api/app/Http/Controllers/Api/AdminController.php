@@ -32,7 +32,7 @@ class AdminController extends Controller
      */
     public function listUsers(Request $request)
     {
-        $query = User::query();
+        $query = User::with(['resident.unit', 'resident.estate']);
         $this->scopeEstate($query, $request);
 
         if ($request->filled('type')) {
@@ -41,7 +41,8 @@ class AdminController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('phone', 'like', '%' . $request->search . '%');
+                  ->orWhere('phone', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -915,14 +916,17 @@ class AdminController extends Controller
     private function formatUser(User $u): array
     {
         return [
-            'id'        => $u->id,
-            'name'      => $u->name,
-            'phone'     => $u->phone,
-            'email'     => $u->email,
-            'avatar'    => $u->avatar,
-            'type'      => $u->type,
-            'isActive'  => $u->is_active,
-            'createdAt' => $u->created_at?->toIso8601String(),
+            'id'           => $u->id,
+            'name'         => $u->name,
+            'phone'        => $u->phone,
+            'email'        => $u->email,
+            'avatar'       => $u->avatar,
+            'type'         => $u->type,
+            'isActive'     => (bool) $u->is_active,
+            'residentId'   => $u->resident?->id,
+            'residentRole' => $u->resident?->role,
+            'unitAddress'  => $u->resident?->unit?->flat_address,
+            'createdAt'    => $u->created_at?->toIso8601String(),
         ];
     }
 
