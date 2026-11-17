@@ -1013,6 +1013,20 @@ function initBatchConfig() {
   })
 }
 
+// Watch tab switch to batch upload and auto-correct any stale "Flat" prefixes
+watch(addPropertyTab, (newTab) => {
+  if (newTab === 'batch') {
+    const needsReset = batchConfigLevels.value.length === 0 || 
+      batchConfigLevels.value.some((b, i) => {
+        const lvl = structureLevels.value[i]
+        return !lvl || (b.name !== lvl.name) || (b.prefix.trim().toLowerCase() === 'flat' && !lvl.name.toLowerCase().includes('flat'))
+      })
+    if (needsReset) {
+      initBatchConfig()
+    }
+  }
+})
+
 
 function triggerCsvFileInput() {
   csvFileInputRef.value?.click()
