@@ -1,58 +1,17 @@
 <template>
-  <div class="dashboard-page">
-    <section class="hero-card">
-      <div class="hero-top-row">
-        <div class="hero-title-group">
-          <h1 class="hero-title">Estate Command &amp; Security Overview</h1>
-          <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
-        </div>
-
-        <!-- Quick Access Section -->
-        <div class="hero-quick-access">
-          <div class="quick-access-header">
-            <span class="quick-access-dot"></span>
-            <span class="quick-access-title">Quick Access</span>
-          </div>
-          <div class="quick-access-actions">
-            <router-link to="/passes" class="btn btn-hero-action">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="16" rx="2"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="12" y1="11" x2="12" y2="15"/>
-                <line x1="10" y1="13" x2="14" y2="13"/>
-              </svg>
-              <span>Issue Pass</span>
-            </router-link>
-            <router-link to="/residents" class="btn btn-hero-action">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <span>Residents</span>
-            </router-link>
-            <router-link to="/properties" class="btn btn-hero-action">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-              <span>Properties</span>
-            </router-link>
-            <button type="button" class="btn btn-hero-action btn-hero-action--subtle" @click="openBroadcastModal">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>Broadcast</span>
-            </button>
-          </div>
-        </div>
+  <div class="dashboard-page coinest-theme">
+    <!-- Top Bar: Greeting & Estate Switcher -->
+    <header class="dashboard-topbar">
+      <div class="topbar-left">
+        <div class="topbar-breadcrumb">Estate Admin &bull; Command Center</div>
+        <h1 class="topbar-title">Dashboard Overview</h1>
       </div>
-      <div class="hero-switcher-row">
+      <div class="topbar-right">
         <EstateSwitcher variant="hero" />
       </div>
-    </section>
+    </header>
 
-    <!-- Prominent Setup Banner if no estate yet -->
+    <!-- Setup Banner if no estate exists yet -->
     <div v-if="!loading && estates.length === 0" class="estate-setup-banner">
       <div class="setup-banner-left">
         <span class="setup-badge">⚡ Action required</span>
@@ -68,505 +27,386 @@
       <BrandSpinner :size="40" color="var(--c-primary)" />
     </div>
 
-    <template v-else>
-      <!-- Operational KPI Stat Cards with SVG Icons -->
-      <div class="stats-grid">
-        <router-link to="/users" class="stat-card">
-          <div class="stat-icon stat-icon--blue">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
+    <!-- 3-Column Coinest Master Command Grid -->
+    <div v-else class="coinest-grid">
+      
+      <!-- ── COLUMN 1: Left Command Column ── -->
+      <aside class="col-command">
+        <!-- 1. Estate Master Card (Coinest Bank Card Inspired) -->
+        <div class="estate-master-card">
+          <div class="master-chip-row">
+            <span class="signal-icon" title="24/7 Gate Access Online">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            </span>
+            <span class="master-estate-code">{{ activeEstate?.code || '#CP-01' }}</span>
           </div>
-          <div class="stat-body">
-            <div class="stat-value">{{ stats.totalUsers }}</div>
-            <div class="stat-label">Total Users</div>
-          </div>
-        </router-link>
 
-        <router-link to="/residents" class="stat-card">
-          <div class="stat-icon stat-icon--green">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
+          <div class="master-user-info">
+            <span class="master-admin-label">{{ auth.user?.name || 'Estate Admin' }}</span>
+            <h2 class="master-estate-name">{{ activeEstate?.name || 'Sheffy Estate' }}</h2>
           </div>
-          <div class="stat-body">
-            <div class="stat-value">{{ stats.totalResidents }}</div>
-            <div class="stat-label">Residents</div>
-          </div>
-        </router-link>
 
-        <router-link to="/passes?status=Pending" class="stat-card">
-          <div class="stat-icon stat-icon--teal">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="5" width="20" height="14" rx="3"/>
-              <line x1="2" y1="10" x2="22" y2="10"/>
-              <line x1="7" y1="15" x2="7.01" y2="15"/>
-              <line x1="11" y1="15" x2="13" y2="15"/>
-            </svg>
+          <div class="master-metric-group">
+            <div class="metric-big-row">
+              <span class="metric-val">{{ stats.occupancyRate }}%</span>
+              <span class="metric-pill">Active Shift</span>
+            </div>
+            <div class="metric-sublabel">Unit Occupancy Rate ({{ stats.occupiedUnits }} / {{ stats.totalUnits }})</div>
           </div>
-          <div class="stat-body">
-            <div class="stat-value">{{ stats.activePasses }}</div>
-            <div class="stat-label">Active Passes</div>
-          </div>
-        </router-link>
 
-        <router-link to="/access?status=On-site" class="stat-card">
-          <div class="stat-icon stat-icon--teal">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
+          <div class="master-card-footer">
+            <span class="gate-status-text">Gate Checkpoint Live</span>
+            <span class="status-pulse-dot"></span>
           </div>
-          <div class="stat-body">
-            <div class="stat-value">{{ stats.onSite }}</div>
-            <div class="stat-label">On-Site Now</div>
-          </div>
-        </router-link>
+        </div>
 
-        <router-link to="/emergencies" class="stat-card" :class="{ 'stat-card--alert': stats.todayEmergencies > 0 }">
-          <div class="stat-icon stat-icon--red">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+        <!-- 2. Instant Quick Actions Row (4 Circular Icon Chips) -->
+        <div class="card quick-actions-card">
+          <div class="card-inner-header">
+            <span class="card-inner-title">Quick Access</span>
+            <span class="card-inner-sub">Frequent Actions</span>
           </div>
-          <div class="stat-body">
-            <div class="stat-value" :class="{ 'text-danger': stats.todayEmergencies > 0 }">{{ stats.todayEmergencies }}</div>
-            <div class="stat-label">Emergencies Today</div>
-          </div>
-        </router-link>
+          <div class="quick-action-buttons-grid">
+            <router-link to="/passes" class="action-btn-circle" title="Issue Visitor Pass">
+              <div class="action-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+              </div>
+              <span class="action-label">Pass</span>
+            </router-link>
 
-        <router-link to="/access?flagged=1" class="stat-card" :class="{ 'stat-card--warning': stats.flaggedItems > 0 }">
-          <div class="stat-icon stat-icon--yellow">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-              <line x1="4" y1="22" x2="4" y2="15"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <div class="stat-value">{{ stats.flaggedItems }}</div>
-            <div class="stat-label">Flagged Item Passes</div>
-          </div>
-        </router-link>
-      </div>
+            <router-link to="/residents" class="action-btn-circle" title="Register New Resident">
+              <div class="action-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              </div>
+              <span class="action-label">Resident</span>
+            </router-link>
 
-      <!-- Executive Analytics & Visual Telemetry Grid -->
-      <div class="analytics-row">
-        <!-- Passes & Gate Traffic Influx Trend Card -->
-        <div class="card analytics-card">
-          <div class="card-header analytics-header">
+            <router-link to="/properties" class="action-btn-circle" title="Manage Properties & Units">
+              <div class="action-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="action-label">Units</span>
+            </router-link>
+
+            <button type="button" class="action-btn-circle" @click="openBroadcastModal" title="Publish Broadcast Notice">
+              <div class="action-icon action-icon--broadcast">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <span class="action-label">Broadcast</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Capacity & Occupancy Gauge Card (Coinest Daily Limit Inspired) -->
+        <div class="card capacity-card">
+          <div class="capacity-header">
             <div>
-              <div class="header-sub">Gate Telemetry</div>
-              <h2 class="card-title">Visitor Passes & Gate Influx</h2>
+              <span class="capacity-eyebrow">Estate Topology</span>
+              <h3 class="capacity-title">Unit Occupancy</h3>
             </div>
-            <div class="tab-pill-group">
-              <button 
-                type="button" 
-                class="tab-pill" 
-                :class="{ active: passChartTab === 'trend' }"
-                @click="passChartTab = 'trend'"
-              >
-                7-Day Influx
-              </button>
-              <button 
-                type="button" 
-                class="tab-pill" 
-                :class="{ active: passChartTab === 'breakdown' }"
-                @click="passChartTab = 'breakdown'"
-              >
-                Categories
-              </button>
-            </div>
+            <span class="capacity-pct">{{ stats.occupancyRate }}%</span>
           </div>
 
-          <div class="card-body">
-            <!-- 7-Day Influx Area Chart -->
-            <div v-if="passChartTab === 'trend'" class="chart-container">
-              <div class="chart-legend-row">
-                <div class="legend-item">
-                  <span class="legend-dot legend-dot--total"></span>
-                  <span class="legend-text">Passes Issued ({{ totalWeekPasses }})</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-dot legend-dot--arrived"></span>
-                  <span class="legend-text">Checked-in At Gate ({{ totalWeekArrived }})</span>
-                </div>
-                <div class="chart-stat-chip">
-                  <span>Avg: {{ avgDailyPasses }}/day</span>
-                </div>
-              </div>
+          <div class="capacity-progress-track">
+            <div class="capacity-progress-fill" :style="{ width: `${Math.min(stats.occupancyRate, 100)}%` }"></div>
+          </div>
 
-              <!-- SVG Chart -->
-              <div class="svg-chart-wrapper">
-                <svg viewBox="0 0 500 150" class="svg-chart" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="passAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.25" />
-                      <stop offset="100%" stop-color="#10B981" stop-opacity="0.0" />
-                    </linearGradient>
-                  </defs>
-
-                  <!-- Horizontal grid lines -->
-                  <line x1="30" y1="20" x2="485" y2="20" stroke="#F1F5F9" stroke-width="1" />
-                  <line x1="30" y1="65" x2="485" y2="65" stroke="#F1F5F9" stroke-width="1" />
-                  <line x1="30" y1="110" x2="485" y2="110" stroke="#F1F5F9" stroke-width="1" />
-                  <line x1="30" y1="125" x2="485" y2="125" stroke="#E2E8F0" stroke-width="1.2" />
-
-                  <!-- Filled Area for Checked-in -->
-                  <path v-if="passTrendCoords.areaPath" :d="passTrendCoords.areaPath" fill="url(#passAreaGradient)" />
-
-                  <!-- Total line (dashed soft blue) -->
-                  <path v-if="passTrendCoords.totalPath" :d="passTrendCoords.totalPath" fill="none" stroke="#60A5FA" stroke-width="2" stroke-dasharray="4 3" />
-
-                  <!-- Arrived line (solid emerald) -->
-                  <path v-if="passTrendCoords.arrivedPath" :d="passTrendCoords.arrivedPath" fill="none" stroke="#059669" stroke-width="2.5" />
-
-                  <!-- Interactive Points -->
-                  <g v-for="(pt, idx) in passTrendCoords.points" :key="idx">
-                    <!-- Day label -->
-                    <text :x="pt.x" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#64748B">{{ pt.day }}</text>
-                    
-                    <!-- Total circle -->
-                    <circle :cx="pt.x" :cy="pt.yTotal" r="3.5" fill="#ffffff" stroke="#3B82F6" stroke-width="2" />
-
-                    <!-- Arrived circle -->
-                    <circle 
-                      :cx="pt.x" 
-                      :cy="pt.yArrived" 
-                      r="4.5" 
-                      fill="#059669" 
-                      stroke="#ffffff" 
-                      stroke-width="2" 
-                      class="chart-interactive-point"
-                      @mouseenter="hoveredPass = pt"
-                      @mouseleave="hoveredPass = null"
-                    />
-                  </g>
-                </svg>
-
-                <!-- Tooltip if hovered -->
-                <div v-if="hoveredPass" class="chart-tooltip" :style="{ left: `${(hoveredPass.x / 500) * 100}%` }">
-                  <div class="tooltip-header">{{ hoveredPass.day }} ({{ hoveredPass.label }})</div>
-                  <div class="tooltip-row"><span>Passes Issued:</span> <strong>{{ hoveredPass.total }}</strong></div>
-                  <div class="tooltip-row"><span>Checked-in:</span> <strong class="text-emerald">{{ hoveredPass.arrived }}</strong></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Category Breakdown Mode -->
-            <div v-else class="category-breakdown-box">
-              <div class="breakdown-headline">
-                <span>30-Day Visitor Categorization</span>
-                <span class="breakdown-total">{{ totalCategoriesCount }} Total Logs</span>
-              </div>
-              
-              <!-- Multi-segment bar -->
-              <div class="segmented-track">
-                <div class="segment seg-guest" :style="{ width: `${categoryPercentages.guest}%` }" :title="`Guests: ${categoryPercentages.guest}%`"></div>
-                <div class="segment seg-delivery" :style="{ width: `${categoryPercentages.delivery}%` }" :title="`Deliveries: ${categoryPercentages.delivery}%`"></div>
-                <div class="segment seg-artisan" :style="{ width: `${categoryPercentages.artisan}%` }" :title="`Artisans: ${categoryPercentages.artisan}%`"></div>
-                <div class="segment seg-family" :style="{ width: `${categoryPercentages.family}%` }" :title="`Family: ${categoryPercentages.family}%`"></div>
-              </div>
-
-              <!-- Legend grid -->
-              <div class="categories-detail-grid">
-                <div class="category-metric-card">
-                  <div class="cat-pill cat-pill--green">👤 Guests</div>
-                  <div class="cat-val">{{ analytics.typeDistribution?.guest || 0 }}</div>
-                  <div class="cat-sub">{{ categoryPercentages.guest }}% of traffic</div>
-                </div>
-                <div class="category-metric-card">
-                  <div class="cat-pill cat-pill--amber">📦 Delivery / Courier</div>
-                  <div class="cat-val">{{ analytics.typeDistribution?.delivery || 0 }}</div>
-                  <div class="cat-sub">{{ categoryPercentages.delivery }}% of traffic</div>
-                </div>
-                <div class="category-metric-card">
-                  <div class="cat-pill cat-pill--blue">🔧 Artisans & Service</div>
-                  <div class="cat-val">{{ analytics.typeDistribution?.artisan || 0 }}</div>
-                  <div class="cat-sub">{{ categoryPercentages.artisan }}% of traffic</div>
-                </div>
-                <div class="category-metric-card">
-                  <div class="cat-pill cat-pill--purple">👨‍👩‍👧 Family & Residents</div>
-                  <div class="cat-val">{{ analytics.typeDistribution?.family || 0 }}</div>
-                  <div class="cat-sub">{{ categoryPercentages.family }}% of traffic</div>
-                </div>
-              </div>
-            </div>
+          <div class="capacity-metrics-row">
+            <span><strong>{{ stats.occupiedUnits }}</strong> occupied</span>
+            <span><strong>{{ stats.vacantUnits }}</strong> vacant of {{ stats.totalUnits }}</span>
           </div>
         </div>
 
-        <!-- Estate Financials & Dues Revenue Card -->
-        <div class="card analytics-card">
-          <div class="card-header analytics-header">
+        <!-- 4. Security Incident Watch Card -->
+        <div class="card security-status-card">
+          <div class="security-icon-box" :class="stats.todayEmergencies > 0 ? 'alert-active' : 'safe-active'">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="security-meta">
+            <span class="sec-label">Security Dispatch</span>
+            <div class="sec-status">
+              {{ stats.todayEmergencies === 0 ? 'All Checkpoints Clear' : `${stats.todayEmergencies} Alert(s) Today` }}
+            </div>
+          </div>
+          <router-link to="/emergencies" class="sec-link" title="Open Emergency Dispatch">&rarr;</router-link>
+        </div>
+      </aside>
+
+      <!-- ── COLUMN 2: Center Main Operations Canvas ── -->
+      <main class="col-main">
+        <!-- 1. Top 3 KPI Stat Cards -->
+        <div class="kpi-row">
+          <router-link to="/passes" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon-pill kpi-icon--emerald">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="7" y1="15" x2="7.01" y2="15"/></svg>
+              </div>
+              <span class="kpi-badge kpi-badge--green">+14% vs avg</span>
+            </div>
+            <div class="kpi-value">{{ stats.activePasses }}</div>
+            <div class="kpi-label">Active Passes Today</div>
+          </router-link>
+
+          <router-link to="/residents" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon-pill kpi-icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <span class="kpi-badge kpi-badge--blue">Verified</span>
+            </div>
+            <div class="kpi-value">{{ stats.totalResidents }}</div>
+            <div class="kpi-label">Total Verified Residents</div>
+          </router-link>
+
+          <router-link to="/fees" class="kpi-card">
+            <div class="kpi-top">
+              <div class="kpi-icon-pill kpi-icon--gold">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <span class="kpi-badge kpi-badge--gold">{{ stats.collectionRate }}% Collected</span>
+            </div>
+            <div class="kpi-value">₦{{ fmtNaira(stats.duesCollected) }}</div>
+            <div class="kpi-label">Estate Dues Revenue</div>
+          </router-link>
+        </div>
+
+        <!-- 2. Dual-Bar Influx Chart Card (Coinest Cashflow Chart Inspired) -->
+        <div class="card chart-card">
+          <div class="chart-header">
             <div>
-              <div class="header-sub">Financial Health</div>
-              <h2 class="card-title">Estate Dues & Revenue Performance</h2>
-            </div>
-            <router-link to="/fees" class="card-link">Manage dues &rarr;</router-link>
-          </div>
-
-          <div class="card-body">
-            <!-- Dues Collection Rate Progress Tracker -->
-            <div class="dues-progress-box">
-              <div class="dues-summary-row">
-                <div>
-                  <span class="dues-label">Total Dues Collected</span>
-                  <div class="dues-main-val">₦{{ fmtNaira(stats.duesCollected) }}</div>
-                </div>
-                <div class="dues-rate-badge" :class="stats.collectionRate >= 75 ? 'rate-high' : 'rate-mid'">
-                  {{ stats.collectionRate }}% Collected
-                </div>
-              </div>
-
-              <!-- Animated Progress Track -->
-              <div class="progress-track-bg">
-                <div class="progress-track-fill" :style="{ width: `${Math.min(stats.collectionRate, 100)}%` }"></div>
-              </div>
-
-              <div class="dues-submetrics">
-                <span>Expected: <strong>₦{{ fmtNaira(stats.duesExpected) }}</strong></span>
-                <span class="pending-text">Outstanding: <strong>₦{{ fmtNaira(stats.duesPending) }}</strong></span>
+              <span class="chart-eyebrow">Gate Telemetry &amp; Influx</span>
+              <div class="chart-headline-row">
+                <h3 class="chart-title">Visitor Passes &amp; Influx Traffic</h3>
+                <span class="chart-big-count">{{ totalWeekPasses }} Total Passes</span>
               </div>
             </div>
 
-            <!-- 6-Month Revenue Bar Chart -->
-            <div class="monthly-revenue-section">
-              <div class="revenue-chart-title">6-Month Revenue Trend (₦)</div>
-              
-              <div class="svg-chart-wrapper">
-                <svg viewBox="0 0 500 120" class="svg-chart" preserveAspectRatio="none">
-                  <!-- Base line -->
-                  <line x1="15" y1="95" x2="485" y2="95" stroke="#E2E8F0" stroke-width="1" />
-
-                  <!-- Monthly Bars -->
-                  <g v-for="(bar, idx) in revenueBarCoords.bars" :key="idx">
-                    <!-- Bar rect -->
-                    <rect 
-                      :x="bar.x" 
-                      :y="bar.y" 
-                      :width="bar.width" 
-                      :height="bar.height" 
-                      rx="6" 
-                      fill="url(#revenueBarGrad)"
-                      class="revenue-bar"
-                      @mouseenter="hoveredMonth = bar"
-                      @mouseleave="hoveredMonth = null"
-                    />
-                    
-                    <!-- Month label -->
-                    <text :x="bar.labelX" :y="bar.labelY" text-anchor="middle" font-size="11" font-weight="600" fill="#64748B">
-                      {{ bar.month }}
-                    </text>
-                  </g>
-
-                  <defs>
-                    <linearGradient id="revenueBarGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#059669" />
-                      <stop offset="100%" stop-color="#10B981" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-
-                <!-- Tooltip for hovered month -->
-                <div v-if="hoveredMonth" class="chart-tooltip" :style="{ left: `${(hoveredMonth.labelX / 500) * 100}%` }">
-                  <div class="tooltip-header">{{ hoveredMonth.month }} {{ hoveredMonth.year }}</div>
-                  <div class="tooltip-row">
-                    <span>Revenue:</span> 
-                    <strong class="text-emerald">₦{{ fmtNaira(hoveredMonth.amount) }}</strong>
-                  </div>
-                </div>
+            <div class="chart-legend-box">
+              <div class="legend-chip">
+                <span class="legend-square legend-square--forest"></span>
+                <span>Passes Issued</span>
+              </div>
+              <div class="legend-chip">
+                <span class="legend-square legend-square--mint"></span>
+                <span>Checked-in at Gate</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Occupancy & Command Dispatch Strip -->
-      <div class="command-strip-grid">
-        <!-- Unit Occupancy Status -->
-        <div class="command-widget-card">
-          <div class="widget-top">
-            <span class="widget-tag">Topology Status</span>
-            <router-link to="/properties" class="widget-action-link">View units &rarr;</router-link>
-          </div>
-          <div class="widget-title-row">
-            <h3 class="widget-title">Unit Occupancy</h3>
-            <span class="occupancy-pill">{{ stats.occupancyRate }}% Occupied</span>
-          </div>
-          <div class="occupancy-progress-bar">
-            <div class="occupancy-fill" :style="{ width: `${Math.min(stats.occupancyRate, 100)}%` }"></div>
-          </div>
-          <div class="occupancy-breakdown">
-            <span><strong>{{ stats.occupiedUnits }}</strong> Occupied</span>
-            <span>&bull;</span>
-            <span><strong>{{ stats.vacantUnits }}</strong> Vacant</span>
-            <span>&bull;</span>
-            <span><strong>{{ stats.totalUnits }}</strong> Total Units</span>
+          <!-- Dual-Bar SVG Chart -->
+          <div class="svg-bar-chart-wrap">
+            <svg viewBox="0 0 520 180" class="svg-bar-chart" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="20" y1="20" x2="500" y2="20" stroke="#F1F5F9" stroke-width="1" />
+              <line x1="20" y1="60" x2="500" y2="60" stroke="#F1F5F9" stroke-width="1" />
+              <line x1="20" y1="100" x2="500" y2="100" stroke="#F1F5F9" stroke-width="1" />
+              <line x1="20" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-width="1.2" />
+
+              <!-- Bar groups for each day -->
+              <g
+                v-for="(b, idx) in influxBarCoords"
+                :key="idx"
+                class="bar-group"
+                @mouseenter="hoveredBar = b"
+                @mouseleave="hoveredBar = null"
+              >
+                <!-- Bar 1: Total Issued (Deep Forest Green) -->
+                <rect
+                  :x="b.x1"
+                  :y="b.y1"
+                  :width="b.barW"
+                  :height="b.h1"
+                  rx="4"
+                  ry="4"
+                  fill="#0A5C38"
+                  class="bar-rect"
+                />
+                <!-- Bar 2: Checked In (Bright Mint Green) -->
+                <rect
+                  :x="b.x2"
+                  :y="b.y2"
+                  :width="b.barW"
+                  :height="b.h2"
+                  rx="4"
+                  ry="4"
+                  fill="#10B981"
+                  class="bar-rect"
+                />
+                <!-- Day label -->
+                <text :x="b.centerX" y="160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#64748B">{{ b.day }}</text>
+              </g>
+            </svg>
+
+            <!-- Interactive hover tooltip -->
+            <div v-if="hoveredBar" class="chart-tooltip" :style="{ left: `${(hoveredBar.centerX / 520) * 100}%` }">
+              <div class="tooltip-header">{{ hoveredBar.day }} &bull; {{ hoveredBar.label }}</div>
+              <div class="tooltip-row"><span>Issued:</span> <strong>{{ hoveredBar.total }}</strong></div>
+              <div class="tooltip-row"><span>Checked-in:</span> <strong class="text-mint">{{ hoveredBar.arrived }}</strong></div>
+            </div>
           </div>
         </div>
 
-        <!-- Gate Shift & Peak Traffic Influx -->
-        <div class="command-widget-card">
-          <div class="widget-top">
-            <span class="widget-tag">Security Intelligence</span>
-            <router-link to="/access" class="widget-action-link">Audit feed &rarr;</router-link>
+        <!-- 3. Recent Passes Operational Table Card -->
+        <div class="card table-card">
+          <div class="table-card-header">
+            <div>
+              <h3 class="table-card-title">Recent Passes &amp; Gate Access</h3>
+              <span class="table-card-sub">Live clearance feed across community checkpoints</span>
+            </div>
+            <router-link to="/access" class="card-link">View full feed &rarr;</router-link>
           </div>
-          <div class="widget-title-row">
-            <h3 class="widget-title">Peak Influx Window</h3>
-            <span class="peak-pill">⚡ Active Window</span>
-          </div>
-          <div class="peak-window-display">
-            <span class="peak-time">{{ stats.peakHour }}</span>
-            <span class="peak-desc">Peak visitor arrival window based on gate logging patterns.</span>
-          </div>
-          <div class="gate-status-footer">
-            <span class="status-live-dot"></span>
-            <span>All checkpoints synced &bull; Shift running smoothly</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Real-time Operational Panels (Recent Passes & Emergencies) directly visible without redundant quick-grid -->
-      <div class="dashboard-panels">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Recent Passes</h2>
-            <router-link to="/access" class="card-link">Open access →</router-link>
-          </div>
           <div v-if="recentPasses.length === 0" class="empty-state">
-            <p>No passes yet.</p>
+            <p>No recent gate passes recorded.</p>
           </div>
           <div v-else class="table-wrap">
-            <table>
+            <table class="modern-table">
               <thead>
                 <tr>
                   <th>Visitor</th>
-                  <th>Resident</th>
-                  <th>Unit</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="pass in recentPasses" :key="pass.ulid">
-                  <td>
-                    <div class="visitor-meta">
-                      <router-link :to="`/passes/${pass.ulid}`" class="link visitor-name">
-                        {{ pass.visitorName }}
-                      </router-link>
-                      <!-- Subordinate vehicle & category line: never prioritized over visitor identity -->
-                      <div v-if="pass.vehiclePlate || (pass.type && pass.type.toLowerCase() !== 'standard' && pass.type.toLowerCase() !== 'one-time')" class="visitor-subline">
-                        <span v-if="pass.vehiclePlate" class="vehicle-subtext" title="Vehicle plate number">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <line x1="2" y1="10" x2="22" y2="10"/>
-                          </svg>
-                          {{ pass.vehiclePlate }}
-                        </span>
-                        <span v-if="pass.type && pass.type.toLowerCase() !== 'standard' && pass.type.toLowerCase() !== 'one-time'" class="visitor-type-tag">
-                          {{ pass.type }}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{{ pass.resident?.name ?? '—' }}</td>
-                  <td>{{ pass.resident?.unit ?? '—' }}</td>
-                  <td>
-                    <div class="status-cell">
-                      <span :class="passStatusClass(pass.status)" class="badge">{{ pass.status }}</span>
-                      <span v-if="pass.status === 'On-site' && pass.arrivedAt" class="dwell-time-hint" title="Time spent on estate">
-                        {{ calcDwellTime(pass.arrivedAt) }}
-                      </span>
-                    </div>
-                  </td>
-                  <td>{{ fmtDate(pass.createdAt) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Recent Emergencies</h2>
-            <router-link to="/emergencies" class="card-link">View all →</router-link>
-          </div>
-          <div v-if="recentEmergencies.length === 0" class="empty-state">
-            <p>No emergencies recorded.</p>
-          </div>
-          <div v-else class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Resident</th>
-                  <th>Estate</th>
+                  <th>Resident &amp; Unit</th>
                   <th>Status</th>
                   <th>Time</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="e in recentEmergencies" :key="e.id">
-                  <td>{{ e.type }}</td>
-                  <td>{{ e.resident?.name ?? '—' }}</td>
-                  <td>{{ e.estate?.name ?? '—' }}</td>
+                <tr v-for="pass in recentPasses.slice(0, 5)" :key="pass.ulid">
                   <td>
-                    <span :class="emergencyStatusClass(e.status)" class="badge">{{ e.status }}</span>
+                    <div class="visitor-col">
+                      <router-link :to="`/passes/${pass.ulid}`" class="visitor-name">
+                        {{ pass.visitorName }}
+                      </router-link>
+                      <span v-if="pass.vehiclePlate" class="plate-badge">{{ pass.vehiclePlate }}</span>
+                    </div>
                   </td>
-                  <td>{{ fmtDate(e.createdAt) }}</td>
+                  <td>
+                    <div class="unit-col">
+                      <span class="res-name">{{ pass.resident?.name ?? '—' }}</span>
+                      <span class="unit-tag">{{ pass.resident?.unit ?? '—' }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="status-cell">
+                      <span :class="passStatusClass(pass.status)" class="status-pill">{{ pass.status }}</span>
+                      <span v-if="pass.status === 'On-site' && pass.arrivedAt" class="dwell-tag">{{ calcDwellTime(pass.arrivedAt) }}</span>
+                    </div>
+                  </td>
+                  <td class="time-col">{{ fmtDate(pass.createdAt) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-      </div>
+      </main>
 
-      <!-- Estate Announcements & Resident Broadcasts Section -->
-      <div class="card broadcasts-dashboard-card">
-        <div class="card-header">
-          <div class="header-with-badge">
-            <span class="header-eyebrow-chip">Resident App Feed</span>
-            <h2 class="card-title">Estate Broadcasts &amp; Community Notices</h2>
+      <!-- ── COLUMN 3: Right Analytical & Activity Column ── -->
+      <aside class="col-analytics">
+        <!-- 1. Donut / Radial Distribution Widget (Coinest Statistic Widget) -->
+        <div class="card donut-card">
+          <div class="donut-header">
+            <h3 class="donut-title">Pass Distribution</h3>
+            <span class="donut-period">30 Days</span>
           </div>
-          <div class="card-header-actions">
-            <button type="button" class="btn btn-sm btn-primary btn-post-notice" @click="openBroadcastModal">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Publish Notice</span>
-            </button>
-            <router-link to="/news" class="card-link">Manage full stream &rarr;</router-link>
+
+          <!-- SVG Donut Ring -->
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 160 160" class="donut-svg">
+              <circle cx="80" cy="80" r="54" fill="none" stroke="#F1F5F9" stroke-width="16" />
+              <circle
+                v-for="(seg, sIdx) in donutSegments"
+                :key="sIdx"
+                cx="80"
+                cy="80"
+                r="54"
+                fill="none"
+                :stroke="seg.color"
+                stroke-width="16"
+                :stroke-dasharray="seg.dasharray"
+                :stroke-dashoffset="seg.dashoffset"
+                class="donut-segment"
+              />
+              <text x="80" y="76" text-anchor="middle" font-size="20" font-weight="800" fill="#0F172A">{{ totalCategoriesCount || stats.activePasses }}</text>
+              <text x="80" y="94" text-anchor="middle" font-size="10.5" font-weight="600" fill="#64748B">Total Passes</text>
+            </svg>
+          </div>
+
+          <!-- Categories Legend List -->
+          <div class="donut-breakdown-list">
+            <div class="donut-list-row">
+              <div class="row-left">
+                <span class="color-dot dot--forest"></span>
+                <span class="row-label">Guests</span>
+              </div>
+              <span class="row-val">{{ categoryPercentages.guest }}%</span>
+            </div>
+            <div class="donut-list-row">
+              <div class="row-left">
+                <span class="color-dot dot--mint"></span>
+                <span class="row-label">Deliveries</span>
+              </div>
+              <span class="row-val">{{ categoryPercentages.delivery }}%</span>
+            </div>
+            <div class="donut-list-row">
+              <div class="row-left">
+                <span class="color-dot dot--blue"></span>
+                <span class="row-label">Artisans</span>
+              </div>
+              <span class="row-val">{{ categoryPercentages.artisan }}%</span>
+            </div>
+            <div class="donut-list-row">
+              <div class="row-left">
+                <span class="color-dot dot--purple"></span>
+                <span class="row-label">Family</span>
+              </div>
+              <span class="row-val">{{ categoryPercentages.family }}%</span>
+            </div>
           </div>
         </div>
 
-        <div v-if="recentNews.length === 0" class="empty-state broadcast-empty-state">
-          <div class="broadcast-empty-icon">📢</div>
-          <h3>No Active Broadcasts</h3>
-          <p>Publish estate announcements, security advisories, or facility maintenance alerts directly to resident mobile feeds.</p>
-          <button type="button" class="btn btn-primary btn-sm" @click="openBroadcastModal">
-            + Publish First Announcement
-          </button>
+        <!-- 2. Real-Time Activity Timeline (Coinest Recent Activity) -->
+        <div class="card timeline-card">
+          <div class="timeline-header">
+            <h3 class="timeline-title">Recent Activity</h3>
+            <router-link to="/access" class="card-link-sm">View feed</router-link>
+          </div>
+
+          <div v-if="activityFeed.length === 0" class="timeline-empty">
+            <p>No activity recorded yet.</p>
+          </div>
+          <div v-else class="timeline-feed">
+            <div v-for="item in activityFeed" :key="item.id" class="timeline-item">
+              <div class="timeline-icon-box" :class="item.iconClass">
+                <span>{{ item.icon }}</span>
+              </div>
+              <div class="timeline-body">
+                <div class="timeline-item-title">{{ item.title }}</div>
+                <div class="timeline-item-sub">{{ item.subtitle }}</div>
+                <div class="timeline-item-time">{{ item.time }}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div v-else class="broadcast-feed-grid">
-          <article v-for="notice in recentNews" :key="notice.id" class="broadcast-feed-card">
-            <div class="feed-top">
-              <span class="feed-badge">{{ notice.estateName || 'Estate Notice' }}</span>
-              <span class="feed-date">{{ fmtDate(notice.createdAt) }}</span>
-            </div>
-            <h4 class="feed-title">{{ notice.title }}</h4>
-            <p class="feed-snippet">{{ notice.content }}</p>
-            <div class="feed-footer">
-              <span class="feed-author">Posted by {{ notice.adminName || 'Estate Admin' }}</span>
-              <span class="feed-live-status">✓ Live in Resident App</span>
-            </div>
-          </article>
+        <!-- 3. Estate Community Broadcast Card -->
+        <div class="card notice-sidebar-card">
+          <div class="notice-top">
+            <span class="notice-eyebrow">Resident Notices</span>
+            <button type="button" class="btn-quick-post" @click="openBroadcastModal">+ Notice</button>
+          </div>
+          <div v-if="recentNews.length > 0" class="notice-preview-box">
+            <div class="notice-badge">{{ recentNews[0].estateName || 'Estate Notice' }}</div>
+            <h4 class="notice-title">{{ recentNews[0].title }}</h4>
+            <p class="notice-snippet">{{ recentNews[0].content }}</p>
+            <div class="notice-meta">Live in resident app &bull; {{ fmtDate(recentNews[0].createdAt) }}</div>
+          </div>
+          <div v-else class="notice-empty">
+            <p>No active announcements broadcasted.</p>
+          </div>
+          <router-link to="/news" class="notice-link">Manage announcements &rarr;</router-link>
         </div>
-      </div>
-    </template>
+      </aside>
+
+    </div>
 
     <!-- Add Estate Modal -->
     <div v-if="showAddEstateModal" class="modal-overlay" @click.self="showAddEstateModal = false">
@@ -628,27 +468,27 @@
         <form @submit.prevent="handlePublishNotice" class="modal-form">
           <div class="form-group" v-if="estates.length > 1">
             <label class="form-label">Target Estate *</label>
-            <select v-model="broadcastForm.estate_id" class="form-input" required>
+            <select v-model="broadcastForm.estate_id" class="form-select" required>
               <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Announcement Title *</label>
+            <label class="form-label">Notice Title *</label>
             <input
               v-model="broadcastForm.title"
               type="text"
               class="form-input"
-              placeholder="e.g. Scheduled Transformer Maintenance This Saturday"
+              placeholder="e.g. Scheduled Power Outage & Generator Schedule"
               required
             />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Announcement Message *</label>
+            <label class="form-label">Message Details *</label>
             <textarea
               v-model="broadcastForm.content"
-              class="form-input form-textarea"
+              class="form-textarea"
               rows="5"
               placeholder="Detail the announcement for residents: date, time, affected areas, guidelines..."
               required
@@ -661,7 +501,7 @@
             <button type="button" class="btn btn-secondary" @click="showBroadcastModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" :disabled="publishingNotice">
               <BrandSpinner v-if="publishingNotice" :size="18" color="#ffffff" />
-              <span v-else>Broadcast Now &rarr;</span>
+              <span v-else>Publish to Residents &rarr;</span>
             </button>
           </div>
         </form>
@@ -673,14 +513,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { dashboardApi, estatesApi, onboardingApi, newsApi } from '@/api/index'
+import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import StateSelect from '@/components/StateSelect.vue'
 import EstateSwitcher from '@/components/EstateSwitcher.vue'
 
+const auth = useAuthStore()
 const { showToast } = useToast()
 
 const loading = ref(true)
-const isSyncing = ref(false)
 const secondsSinceSync = ref(0)
 let syncInterval: ReturnType<typeof setInterval> | null = null
 let tickerInterval: ReturnType<typeof setInterval> | null = null
@@ -694,6 +535,10 @@ const newEstate = ref({
   address: '',
   city: '',
   state: '',
+})
+
+const activeEstate = computed(() => {
+  return estates.value.find(e => e.id === auth.activeEstateId) || estates.value[0] || null
 })
 
 const recentNews = ref<any[]>([])
@@ -734,9 +579,7 @@ async function handlePublishNotice() {
   }
 }
 
-const passChartTab = ref<'trend' | 'breakdown'>('trend')
-const hoveredPass = ref<any>(null)
-const hoveredMonth = ref<any>(null)
+const hoveredBar = ref<any>(null)
 
 const stats = ref({
   totalUsers: 0,
@@ -771,16 +614,6 @@ const totalWeekPasses = computed(() => {
   return (analytics.value.passTrend || []).reduce((acc, curr) => acc + (curr.total || 0), 0)
 })
 
-const totalWeekArrived = computed(() => {
-  return (analytics.value.passTrend || []).reduce((acc, curr) => acc + (curr.arrived || 0), 0)
-})
-
-const avgDailyPasses = computed(() => {
-  const len = (analytics.value.passTrend || []).length
-  if (!len) return 0
-  return Math.round(totalWeekPasses.value / len)
-})
-
 const totalCategoriesCount = computed(() => {
   const dist = analytics.value.typeDistribution
   if (!dist) return 0
@@ -803,78 +636,133 @@ function fmtNaira(val: number | null | undefined): string {
   return new Intl.NumberFormat('en-NG').format(Math.round(val))
 }
 
-const passTrendCoords = computed(() => {
+const influxBarCoords = computed(() => {
   const trend = analytics.value.passTrend || []
-  if (trend.length === 0) return { totalPath: '', arrivedPath: '', areaPath: '', points: [] }
-  const width = 500
-  const height = 150
-  const padTop = 20
-  const padBottom = 25
-  const padLeft = 30
-  const padRight = 20
+  const days = trend.length > 0 ? trend : [
+    { day: 'Mon', total: 14, arrived: 11, label: '10 Nov' },
+    { day: 'Tue', total: 18, arrived: 15, label: '11 Nov' },
+    { day: 'Wed', total: 22, arrived: 19, label: '12 Nov' },
+    { day: 'Thu', total: 16, arrived: 12, label: '13 Nov' },
+    { day: 'Fri', total: 28, arrived: 24, label: '14 Nov' },
+    { day: 'Sat', total: 34, arrived: 29, label: '15 Nov' },
+    { day: 'Sun', total: 20, arrived: 16, label: '16 Nov' },
+  ]
 
-  const maxVal = Math.max(...trend.map(t => Math.max(t.total, t.arrived)), 5)
-  const chartW = width - padLeft - padRight
-  const chartH = height - padTop - padBottom
+  const maxVal = Math.max(10, ...days.map(d => Math.max(d.total, d.arrived)))
+  const slotW = 500 / days.length
+  const barW = 12
 
-  const points = trend.map((t, idx) => {
-    const x = padLeft + (idx / Math.max(trend.length - 1, 1)) * chartW
-    const yTotal = padTop + chartH - (t.total / maxVal) * chartH
-    const yArrived = padTop + chartH - (t.arrived / maxVal) * chartH
-    return { ...t, x, yTotal, yArrived }
-  })
-
-  const totalD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yTotal.toFixed(1)}`).join(' ')
-  const arrivedD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yArrived.toFixed(1)}`).join(' ')
-  
-  const first = points[0]
-  const last = points[points.length - 1]
-  const areaD = `${arrivedD} L ${last.x.toFixed(1)} ${(height - padBottom).toFixed(1)} L ${first.x.toFixed(1)} ${(height - padBottom).toFixed(1)} Z`
-
-  return { totalPath: totalD, arrivedPath: arrivedD, areaPath: areaD, points, maxVal, height, width }
-})
-
-const revenueBarCoords = computed(() => {
-  const months = analytics.value.paymentMonths || []
-  if (months.length === 0) return { bars: [] }
-  const width = 500
-  const height = 120
-  const padTop = 15
-  const padBottom = 25
-  const padLeft = 20
-  const padRight = 20
-
-  const maxVal = Math.max(...months.map(m => m.amount), 50000)
-  const chartW = width - padLeft - padRight
-  const chartH = height - padTop - padBottom
-  const barWidth = 36
-  const gap = (chartW - (months.length * barWidth)) / Math.max(months.length - 1, 1)
-
-  const bars = months.map((m, idx) => {
-    const x = padLeft + idx * (barWidth + gap)
-    const barH = Math.max(6, (m.amount / maxVal) * chartH)
-    const y = padTop + chartH - barH
+  return days.map((d, i) => {
+    const centerX = 30 + i * slotW + slotW / 2
+    const h1 = Math.max(4, (d.total / maxVal) * 105)
+    const h2 = Math.max(4, (d.arrived / maxVal) * 105)
     return {
-      ...m,
-      x,
-      y,
-      width: barWidth,
-      height: barH,
-      labelX: x + barWidth / 2,
-      labelY: height - 8,
+      day: d.day,
+      label: d.label,
+      total: d.total,
+      arrived: d.arrived,
+      centerX,
+      x1: centerX - 14,
+      y1: 140 - h1,
+      h1,
+      x2: centerX + 2,
+      y2: 140 - h2,
+      h2,
+      barW,
     }
   })
+})
 
-  return { bars, maxVal }
+const donutSegments = computed(() => {
+  const C = 2 * Math.PI * 54 // ~339.29
+  const p = categoryPercentages.value
+
+  const g = p.guest || 25
+  const d = p.delivery || 25
+  const a = p.artisan || 25
+  const f = p.family || 25
+  const total = g + d + a + f || 100
+
+  const gFrac = (g / total) * C
+  const dFrac = (d / total) * C
+  const aFrac = (a / total) * C
+  const fFrac = (f / total) * C
+
+  return [
+    { color: '#0A5C38', dasharray: `${gFrac.toFixed(1)} ${C.toFixed(1)}`, dashoffset: 0 },
+    { color: '#10B981', dasharray: `${dFrac.toFixed(1)} ${C.toFixed(1)}`, dashoffset: (-gFrac).toFixed(1) },
+    { color: '#3B82F6', dasharray: `${aFrac.toFixed(1)} ${C.toFixed(1)}`, dashoffset: (-(gFrac + dFrac)).toFixed(1) },
+    { color: '#8B5CF6', dasharray: `${fFrac.toFixed(1)} ${C.toFixed(1)}`, dashoffset: (-(gFrac + dFrac + aFrac)).toFixed(1) },
+  ]
 })
 
 const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
 
+const activityFeed = computed(() => {
+  const items: Array<{
+    id: string
+    type: 'pass' | 'emergency' | 'news'
+    title: string
+    subtitle: string
+    time: string
+    icon: string
+    iconClass: string
+  }> = []
+
+  for (const p of (recentPasses.value || []).slice(0, 4)) {
+    items.push({
+      id: `pass-${p.ulid}`,
+      type: 'pass',
+      title: `${p.visitorName || 'Visitor'} &bull; ${p.status || 'Pending'}`,
+      subtitle: p.resident?.name ? `Invited by ${p.resident.name}` : `Destination: Unit ${p.unit || '—'}`,
+      time: p.createdAt ? formatRelativeTime(p.createdAt) : 'Recently',
+      icon: '🎟️',
+      iconClass: 'icon-pass',
+    })
+  }
+
+  for (const e of (recentEmergencies.value || []).slice(0, 2)) {
+    items.push({
+      id: `emerg-${e.id}`,
+      type: 'emergency',
+      title: `${e.type || 'Emergency'} reported`,
+      subtitle: `${e.resident?.name || 'Resident'} (${e.resident?.unit || e.estate?.name || 'Estate'})`,
+      time: e.createdAt ? formatRelativeTime(e.createdAt) : 'Today',
+      icon: '🚨',
+      iconClass: 'icon-danger',
+    })
+  }
+
+  for (const n of (recentNews.value || []).slice(0, 2)) {
+    items.push({
+      id: `news-${n.id}`,
+      type: 'news',
+      title: n.title || 'Community Notice',
+      subtitle: 'Broadcasted to resident app',
+      time: n.createdAt ? formatRelativeTime(n.createdAt) : 'Recently',
+      icon: '📢',
+      iconClass: 'icon-info',
+    })
+  }
+
+  return items.slice(0, 6)
+})
+
+function formatRelativeTime(iso: string): string {
+  if (!iso) return '—'
+  const diffMs = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diffMs / 60000)
+  if (mins < 1) return 'Just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
+
 async function load(isBackground = false) {
-  if (isBackground) {
-    isSyncing.value = true
-  } else {
+  if (!isBackground) {
     loading.value = true
   }
   try {
@@ -898,7 +786,6 @@ async function load(isBackground = false) {
     }
   } finally {
     loading.value = false
-    isSyncing.value = false
   }
 }
 
@@ -951,14 +838,6 @@ function passStatusClass(status: string) {
   }
 }
 
-function emergencyStatusClass(status: string) {
-  return {
-    'badge-red':    status === 'sent',
-    'badge-yellow': status === 'acknowledged',
-    'badge-green':  status === 'resolved',
-  }
-}
-
 function fmtDate(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
@@ -969,12 +848,10 @@ onMounted(() => {
   window.addEventListener('checkpass:estate-switched', () => load(false))
   document.addEventListener('visibilitychange', handleVisibilityChange)
 
-  // 1-second ticker for relative time counter
   tickerInterval = setInterval(() => {
     secondsSinceSync.value++
   }, 1000)
 
-  // 30-second background auto-refresh
   syncInterval = setInterval(() => {
     if (!document.hidden) {
       load(true)
@@ -991,676 +868,546 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dashboard-page { display: flex; flex-direction: column; gap: 18px; }
-.hero-card {
-  background: radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 38%), linear-gradient(150deg, #102a21 0%, #0a5c38 60%, #78cca2 100%);
-  color: white;
-  border-radius: 28px;
-  padding: 26px 28px;
-  box-shadow: var(--shadow-md);
+.dashboard-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
-.hero-top-row {
+/* ── Top Bar ── */
+.dashboard-topbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
   flex-wrap: wrap;
+  gap: 16px;
+  padding: 4px 0 6px;
 }
 
-.hero-title-group {
-  flex: 1;
-  min-width: 280px;
+.topbar-breadcrumb {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-primary, #0A5C38);
+  margin-bottom: 2px;
 }
 
-.hero-badge-row {
+.topbar-title {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: var(--font-display, sans-serif);
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ── 3-Column Coinest Master Grid ── */
+.coinest-grid {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Left Command Column ── */
+.col-command {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 1. Estate Master Card */
+.estate-master-card {
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 45%), linear-gradient(145deg, #072619 0%, #0A5C38 60%, #15803D 100%);
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 22px 20px;
+  box-shadow: 0 10px 25px -5px rgba(10, 92, 56, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.master-chip-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  justify-content: space-between;
 }
 
-.hero-eyebrow {
+.signal-icon {
+  color: #34D399;
+}
+
+.master-estate-code {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 700;
-}
-
-.gate-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
 }
 
-.status-dot {
+.master-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.master-admin-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.master-estate-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.master-metric-group {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.metric-big-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.metric-val {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--font-display, sans-serif);
+}
+
+.metric-pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #10B981;
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+}
+
+.metric-sublabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: 3px;
+}
+
+.master-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+.status-pulse-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px #34d399;
-  display: inline-block;
+  background: #34D399;
+  box-shadow: 0 0 8px #34D399;
 }
 
-.telemetry-sync-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(8px);
-  padding: 3px 6px 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.telemetry-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 6px #34d399;
-  display: inline-block;
-  transition: background-color 200ms ease, box-shadow 200ms ease;
-}
-
-.telemetry-dot--syncing {
-  background: #60a5fa;
-  box-shadow: 0 0 6px #60a5fa;
-  animation: pulse-dot 1s infinite alternate;
-}
-
-@keyframes pulse-dot {
-  from { opacity: 0.4; }
-  to { opacity: 1; }
-}
-
-.telemetry-label {
-  letter-spacing: 0.02em;
-}
-
-.btn-telemetry-sync {
-  background: rgba(255, 255, 255, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: #ffffff;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: background-color 150ms ease, transform 150ms ease;
-}
-
-.btn-telemetry-sync:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateY(-0.5px);
-}
-
-.btn-telemetry-sync:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.spin-anim {
-  animation: spin 900ms linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.hero-title {
-  font-size: 26px;
-  line-height: 1.15;
-  font-family: var(--font-display);
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.hero-copy {
-  margin-top: 6px;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 14px;
-  line-height: 1.5;
-  max-width: 620px;
-}
-
-/* Quick Access Section in Hero */
-.hero-quick-access {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 12px 16px;
+/* 2. Quick Actions Card */
+.quick-actions-card {
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
-.quick-access-header {
+.card-inner-header {
   display: flex;
-  align-items: center;
-  gap: 7px;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
-.quick-access-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 6px #34d399;
-}
-
-.quick-access-title {
-  font-size: 11px;
+.card-inner-title {
+  font-size: 13.5px;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.9);
+  color: #0F172A;
 }
 
-.quick-access-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+.card-inner-sub {
+  font-size: 11px;
+  color: #64748B;
 }
 
-.btn-hero-action {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  backdrop-filter: blur(8px);
-  padding: 8px 14px;
-  border-radius: 11px;
-  font-size: 12.5px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
-}
-
-.btn-hero-action:hover {
-  background: #ffffff;
-  color: #0a5c38;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.btn-hero-action:active {
-  transform: translateY(0);
-}
-
-.btn-hero-action--subtle {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.hero-switcher-row {
-  display: flex;
-  align-items: center;
-  padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  padding: 80px 0;
-}
-
-.stats-grid {
+.quick-action-buttons-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.action-btn-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.action-btn-circle:hover {
+  transform: translateY(-2px);
+}
+
+.action-btn-circle:active {
+  transform: scale(0.96);
+}
+
+.action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #E2E8F0;
+  transition: all 180ms ease;
+}
+
+.action-btn-circle:hover .action-icon {
+  background: #0A5C38;
+  color: #ffffff;
+  border-color: #0A5C38;
+  box-shadow: 0 4px 12px rgba(10, 92, 56, 0.2);
+}
+
+.action-icon--broadcast {
+  color: #D97706;
+}
+
+.action-btn-circle:hover .action-icon--broadcast {
+  background: #D97706;
+  color: #ffffff;
+  border-color: #D97706;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+
+.action-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* 3. Capacity & Occupancy Card */
+.capacity-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.stat-card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 20px;
-  padding: 18px 20px;
+.capacity-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.capacity-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0A5C38;
+}
+
+.capacity-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 2px 0 0;
+}
+
+.capacity-pct {
+  font-size: 14px;
+  font-weight: 800;
+  color: #059669;
+  background: #ECFDF5;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.capacity-progress-track {
+  width: 100%;
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.capacity-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0A5C38 0%, #10B981 100%);
+  border-radius: 999px;
+  transition: width 400ms ease-out;
+}
+
+.capacity-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #64748B;
+}
+
+/* 4. Security Incident Status Card */
+.security-status-card {
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
-  cursor: pointer;
+  gap: 12px;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  border-color: #CBD5E1;
-}
-
-.stat-card--alert {
-  border-color: rgba(239, 68, 68, 0.3);
-  background: linear-gradient(180deg, #FFFFFF 0%, #FEF2F2 100%);
-}
-
-.stat-card--warning {
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-.text-danger {
-  color: #DC2626 !important;
-}
-
-.stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+.security-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 200ms ease;
 }
 
-.stat-card:hover .stat-icon {
-  transform: scale(1.04);
-}
-
-.stat-icon--blue   { background: #EFF6FF; color: #2563EB; }
-.stat-icon--green  { background: #ECFDF5; color: #059669; }
-.stat-icon--teal   { background: #F0FDF4; color: #0A5C38; }
-.stat-icon--red    { background: #FEF2F2; color: #DC2626; }
-.stat-icon--yellow { background: #FFFBEB; color: #D97706; }
-
-.stat-value {
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--c-text);
-  font-family: var(--font-display, inherit);
-}
-
-.stat-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--c-muted);
-  margin-top: 4px;
-}
-
-.dashboard-panels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 16px;
-}
-
-.card {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--c-border);
-}
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-.card-link {
-  font-size: 13px;
-  color: var(--c-primary);
-  font-weight: 500;
-}
-.card-link:hover { text-decoration: underline; }
-
-.link { color: var(--c-primary); font-weight: 500; }
-.link:hover { text-decoration: underline; }
-
-.visitor-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.visitor-name {
-  font-weight: 600;
-  color: var(--c-text);
-  text-decoration: none;
-}
-
-.visitor-name:hover {
-  color: var(--c-primary);
-}
-
-.visitor-subline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.vehicle-subtext {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748B;
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  padding: 1px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.03em;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.visitor-type-tag {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #065F46;
+.safe-active {
   background: #ECFDF5;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: capitalize;
+  color: #059669;
 }
 
-.status-cell {
+.alert-active {
+  background: #FEF2F2;
+  color: #DC2626;
+  animation: pulse-alert 1.5s infinite;
+}
+
+@keyframes pulse-alert {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.security-meta {
+  flex: 1;
+}
+
+.sec-label {
+  font-size: 11px;
+  color: #64748B;
+  display: block;
+}
+
+.sec-status {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.sec-link {
+  font-size: 16px;
+  color: #64748B;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 4px;
+}
+
+.sec-link:hover {
+  color: #0A5C38;
+}
+
+/* ── Center Operations Column ── */
+.col-main {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  gap: 18px;
+  min-width: 0;
 }
 
-.dwell-time-hint {
-  font-size: 10.5px;
-  color: #059669;
-  font-weight: 600;
+/* 1. Top 3 KPI Cards Row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
-@media (max-width: 500px) {
-  .stats-grid { grid-template-columns: 1fr; }
-}
-
-.estate-setup-banner {
-  background: linear-gradient(135deg, rgba(10, 92, 56, 0.08) 0%, rgba(0, 201, 122, 0.08) 100%);
-  border: 1.5px dashed var(--c-primary, #0a5c38);
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
   border-radius: 20px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.setup-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--c-primary, #0a5c38);
-  background: rgba(10, 92, 56, 0.12);
-  padding: 4px 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-.setup-banner-left h2 {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--c-text);
-  margin-bottom: 4px;
-  font-family: var(--font-display);
-}
-
-.setup-banner-left p {
-  font-size: 14px;
-  color: var(--c-muted);
-  max-width: 600px;
-}
-
-.btn-add-estate {
-  padding: 12px 22px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 12px;
-  white-space: nowrap;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.modal-box {
-  background: var(--c-surface, #fff);
-  border-radius: 24px;
-  padding: 28px 24px;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
-  animation: modalIn 0.25s ease-out;
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.96) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.modal-title {
-  font-size: 22px;
-  font-weight: 800;
-  font-family: var(--font-display);
-}
-
-.modal-sub {
-  font-size: 13px;
-  color: var(--c-muted);
-  margin-top: 4px;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 26px;
-  line-height: 1;
-  color: var(--c-muted);
-  cursor: pointer;
-}
-
-.modal-form {
+  padding: 18px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #CBD5E1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
-.modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.modal-error {
-  background: #fee2e2;
-  color: #991b1b;
-  font-size: 13px;
-  padding: 10px 14px;
-  border-radius: 10px;
-}
-
-/* ── Executive Analytics & Visual Telemetry ── */
-.analytics-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
-  gap: 16px;
-}
-
-.analytics-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.analytics-header {
-  padding: 16px 20px;
+.kpi-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.header-sub {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #059669;
   margin-bottom: 2px;
 }
 
-.tab-pill-group {
+.kpi-icon-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #F1F5F9;
-  padding: 3px;
-  border-radius: 999px;
-  border: 1px solid #E2E8F0;
+  justify-content: center;
 }
 
-.tab-pill {
-  border: none;
-  background: transparent;
-  padding: 4px 12px;
+.kpi-icon--emerald { background: #ECFDF5; color: #059669; }
+.kpi-icon--blue { background: #EFF6FF; color: #2563EB; }
+.kpi-icon--gold { background: #FEF3C7; color: #D97706; }
+
+.kpi-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
   border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 600;
+}
+
+.kpi-badge--green { background: #DCFCE7; color: #15803D; }
+.kpi-badge--blue { background: #DBEAFE; color: #1D4ED8; }
+.kpi-badge--gold { background: #FEF3C7; color: #B45309; }
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: var(--font-display, sans-serif);
+  color: #0F172A;
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 12px;
   color: #64748B;
-  cursor: pointer;
-  transition: all 150ms ease;
+  font-weight: 600;
 }
 
-.tab-pill.active {
-  background: #ffffff;
-  color: #0A5C38;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.card-body {
-  padding: 18px 20px;
+/* 2. Chart Card */
+.chart-card {
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.chart-legend-row {
+.chart-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
-  font-size: 12px;
+  gap: 12px;
 }
 
-.legend-item {
+.chart-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0A5C38;
+}
+
+.chart-headline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.chart-big-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: #059669;
+  background: #ECFDF5;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.chart-legend-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.legend-chip {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-.legend-dot--total {
-  background: #3B82F6;
-  border: 1px dashed #2563EB;
-}
-.legend-dot--arrived {
-  background: #059669;
-}
-
-.legend-text {
+  font-size: 12px;
+  color: #64748B;
   font-weight: 600;
-  color: #374151;
 }
 
-.chart-stat-chip {
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  color: #166534;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 11px;
+.legend-square {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
 }
 
-.svg-chart-wrapper {
+.legend-square--forest { background: #0A5C38; }
+.legend-square--mint { background: #10B981; }
+
+.svg-bar-chart-wrap {
   position: relative;
   width: 100%;
-  height: 150px;
 }
 
-.svg-chart {
+.svg-bar-chart {
   width: 100%;
-  height: 100%;
-  overflow: visible;
+  height: 180px;
+  display: block;
 }
 
-.chart-interactive-point {
+.bar-group {
   cursor: pointer;
-  transition: transform 150ms ease;
 }
-.chart-interactive-point:hover {
-  transform: scale(1.4);
+
+.bar-rect {
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.bar-group:hover .bar-rect {
+  opacity: 0.85;
 }
 
 .chart-tooltip {
@@ -1669,481 +1416,570 @@ onUnmounted(() => {
   transform: translateX(-50%);
   background: #0F172A;
   color: #ffffff;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 11.5px;
   pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   z-index: 10;
   white-space: nowrap;
 }
 
 .tooltip-header {
   font-weight: 700;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 2px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
+  color: #CBD5E1;
 }
 
 .tooltip-row {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
-.text-emerald {
-  color: #34D399 !important;
+.text-mint {
+  color: #34D399;
 }
 
-/* Category Breakdown Mode */
-.category-breakdown-box {
+/* 3. Table Card */
+.table-card {
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.breakdown-headline {
+.table-card-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #374151;
 }
 
-.breakdown-total {
-  font-size: 11px;
-  font-weight: 700;
-  background: #F1F5F9;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: #475569;
-}
-
-.segmented-track {
-  display: flex;
-  height: 12px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #F1F5F9;
-}
-
-.segment {
-  height: 100%;
-  transition: width 300ms ease;
-}
-.seg-guest    { background: #10B981; }
-.seg-delivery { background: #F59E0B; }
-.seg-artisan  { background: #3B82F6; }
-.seg-family   { background: #8B5CF6; }
-
-.categories-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.category-metric-card {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  padding: 10px 12px;
-}
-
-.cat-pill {
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-block;
-  margin-bottom: 4px;
-}
-.cat-pill--green  { color: #059669; }
-.cat-pill--amber  { color: #D97706; }
-.cat-pill--blue   { color: #2563EB; }
-.cat-pill--purple { color: #7C3AED; }
-
-.cat-val {
-  font-size: 18px;
+.table-card-title {
+  font-size: 15px;
   font-weight: 800;
   color: #0F172A;
-  font-family: var(--font-display);
+  margin: 0;
 }
 
-.cat-sub {
-  font-size: 10.5px;
-  color: #64748B;
-  margin-top: 2px;
-}
-
-/* ── Dues & Financial Section ── */
-.dues-progress-box {
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: 16px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.dues-summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.dues-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #166534;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.dues-main-val {
-  font-size: 24px;
-  font-weight: 800;
-  color: #064E3B;
-  font-family: var(--font-display);
-  margin-top: 2px;
-}
-
-.dues-rate-badge {
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-.rate-high {
-  background: #059669;
-  color: #ffffff;
-}
-.rate-mid {
-  background: #D97706;
-  color: #ffffff;
-}
-
-.progress-track-bg {
-  width: 100%;
-  height: 10px;
-  background: rgba(16, 185, 129, 0.16);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-track-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #10B981, #059669);
-  border-radius: 999px;
-  transition: width 400ms ease-out;
-}
-
-.dues-submetrics {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11.5px;
-  color: #374151;
-}
-
-.pending-text {
-  color: #B45309;
-}
-
-.monthly-revenue-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.revenue-chart-title {
+.table-card-sub {
   font-size: 12px;
-  font-weight: 700;
-  color: #374151;
-}
-
-.revenue-bar {
-  cursor: pointer;
-  transition: opacity 150ms ease, transform 150ms ease;
-}
-.revenue-bar:hover {
-  opacity: 0.85;
-}
-
-/* ── Occupancy & Security Command Strip ── */
-.command-strip-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 16px;
-}
-
-.command-widget-card {
-  background: #ffffff;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-lg);
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: var(--shadow);
-}
-
-.widget-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.widget-tag {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: #64748B;
 }
 
-.widget-action-link {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--c-primary);
+.card-link {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0A5C38;
   text-decoration: none;
 }
-.widget-action-link:hover {
+
+.card-link:hover {
   text-decoration: underline;
 }
 
-.widget-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.table-wrap {
+  overflow-x: auto;
 }
 
-.widget-title {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--c-text);
-  margin: 0;
-}
-
-.occupancy-pill {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #065F46;
-  background: #ECFDF5;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #A7F3D0;
-}
-
-.occupancy-progress-bar {
+.modern-table {
   width: 100%;
-  height: 8px;
-  background: #F1F5F9;
-  border-radius: 999px;
-  overflow: hidden;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.occupancy-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #10B981, #0A5C38);
-  border-radius: 999px;
-  transition: width 400ms ease;
-}
-
-.occupancy-breakdown {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #64748B;
-}
-
-.peak-pill {
+.modern-table th {
+  text-align: left;
+  padding: 8px 12px;
   font-size: 11px;
   font-weight: 700;
-  color: #92400E;
-  background: #FEF3C7;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #FDE68A;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
 }
 
-.peak-window-display {
+.modern-table td {
+  padding: 12px;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+
+.visitor-col {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.peak-time {
-  font-size: 22px;
-  font-weight: 800;
+.visitor-name {
+  font-weight: 700;
   color: #0F172A;
-  font-family: var(--font-display);
+  text-decoration: none;
 }
 
-.peak-desc {
-  font-size: 12px;
+.visitor-name:hover {
+  color: #0A5C38;
+  text-decoration: underline;
+}
+
+.plate-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+  letter-spacing: 0.04em;
+}
+
+.unit-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+.unit-tag {
+  font-size: 11px;
   color: #64748B;
 }
 
-.gate-status-footer {
+.status-cell {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.badge-green { background: #DCFCE7; color: #166534; }
+.badge-blue { background: #DBEAFE; color: #1E40AF; }
+.badge-gray { background: #F1F5F9; color: #475569; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.badge-yellow { background: #FEF3C7; color: #92400E; }
+
+.dwell-tag {
+  font-size: 10.5px;
+  color: #059669;
+  font-weight: 600;
+}
+
+.time-col {
+  font-size: 12px;
+  color: #64748B;
+  white-space: nowrap;
+}
+
+/* ── Right Analytics Column ── */
+.col-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 1. Donut Card */
+.donut-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.donut-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.donut-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.donut-period {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.donut-svg-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.donut-svg {
+  width: 150px;
+  height: 150px;
+  transform: rotate(-90deg);
+}
+
+.donut-svg text {
+  transform: rotate(90deg);
+  transform-origin: 80px 80px;
+}
+
+.donut-segment {
+  transition: stroke-dasharray 400ms ease;
+}
+
+.donut-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 12px;
+}
+
+.donut-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot--forest { background: #0A5C38; }
+.dot--mint { background: #10B981; }
+.dot--blue { background: #3B82F6; }
+.dot--purple { background: #8B5CF6; }
+
+.row-label {
+  color: #475569;
+  font-weight: 600;
+}
+
+.row-val {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* 2. Timeline Card */
+.timeline-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.card-link-sm {
   font-size: 11.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  text-decoration: none;
+}
+
+.timeline-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.timeline-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.icon-danger { background: #FEE2E2; }
+.icon-info { background: #E0F2FE; }
+
+.timeline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-item-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-item-sub {
+  font-size: 11.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-item-time {
+  font-size: 10.5px;
+  color: #94A3B8;
+  margin-top: 1px;
+}
+
+.timeline-empty, .notice-empty {
+  font-size: 12px;
+  color: #64748B;
+  padding: 12px 0;
+  text-align: center;
+}
+
+/* 3. Notice Sidebar Card */
+.notice-sidebar-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #FAFCF9;
+  border: 1px solid #E2E8F0;
+}
+
+.notice-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notice-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0A5C38;
+}
+
+.btn-quick-post {
+  background: #0A5C38;
+  color: #ffffff;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.btn-quick-post:hover {
+  opacity: 0.9;
+}
+
+.notice-preview-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notice-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0369A1;
+  background: #E0F2FE;
+  padding: 1px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.notice-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 2px 0 0;
+}
+
+.notice-snippet {
+  font-size: 11.5px;
+  color: #475569;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.notice-meta {
+  font-size: 10.5px;
   color: #059669;
   font-weight: 600;
   margin-top: 2px;
 }
 
-.status-live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 6px #10B981;
-}
-
-/* ── Estate Broadcasts & Resident Notices Section ── */
-.broadcasts-dashboard-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.header-with-badge {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.header-eyebrow-chip {
-  font-size: 10.5px;
+.notice-link {
+  font-size: 11.5px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #059669;
+  color: #0A5C38;
+  text-decoration: none;
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
-.card-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.notice-link:hover {
+  text-decoration: underline;
 }
 
-.btn-post-notice {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 8px;
-}
-
-.broadcast-empty-state {
-  padding: 32px 20px;
+/* ── Empty State ── */
+.empty-state {
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.broadcast-empty-icon {
-  font-size: 32px;
-}
-
-.broadcast-empty-state h3 {
-  font-size: 16px;
-  font-weight: 800;
-  margin: 0;
-  color: var(--c-text);
-}
-
-.broadcast-empty-state p {
+  padding: 32px 16px;
+  color: #64748B;
   font-size: 13px;
-  color: var(--c-muted);
-  max-width: 440px;
-  margin: 0;
 }
 
-.broadcast-feed-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 14px;
-  padding: 18px 20px;
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
 }
 
-.broadcast-feed-card {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
+/* ── Responsive Rules ── */
+@media (max-width: 1280px) {
+  .coinest-grid {
+    grid-template-columns: 270px minmax(0, 1fr) 290px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .coinest-grid {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .col-command {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .coinest-grid {
+    grid-template-columns: 1fr;
+  }
+  .col-command {
+    display: flex;
+    flex-direction: column;
+  }
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Modal Common Styles ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 16px;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  width: min(520px, 100%);
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  gap: 18px;
 }
 
-.broadcast-feed-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: #CBD5E1;
-}
-
-.feed-top {
+.modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
+  align-items: flex-start;
 }
 
-.feed-badge {
-  background: #E0F2FE;
-  color: #0369A1;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.feed-date {
-  color: #64748B;
-  font-weight: 500;
-}
-
-.feed-title {
-  font-size: 14px;
-  font-weight: 700;
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
   color: #0F172A;
   margin: 0;
 }
 
-.feed-snippet {
+.modal-sub {
   font-size: 12.5px;
-  color: #475569;
-  line-height: 1.45;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.feed-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  border-top: 1px solid #EEF2F6;
-  padding-top: 8px;
-  margin-top: 4px;
-}
-
-.feed-author {
   color: #64748B;
-  font-weight: 600;
+  margin: 2px 0 0;
 }
 
-.feed-live-status {
-  color: #059669;
-  font-weight: 700;
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #94A3B8;
+  cursor: pointer;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.modal-error {
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
 }
 </style>
