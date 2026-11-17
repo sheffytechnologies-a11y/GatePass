@@ -9,6 +9,22 @@
               <span class="status-dot"></span>
               Gate Active &bull; Shift Live
             </span>
+            <div class="telemetry-sync-pill" :title="`Auto-refreshes every 30s. ${syncStatusLabel}`">
+              <span class="telemetry-dot" :class="{ 'telemetry-dot--syncing': isSyncing }"></span>
+              <span class="telemetry-label">{{ syncStatusLabel }}</span>
+              <button
+                type="button"
+                class="btn-telemetry-sync"
+                :disabled="isSyncing"
+                @click="manualSync"
+                title="Sync live gate telemetry now"
+              >
+                <svg :class="{ 'spin-anim': isSyncing }" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                <span>Sync</span>
+              </button>
+            </div>
           </div>
           <h1 class="hero-title">Estate Command & Security Overview</h1>
           <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
@@ -91,7 +107,7 @@
           </div>
         </router-link>
 
-        <router-link to="/passes" class="stat-card">
+        <router-link to="/passes?status=Pending" class="stat-card">
           <div class="stat-icon stat-icon--teal">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="5" width="20" height="14" rx="3"/>
@@ -106,7 +122,7 @@
           </div>
         </router-link>
 
-        <router-link to="/access" class="stat-card">
+        <router-link to="/access?status=On-site" class="stat-card">
           <div class="stat-icon stat-icon--teal">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -133,7 +149,7 @@
           </div>
         </router-link>
 
-        <router-link to="/access" class="stat-card" :class="{ 'stat-card--warning': stats.flaggedItems > 0 }">
+        <router-link to="/access?flagged=1" class="stat-card" :class="{ 'stat-card--warning': stats.flaggedItems > 0 }">
           <div class="stat-icon stat-icon--yellow">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
@@ -171,11 +187,35 @@
               <tbody>
                 <tr v-for="pass in recentPasses" :key="pass.ulid">
                   <td>
-                    <router-link :to="`/passes/${pass.ulid}`" class="link">{{ pass.visitorName }}</router-link>
+                    <div class="visitor-meta">
+                      <router-link :to="`/passes/${pass.ulid}`" class="link visitor-name">
+                        {{ pass.visitorName }}
+                      </router-link>
+                      <!-- Subordinate vehicle & category line: never prioritized over visitor identity -->
+                      <div v-if="pass.vehiclePlate || (pass.type && pass.type.toLowerCase() !== 'standard' && pass.type.toLowerCase() !== 'one-time')" class="visitor-subline">
+                        <span v-if="pass.vehiclePlate" class="vehicle-subtext" title="Vehicle plate number">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"/>
+                            <line x1="2" y1="10" x2="22" y2="10"/>
+                          </svg>
+                          {{ pass.vehiclePlate }}
+                        </span>
+                        <span v-if="pass.type && pass.type.toLowerCase() !== 'standard' && pass.type.toLowerCase() !== 'one-time'" class="visitor-type-tag">
+                          {{ pass.type }}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td>{{ pass.resident?.name ?? '—' }}</td>
                   <td>{{ pass.resident?.unit ?? '—' }}</td>
-                  <td><span :class="passStatusClass(pass.status)" class="badge">{{ pass.status }}</span></td>
+                  <td>
+                    <div class="status-cell">
+                      <span :class="passStatusClass(pass.status)" class="badge">{{ pass.status }}</span>
+                      <span v-if="pass.status === 'On-site' && pass.arrivedAt" class="dwell-time-hint" title="Time spent on estate">
+                        {{ calcDwellTime(pass.arrivedAt) }}
+                      </span>
+                    </div>
+                  </td>
                   <td>{{ fmtDate(pass.createdAt) }}</td>
                 </tr>
               </tbody>
@@ -268,16 +308,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { dashboardApi, estatesApi, onboardingApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import StateSelect from '@/components/StateSelect.vue'
 import EstateSwitcher from '@/components/EstateSwitcher.vue'
-import { onUnmounted } from 'vue'
 
 const { showToast } = useToast()
 
 const loading = ref(true)
+const isSyncing = ref(false)
+const secondsSinceSync = ref(0)
+let syncInterval: ReturnType<typeof setInterval> | null = null
+let tickerInterval: ReturnType<typeof setInterval> | null = null
+
 const estates = ref<any[]>([])
 const showAddEstateModal = ref(false)
 const creatingEstate = ref(false)
@@ -300,7 +344,20 @@ const stats = ref({
 const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
 
-async function load() {
+const syncStatusLabel = computed(() => {
+  if (isSyncing.value) return 'Syncing…'
+  if (secondsSinceSync.value < 5) return 'Live • Just now'
+  if (secondsSinceSync.value < 60) return `Live • ${secondsSinceSync.value}s ago`
+  const mins = Math.floor(secondsSinceSync.value / 60)
+  return `Synced ${mins}m ago`
+})
+
+async function load(isBackground = false) {
+  if (isBackground) {
+    isSyncing.value = true
+  } else {
+    loading.value = true
+  }
   try {
     const [summaryRes, estatesRes] = await Promise.all([
       dashboardApi.getSummary(),
@@ -310,11 +367,37 @@ async function load() {
     recentPasses.value = summaryRes.data.recentPasses
     recentEmergencies.value = summaryRes.data.recentEmergencies
     estates.value = estatesRes.data?.estates ?? []
+    secondsSinceSync.value = 0
   } catch {
-    showToast('Failed to load dashboard data.', 'error')
+    if (!isBackground) {
+      showToast('Failed to load dashboard data.', 'error')
+    }
   } finally {
     loading.value = false
+    isSyncing.value = false
   }
+}
+
+async function manualSync() {
+  await load(true)
+  showToast('Live telemetry synchronized', 'info')
+}
+
+function handleVisibilityChange() {
+  if (!document.hidden && secondsSinceSync.value >= 30) {
+    load(true)
+  }
+}
+
+function calcDwellTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime()
+  if (diffMs < 0) return 'Just entered'
+  const mins = Math.floor(diffMs / 60000)
+  if (mins < 1) return '< 1m'
+  if (mins < 60) return `${mins}m`
+  const hrs = Math.floor(mins / 60)
+  const remMins = mins % 60
+  return `${hrs}h ${remMins}m`
 }
 
 async function handleCreateEstate() {
@@ -330,7 +413,7 @@ async function handleCreateEstate() {
     showToast(`Estate "${newEstate.value.name}" added successfully!`, 'success')
     showAddEstateModal.value = false
     newEstate.value = { name: '', address: '', city: '', state: '' }
-    await load()
+    await load(false)
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
     estateError.value = err.response?.data?.message ?? 'Could not create estate. Please try again.'
@@ -363,11 +446,28 @@ function fmtDate(iso: string | null): string {
 }
 
 onMounted(() => {
-  load()
-  window.addEventListener('checkpass:estate-switched', load)
+  load(false)
+  window.addEventListener('checkpass:estate-switched', () => load(false))
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  // 1-second ticker for relative time counter
+  tickerInterval = setInterval(() => {
+    secondsSinceSync.value++
+  }, 1000)
+
+  // 30-second background auto-refresh
+  syncInterval = setInterval(() => {
+    if (!document.hidden) {
+      load(true)
+    }
+  }, 30000)
 })
+
 onUnmounted(() => {
-  window.removeEventListener('checkpass:estate-switched', load)
+  window.removeEventListener('checkpass:estate-switched', () => load(false))
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  if (tickerInterval) clearInterval(tickerInterval)
+  if (syncInterval) clearInterval(syncInterval)
 })
 </script>
 
@@ -434,6 +534,79 @@ onUnmounted(() => {
   background: #34d399;
   box-shadow: 0 0 8px #34d399;
   display: inline-block;
+}
+
+.telemetry-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(8px);
+  padding: 3px 6px 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.telemetry-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+  display: inline-block;
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.telemetry-dot--syncing {
+  background: #60a5fa;
+  box-shadow: 0 0 6px #60a5fa;
+  animation: pulse-dot 1s infinite alternate;
+}
+
+@keyframes pulse-dot {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+.telemetry-label {
+  letter-spacing: 0.02em;
+}
+
+.btn-telemetry-sync {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.btn-telemetry-sync:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-0.5px);
+}
+
+.btn-telemetry-sync:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spin-anim {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .hero-title {
@@ -612,6 +785,67 @@ onUnmounted(() => {
 
 .link { color: var(--c-primary); font-weight: 500; }
 .link:hover { text-decoration: underline; }
+
+.visitor-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.visitor-name {
+  font-weight: 600;
+  color: var(--c-text);
+  text-decoration: none;
+}
+
+.visitor-name:hover {
+  color: var(--c-primary);
+}
+
+.visitor-subline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.vehicle-subtext {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.visitor-type-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #065F46;
+  background: #ECFDF5;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.status-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.dwell-time-hint {
+  font-size: 10.5px;
+  color: #059669;
+  font-weight: 600;
+}
 
 @media (max-width: 500px) {
   .stats-grid { grid-template-columns: 1fr; }

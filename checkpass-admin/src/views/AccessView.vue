@@ -145,7 +145,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { passesApi } from '@/api'
 import QrScannerSheet from '@/components/QrScannerSheet.vue'
 import { useToast } from '@/composables/useToast'
@@ -307,7 +307,19 @@ function formatTime(value: string | null) {
   return new Date(value).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+const route = useRoute()
+
 onMounted(() => {
+  if (route.query.status) {
+    const s = String(route.query.status)
+    if (s.toLowerCase() === 'on-site' || s === 'On-site') {
+      statusFilter.value = 'On-site'
+    } else if (s.toLowerCase() === 'pending' || s === 'Pending') {
+      statusFilter.value = 'Pending'
+    } else if (s.toLowerCase() === 'revoked' || s === 'Revoked') {
+      statusFilter.value = 'Revoked'
+    }
+  }
   refresh()
   checkGuardCompliance()
 })

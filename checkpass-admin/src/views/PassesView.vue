@@ -161,6 +161,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { passesApi, residentsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 
@@ -326,7 +327,14 @@ function fmtDate(iso: string | null): string {
   return new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-onMounted(load)
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.status) {
+    statusFilter.value = String(route.query.status)
+  }
+  load()
+})
 </script>
 
 <style scoped>
