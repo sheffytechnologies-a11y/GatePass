@@ -6,12 +6,19 @@
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-primary hero-btn-white" @click="openCreateModal('setup')">
+        <button class="btn btn-primary hero-btn-white" @click="handlePrimaryAddProperty">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Add Property
+        </button>
+        <button class="btn btn-outline hero-btn-outline-white" @click="openStructureModal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Setup Property
         </button>
       </div>
     </section>
@@ -112,17 +119,37 @@
       <p>Loading properties inventory...</p>
     </div>
 
+    <!-- Case 1: Structure NOT configured yet on newly added estate -->
+    <div v-else-if="properties.length === 0 && !isStructureConfigured" class="empty-state empty-card empty-card--setup-needed">
+      <div class="empty-icon-wrap empty-icon-wrap--amber">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><path d="M12 8v4M6 16l6-4 6 4"/>
+        </svg>
+      </div>
+      <span class="setup-badge">Step 1 Required</span>
+      <h3>Set up your property structure first</h3>
+      <p>Before adding properties or generating units, you must define your estate's physical layout (e.g. Lane · House · Flat or Block · Floor · Flat). This ensures all unit codes, addresses, and visitor passes are formatted accurately and consistently across your estate.</p>
+      <div class="empty-actions">
+        <button class="btn btn-primary" @click="openStructureModal">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Setup Property Structure
+        </button>
+      </div>
+    </div>
+
+    <!-- Case 2: Structure IS configured, ready to add properties -->
     <div v-else-if="properties.length === 0" class="empty-state empty-card">
       <div class="empty-icon-wrap">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round">
           <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/>
         </svg>
       </div>
-      <h3>No properties configured yet</h3>
-      <p>Use the Batch Generator to quickly create lanes, buildings, and flats in seconds, or add a single property.</p>
+      <span class="ready-badge">Structure Configured · {{ currentPresetLabel }}</span>
+      <h3>Structure ready! Add your first property</h3>
+      <p>Your estate naming layout is configured. You can now add individual units with auto-compiled addresses or use Batch Upload to generate all units at once.</p>
       <div class="empty-actions">
-        <button class="btn btn-primary" @click="openCreateModal('batch')">Batch Upload</button>
-        <button class="btn btn-outline" @click="openCreateModal('setup')">+ Add Property</button>
+        <button class="btn btn-primary" @click="openCreateModal('setup')">+ Add Property</button>
+        <button class="btn btn-outline" @click="openCreateModal('batch')">Batch Upload</button>
       </div>
     </div>
 
@@ -197,6 +224,39 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 0: Setup Required Gate Modal -->
+    <div v-if="setupRequiredModalOpen" class="modal-backdrop" @click.self="setupRequiredModalOpen = false">
+      <div class="modal-card modal-sm">
+        <div class="modal-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="warning-icon-pill">⚙️</div>
+            <div>
+              <h2 class="modal-title">Property Setup Required</h2>
+              <p class="modal-subtitle">Define estate naming before adding properties.</p>
+            </div>
+          </div>
+          <button class="close-btn" @click="setupRequiredModalOpen = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="setup-alert-text">
+            You cannot add properties until you define your estate's naming structure and hierarchy (such as <strong>Lane · House · Flat</strong> or <strong>Block · Floor · Flat</strong>).
+          </p>
+          <div class="setup-reason-box">
+            <div class="setup-reason-title">💡 Why is this required?</div>
+            <p class="setup-reason-desc">
+              Setting up your topology ensures that all addresses, unit codes, gate passes, and resident directories are automatically standardized and correctly indexed across your entire estate.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="setupRequiredModalOpen = false">Cancel</button>
+          <button class="btn btn-primary" @click="goToSetupFromAlert">
+            Set Up Structure Now &rarr;
+          </button>
         </div>
       </div>
     </div>
@@ -708,6 +768,8 @@ const PRESETS = [
 ]
 
 // Topology Structure
+const isStructureConfigured = ref(false)
+const setupRequiredModalOpen = ref(false)
 const relabelExistingUnits = ref(true)
 const structureModalOpen = ref(false)
 const structurePreset = ref('lane_house_flat')
@@ -717,6 +779,19 @@ const structureLevels = ref<any[]>([
   { level: 3, name: 'Flat', slug: 'flat', required: false },
 ])
 const savingStructure = ref(false)
+
+function handlePrimaryAddProperty() {
+  if (!isStructureConfigured.value && properties.value.length === 0) {
+    setupRequiredModalOpen.value = true
+    return
+  }
+  openCreateModal('setup')
+}
+
+function goToSetupFromAlert() {
+  setupRequiredModalOpen.value = false
+  openStructureModal()
+}
 
 const currentPresetLabel = computed(() => {
   const match = PRESETS.find(p => p.id === structurePreset.value)
@@ -760,9 +835,12 @@ async function loadStructure() {
     if (res.data?.structure) {
       structurePreset.value = res.data.structure.preset || 'lane_house_flat'
       structureLevels.value = res.data.structure.levels || structureLevels.value
+      isStructureConfigured.value = !!(res.data.structure.configured || properties.value.length > 0)
+    } else {
+      isStructureConfigured.value = properties.value.length > 0
     }
   } catch (err) {
-    // fallback to default
+    isStructureConfigured.value = properties.value.length > 0
   }
 }
 
@@ -776,6 +854,8 @@ async function saveStructure() {
     relabel_existing_units: relabelExistingUnits.value,
   }
   localStorage.setItem(`estate_structure_${activeEstateId.value}`, JSON.stringify(structurePayload))
+  localStorage.setItem(`estate_structure_configured_${activeEstateId.value}`, 'true')
+  isStructureConfigured.value = true
 
   try {
     const res = await propertiesApi.updateStructure(activeEstateId.value, structurePayload)
@@ -1212,6 +1292,9 @@ async function loadProperties() {
 
     const res = await propertiesApi.getAll(activeEstateId.value, params)
     properties.value = res.data?.properties || []
+    if (properties.value.length > 0) {
+      isStructureConfigured.value = true
+    }
   } catch (err) {
     properties.value = []
   } finally {
@@ -1353,6 +1436,29 @@ onMounted(() => {
 
 .hero-btn-white:hover {
   background: #f0fdf4;
+  transform: translateY(-1px);
+}
+
+.hero-btn-outline-white {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.hero-btn-outline-white:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.75) !important;
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 
@@ -1703,6 +1809,83 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   margin-top: 18px;
+}
+
+.empty-card--setup-needed {
+  border: 2px dashed #FCD34D !important;
+  background: #FFFDF5 !important;
+}
+
+.empty-icon-wrap--amber {
+  background: #FEF3C7 !important;
+  color: #D97706 !important;
+}
+
+.setup-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.ready-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #DCFCE7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+
+.warning-icon-pill {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #FEF3C7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.setup-alert-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #374151;
+  margin: 0;
+}
+
+.setup-reason-box {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setup-reason-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.setup-reason-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #15803D;
+  margin: 0;
 }
 
 /* Modals */

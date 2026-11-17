@@ -31,11 +31,14 @@ class Estate extends Model
     public function getPropertyStructureOrDefault(): array
     {
         if (! empty($this->property_structure)) {
-            return $this->property_structure;
+            $struct = $this->property_structure;
+            $struct['configured'] = true;
+            return $struct;
         }
 
         return [
             'preset' => 'lane_house_flat',
+            'configured' => false,
             'levels' => [
                 ['level' => 1, 'name' => 'Lane', 'slug' => 'lane', 'required' => true],
                 ['level' => 2, 'name' => 'House', 'slug' => 'house', 'required' => true],

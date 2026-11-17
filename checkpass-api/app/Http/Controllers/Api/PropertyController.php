@@ -121,6 +121,7 @@ class PropertyController extends Controller
         $estate->property_structure = [
             'preset' => $data['preset'],
             'levels' => $data['levels'],
+            'configured' => true,
         ];
         $estate->save();
 

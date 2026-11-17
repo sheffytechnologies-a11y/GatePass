@@ -152,22 +152,36 @@ export const propertiesApi = {
     }
   },
   getStructure: async (estateId: number) => {
+    const configuredFlag = localStorage.getItem(`estate_structure_configured_${estateId}`) === 'true'
     const stored = localStorage.getItem(`estate_structure_${estateId}`)
     try {
       const res = await client.get(`/v1/admin/estates/${estateId}/property-structure`)
-      if (res.data?.structure) return res
+      if (res.data?.structure) {
+        return {
+          ...res,
+          data: {
+            ...res.data,
+            structure: {
+              ...res.data.structure,
+              configured: res.data.structure.configured ?? configuredFlag ?? false,
+            }
+          }
+        }
+      }
     } catch (err: any) {
       // Backend route not yet deployed or route 404, use stored structure
     }
     if (stored) {
       try {
-        return { data: { structure: JSON.parse(stored) } }
+        const parsed = JSON.parse(stored)
+        return { data: { structure: { ...parsed, configured: true } } }
       } catch { }
     }
     return {
       data: {
         structure: {
           preset: 'lane_house_flat',
+          configured: configuredFlag,
           levels: [
             { level: 1, name: 'Lane', slug: 'lane', required: true },
             { level: 2, name: 'House', slug: 'house', required: true },
@@ -179,11 +193,12 @@ export const propertiesApi = {
   },
   updateStructure: async (estateId: number, data: Record<string, unknown>) => {
     localStorage.setItem(`estate_structure_${estateId}`, JSON.stringify(data))
+    localStorage.setItem(`estate_structure_configured_${estateId}`, 'true')
     try {
       return await client.put(`/v1/admin/estates/${estateId}/property-structure`, data)
     } catch (err: any) {
       // Backend route not yet deployed or route 404, gracefully return saved local structure
-      return { data: { structure: data, message: 'Property structure saved locally.' } }
+      return { data: { structure: { ...data, configured: true }, message: 'Property structure saved locally.' } }
     }
   },
   create: async (data: Record<string, unknown>) => {
