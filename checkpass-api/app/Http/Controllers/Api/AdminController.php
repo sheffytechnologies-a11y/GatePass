@@ -167,9 +167,9 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'name'      => 'required|string|max:255',
-            'phone'     => 'required|string|unique:users,phone',
+            'phone'     => 'required|string|max:30',
             'password'  => 'nullable|string|min:6',
-            'email'     => 'nullable|email|unique:users,email',
+            'email'     => 'nullable|email',
             'unit_id'   => 'nullable|exists:units,id',
             'estate_id' => 'nullable|exists:estates,id',
             'role'      => 'nullable|string|in:owner,tenant',
@@ -191,33 +191,68 @@ class AdminController extends Controller
         $unit = $this->resolveResidentUnit($estate, $data);
         $this->assertCanAddResident($unit);
 
-        $plainPassword = $data['password'] ?? Str::random(10);
+        return DB::transaction(function () use ($data, $estateId, $unit) {
+            $user = User::where('phone', $data['phone'])->first();
 
-        $user = User::create([
-            'name'      => $data['name'],
-            'phone'     => $data['phone'],
-            'email'     => $data['email'] ?? null,
-            'avatar'    => $data['avatar'] ?? null,
-            'password'  => Hash::make($plainPassword),
-            'type'      => 'resident',
-            'estate_id' => $estateId,
-            'is_active' => true,
-        ]);
+            if ($user) {
+                // If email provided, verify it does not conflict with another user
+                if (! empty($data['email']) && User::where('email', $data['email'])->where('id', '!=', $user->id)->exists()) {
+                    abort(422, 'The email address is already in use by another user.');
+                }
+                // Check if user is already a resident in this unit
+                if (Resident::where('user_id', $user->id)->where('unit_id', $unit->id)->exists()) {
+                    abort(422, 'A resident with this phone number is already registered in this unit.');
+                }
+                // Update user details if needed
+                $userUpdates = [];
+                if (! empty($data['name']) && (empty($user->name) || $user->name === 'Resident')) {
+                    $userUpdates['name'] = $data['name'];
+                }
+                if (! empty($data['email']) && empty($user->email)) {
+                    $userUpdates['email'] = $data['email'];
+                }
+                if (! empty($data['avatar'])) {
+                    $userUpdates['avatar'] = $data['avatar'];
+                }
+                if (! empty($userUpdates)) {
+                    $user->update($userUpdates);
+                }
 
-        $resident = Resident::create([
-            'user_id'   => $user->id,
-            'unit_id'   => $unit->id,
-            'estate_id' => $estateId,
-            'role'      => $data['role'] ?? 'tenant',
-            'is_active' => true,
-        ]);
+                $plainPassword = $data['password'] ?? null;
+            } else {
+                if (! empty($data['email']) && User::where('email', $data['email'])->exists()) {
+                    abort(422, 'The email address is already in use by another user.');
+                }
 
-        $resident->load(['user', 'unit', 'estate']);
+                $plainPassword = $data['password'] ?? Str::random(10);
 
-        return response()->json([
-            'resident' => $this->formatResident($resident),
-            'temporaryPassword' => isset($data['password']) ? null : $plainPassword,
-        ], 201);
+                $user = User::create([
+                    'name'      => $data['name'],
+                    'phone'     => $data['phone'],
+                    'email'     => $data['email'] ?? null,
+                    'avatar'    => $data['avatar'] ?? null,
+                    'password'  => Hash::make($plainPassword),
+                    'type'      => 'resident',
+                    'estate_id' => $estateId,
+                    'is_active' => true,
+                ]);
+            }
+
+            $resident = Resident::create([
+                'user_id'   => $user->id,
+                'unit_id'   => $unit->id,
+                'estate_id' => $estateId,
+                'role'      => $data['role'] ?? 'tenant',
+                'is_active' => true,
+            ]);
+
+            $resident->load(['user', 'unit', 'estate']);
+
+            return response()->json([
+                'resident' => $this->formatResident($resident),
+                'temporaryPassword' => $plainPassword,
+            ], 201);
+        });
     }
 
     /**

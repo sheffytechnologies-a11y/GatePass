@@ -178,6 +178,15 @@
                 </div>
               </div>
 
+              <!-- Estate Selector if admin manages multiple estates -->
+              <div v-if="estates.length > 1" class="form-group">
+                <label class="form-label">Estate Community *</label>
+                <select v-model="form.estate_id" class="form-select" @change="onEstateChange">
+                  <option value="">Select estate...</option>
+                  <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
+                </select>
+              </div>
+
               <!-- Personal Information Fields -->
               <div class="form-group">
                 <label class="form-label">Owner's Full Name *</label>
@@ -368,7 +377,11 @@
 
         <!-- Desktop Modal Footer -->
         <div class="modal-footer-bar">
-          <div class="footer-info-hint">
+          <div v-if="formError" class="form-error-banner footer-error">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ formError }}</span>
+          </div>
+          <div v-else class="footer-info-hint">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <span>Temporary login credentials will be generated automatically for all new residents.</span>
           </div>
@@ -650,11 +663,11 @@ async function loadUnits() {
 
 async function openCreate() {
   editing.value = null
-  const currentEstateId = Number(estateFilter.value || auth.activeEstateId) || ''
+  const currentEstateId = Number(estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')) || ''
   form.value = {
     name: '', phone: '', email: '', avatar: '',
     lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
-    estate_id: currentEstateId, unit_id: '', role: 'tenant', is_active: true,
+    estate_id: currentEstateId, unit_id: '', role: 'owner', is_active: true,
   }
   formError.value = ''
   units.value = []
@@ -670,6 +683,21 @@ async function openCreate() {
     }
   }
   modalOpen.value = true
+}
+
+async function onEstateChange() {
+  form.value.unit_id = ''
+  form.value.lane = ''
+  form.value.house = ''
+  form.value.flat = ''
+  estateProperties.value = []
+  if (!form.value.estate_id) return
+  try {
+    const res = await propertiesApi.getAll(Number(form.value.estate_id))
+    estateProperties.value = res.data?.properties || []
+  } catch {
+    estateProperties.value = []
+  }
 }
 
 function openEdit(r: any) {
@@ -735,54 +763,80 @@ async function save() {
       if (form.value.estate_id) payload.estate_id = form.value.estate_id
       if (form.value.unit_id)   payload.unit_id   = form.value.unit_id
       await residentsApi.update(editing.value.id, payload)
-      showToast('Resident updated.', 'success')
+      showToast('Resident updated successfully.', 'success')
     } else {
-      if (!form.value.name.trim())  { formError.value = 'Name is required.'; saving.value = false; return }
-      if (!form.value.phone.trim()) { formError.value = 'Phone is required.'; saving.value = false; return }
+      if (!form.value.name.trim()) {
+        formError.value = 'Owner name is required.'
+        showToast(formError.value, 'error')
+        saving.value = false
+        return
+      }
+      if (!form.value.phone.trim()) {
+        formError.value = 'Phone number is required.'
+        showToast(formError.value, 'error')
+        saving.value = false
+        return
+      }
+      if (!form.value.unit_id && !form.value.lane?.trim() && !form.value.house?.trim() && !form.value.flat?.trim()) {
+        formError.value = 'Please select a configured unit or enter an address.'
+        showToast(formError.value, 'error')
+        saving.value = false
+        return
+      }
 
       const ownerPayload: Record<string, unknown> = {
-        name: form.value.name,
-        phone: form.value.phone,
+        name: form.value.name.trim(),
+        phone: form.value.phone.trim(),
         role: 'owner',
         lane: form.value.lane,
         house: form.value.house,
         flat: form.value.flat,
         landlord_is_occupant: form.value.landlordIsOccupant,
       }
-      if (form.value.email) ownerPayload.email = form.value.email
+      if (form.value.email?.trim()) ownerPayload.email = form.value.email.trim()
       if (form.value.avatar) ownerPayload.avatar = form.value.avatar
       if (form.value.unit_id) ownerPayload.unit_id = form.value.unit_id
       if (form.value.estate_id) ownerPayload.estate_id = form.value.estate_id
+
       const ownerRes = await residentsApi.create(ownerPayload)
       const credentials: { name: string; phone: string; password: string }[] = []
-      if (ownerRes.data.temporaryPassword) {
+      if (ownerRes.data?.temporaryPassword) {
         credentials.push({ name: form.value.name, phone: form.value.phone, password: ownerRes.data.temporaryPassword })
       }
 
       for (const t of form.value.tenants) {
         if (!t.name.trim() || !t.phone.trim()) continue
         const tp: Record<string, unknown> = {
-          name: t.name, phone: t.phone, role: 'tenant',
-          lane: form.value.lane, house: form.value.house, flat: form.value.flat,
+          name: t.name.trim(),
+          phone: t.phone.trim(),
+          role: 'tenant',
+          lane: form.value.lane,
+          house: form.value.house,
+          flat: form.value.flat,
         }
-        if (t.email) tp.email = t.email
+        if (t.email?.trim()) tp.email = t.email.trim()
         if (t.avatar) tp.avatar = t.avatar
         if (form.value.unit_id) tp.unit_id = form.value.unit_id
         if (form.value.estate_id) tp.estate_id = form.value.estate_id
         const tenantRes = await residentsApi.create(tp)
-        if (tenantRes.data.temporaryPassword) {
+        if (tenantRes.data?.temporaryPassword) {
           credentials.push({ name: t.name, phone: t.phone, password: tenantRes.data.temporaryPassword })
         }
       }
-      showToast('Resident created.', 'success')
+
+      showToast('Resident registered successfully!', 'success')
+      closeModal()
       if (credentials.length > 0) {
         newCredentials.value = credentials
       }
+      await load()
+      return
     }
     closeModal()
-    load()
+    await load()
   } catch (err: any) {
     formError.value = err?.response?.data?.message ?? 'Something went wrong.'
+    showToast(formError.value, 'error')
   } finally {
     saving.value = false
   }
