@@ -264,10 +264,7 @@
 
           <!-- Naming Structure Preset Selection (Lane / Block / Street setup) -->
           <div v-if="!editingProperty" class="form-group structure-preset-box">
-            <div class="form-label-row">
-              <label class="form-label mb-0">Estate Layout (Defines your naming setup)</label>
-              <button type="button" class="btn-link-topology" @click="goToPropertySetup">⚙️ Custom Names</button>
-            </div>
+            <label class="form-label mb-0">Estate Layout (Defines your naming setup)</label>
             <div class="preset-pill-selector">
               <button
                 v-for="p in availableTemplates"
@@ -336,6 +333,23 @@
 
         <!-- TAB 2: BATCH UPLOAD (Batch Generator & CSV Import) -->
         <div v-else class="modal-body">
+          <!-- Naming Structure Preset Selection (Estate Layout) -->
+          <div class="form-group structure-preset-box mb-3">
+            <label class="form-label mb-0">Estate Layout (Defines your naming setup)</label>
+            <div class="preset-pill-selector">
+              <button
+                v-for="p in availableTemplates"
+                :key="p.id"
+                type="button"
+                class="preset-pill-btn"
+                :class="{ 'is-active': structurePreset === p.id }"
+                @click="selectLocalPreset(p)"
+              >
+                {{ p.label }}
+              </button>
+            </div>
+          </div>
+
           <div class="batch-subnav">
             <button
               type="button"
