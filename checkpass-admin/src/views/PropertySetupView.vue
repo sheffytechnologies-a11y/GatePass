@@ -58,24 +58,54 @@
               <span v-if="tpl.isCustom" class="tpl-custom-badge">Custom</span>
             </div>
 
-            <div class="tpl-header-actions">
-              <span class="tpl-edit-hint" title="Click to edit">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-              </span>
-              <button
-                v-if="tpl.isCustom"
-                type="button"
-                class="tpl-delete-btn"
-                @click.stop="deleteCustomTemplate(tpl.id)"
-                title="Delete custom template"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
-                </svg>
-              </button>
+            <div class="tpl-header-actions" @click.stop>
+              <div class="dropdown-wrapper">
+                <button
+                  type="button"
+                  class="tpl-more-btn"
+                  :class="{ 'is-active': activeDropdownId === tpl.id }"
+                  @click.stop="toggleDropdown(tpl.id, $event)"
+                  title="Template actions"
+                  aria-label="Template actions"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2.2"/>
+                    <circle cx="12" cy="12" r="2.2"/>
+                    <circle cx="12" cy="19" r="2.2"/>
+                  </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div
+                  v-if="activeDropdownId === tpl.id"
+                  class="dropdown-popover"
+                  @click.stop
+                >
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    @click="handleMenuAction('view', tpl)"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    View / Edit
+                  </button>
+
+                  <button
+                    v-if="tpl.isCustom"
+                    type="button"
+                    class="dropdown-item dropdown-item--danger"
+                    @click="handleMenuAction('delete', tpl)"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -96,7 +126,7 @@
       <div class="modal-card modal-lg">
         <div class="modal-header">
           <div>
-            <h2 class="modal-title">{{ isEditing ? 'Edit Property Template' : 'Add Property Template' }}</h2>
+            <h2 class="modal-title">{{ isEditing ? (editingTemplate.isCustom ? 'Custom Template Details' : 'Template Details') : 'Add Property Template' }}</h2>
             <p class="modal-subtitle">Specify tier levels and naming for this property layout.</p>
           </div>
           <button type="button" class="close-btn" @click="modalOpen = false">✕</button>
@@ -181,7 +211,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { propertiesApi } from '@/api'
 import { useToast } from '@/composables/useToast'
@@ -250,6 +280,27 @@ const defaultPresets = ref<TemplateItem[]>([
 ])
 
 const customTemplates = ref<TemplateItem[]>([])
+
+// Dropdown menu state
+const activeDropdownId = ref<string | null>(null)
+
+function toggleDropdown(id: string, event: MouseEvent) {
+  event.stopPropagation()
+  activeDropdownId.value = activeDropdownId.value === id ? null : id
+}
+
+function closeDropdown() {
+  activeDropdownId.value = null
+}
+
+function handleMenuAction(action: 'view' | 'delete', tpl: TemplateItem) {
+  activeDropdownId.value = null
+  if (action === 'view') {
+    openEditTemplateModal(tpl)
+  } else if (action === 'delete') {
+    deleteCustomTemplate(tpl.id)
+  }
+}
 
 // Modal State
 const modalOpen = ref(false)
@@ -441,6 +492,11 @@ async function handleDeleteFromModal() {
 
 onMounted(() => {
   loadStructure()
+  window.addEventListener('click', closeDropdown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeDropdown)
 })
 </script>
 
@@ -634,33 +690,19 @@ onMounted(() => {
 .tpl-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
 }
 
-.tpl-edit-hint {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9CA3AF;
-  background: #F9FAFB;
-  transition: all 0.15s ease;
+.dropdown-wrapper {
+  position: relative;
 }
 
-.template-card:hover .tpl-edit-hint {
-  color: #0A5C38;
-  background: #ECFDF5;
-}
-
-.tpl-delete-btn {
-  width: 28px;
-  height: 28px;
+.tpl-more-btn {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
-  color: #9CA3AF;
+  color: #6B7280;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -668,10 +710,69 @@ onMounted(() => {
   transition: all 0.15s ease;
 }
 
-.tpl-delete-btn:hover {
-  background: #FEF2F2;
-  border-color: #FCA5A5;
+.tpl-more-btn:hover,
+.tpl-more-btn.is-active {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.dropdown-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 145px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: popoverFade 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.dropdown-item:hover {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.dropdown-item--danger {
   color: #DC2626;
+}
+
+.dropdown-item--danger:hover {
+  background: #FEF2F2;
+  color: #B91C1C;
 }
 
 .tpl-title {
