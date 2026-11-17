@@ -18,14 +18,13 @@
     <!-- Hero Header -->
     <section class="setup-hero-card">
       <div class="setup-hero-copy">
-        <span class="setup-eyebrow">Estate Configuration</span>
         <h1 class="setup-hero-title">Property Layout & Structure Setup</h1>
         <p class="setup-hero-subtitle">
-          Define how physical properties and addresses are structured across your estate. Choose an active template below, customize tier levels, or create new custom templates.
+          Define how physical properties and addresses are structured across your estate. Customize template tiers or create new custom templates.
         </p>
       </div>
       <div class="setup-hero-actions">
-        <button class="btn btn-white-hero" @click="openCreateTemplateModal">
+        <button type="button" class="btn btn-white-hero" @click="openCreateTemplateModal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
@@ -35,40 +34,12 @@
       </div>
     </section>
 
-    <!-- Active Structure Summary Card -->
-    <div class="active-summary-card">
-      <div class="summary-icon-wrap">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2" stroke-linecap="round">
-          <circle cx="12" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><path d="M12 8v4M6 16l6-4 6 4"/>
-        </svg>
-      </div>
-      <div class="summary-details">
-        <div class="summary-header-row">
-          <span class="summary-label">Current Active Setup:</span>
-          <strong class="summary-name">{{ currentActiveTemplateName }}</strong>
-          <span v-if="isConfigured" class="active-status-badge">
-            <span class="badge-dot"></span> Active Estate Structure
-          </span>
-          <span v-else class="pending-status-badge">
-            <span class="badge-dot-amber"></span> Pending Initial Setup
-          </span>
-        </div>
-        <div class="summary-tiers-list">
-          <span class="tier-crumb" v-for="(tier, idx) in activeLevels" :key="idx">
-            <span class="crumb-num">Level {{ tier.level }}:</span>
-            <strong class="crumb-name">{{ tier.name }}</strong>
-            <span v-if="idx < activeLevels.length - 1" class="crumb-separator">&rarr;</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
     <!-- Template Cards Grid -->
     <div class="templates-section">
       <div class="section-heading-row">
         <div>
           <h2 class="section-title">Available Layout Templates</h2>
-          <p class="section-subtitle">Select a template to activate it for this estate, or click Edit to modify its tiers.</p>
+          <p class="section-subtitle">Choose or customize property templates to structure addresses and units across your estate.</p>
         </div>
         <span class="templates-count">{{ allTemplates.length }} templates available</span>
       </div>
@@ -78,15 +49,11 @@
           v-for="tpl in allTemplates"
           :key="tpl.id"
           class="template-card"
-          :class="{ 'template-card--active': activePresetId === tpl.id }"
         >
           <div class="tpl-header">
             <div class="tpl-title-group">
               <h3 class="tpl-title">{{ tpl.label }}</h3>
-              <span v-if="activePresetId === tpl.id" class="tpl-active-badge">
-                <span class="badge-dot"></span> Active Setup
-              </span>
-              <span v-else-if="tpl.isCustom" class="tpl-custom-badge">Custom</span>
+              <span v-if="tpl.isCustom" class="tpl-custom-badge">Custom</span>
             </div>
           </div>
 
@@ -102,36 +69,29 @@
           <div class="tpl-footer">
             <div class="tpl-footer-actions">
               <button
-                v-if="activePresetId !== tpl.id"
-                class="btn btn-sm btn-primary-activate"
-                :disabled="savingActive"
-                @click="activateTemplate(tpl)"
+                type="button"
+                class="btn btn-sm btn-outline-edit"
+                @click="openEditTemplateModal(tpl)"
+                title="Edit this template"
               >
-                Select as Active
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit
               </button>
-              <div v-else class="current-active-tag">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Active
-              </div>
-
-              <div class="tpl-secondary-btns">
-                <button
-                  class="btn btn-sm btn-outline-edit"
-                  @click="openEditTemplateModal(tpl)"
-                  title="Edit tiers for this template"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Edit Tiers
-                </button>
-                <button
-                  v-if="tpl.isCustom && activePresetId !== tpl.id"
-                  class="btn btn-sm btn-outline-danger"
-                  @click="deleteCustomTemplate(tpl.id)"
-                  title="Delete custom template"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
-                </button>
-              </div>
+              <button
+                v-if="tpl.isCustom"
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                @click="deleteCustomTemplate(tpl.id)"
+                title="Delete custom template"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                </svg>
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -143,10 +103,10 @@
       <div class="modal-card modal-lg">
         <div class="modal-header">
           <div>
-            <h2 class="modal-title">{{ isEditingCustom ? 'Edit Property Template' : 'Add Property Template' }}</h2>
+            <h2 class="modal-title">{{ isEditing ? 'Edit Property Template' : 'Add Property Template' }}</h2>
             <p class="modal-subtitle">Specify tier levels and naming for this property layout.</p>
           </div>
-          <button class="close-btn" @click="modalOpen = false">✕</button>
+          <button type="button" class="close-btn" @click="modalOpen = false">✕</button>
         </div>
 
         <div class="modal-body">
@@ -195,7 +155,8 @@
                 />
                 <button
                   v-if="editingTemplate.levels.length > 1"
-                  class="btn btn-sm btn-outline-danger"
+                  type="button"
+                  class="btn-remove-tier"
                   @click="removeTierFromEditing(idx)"
                 >
                   Remove
@@ -203,22 +164,11 @@
               </div>
             </div>
           </div>
-
-          <!-- Relabel Checkbox (if template is active or being activated) -->
-          <div v-if="activePresetId === editingTemplate.id" class="form-group relabel-box">
-            <label class="toggle-control">
-              <input type="checkbox" v-model="relabelExisting" />
-              <span>
-                <strong>Apply changes to existing properties in this estate</strong>
-                <small class="d-block text-muted">Safely re-labels existing units with the updated tier names while preserving resident and gate pass records.</small>
-              </span>
-            </label>
-          </div>
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-outline" @click="modalOpen = false">Cancel</button>
-          <button class="btn btn-primary" :disabled="savingModal" @click="saveTemplate">
+          <button type="button" class="btn btn-outline" @click="modalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-primary" :disabled="savingModal" @click="saveTemplate">
             {{ savingModal ? 'Saving...' : 'Save Template' }}
           </button>
         </div>
@@ -255,7 +205,7 @@ const activeEstateId = computed(() => Number(auth.activeEstateId) || 1)
 const activeEstateName = computed(() => auth.activeEstateName || 'Active Estate')
 
 // 4 Built-in Presets
-const DEFAULT_PRESETS: TemplateItem[] = [
+const defaultPresets = ref<TemplateItem[]>([
   {
     id: 'lane_house_flat',
     label: 'Lane · House · Flat',
@@ -294,24 +244,14 @@ const DEFAULT_PRESETS: TemplateItem[] = [
       { level: 2, name: 'Plot', slug: 'plot', required: true },
     ],
   },
-]
-
-// State
-const activePresetId = ref('lane_house_flat')
-const activeLevels = ref<StructureLevel[]>([
-  { level: 1, name: 'Lane', slug: 'lane', required: true },
-  { level: 2, name: 'House', slug: 'house', required: true },
-  { level: 3, name: 'Flat', slug: 'flat', required: false },
 ])
+
 const customTemplates = ref<TemplateItem[]>([])
-const isConfigured = ref(false)
-const savingActive = ref(false)
 
 // Modal State
 const modalOpen = ref(false)
-const isEditingCustom = ref(false)
+const isEditing = ref(false)
 const savingModal = ref(false)
-const relabelExisting = ref(true)
 const editingTemplate = ref<{
   id: string
   label: string
@@ -327,83 +267,46 @@ const editingTemplate = ref<{
 
 // All combined templates
 const allTemplates = computed(() => {
-  return [...DEFAULT_PRESETS, ...customTemplates.value]
+  return [...defaultPresets.value, ...customTemplates.value]
 })
 
-const currentActiveTemplateName = computed(() => {
-  const match = allTemplates.value.find(t => t.id === activePresetId.value)
-  return match?.label || activeLevels.value.map(l => l.name).join(' · ') || 'Custom Layout'
-})
-
-// Load active topology & custom templates
+// Load custom templates
 async function loadStructure() {
   if (!activeEstateId.value) return
+
+  // Load local customized defaults if any
+  const storedDefaults = localStorage.getItem(`estate_default_presets_${activeEstateId.value}`)
+  if (storedDefaults) {
+    try {
+      defaultPresets.value = JSON.parse(storedDefaults)
+    } catch {}
+  }
+
   try {
     const res = await propertiesApi.getStructure(activeEstateId.value)
-    if (res.data?.structure) {
-      const s = res.data.structure
-      activePresetId.value = s.preset || 'lane_house_flat'
-      activeLevels.value = s.levels || activeLevels.value
-      isConfigured.value = !!s.configured
-
-      if (Array.isArray(s.custom_templates)) {
-        customTemplates.value = s.custom_templates
-      } else {
-        // Fallback to local storage custom templates
-        const storedCustom = localStorage.getItem(`estate_custom_templates_${activeEstateId.value}`)
-        if (storedCustom) {
-          try {
-            customTemplates.value = JSON.parse(storedCustom)
-          } catch {}
-        }
+    if (res.data?.structure?.custom_templates && Array.isArray(res.data.structure.custom_templates)) {
+      customTemplates.value = res.data.structure.custom_templates
+    } else {
+      const stored = localStorage.getItem(`estate_custom_templates_${activeEstateId.value}`)
+      if (stored) {
+        try {
+          customTemplates.value = JSON.parse(stored)
+        } catch {}
       }
     }
   } catch (err) {
-    // If offline or network error, use cached
-    const stored = localStorage.getItem(`estate_structure_${activeEstateId.value}`)
+    const stored = localStorage.getItem(`estate_custom_templates_${activeEstateId.value}`)
     if (stored) {
       try {
-        const parsed = JSON.parse(stored)
-        activePresetId.value = parsed.preset || 'lane_house_flat'
-        activeLevels.value = parsed.levels || activeLevels.value
-        isConfigured.value = true
+        customTemplates.value = JSON.parse(stored)
       } catch {}
     }
   }
 }
 
-// Activate a template as the active estate layout
-async function activateTemplate(tpl: TemplateItem) {
-  if (!activeEstateId.value) return
-  savingActive.value = true
-
-  activePresetId.value = tpl.id
-  activeLevels.value = JSON.parse(JSON.stringify(tpl.levels))
-  isConfigured.value = true
-
-  const payload = {
-    preset: tpl.id,
-    levels: tpl.levels,
-    custom_templates: customTemplates.value,
-    relabel_existing_units: false,
-  }
-
-  localStorage.setItem(`estate_structure_${activeEstateId.value}`, JSON.stringify(payload))
-  localStorage.setItem(`estate_structure_configured_${activeEstateId.value}`, 'true')
-
-  try {
-    await propertiesApi.updateStructure(activeEstateId.value, payload)
-    showToast(`"${tpl.label}" activated as the estate property structure.`, 'success')
-  } catch (err) {
-    showToast(`"${tpl.label}" active layout updated.`, 'success')
-  } finally {
-    savingActive.value = false
-  }
-}
-
 // Open modal to create a new template
 function openCreateTemplateModal() {
-  isEditingCustom.value = false
+  isEditing.value = false
   editingTemplate.value = {
     id: `custom_${Date.now()}`,
     label: '',
@@ -414,13 +317,12 @@ function openCreateTemplateModal() {
     ],
     isCustom: true,
   }
-  relabelExisting.value = false
   modalOpen.value = true
 }
 
 // Open modal to edit an existing template
 function openEditTemplateModal(tpl: TemplateItem) {
-  isEditingCustom.value = true
+  isEditing.value = true
   editingTemplate.value = {
     id: tpl.id,
     label: tpl.label,
@@ -428,7 +330,6 @@ function openEditTemplateModal(tpl: TemplateItem) {
     levels: JSON.parse(JSON.stringify(tpl.levels)),
     isCustom: tpl.isCustom ?? false,
   }
-  relabelExisting.value = activePresetId.value === tpl.id
   modalOpen.value = true
 }
 
@@ -444,7 +345,6 @@ function addTierToEditing() {
 
 function removeTierFromEditing(index: number) {
   editingTemplate.value.levels.splice(index, 1)
-  // Re-number
   editingTemplate.value.levels.forEach((l, i) => {
     l.level = i + 1
   })
@@ -457,7 +357,6 @@ async function saveTemplate() {
     return
   }
 
-  // Validate that tiers have names
   for (const lvl of editingTemplate.value.levels) {
     if (!lvl.name.trim()) {
       showToast('All tier levels must have a name (e.g. Street, House).', 'error')
@@ -466,20 +365,15 @@ async function saveTemplate() {
   }
 
   savingModal.value = true
-
   const tplId = editingTemplate.value.id
-  const isDefault = DEFAULT_PRESETS.some(p => p.id === tplId)
+  const defIdx = defaultPresets.value.findIndex(p => p.id === tplId)
 
-  if (isDefault) {
-    // If editing a default preset, update its levels in the preset list copy or save as custom variant
-    const idx = DEFAULT_PRESETS.findIndex(p => p.id === tplId)
-    if (idx !== -1) {
-      DEFAULT_PRESETS[idx].label = editingTemplate.value.label
-      DEFAULT_PRESETS[idx].description = editingTemplate.value.description
-      DEFAULT_PRESETS[idx].levels = JSON.parse(JSON.stringify(editingTemplate.value.levels))
-    }
+  if (defIdx !== -1) {
+    defaultPresets.value[defIdx].label = editingTemplate.value.label
+    defaultPresets.value[defIdx].description = editingTemplate.value.description
+    defaultPresets.value[defIdx].levels = JSON.parse(JSON.stringify(editingTemplate.value.levels))
+    localStorage.setItem(`estate_default_presets_${activeEstateId.value}`, JSON.stringify(defaultPresets.value))
   } else {
-    // Custom template
     const existingIdx = customTemplates.value.findIndex(c => c.id === tplId)
     const updatedCustom: TemplateItem = {
       id: tplId,
@@ -501,33 +395,15 @@ async function saveTemplate() {
     )
   }
 
-  // If this template is currently active, update active structure
-  if (activePresetId.value === tplId) {
-    activeLevels.value = JSON.parse(JSON.stringify(editingTemplate.value.levels))
+  // Sync custom templates to backend
+  try {
     const payload = {
       preset: tplId,
       levels: editingTemplate.value.levels,
       custom_templates: customTemplates.value,
-      relabel_existing_units: relabelExisting.value,
     }
-    localStorage.setItem(`estate_structure_${activeEstateId.value}`, JSON.stringify(payload))
-    localStorage.setItem(`estate_structure_configured_${activeEstateId.value}`, 'true')
-
-    try {
-      await propertiesApi.updateStructure(activeEstateId.value, payload)
-    } catch {}
-  } else {
-    // Just sync custom templates to backend
-    const payload = {
-      preset: activePresetId.value,
-      levels: activeLevels.value,
-      custom_templates: customTemplates.value,
-      relabel_existing_units: false,
-    }
-    try {
-      await propertiesApi.updateStructure(activeEstateId.value, payload)
-    } catch {}
-  }
+    await propertiesApi.updateStructure(activeEstateId.value, payload)
+  } catch {}
 
   savingModal.value = false
   modalOpen.value = false
@@ -543,13 +419,12 @@ async function deleteCustomTemplate(id: string) {
     JSON.stringify(customTemplates.value)
   )
 
-  const payload = {
-    preset: activePresetId.value,
-    levels: activeLevels.value,
-    custom_templates: customTemplates.value,
-    relabel_existing_units: false,
-  }
   try {
+    const payload = {
+      preset: 'lane_house_flat',
+      levels: defaultPresets.value[0]?.levels || [{ level: 1, name: 'Lane' }, { level: 2, name: 'House' }],
+      custom_templates: customTemplates.value,
+    }
     await propertiesApi.updateStructure(activeEstateId.value, payload)
   } catch {}
 
@@ -636,16 +511,6 @@ onMounted(() => {
   max-width: 720px;
 }
 
-.setup-eyebrow {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.85;
-  font-weight: 700;
-  display: block;
-  margin-bottom: 6px;
-}
-
 .setup-hero-title {
   font-size: 24px;
   font-weight: 700;
@@ -682,122 +547,6 @@ onMounted(() => {
   color: #047857 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16) !important;
-}
-
-/* Active Summary Card */
-.active-summary-card {
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 18px;
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-}
-
-.summary-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: #ECFDF5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.summary-details {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.summary-header-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.summary-label {
-  font-size: 13.5px;
-  color: #6B7280;
-  font-weight: 500;
-}
-
-.summary-name {
-  font-size: 15px;
-  color: #111827;
-  font-weight: 700;
-}
-
-.active-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #065F46;
-  background: #DCFCE7;
-  padding: 3px 10px;
-  border-radius: 12px;
-}
-
-.pending-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #92400E;
-  background: #FEF3C7;
-  padding: 3px 10px;
-  border-radius: 12px;
-}
-
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10B981;
-}
-
-.badge-dot-amber {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #F59E0B;
-}
-
-.summary-tiers-list {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tier-crumb {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-}
-
-.crumb-num {
-  color: #9CA3AF;
-  font-weight: 500;
-  font-size: 11.5px;
-}
-
-.crumb-name {
-  color: #111827;
-}
-
-.crumb-separator {
-  color: #D1D5DB;
-  margin-left: 4px;
 }
 
 /* Templates Section */
@@ -851,14 +600,8 @@ onMounted(() => {
 }
 
 .template-card:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
-}
-
-.template-card--active {
-  border-color: #047857;
-  background: #FAFCFB;
-  box-shadow: 0 0 0 1px #047857, 0 8px 24px rgba(4, 120, 87, 0.06);
+  border-color: #0A5C38;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
 .tpl-header {
@@ -879,18 +622,6 @@ onMounted(() => {
   font-weight: 700;
   color: #111827;
   margin: 0;
-}
-
-.tpl-active-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #065F46;
-  background: #DCFCE7;
-  padding: 2px 8px;
-  border-radius: 10px;
 }
 
 .tpl-custom-badge {
@@ -948,79 +679,48 @@ onMounted(() => {
 
 .tpl-footer {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 14px;
   border-top: 1px solid #F3F4F6;
 }
 
 .tpl-footer-actions {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
 
-.btn-primary-activate {
-  background: #0A5C38;
-  color: #ffffff;
-  border: none;
-  font-weight: 700;
+.btn-outline-edit {
+  background: #ffffff;
+  border: 1.5px solid #D1D5DB;
+  color: #1F2937;
+  font-weight: 600;
   padding: 8px 16px;
   border-radius: 10px;
   font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-primary-activate:hover {
-  background: #064E3B;
-  transform: translateY(-1px);
-}
-
-.current-active-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #047857;
-}
-
-.tpl-secondary-btns {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-outline-edit {
-  background: #ffffff;
-  border: 1px solid #D1D5DB;
-  color: #374151;
-  font-weight: 600;
-  padding: 7px 12px;
-  border-radius: 10px;
-  font-size: 12.5px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-outline-edit:hover {
   background: #F9FAFB;
-  border-color: #9CA3AF;
-  color: #111827;
+  border-color: #0A5C38;
+  color: #0A5C38;
 }
 
 .btn-outline-danger {
   background: #ffffff;
-  border: 1px solid #FCA5A5;
+  border: 1.5px solid #FCA5A5;
   color: #DC2626;
-  padding: 7px 10px;
+  padding: 8px 14px;
   border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1030,21 +730,194 @@ onMounted(() => {
   border-color: #EF4444;
 }
 
-/* Modals & Tiers Editor (8-point grid) */
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-lg {
+  max-width: 620px;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 4px 0 0;
+}
+
+.close-btn {
+  background: #F3F4F6;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #4B5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.close-btn:hover {
+  background: #E5E7EB;
+  color: #111827;
+}
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #F9FAFB;
+}
+
+/* Form Inputs inside Modal */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #0A5C38;
+  box-shadow: 0 0 0 3px rgba(10, 92, 56, 0.12);
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* Buttons */
+.btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.btn-primary {
+  background: #0A5C38;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #064E3B;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  border-color: #D1D5DB;
+  background: white;
+  color: #374151;
+}
+
+.btn-outline:hover {
+  background: #F3F4F6;
+  border-color: #9CA3AF;
+}
+
+/* Tiers Editor */
 .tiers-section {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .tiers-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .tiers-label {
   margin: 0;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #374151;
 }
@@ -1053,7 +926,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #0A5C38;
   background: #ECFDF5;
@@ -1074,7 +947,7 @@ onMounted(() => {
 .tiers-editor {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .tier-row {
@@ -1091,17 +964,11 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.tier-row .form-input {
+.btn-remove-tier {
   height: 40px;
-  padding: 8px 12px;
+  padding: 0 14px;
   border-radius: 8px;
-}
-
-.tier-row .btn-outline-danger {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   border: 1px solid #FCA5A5;
   color: #DC2626;
@@ -1114,27 +981,9 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.relabel-box {
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 24px;
-}
-
-.toggle-control {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 13.5px;
-}
-
-.toggle-control input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  accent-color: #0A5C38;
+.btn-remove-tier:hover {
+  background: #FEF2F2;
+  border-color: #EF4444;
 }
 
 @media (max-width: 768px) {

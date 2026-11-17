@@ -270,7 +270,7 @@
             </div>
             <div class="preset-pill-selector">
               <button
-                v-for="p in PRESETS"
+                v-for="p in availableTemplates"
                 :key="p.id"
                 type="button"
                 class="preset-pill-btn"
@@ -643,6 +643,10 @@ const PRESETS = [
 // Topology Structure
 const isStructureConfigured = ref(false)
 const structurePreset = ref('lane_house_flat')
+const customTemplates = ref<any[]>([])
+const availableTemplates = computed(() => {
+  return [...PRESETS, ...customTemplates.value]
+})
 const structureLevels = ref<any[]>([
   { level: 1, name: 'Lane', slug: 'lane', required: true },
   { level: 2, name: 'House', slug: 'house', required: true },
@@ -666,12 +670,21 @@ function selectLocalPreset(p: any) {
 
 async function loadStructure() {
   if (!activeEstateId.value) return
+  const storedCustom = localStorage.getItem(`estate_custom_templates_${activeEstateId.value}`)
+  if (storedCustom) {
+    try {
+      customTemplates.value = JSON.parse(storedCustom)
+    } catch {}
+  }
   try {
     const res = await propertiesApi.getStructure(activeEstateId.value)
     if (res.data?.structure) {
       structurePreset.value = res.data.structure.preset || 'lane_house_flat'
       structureLevels.value = res.data.structure.levels || structureLevels.value
       isStructureConfigured.value = !!(res.data.structure.configured || properties.value.length > 0)
+      if (Array.isArray(res.data.structure.custom_templates)) {
+        customTemplates.value = res.data.structure.custom_templates
+      }
     } else {
       isStructureConfigured.value = properties.value.length > 0
     }
