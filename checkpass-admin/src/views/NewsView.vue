@@ -1,5 +1,21 @@
 <template>
   <div class="mobile-page news-page">
+    <!-- Breadcrumb & Back to Dashboard bar -->
+    <div class="page-top-nav">
+      <router-link to="/dashboard" class="btn-back-dashboard">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back to Dashboard</span>
+      </router-link>
+      <div class="breadcrumb-trail">
+        <router-link to="/dashboard" class="crumb-link">Dashboard</router-link>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">Estate Broadcasts &amp; Notices</span>
+      </div>
+    </div>
+
     <!-- Hero Header -->
     <section class="hero-card hero-card--emerald">
       <div class="hero-content">
@@ -353,7 +369,66 @@ onMounted(async () => {
 .news-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+}
+
+.page-top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.btn-back-dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 150ms ease;
+}
+
+.btn-back-dashboard:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0A5C38;
+  transform: translateX(-2px);
+}
+
+.breadcrumb-trail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+.crumb-link {
+  color: #64748B;
+  text-decoration: none;
+  font-weight: 500;
+}
+.crumb-link:hover {
+  color: #0A5C38;
+  text-decoration: underline;
+}
+
+.crumb-sep {
+  color: #94A3B8;
+  font-size: 11px;
+}
+
+.crumb-current {
+  color: #0F172A;
+  font-weight: 700;
 }
 
 .hero-card--emerald {

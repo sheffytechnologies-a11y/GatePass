@@ -13,7 +13,7 @@
           :key="item.path"
           :to="item.path"
           class="side-link"
-          active-class="side-link--active"
+          :class="{ 'side-link--active': isItemActive(item.path) }"
           @click="sidebarOpen = false"
         >
           <span class="side-icon" v-html="item.icon" />
@@ -22,6 +22,16 @@
       </nav>
 
       <div class="side-footer">
+        <router-link
+          to="/billing"
+          class="side-link side-link--subtle"
+          :class="{ 'side-link--active': route.path.startsWith('/billing') }"
+          @click="sidebarOpen = false"
+        >
+          <span class="side-icon" v-html="ICONS.billing" />
+          <span>Plan &amp; Subscription</span>
+        </router-link>
+
         <div class="user-card">
           <div class="avatar">{{ userInitial }}</div>
           <div class="user-meta">
@@ -211,15 +221,22 @@ const navItems = computed(() => {
     { path: '/users', label: 'Users', icon: ICONS.users },
     { path: '/fees', label: 'Finance', icon: ICONS.finance },
     { path: '/artisans', label: 'Artisans & Services', icon: ICONS.artisans },
-    { path: '/billing', label: 'Billing', icon: ICONS.billing },
     { path: '/emergencies', label: 'Emergencies', icon: ICONS.emergencies },
-    { path: '/notifications', label: 'Notifications', icon: ICONS.notifications },
   )
 
   return items
 })
 
+function isItemActive(path: string) {
+  if (path === '/dashboard') {
+    return route.path === '/dashboard' || route.path.startsWith('/news')
+  }
+  return route.path.startsWith(path)
+}
+
 const pageTitle = computed(() => {
+  if (route.path.startsWith('/news')) return 'Estate Broadcasts & Notices'
+  if (route.path.startsWith('/billing')) return 'Plan & Subscription'
   const match = navItems.value.find(n => route.path.startsWith(n.path))
   return match?.label ?? 'Dashboard'
 })

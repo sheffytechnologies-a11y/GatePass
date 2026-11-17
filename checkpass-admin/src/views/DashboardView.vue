@@ -533,6 +533,47 @@
           </div>
         </div>
       </div>
+
+      <!-- Estate Announcements & Resident Broadcasts Section -->
+      <div class="card broadcasts-dashboard-card">
+        <div class="card-header">
+          <div class="header-with-badge">
+            <span class="header-eyebrow-chip">Resident App Feed</span>
+            <h2 class="card-title">Estate Broadcasts &amp; Community Notices</h2>
+          </div>
+          <div class="card-header-actions">
+            <button type="button" class="btn btn-sm btn-primary btn-post-notice" @click="openBroadcastModal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Publish Notice</span>
+            </button>
+            <router-link to="/news" class="card-link">Manage full stream &rarr;</router-link>
+          </div>
+        </div>
+
+        <div v-if="recentNews.length === 0" class="empty-state broadcast-empty-state">
+          <div class="broadcast-empty-icon">📢</div>
+          <h3>No Active Broadcasts</h3>
+          <p>Publish estate announcements, security advisories, or facility maintenance alerts directly to resident mobile feeds.</p>
+          <button type="button" class="btn btn-primary btn-sm" @click="openBroadcastModal">
+            + Publish First Announcement
+          </button>
+        </div>
+
+        <div v-else class="broadcast-feed-grid">
+          <article v-for="notice in recentNews" :key="notice.id" class="broadcast-feed-card">
+            <div class="feed-top">
+              <span class="feed-badge">{{ notice.estateName || 'Estate Notice' }}</span>
+              <span class="feed-date">{{ fmtDate(notice.createdAt) }}</span>
+            </div>
+            <h4 class="feed-title">{{ notice.title }}</h4>
+            <p class="feed-snippet">{{ notice.content }}</p>
+            <div class="feed-footer">
+              <span class="feed-author">Posted by {{ notice.adminName || 'Estate Admin' }}</span>
+              <span class="feed-live-status">✓ Live in Resident App</span>
+            </div>
+          </article>
+        </div>
+      </div>
     </template>
 
     <!-- Add Estate Modal -->
@@ -580,12 +621,66 @@
         </form>
       </div>
     </div>
+
+    <!-- Quick Broadcast Modal -->
+    <div v-if="showBroadcastModal" class="modal-overlay" @click.self="showBroadcastModal = false">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div>
+            <h2 class="modal-title">Publish Estate Notice</h2>
+            <p class="modal-sub">Broadcast announcement directly to all resident mobile app feeds.</p>
+          </div>
+          <button class="modal-close" @click="showBroadcastModal = false">&times;</button>
+        </div>
+
+        <form @submit.prevent="handlePublishNotice" class="modal-form">
+          <div class="form-group" v-if="estates.length > 1">
+            <label class="form-label">Target Estate *</label>
+            <select v-model="broadcastForm.estate_id" class="form-input" required>
+              <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Announcement Title *</label>
+            <input
+              v-model="broadcastForm.title"
+              type="text"
+              class="form-input"
+              placeholder="e.g. Scheduled Transformer Maintenance This Saturday"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Announcement Message *</label>
+            <textarea
+              v-model="broadcastForm.content"
+              class="form-input form-textarea"
+              rows="5"
+              placeholder="Detail the announcement for residents: date, time, affected areas, guidelines..."
+              required
+            ></textarea>
+          </div>
+
+          <div v-if="broadcastError" class="modal-error">{{ broadcastError }}</div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" @click="showBroadcastModal = false">Cancel</button>
+            <button type="submit" class="btn btn-primary" :disabled="publishingNotice">
+              <BrandSpinner v-if="publishingNotice" :size="18" color="#ffffff" />
+              <span v-else>Broadcast Now &rarr;</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { dashboardApi, estatesApi, onboardingApi } from '@/api/index'
+import { dashboardApi, estatesApi, onboardingApi, newsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import StateSelect from '@/components/StateSelect.vue'
 import EstateSwitcher from '@/components/EstateSwitcher.vue'
@@ -608,6 +703,44 @@ const newEstate = ref({
   city: '',
   state: '',
 })
+
+const recentNews = ref<any[]>([])
+const showBroadcastModal = ref(false)
+const publishingNotice = ref(false)
+const broadcastError = ref('')
+const broadcastForm = ref({
+  estate_id: 1,
+  title: '',
+  content: '',
+})
+
+function openBroadcastModal() {
+  broadcastError.value = ''
+  if (estates.value.length > 0 && !broadcastForm.value.estate_id) {
+    broadcastForm.value.estate_id = estates.value[0].id
+  }
+  showBroadcastModal.value = true
+}
+
+async function handlePublishNotice() {
+  broadcastError.value = ''
+  publishingNotice.value = true
+  try {
+    await newsApi.create({
+      estate_id: broadcastForm.value.estate_id,
+      title: broadcastForm.value.title.trim(),
+      content: broadcastForm.value.content.trim(),
+    })
+    showToast('Announcement broadcasted to residents!', 'success')
+    showBroadcastModal.value = false
+    broadcastForm.value = { estate_id: estates.value[0]?.id || 1, title: '', content: '' }
+    await load(false)
+  } catch (e: any) {
+    broadcastError.value = e.response?.data?.message || 'Could not publish notice. Please try again.'
+  } finally {
+    publishingNotice.value = false
+  }
+}
 
 const passChartTab = ref<'trend' | 'breakdown'>('trend')
 const hoveredPass = ref<any>(null)
@@ -761,9 +894,10 @@ async function load(isBackground = false) {
     loading.value = true
   }
   try {
-    const [summaryRes, estatesRes] = await Promise.all([
+    const [summaryRes, estatesRes, newsRes] = await Promise.all([
       dashboardApi.getSummary(),
-      estatesApi.getAll().catch(() => ({ data: { estates: [] } }))
+      estatesApi.getAll().catch(() => ({ data: { estates: [] } })),
+      newsApi.getAll().catch(() => ({ data: { news: [] } })),
     ])
     stats.value = { ...stats.value, ...summaryRes.data.stats }
     if (summaryRes.data.analytics) {
@@ -771,6 +905,7 @@ async function load(isBackground = false) {
     }
     recentPasses.value = summaryRes.data.recentPasses
     recentEmergencies.value = summaryRes.data.recentEmergencies
+    recentNews.value = (newsRes.data?.news || []).slice(0, 3)
     estates.value = estatesRes.data?.estates ?? []
     secondsSinceSync.value = 0
   } catch {
@@ -1851,5 +1986,150 @@ onUnmounted(() => {
   border-radius: 50%;
   background: #10B981;
   box-shadow: 0 0 6px #10B981;
+}
+
+/* ── Estate Broadcasts & Resident Notices Section ── */
+.broadcasts-dashboard-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-with-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-eyebrow-chip {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #059669;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-post-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.broadcast-empty-state {
+  padding: 32px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.broadcast-empty-icon {
+  font-size: 32px;
+}
+
+.broadcast-empty-state h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--c-text);
+}
+
+.broadcast-empty-state p {
+  font-size: 13px;
+  color: var(--c-muted);
+  max-width: 440px;
+  margin: 0;
+}
+
+.broadcast-feed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.broadcast-feed-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.broadcast-feed-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #CBD5E1;
+}
+
+.feed-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.feed-badge {
+  background: #E0F2FE;
+  color: #0369A1;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.feed-date {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.feed-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.feed-snippet {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.feed-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  border-top: 1px solid #EEF2F6;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.feed-author {
+  color: #64748B;
+  font-weight: 600;
+}
+
+.feed-live-status {
+  color: #059669;
+  font-weight: 700;
 }
 </style>
