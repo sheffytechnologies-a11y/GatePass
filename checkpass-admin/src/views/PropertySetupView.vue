@@ -49,11 +49,33 @@
           v-for="tpl in allTemplates"
           :key="tpl.id"
           class="template-card"
+          @click="openEditTemplateModal(tpl)"
+          title="Click to edit template"
         >
           <div class="tpl-header">
             <div class="tpl-title-group">
               <h3 class="tpl-title">{{ tpl.label }}</h3>
               <span v-if="tpl.isCustom" class="tpl-custom-badge">Custom</span>
+            </div>
+
+            <div class="tpl-header-actions">
+              <span class="tpl-edit-hint" title="Click to edit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </span>
+              <button
+                v-if="tpl.isCustom"
+                type="button"
+                class="tpl-delete-btn"
+                @click.stop="deleteCustomTemplate(tpl.id)"
+                title="Delete custom template"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -63,35 +85,6 @@
             <div class="tier-pill" v-for="(lvl, idx) in tpl.levels" :key="idx">
               <span class="tier-pill-level">L{{ lvl.level }}</span>
               <span class="tier-pill-name">{{ lvl.name }}</span>
-            </div>
-          </div>
-
-          <div class="tpl-footer">
-            <div class="tpl-footer-actions">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-edit"
-                @click="openEditTemplateModal(tpl)"
-                title="Edit this template"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-                Edit
-              </button>
-              <button
-                v-if="tpl.isCustom"
-                type="button"
-                class="btn btn-sm btn-outline-danger"
-                @click="deleteCustomTemplate(tpl.id)"
-                title="Delete custom template"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
-                </svg>
-                Delete
-              </button>
             </div>
           </div>
         </div>
@@ -167,10 +160,20 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline" @click="modalOpen = false">Cancel</button>
-          <button type="button" class="btn btn-primary" :disabled="savingModal" @click="saveTemplate">
-            {{ savingModal ? 'Saving...' : 'Save Template' }}
+          <button
+            v-if="isEditing && editingTemplate.isCustom"
+            type="button"
+            class="btn-modal-delete"
+            @click="handleDeleteFromModal"
+          >
+            Delete Template
           </button>
+          <div class="modal-footer-end">
+            <button type="button" class="btn btn-outline" @click="modalOpen = false">Cancel</button>
+            <button type="button" class="btn btn-primary" :disabled="savingModal" @click="saveTemplate">
+              {{ savingModal ? 'Saving...' : 'Save Template' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -431,6 +434,11 @@ async function deleteCustomTemplate(id: string) {
   showToast('Custom template deleted.', 'info')
 }
 
+async function handleDeleteFromModal() {
+  modalOpen.value = false
+  await deleteCustomTemplate(editingTemplate.value.id)
+}
+
 onMounted(() => {
   loadStructure()
 })
@@ -591,17 +599,23 @@ onMounted(() => {
   background: #ffffff;
   border: 1.5px solid #E5E7EB;
   border-radius: 18px;
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  cursor: pointer;
 }
 
 .template-card:hover {
   border-color: #0A5C38;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -4px rgba(10, 92, 56, 0.1), 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.template-card:active {
+  transform: translateY(0);
 }
 
 .tpl-header {
@@ -615,6 +629,49 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.tpl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tpl-edit-hint {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+  background: #F9FAFB;
+  transition: all 0.15s ease;
+}
+
+.template-card:hover .tpl-edit-hint {
+  color: #0A5C38;
+  background: #ECFDF5;
+}
+
+.tpl-delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tpl-delete-btn:hover {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+  color: #DC2626;
 }
 
 .tpl-title {
@@ -675,59 +732,6 @@ onMounted(() => {
 .tier-pill-name {
   font-weight: 600;
   color: #374151;
-}
-
-.tpl-footer {
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid #F3F4F6;
-}
-
-.tpl-footer-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-outline-edit {
-  background: #ffffff;
-  border: 1.5px solid #D1D5DB;
-  color: #1F2937;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-outline-edit:hover {
-  background: #F9FAFB;
-  border-color: #0A5C38;
-  color: #0A5C38;
-}
-
-.btn-outline-danger {
-  background: #ffffff;
-  border: 1.5px solid #FCA5A5;
-  color: #DC2626;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-outline-danger:hover {
-  background: #FEF2F2;
-  border-color: #EF4444;
 }
 
 /* Modals */
@@ -824,9 +828,31 @@ onMounted(() => {
   padding: 16px 24px;
   border-top: 1px solid #E5E7EB;
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   background: #F9FAFB;
+}
+
+.modal-footer-end {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.btn-modal-delete {
+  background: transparent;
+  border: none;
+  color: #DC2626;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-delete:hover {
+  background: #FEE2E2;
 }
 
 /* Form Inputs inside Modal */
