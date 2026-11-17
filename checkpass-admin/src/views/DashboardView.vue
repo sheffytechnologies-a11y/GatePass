@@ -3,56 +3,48 @@
     <section class="hero-card">
       <div class="hero-top-row">
         <div class="hero-title-group">
-          <div class="hero-badge-row">
-            <span class="hero-eyebrow">Estate Operational Center</span>
-            <span class="gate-status-pill">
-              <span class="status-dot"></span>
-              Gate Active &bull; Shift Live
-            </span>
-            <div class="telemetry-sync-pill" :title="`Auto-refreshes every 30s. ${syncStatusLabel}`">
-              <span class="telemetry-dot" :class="{ 'telemetry-dot--syncing': isSyncing }"></span>
-              <span class="telemetry-label">{{ syncStatusLabel }}</span>
-              <button
-                type="button"
-                class="btn-telemetry-sync"
-                :disabled="isSyncing"
-                @click="manualSync"
-                title="Sync live gate telemetry now"
-              >
-                <svg :class="{ 'spin-anim': isSyncing }" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                </svg>
-                <span>Sync</span>
-              </button>
-            </div>
-          </div>
-          <h1 class="hero-title">Estate Command & Security Overview</h1>
+          <h1 class="hero-title">Estate Command &amp; Security Overview</h1>
           <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
         </div>
-        <div class="hero-actions-group">
-          <router-link to="/passes" class="btn btn-hero-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="12" y1="11" x2="12" y2="15"/>
-              <line x1="10" y1="13" x2="14" y2="13"/>
-            </svg>
-            Issue Pass
-          </router-link>
-          <router-link to="/properties" class="btn btn-hero-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            Properties
-          </router-link>
-          <router-link to="/news" class="btn btn-hero-action btn-hero-action--subtle">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            Broadcast
-          </router-link>
+
+        <!-- Quick Access Section -->
+        <div class="hero-quick-access">
+          <div class="quick-access-header">
+            <span class="quick-access-dot"></span>
+            <span class="quick-access-title">Quick Access</span>
+          </div>
+          <div class="quick-access-actions">
+            <router-link to="/passes" class="btn btn-hero-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="12" y1="11" x2="12" y2="15"/>
+                <line x1="10" y1="13" x2="14" y2="13"/>
+              </svg>
+              <span>Issue Pass</span>
+            </router-link>
+            <router-link to="/residents" class="btn btn-hero-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Residents</span>
+            </router-link>
+            <router-link to="/properties" class="btn btn-hero-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span>Properties</span>
+            </router-link>
+            <button type="button" class="btn btn-hero-action btn-hero-action--subtle" @click="openBroadcastModal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span>Broadcast</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="hero-switcher-row">
@@ -879,14 +871,6 @@ const revenueBarCoords = computed(() => {
 const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
 
-const syncStatusLabel = computed(() => {
-  if (isSyncing.value) return 'Syncing…'
-  if (secondsSinceSync.value < 5) return 'Live • Just now'
-  if (secondsSinceSync.value < 60) return `Live • ${secondsSinceSync.value}s ago`
-  const mins = Math.floor(secondsSinceSync.value / 60)
-  return `Synced ${mins}m ago`
-})
-
 async function load(isBackground = false) {
   if (isBackground) {
     isSyncing.value = true
@@ -916,11 +900,6 @@ async function load(isBackground = false) {
     loading.value = false
     isSyncing.value = false
   }
-}
-
-async function manualSync() {
-  await load(true)
-  showToast('Live telemetry synchronized', 'info')
 }
 
 function handleVisibilityChange() {
@@ -1165,34 +1144,69 @@ onUnmounted(() => {
   max-width: 620px;
 }
 
-.hero-actions-group {
+/* Quick Access Section in Hero */
+.hero-quick-access {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quick-access-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+}
+
+.quick-access-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.quick-access-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.quick-access-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .btn-hero-action {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.32);
   backdrop-filter: blur(8px);
-  padding: 9px 16px;
-  border-radius: 12px;
-  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 11px;
+  font-size: 12.5px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
 .btn-hero-action:hover {
   background: #ffffff;
   color: #0a5c38;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .btn-hero-action:active {
@@ -1201,7 +1215,7 @@ onUnmounted(() => {
 
 .btn-hero-action--subtle {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .hero-switcher-row {
