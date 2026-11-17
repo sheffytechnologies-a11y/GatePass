@@ -120,9 +120,8 @@
           <circle cx="12" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><path d="M12 8v4M6 16l6-4 6 4"/>
         </svg>
       </div>
-      <span class="setup-badge">Step 1 Required</span>
-      <h3>Set up your property structure first</h3>
-      <p>Before adding properties or generating units, you must define your estate's physical layout (e.g. Lane · House · Flat or Block · Floor · Flat). This ensures all unit codes, addresses, and visitor passes are formatted accurately and consistently across your estate.</p>
+      <h3>Property Setup Required</h3>
+      <p>Before adding properties or generating units, you must define your estate's physical layout. This ensures all unit codes, addresses, and visitor passes are formatted accurately and consistently across your estate.</p>
       <div class="empty-actions">
         <button class="btn btn-primary" @click="openStructureModal">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1845,10 +1844,11 @@ onMounted(() => {
 /* Empty State */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
-  background: white;
-  border-radius: 18px;
-  border: 1px dashed #D1D5DB;
+  padding: 48px 24px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
 }
 
 .empty-icon-wrap {
@@ -1859,19 +1859,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 14px;
+  margin: 0 auto 16px;
 }
 
 .empty-actions {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .empty-card--setup-needed {
-  border: 2px dashed #FCD34D !important;
-  background: #FFFDF5 !important;
+  border: 1px solid #E5E7EB !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
 }
 
 .empty-icon-wrap--amber {
