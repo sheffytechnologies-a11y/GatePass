@@ -135,20 +135,82 @@
         v-for="prop in properties"
         :key="prop.id"
         class="property-card"
-        :class="{ 'property-card--vacant': !prop.isOccupied }"
+        @click="openPropertyDetailsModal(prop)"
       >
         <div class="property-header">
           <div class="property-title-wrap">
             <span class="type-badge">{{ prop.unitType || 'Apartment' }}</span>
             <h3 class="property-address">{{ prop.flatAddress }}</h3>
           </div>
-          <span
-            class="occupancy-badge"
-            :class="prop.isOccupied ? 'badge-occupied' : 'badge-vacant'"
-          >
-            <span class="pulse-dot" />
-            {{ prop.isOccupied ? 'Occupied' : 'Vacant' }}
-          </span>
+
+          <!-- 3-Dots Action Menu Button -->
+          <div class="card-more-wrapper" @click.stop>
+            <button
+              type="button"
+              class="card-more-btn"
+              :class="{ 'is-active': activeCardMenuId === prop.id }"
+              @click.stop="toggleCardMenu(prop.id, $event)"
+              title="Property options"
+              aria-label="Property options"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="2.2"/>
+                <circle cx="12" cy="12" r="2.2"/>
+                <circle cx="12" cy="19" r="2.2"/>
+              </svg>
+            </button>
+
+            <!-- Dropdown Popover -->
+            <div v-if="activeCardMenuId === prop.id" class="card-dropdown-popover" @click.stop>
+              <button
+                type="button"
+                class="dropdown-item"
+                @click="openPropertyDetailsModal(prop); activeCardMenuId = null"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                View Details
+              </button>
+              <button
+                type="button"
+                class="dropdown-item"
+                @click="openEditModal(prop); activeCardMenuId = null"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit Property
+              </button>
+              <button
+                type="button"
+                class="dropdown-item"
+                @click="openPropertyDetailsModal(prop, true); activeCardMenuId = null"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Add Resident
+              </button>
+              <button
+                type="button"
+                class="dropdown-item dropdown-item--danger"
+                :disabled="prop.isOccupied"
+                @click="confirmDelete(prop); activeCardMenuId = null"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                Delete Property
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Hierarchy Breakdown Tags -->
@@ -177,7 +239,7 @@
             >
               <div class="avatar-mini">{{ res.name.charAt(0).toUpperCase() }}</div>
               <span class="res-chip-name">{{ res.name }}</span>
-              <span class="role-pill">{{ res.role }}</span>
+              <span class="role-pill">{{ res.role === 'owner' ? 'Owner' : 'Tenant' }}</span>
             </div>
           </div>
           <div v-else class="vacant-note">
@@ -188,19 +250,7 @@
         <!-- Card Footer -->
         <div class="property-footer">
           <span class="prop-id">ID: #{{ prop.id }}</span>
-          <div class="card-action-btns">
-            <button class="btn-icon" title="Edit Property" @click="openEditModal(prop)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button
-              class="btn-icon btn-icon--danger"
-              title="Delete Property"
-              :disabled="prop.isOccupied"
-              @click="confirmDelete(prop)"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
-            </button>
-          </div>
+          <span class="card-click-hint">View details →</span>
         </div>
       </div>
     </div>
@@ -576,14 +626,232 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL 5: Property Details & Occupants Management -->
+    <div v-if="detailsModalOpen && selectedProperty" class="modal-backdrop" @click.self="detailsModalOpen = false">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div>
+            <div class="modal-header-badge-row">
+              <span class="type-badge">{{ selectedProperty.unitType || 'Apartment' }}</span>
+              <span class="modal-prop-id">ID: #{{ selectedProperty.id }}</span>
+            </div>
+            <h2 class="modal-title">{{ selectedProperty.flatAddress }}</h2>
+            <p class="modal-subtitle">Property and resident management</p>
+          </div>
+          <button class="close-btn" @click="detailsModalOpen = false">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Hierarchy Breakdown Pills -->
+          <div v-if="selectedProperty.hierarchyData" class="details-section">
+            <h4 class="details-section-title">Structure Hierarchy</h4>
+            <div class="hierarchy-tags">
+              <span v-for="(val, key) in selectedProperty.hierarchyData" :key="key" class="h-tag">
+                <strong>{{ key }}:</strong> {{ val }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Residents & Occupants Section -->
+          <div class="details-section">
+            <div class="residents-section-header">
+              <div>
+                <h4 class="details-section-title mb-0">
+                  Residents & Homeowners
+                  <span class="count-badge">({{ selectedProperty.residents?.length || 0 }})</span>
+                </h4>
+                <p class="text-hint">Occupants registered to this unit</p>
+              </div>
+              <button
+                v-if="!addingResidentMode"
+                type="button"
+                class="btn btn-sm btn-primary"
+                @click="addingResidentMode = true"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Resident
+              </button>
+            </div>
+
+            <!-- Inline Add Resident Form -->
+            <div v-if="addingResidentMode" class="add-resident-form-card">
+              <div class="add-resident-form-header">
+                <strong>Assign Resident to {{ selectedProperty.flatAddress }}</strong>
+                <button type="button" class="btn-text-close" @click="addingResidentMode = false">Cancel</button>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label-xs">Full Name <span class="req">*</span></label>
+                  <input
+                    v-model="residentForm.name"
+                    class="form-input"
+                    placeholder="e.g. Adebayo Adeleke"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label-xs">Phone Number <span class="req">*</span></label>
+                  <input
+                    v-model="residentForm.phone"
+                    class="form-input"
+                    placeholder="e.g. 08012345678"
+                  />
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label-xs">Email Address (Optional)</label>
+                  <input
+                    v-model="residentForm.email"
+                    type="email"
+                    class="form-input"
+                    placeholder="e.g. resident@example.com"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label-xs">Role / Occupancy Status</label>
+                  <select v-model="residentForm.role" class="form-select">
+                    <option value="owner">Homeowner / Landlord</option>
+                    <option value="tenant">Tenant / Occupant</option>
+                  </select>
+                </div>
+              </div>
+
+              <p v-if="residentError" class="form-error">{{ residentError }}</p>
+
+              <div class="add-resident-form-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  @click="addingResidentMode = false"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  :disabled="savingResident"
+                  @click="saveResidentToProperty"
+                >
+                  <BrandSpinner v-if="savingResident" :size="14" color="#ffffff" style="margin-right: 6px;" />
+                  <span>{{ savingResident ? 'Saving...' : 'Save Resident' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Existing Residents List -->
+            <div v-if="selectedProperty.residents && selectedProperty.residents.length > 0" class="residents-list-detailed">
+              <div
+                v-for="res in selectedProperty.residents"
+                :key="res.id"
+                class="resident-detail-card"
+              >
+                <div class="resident-info-left">
+                  <div class="avatar-circle">
+                    {{ res.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="resident-meta">
+                    <div class="resident-name-row">
+                      <strong class="resident-name">{{ res.name }}</strong>
+                      <span class="role-badge" :class="res.role === 'owner' ? 'role-badge--owner' : 'role-badge--tenant'">
+                        {{ res.role === 'owner' ? 'Homeowner' : 'Tenant' }}
+                      </span>
+                    </div>
+                    <div class="resident-contacts">
+                      <span v-if="res.phone" class="contact-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        {{ res.phone }}
+                      </span>
+                      <span v-if="res.email" class="contact-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        {{ res.email }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="resident-actions-right">
+                  <button
+                    type="button"
+                    class="btn-remove-resident"
+                    :disabled="deletingResidentId === res.id"
+                    @click="removeResidentFromProperty(res.id, res.name)"
+                    title="Remove resident from unit"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    {{ deletingResidentId === res.id ? 'Removing...' : 'Remove' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty Residents State -->
+            <div v-else-if="!addingResidentMode" class="residents-empty-state">
+              <div class="empty-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <p class="empty-title">No residents assigned</p>
+              <p class="empty-desc">This unit is currently unoccupied. Add an owner or tenant to register passes and receive visitor arrivals.</p>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline mt-2"
+                @click="addingResidentMode = true"
+              >
+                + Assign Resident
+              </button>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div v-if="selectedProperty.notes" class="details-section">
+            <h4 class="details-section-title">Notes</h4>
+            <p class="property-notes-text">{{ selectedProperty.notes }}</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            :disabled="selectedProperty.isOccupied"
+            @click="detailsModalOpen = false; confirmDelete(selectedProperty)"
+          >
+            Delete Property
+          </button>
+          <div class="modal-footer-right">
+            <button
+              type="button"
+              class="btn btn-outline"
+              @click="detailsModalOpen = false; openEditModal(selectedProperty)"
+            >
+              Edit Property
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="detailsModalOpen = false"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { propertiesApi } from '@/api/index'
+import { propertiesApi, residentsApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import BrandSpinner from '@/components/BrandSpinner.vue'
 
@@ -1094,6 +1362,109 @@ async function saveSingleProperty() {
   }
 }
 
+// Property Details Modal State
+const detailsModalOpen = ref(false)
+const selectedProperty = ref<any>(null)
+const addingResidentMode = ref(false)
+const residentForm = ref({
+  name: '',
+  phone: '',
+  email: '',
+  role: 'owner',
+})
+const savingResident = ref(false)
+const residentError = ref('')
+const deletingResidentId = ref<number | null>(null)
+
+// 3-dots dropdown on property cards
+const activeCardMenuId = ref<number | null>(null)
+
+function toggleCardMenu(propId: number, event: MouseEvent) {
+  event.stopPropagation()
+  activeCardMenuId.value = activeCardMenuId.value === propId ? null : propId
+}
+
+function closeCardMenu() {
+  activeCardMenuId.value = null
+}
+
+function openPropertyDetailsModal(prop: any, openAddResident: boolean = false) {
+  selectedProperty.value = prop
+  addingResidentMode.value = openAddResident
+  residentForm.value = {
+    name: '',
+    phone: '',
+    email: '',
+    role: 'owner',
+  }
+  residentError.value = ''
+  detailsModalOpen.value = true
+}
+
+async function saveResidentToProperty() {
+  if (!selectedProperty.value || !activeEstateId.value) return
+  if (!residentForm.value.name.trim()) {
+    residentError.value = 'Resident name is required.'
+    return
+  }
+  if (!residentForm.value.phone.trim()) {
+    residentError.value = 'Phone number is required.'
+    return
+  }
+
+  savingResident.value = true
+  residentError.value = ''
+
+  try {
+    const payload: Record<string, any> = {
+      name: residentForm.value.name.trim(),
+      phone: residentForm.value.phone.trim(),
+      role: residentForm.value.role,
+      unit_id: selectedProperty.value.id,
+      estate_id: activeEstateId.value,
+    }
+    if (residentForm.value.email.trim()) {
+      payload.email = residentForm.value.email.trim()
+    }
+
+    await residentsApi.create(payload)
+    showToast(`Resident ${residentForm.value.name} assigned successfully!`, 'success')
+
+    await loadProperties()
+    await loadStats()
+
+    const updated = properties.value.find(p => p.id === selectedProperty.value.id)
+    if (updated) {
+      selectedProperty.value = updated
+    }
+    addingResidentMode.value = false
+    residentForm.value = { name: '', phone: '', email: '', role: 'owner' }
+  } catch (err: any) {
+    residentError.value = err?.response?.data?.message || 'Failed to assign resident.'
+  } finally {
+    savingResident.value = false
+  }
+}
+
+async function removeResidentFromProperty(residentId: number, residentName: string) {
+  if (!confirm(`Are you sure you want to remove ${residentName} from this property?`)) return
+  deletingResidentId.value = residentId
+  try {
+    await residentsApi.delete(residentId)
+    showToast(`Resident ${residentName} removed.`, 'success')
+    await loadProperties()
+    await loadStats()
+    const updated = properties.value.find(p => p.id === selectedProperty.value.id)
+    if (updated) {
+      selectedProperty.value = updated
+    }
+  } catch (err: any) {
+    showToast(err?.response?.data?.message || 'Failed to remove resident.', 'error')
+  } finally {
+    deletingResidentId.value = null
+  }
+}
+
 // Delete Property
 const deleteTarget = ref<any>(null)
 const deleting = ref(false)
@@ -1108,6 +1479,10 @@ async function executeDelete() {
   try {
     await propertiesApi.delete(deleteTarget.value.id)
     showToast('Property deleted.', 'success')
+    if (selectedProperty.value?.id === deleteTarget.value.id) {
+      detailsModalOpen.value = false
+      selectedProperty.value = null
+    }
     deleteTarget.value = null
     await loadProperties()
     await loadStats()
@@ -1169,6 +1544,11 @@ onMounted(() => {
   loadStructure()
   loadProperties()
   loadStats()
+  window.addEventListener('click', closeCardMenu)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeCardMenu)
 })
 </script>
 
@@ -1489,6 +1869,8 @@ onMounted(() => {
   gap: 12px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  position: relative;
 }
 
 .property-card:hover {
@@ -1497,8 +1879,90 @@ onMounted(() => {
   border-color: #D1D5DB;
 }
 
-.property-card--vacant {
-  border-left: 4px solid #10B981;
+/* Card 3-Dots Action Menu */
+.card-more-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.card-more-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.card-more-btn:hover,
+.card-more-btn.is-active {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.card-dropdown-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 155px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: popoverFade 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.dropdown-item:hover {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.dropdown-item--danger {
+  color: #DC2626;
+}
+
+.dropdown-item--danger:hover {
+  background: #FEF2F2;
+  color: #B91C1C;
+}
+
+.dropdown-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.card-click-hint {
+  font-size: 12px;
+  color: #047857;
+  font-weight: 600;
 }
 
 .property-header {
@@ -2665,5 +3129,251 @@ onMounted(() => {
 }
 .d-block { display: block; }
 .text-muted { color: #6B7280; font-size: 11.5px; }
+
+/* Property Details Modal Styles */
+.modal-header-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.modal-prop-id {
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 600;
+}
+
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.count-badge {
+  font-size: 12px;
+  color: #047857;
+  font-weight: 600;
+}
+
+.residents-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.add-resident-form-card {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-resident-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #111827;
+}
+
+.btn-text-close {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #6B7280;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-text-close:hover {
+  color: #111827;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.add-resident-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.residents-list-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resident-detail-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.resident-info-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #047857;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.resident-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resident-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resident-name {
+  font-size: 13.5px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 6px;
+}
+
+.role-badge--owner {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.role-badge--tenant {
+  background: #EFF6FF;
+  color: #1E40AF;
+}
+
+.resident-contacts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-remove-resident {
+  background: transparent;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-remove-resident:hover {
+  background: #FEF2F2;
+}
+
+.residents-empty-state {
+  background: #F9FAFB;
+  border: 1px dashed #D1D5DB;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.empty-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.empty-desc {
+  font-size: 12.5px;
+  color: #6B7280;
+  max-width: 380px;
+  margin: 0;
+}
+
+.property-notes-text {
+  font-size: 13.5px;
+  color: #4B5563;
+  background: #F9FAFB;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.modal-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 </style>
 
