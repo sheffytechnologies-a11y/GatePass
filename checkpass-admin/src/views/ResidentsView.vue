@@ -102,117 +102,283 @@
     </section>
 
     <div v-if="modalOpen" class="sheet-overlay" @click.self="closeModal">
-      <!-- Full-screen form for create -->
-      <div v-if="!editing" class="form-overlay" @click.self="closeModal">
-        <div class="form-page">
-          <div class="form-nav">
-            <button class="nav-back" @click="closeModal">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <!-- Desktop & Mobile Adaptive Modal for Create Resident -->
+      <div v-if="!editing" class="desktop-modal-card" @click.stop>
+        <!-- Modal Top Bar -->
+        <div class="modal-header-bar">
+          <div class="modal-header-left">
+            <button type="button" class="btn-icon-back" @click="closeModal" title="Back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
             </button>
-            <span class="nav-title">Add Resident</span>
-            <button class="nav-close" @click="closeModal">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7B7E87" stroke-width="1.5"/><path d="M9 9l6 6M15 9l-6 6" stroke="#7B7E87" stroke-width="1.5" stroke-linecap="round"/></svg>
-              Close
-            </button>
+            <div>
+              <div class="modal-eyebrow">RESIDENT REGISTRATION & ONBOARDING</div>
+              <h2 class="modal-main-title">Add Resident & Unit Assignment</h2>
+            </div>
           </div>
-          <div class="form-scroll">
-            <h3 class="form-section-heading">Residency Details</h3>
-            <div class="form-group">
-              <label class="form-label">Owner's Full Name</label>
-              <input v-model="form.name" class="form-input" placeholder="Enter Full Name" />
+          <button type="button" class="btn-icon-close" @click="closeModal" title="Close modal">✕</button>
+        </div>
+
+        <!-- Scrollable Modal Body: 2-Column Responsive Web Grid -->
+        <div class="modal-scroll-body">
+          <div class="two-column-form-grid">
+            
+            <!-- LEFT COLUMN: Primary Resident & Property Unit -->
+            <div class="form-column">
+              <div class="column-header">
+                <span class="column-icon-badge">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <div>
+                  <h3 class="column-title">Primary Resident (Homeowner)</h3>
+                  <p class="column-sub">Account owner responsible for unit access and passes.</p>
+                </div>
+              </div>
+
+              <!-- Owner Photo Upload Space -->
+              <div class="photo-upload-container">
+                <div class="photo-preview-box" @click="triggerOwnerPhotoUpload" title="Click to upload photo">
+                  <img v-if="form.avatar" :src="form.avatar" alt="Resident Preview" class="photo-img" />
+                  <div v-else class="photo-placeholder">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span class="camera-badge">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="photo-meta">
+                  <input
+                    ref="ownerPhotoInput"
+                    type="file"
+                    accept="image/*"
+                    class="d-none"
+                    @change="onOwnerPhotoChange"
+                  />
+                  <div class="photo-actions">
+                    <button type="button" class="btn btn-sm btn-outline-photo" @click="triggerOwnerPhotoUpload">
+                      {{ form.avatar ? 'Change Photo' : 'Upload Photo' }}
+                    </button>
+                    <button v-if="form.avatar" type="button" class="btn btn-sm btn-ghost-danger" @click="removeOwnerPhoto">
+                      Remove
+                    </button>
+                  </div>
+                  <span class="photo-hint">Resident profile photo (JPG, PNG • Max 5MB)</span>
+                </div>
+              </div>
+
+              <!-- Personal Information Fields -->
+              <div class="form-group">
+                <label class="form-label">Owner's Full Name *</label>
+                <input v-model="form.name" class="form-input" placeholder="e.g. Babatunde Fashola" required />
+              </div>
+
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label class="form-label">Phone Number *</label>
+                  <input v-model="form.phone" class="form-input" type="tel" placeholder="e.g. 08012345678" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input v-model="form.email" class="form-input" type="email" placeholder="e.g. resident@example.com" />
+                </div>
+              </div>
+
+              <!-- Property Unit Assignment Box -->
+              <div class="property-picker-section">
+                <div class="label-row">
+                  <label class="form-label">Property Unit Assignment *</label>
+                  <button
+                    type="button"
+                    class="unit-add-link"
+                    @click="manualAddressMode = !manualAddressMode"
+                  >
+                    {{ manualAddressMode ? '← Pick from Configured Units' : '+ Custom / Manual Address' }}
+                  </button>
+                </div>
+
+                <div v-if="!manualAddressMode" class="form-group mb-0">
+                  <select
+                    :value="form.unit_id"
+                    class="form-select form-select-lg"
+                    @change="onSelectProperty(Number(($event.target as HTMLSelectElement).value) || '')"
+                  >
+                    <option value="">Select a configured property...</option>
+                    <option
+                      v-for="prop in estateProperties"
+                      :key="prop.id"
+                      :value="prop.id"
+                    >
+                      {{ prop.flatAddress }} — {{ prop.isOccupied ? 'Occupied (' + prop.residentsCount + ')' : 'Vacant' }} ({{ prop.unitType || 'Apartment' }})
+                    </option>
+                  </select>
+                  <p v-if="estateProperties.length === 0" class="field-hint">
+                    No configured properties found for this estate. Use manual entry or generate units in the Properties module.
+                  </p>
+                </div>
+
+                <div v-else class="address-row">
+                  <div class="form-group mb-0">
+                    <label class="form-label">Tier 1 (e.g. Lane / Block)</label>
+                    <input v-model="form.lane" class="form-input" placeholder="e.g. Lane 1" />
+                  </div>
+                  <div class="form-group mb-0">
+                    <label class="form-label">Tier 2 (e.g. House / Floor)</label>
+                    <input v-model="form.house" class="form-input" placeholder="e.g. House 5" />
+                  </div>
+                  <div class="form-group mb-0">
+                    <label class="form-label">Tier 3 (e.g. Flat / Unit)</label>
+                    <input v-model="form.flat" class="form-input" placeholder="e.g. Flat B" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Landlord is Occupant Toggle -->
+              <div class="toggle-control-card">
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="form.landlordIsOccupant" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                </label>
+                <div class="toggle-meta">
+                  <span class="toggle-title">Landlord resides in this unit</span>
+                  <span class="toggle-desc">Toggle on if the homeowner physically lives in this property rather than renting to tenants.</span>
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Owner's Phone No.</label>
-              <input v-model="form.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Owner's Email Address</label>
-              <input v-model="form.email" class="form-input" type="email" placeholder="Enter Email Address" />
-            </div>
-            <div class="property-picker-section">
-              <div class="label-row">
-                <label class="form-label">Property Unit Assignment</label>
-                <button
-                  type="button"
-                  class="unit-add-link"
-                  @click="manualAddressMode = !manualAddressMode"
-                >
-                  {{ manualAddressMode ? '← Pick from Properties' : '+ Custom / Manual Address' }}
+
+            <!-- RIGHT COLUMN: Co-Residents, Family & Tenants -->
+            <div class="form-column">
+              <div class="column-header column-header--between">
+                <div class="column-header-left">
+                  <span class="column-icon-badge column-icon-badge--blue">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </span>
+                  <div>
+                    <h3 class="column-title">Household Occupants & Tenants ({{ form.tenants.length }})</h3>
+                    <p class="column-sub">Register additional family members or co-tenants at this unit.</p>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-sm btn-outline-add" @click="addTenant">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Add Occupant</span>
                 </button>
               </div>
 
-              <div v-if="!manualAddressMode" class="form-group">
-                <select
-                  :value="form.unit_id"
-                  class="form-select"
-                  @change="onSelectProperty(Number(($event.target as HTMLSelectElement).value) || '')"
-                >
-                  <option value="">Select a configured property...</option>
-                  <option
-                    v-for="prop in estateProperties"
-                    :key="prop.id"
-                    :value="prop.id"
-                  >
-                    {{ prop.flatAddress }} — {{ prop.isOccupied ? 'Occupied (' + prop.residentsCount + ')' : 'Vacant' }} ({{ prop.unitType || 'Apartment' }})
-                  </option>
-                </select>
-                <p v-if="estateProperties.length === 0" class="field-hint">
-                  No properties found for this estate. Use manual entry or generate units in the Properties module.
-                </p>
+              <!-- Empty State when 0 tenants -->
+              <div v-if="form.tenants.length === 0" class="occupants-empty-box">
+                <div class="occupants-empty-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <h4>No Additional Occupants</h4>
+                <p>If other residents or tenants share this property, click "+ Add Occupant" to register them with separate gate access passes.</p>
+                <button type="button" class="btn btn-sm btn-secondary" @click="addTenant">
+                  + Add First Co-Resident
+                </button>
               </div>
 
-              <div v-else class="address-row">
-                <div class="form-group">
-                  <label class="form-label">Lane</label>
-                  <input v-model="form.lane" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">House</label>
-                  <input v-model="form.house" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Flat</label>
-                  <input v-model="form.flat" class="form-input" />
+              <!-- Occupant Cards List -->
+              <div v-else class="occupants-cards-list">
+                <div v-for="(tenant, i) in form.tenants" :key="i" class="occupant-card">
+                  <div class="occupant-card-top">
+                    <span class="occupant-badge">Occupant #{{ i + 1 }}</span>
+                    <button type="button" class="tenant-del-btn" @click="removeTenant(i)" title="Remove occupant">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Occupant Photo Mini Uploader -->
+                  <div class="occupant-photo-row">
+                    <div class="occupant-photo-box" @click="triggerTenantPhotoUpload(i)">
+                      <img v-if="tenant.avatar" :src="tenant.avatar" class="occupant-img" />
+                      <div v-else class="occupant-photo-placeholder">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      </div>
+                    </div>
+                    <input
+                      :id="`tenantPhoto_${i}`"
+                      type="file"
+                      accept="image/*"
+                      class="d-none"
+                      @change="onTenantPhotoChange(i, $event)"
+                    />
+                    <div class="occupant-photo-actions">
+                      <button type="button" class="link-btn-sm" @click="triggerTenantPhotoUpload(i)">
+                        {{ tenant.avatar ? 'Change Photo' : 'Upload Photo' }}
+                      </button>
+                      <button v-if="tenant.avatar" type="button" class="link-btn-sm text-danger" @click="removeTenantPhoto(i)">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input v-model="tenant.name" class="form-input" placeholder="e.g. Kemi Adeleke" required />
+                  </div>
+
+                  <div class="form-row-2col">
+                    <div class="form-group mb-0">
+                      <label class="form-label">Phone No. *</label>
+                      <input v-model="tenant.phone" class="form-input" type="tel" placeholder="e.g. 08023456789" required />
+                    </div>
+                    <div class="form-group mb-0">
+                      <label class="form-label">Email Address</label>
+                      <input v-model="tenant.email" class="form-input" type="email" placeholder="e.g. kemi@example.com" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="toggle-row">
-              <label class="toggle-switch">
-                <input type="checkbox" v-model="form.landlordIsOccupant" />
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-              </label>
-              <span class="toggle-label">Landlord is occupant</span>
-            </div>
-            <div class="occupants-head">
-              <h3 class="form-section-heading">Occupants</h3>
-              <button type="button" class="btn btn-sm btn-primary btn-add-tenant" @click="addTenant">
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.25" stroke="white" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-                Add Tenant
-              </button>
-            </div>
-            <div v-for="(tenant, i) in form.tenants" :key="i" class="tenant-block">
-              <div class="form-group">
-                <div class="label-row">
-                  <label class="form-label">Full Name</label>
-                  <button type="button" class="tenant-del" @click="removeTenant(i)">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </button>
-                </div>
-                <input v-model="tenant.name" class="form-input" placeholder="Enter Full Name" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Phone No.</label>
-                <input v-model="tenant.phone" class="form-input" type="tel" placeholder="Enter Phone No" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <input v-model="tenant.email" class="form-input" type="email" placeholder="Enter Email Address" />
-              </div>
-            </div>
-            <p v-if="formError" class="form-error">{{ formError }}</p>
+
           </div>
-          <div class="form-footer">
-            <button class="btn btn-primary btn-block" :disabled="saving" @click="save">{{ saving ? 'Saving…' : 'Save' }}</button>
+
+          <div v-if="formError" class="form-error-banner mt-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ formError }}</span>
+          </div>
+        </div>
+
+        <!-- Desktop Modal Footer -->
+        <div class="modal-footer-bar">
+          <div class="footer-info-hint">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Temporary login credentials will be generated automatically for all new residents.</span>
+          </div>
+
+          <div class="modal-footer-actions">
+            <button type="button" class="btn btn-outline" @click="closeModal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-save-resident" :disabled="saving" @click="save">
+              <BrandSpinner v-if="saving" :size="16" color="#ffffff" />
+              <span>{{ saving ? 'Saving Records...' : 'Save Resident Record' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -381,16 +547,68 @@ const unitError = ref('')
 const newCredentials = ref<{ name: string; phone: string; password: string }[] | null>(null)
 
 const form = ref({
-  name: '', phone: '', email: '',
+  name: '', phone: '', email: '', avatar: '',
   lane: '', house: '', flat: '',
   landlordIsOccupant: false,
-  tenants: [] as { name: string; phone: string; email: string }[],
+  tenants: [] as { name: string; phone: string; email: string; avatar?: string }[],
   // edit-only fields
   estate_id: '' as number | '',
   unit_id: '' as number | '',
   role: 'tenant',
   is_active: true,
 })
+
+const ownerPhotoInput = ref<HTMLInputElement | null>(null)
+
+function triggerOwnerPhotoUpload() {
+  ownerPhotoInput.value?.click()
+}
+
+function onOwnerPhotoChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Photo must be less than 5MB', 'error')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    form.value.avatar = reader.result as string
+  }
+  reader.readAsDataURL(file)
+}
+
+function removeOwnerPhoto() {
+  form.value.avatar = ''
+  if (ownerPhotoInput.value) {
+    ownerPhotoInput.value.value = ''
+  }
+}
+
+function triggerTenantPhotoUpload(index: number) {
+  const el = document.getElementById(`tenantPhoto_${index}`) as HTMLInputElement
+  el?.click()
+}
+
+function onTenantPhotoChange(index: number, e: Event) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Photo must be less than 5MB', 'error')
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    form.value.tenants[index].avatar = reader.result as string
+  }
+  reader.readAsDataURL(file)
+}
+
+function removeTenantPhoto(index: number) {
+  form.value.tenants[index].avatar = ''
+}
 
 let searchTimer: ReturnType<typeof setTimeout>
 function debouncedLoad() {
@@ -434,7 +652,7 @@ async function openCreate() {
   editing.value = null
   const currentEstateId = Number(estateFilter.value || auth.activeEstateId) || ''
   form.value = {
-    name: '', phone: '', email: '',
+    name: '', phone: '', email: '', avatar: '',
     lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
     estate_id: currentEstateId, unit_id: '', role: 'tenant', is_active: true,
   }
@@ -457,7 +675,10 @@ async function openCreate() {
 function openEdit(r: any) {
   editing.value = r
   form.value = {
-    name: '', phone: '', email: '',
+    name: r.user?.name ?? '',
+    phone: r.user?.phone ?? '',
+    email: r.user?.email ?? '',
+    avatar: r.user?.avatar ?? '',
     lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
     estate_id: r.estate?.id ?? '',
     unit_id: r.unit?.id ?? '',
@@ -529,6 +750,9 @@ async function save() {
         landlord_is_occupant: form.value.landlordIsOccupant,
       }
       if (form.value.email) ownerPayload.email = form.value.email
+      if (form.value.avatar) ownerPayload.avatar = form.value.avatar
+      if (form.value.unit_id) ownerPayload.unit_id = form.value.unit_id
+      if (form.value.estate_id) ownerPayload.estate_id = form.value.estate_id
       const ownerRes = await residentsApi.create(ownerPayload)
       const credentials: { name: string; phone: string; password: string }[] = []
       if (ownerRes.data.temporaryPassword) {
@@ -542,6 +766,9 @@ async function save() {
           lane: form.value.lane, house: form.value.house, flat: form.value.flat,
         }
         if (t.email) tp.email = t.email
+        if (t.avatar) tp.avatar = t.avatar
+        if (form.value.unit_id) tp.unit_id = form.value.unit_id
+        if (form.value.estate_id) tp.estate_id = form.value.estate_id
         const tenantRes = await residentsApi.create(tp)
         if (tenantRes.data.temporaryPassword) {
           credentials.push({ name: t.name, phone: t.phone, password: tenantRes.data.temporaryPassword })
@@ -561,7 +788,7 @@ async function save() {
   }
 }
 
-function addTenant() { form.value.tenants.push({ name: '', phone: '', email: '' }) }
+function addTenant() { form.value.tenants.push({ name: '', phone: '', email: '', avatar: '' }) }
 function removeTenant(i: number) { form.value.tenants.splice(i, 1) }
 
 function confirmDelete(r: any) { deleteTarget.value = r }
@@ -721,7 +948,7 @@ onMounted(() => { load(); loadEstates() })
 .chip { border: none; border-radius: 999px; padding: 10px 14px; background: #edf2ee; color: #4f5f56; white-space: nowrap; font-weight: 700; }
 .chip.active { background: var(--c-primary); color: white; }
 /* Edit/delete sheets */
-.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.5); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.65); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .sheet { width: min(var(--shell-width), 100%); border-radius: 28px; padding: 18px; }
 .sheet-sm { max-width: 420px; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -742,31 +969,540 @@ onMounted(() => { load(); loadEstates() })
   background: var(--c-surface); border: 1px solid var(--c-border);
   padding: 4px 10px; border-radius: 8px; color: var(--c-primary);
 }
-/* Full-screen add form */
-.form-overlay { position: fixed; inset: 0; background: #fff; z-index: 200; display: flex; justify-content: center; }
-.form-page { width: 100%; max-width: var(--shell-width); height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-.form-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #F0F0F0; flex-shrink: 0; }
-.nav-back { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; }
-.nav-title { font-size: 16px; font-weight: 700; color: #1A1A1A; }
-.nav-close { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #7B7E87; background: none; border: none; cursor: pointer; }
-.form-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
-.form-section-heading { font-size: 18px; font-weight: 700; color: #1A1A1A; }
-.address-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
-.toggle-row { display: flex; align-items: center; gap: 12px; }
-.toggle-switch { position: relative; display: inline-flex; cursor: pointer; }
+
+/* Desktop-First Responsive Modal */
+.desktop-modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 1060px;
+  max-height: 92vh;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleIn 0.22s ease-out;
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.97) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #E5E7EB;
+  background: #FAFAFA;
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-icon-back {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-icon-back:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.modal-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #0A5C38;
+}
+
+.modal-main-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-top: 2px;
+  font-family: var(--font-display, inherit);
+}
+
+.btn-icon-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-icon-close:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+  border-color: #FCA5A5;
+}
+
+.modal-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: #F8FAFC;
+}
+
+.two-column-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.form-column {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.column-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #F1F5F9;
+}
+.column-header--between {
+  justify-content: space-between;
+}
+.column-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.column-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ECFDF5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.column-icon-badge--blue {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.column-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.column-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+/* Photo Upload Space */
+.photo-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 14px;
+}
+
+.photo-preview-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 2px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+}
+.photo-preview-box:hover {
+  border-color: #0A5C38;
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.camera-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  background: #0A5C38;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+.photo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline-photo {
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-outline-photo:hover {
+  border-color: #0A5C38;
+  color: #0A5C38;
+}
+
+.btn-ghost-danger {
+  background: none;
+  border: none;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.btn-ghost-danger:hover {
+  text-decoration: underline;
+}
+
+.photo-hint {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.address-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.toggle-control-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+}
+.toggle-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.toggle-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1E293B;
+}
+.toggle-desc {
+  font-size: 11.5px;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.btn-outline-add {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #047857;
+  font-weight: 700;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-outline-add:hover {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+}
+
+/* Occupants Empty Box */
+.occupants-empty-box {
+  padding: 32px 20px;
+  text-align: center;
+  background: #F8FAFC;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.occupants-empty-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.occupants-empty-box h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+.occupants-empty-box p {
+  font-size: 12px;
+  color: #64748B;
+  max-width: 320px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Occupants Cards List */
+.occupants-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.occupant-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.occupant-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.occupant-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: #E2E8F0;
+  color: #334155;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.tenant-del-btn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+.tenant-del-btn:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.occupant-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.occupant-photo-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1.5px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.occupant-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.occupant-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.occupant-photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.link-btn-sm {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #047857;
+  cursor: pointer;
+}
+.link-btn-sm:hover {
+  text-decoration: underline;
+}
+
+.form-error-banner {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Modal Footer Bar */
+.modal-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #E5E7EB;
+  background: #ffffff;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-info-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #047857;
+  font-weight: 500;
+}
+
+.modal-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-save-resident {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.d-none { display: none !important; }
+
+.toggle-switch { position: relative; display: inline-flex; cursor: pointer; flex-shrink: 0; }
 .toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .toggle-track { width: 44px; height: 26px; background: #E0E0E0; border-radius: 13px; transition: background 0.2s; position: relative; display: block; }
 .toggle-switch input:checked + .toggle-track { background: var(--c-primary); }
 .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .toggle-switch input:checked + .toggle-track .toggle-thumb { left: 21px; }
-.toggle-label { font-size: 14px; color: #1A1A1A; }
-.occupants-head { display: flex; align-items: center; justify-content: space-between; }
-.btn-add-tenant { display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 8px 14px; }
-.tenant-block { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid #F0F0F0; }
-.label-row { display: flex; align-items: center; justify-content: space-between; }
-.tenant-del { background: none; border: none; padding: 0; cursor: pointer; display: flex; }
-.form-footer { padding: 14px 16px; border-top: 1px solid #F0F0F0; flex-shrink: 0; }
-.btn-block { width: 100%; justify-content: center; border-radius: 14px; padding: 15px; font-size: 16px; }
+
+@media (max-width: 860px) {
+  .two-column-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .desktop-modal-card {
+    max-height: 98vh;
+  }
+}
+@media (max-width: 600px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+  .address-row {
+    grid-template-columns: 1fr;
+  }
+  .desktop-modal-card {
+    border-radius: 0;
+    max-height: 100vh;
+    height: 100%;
+  }
+}
 @media (max-width: 420px) {
   .record-top, .record-bottom { flex-direction: column; align-items: flex-start; }
   .detail-grid { grid-template-columns: 1fr; }

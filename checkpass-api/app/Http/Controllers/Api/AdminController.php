@@ -173,6 +173,7 @@ class AdminController extends Controller
             'lane'      => 'nullable|string|max:100',
             'house'     => 'nullable|string|max:100',
             'flat'      => 'nullable|string|max:100',
+            'avatar'    => 'nullable|string',
         ]);
 
         $estateId = $this->resolveEstateId($request, $data['estate_id'] ?? null);
@@ -193,6 +194,7 @@ class AdminController extends Controller
             'name'      => $data['name'],
             'phone'     => $data['phone'],
             'email'     => $data['email'] ?? null,
+            'avatar'    => $data['avatar'] ?? null,
             'password'  => Hash::make($plainPassword),
             'type'      => 'resident',
             'estate_id' => $estateId,
@@ -651,6 +653,7 @@ class AdminController extends Controller
             'name'      => $u->name,
             'phone'     => $u->phone,
             'email'     => $u->email,
+            'avatar'    => $u->avatar,
             'type'      => $u->type,
             'isActive'  => $u->is_active,
             'createdAt' => $u->created_at?->toIso8601String(),
