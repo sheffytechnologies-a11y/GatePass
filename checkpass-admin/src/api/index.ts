@@ -86,6 +86,17 @@ export const unitsApi = {
 }
 
 export const propertiesApi = {
+  getOne: async (id: number) => {
+    try {
+      return await client.get(`/v1/admin/properties/${id}`)
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        const res = await client.get(`/v1/admin/units/${id}`)
+        return { data: { property: res.data?.unit || res.data } }
+      }
+      throw err
+    }
+  },
   getAll: async (estateId: number, params?: Record<string, unknown>) => {
     try {
       return await client.get(`/v1/admin/estates/${estateId}/properties`, { params })

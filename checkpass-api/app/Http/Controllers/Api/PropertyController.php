@@ -337,6 +337,19 @@ class PropertyController extends Controller
     }
 
     /**
+     * GET /api/v1/admin/properties/{id}
+     */
+    public function show(Request $request, int $id)
+    {
+        $unit = Unit::with(['residents.user', 'estate'])->findOrFail($id);
+        $this->assertEstateAccess($request, $unit->estate_id);
+
+        return response()->json([
+            'property' => $this->formatProperty($unit),
+        ]);
+    }
+
+    /**
      * PUT /api/v1/admin/properties/{id}
      */
     public function update(Request $request, int $id)

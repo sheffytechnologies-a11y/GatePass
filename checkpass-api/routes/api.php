@@ -216,6 +216,7 @@ Route::prefix('v1')->group(function () {
             Route::put('estates/{id}/property-structure',       [PropertyController::class, 'updateStructure']);
             Route::post('properties',                           [PropertyController::class, 'store']);
             Route::post('properties/batch',                     [PropertyController::class, 'batchStore']);
+            Route::get('properties/{id}',                       [PropertyController::class, 'show']);
             Route::put('properties/{id}',                       [PropertyController::class, 'update']);
             Route::delete('properties/{id}',                    [PropertyController::class, 'destroy']);
 

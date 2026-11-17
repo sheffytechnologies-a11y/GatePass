@@ -135,7 +135,7 @@
         v-for="prop in properties"
         :key="prop.id"
         class="property-card"
-        @click="openPropertyDetailsModal(prop)"
+        @click="goToPropertyDetail(prop.id)"
       >
         <div class="property-header">
           <div class="property-title-wrap">
@@ -165,7 +165,7 @@
               <button
                 type="button"
                 class="dropdown-item"
-                @click="openPropertyDetailsModal(prop); activeCardMenuId = null"
+                @click="goToPropertyDetail(prop.id); activeCardMenuId = null"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -187,7 +187,7 @@
               <button
                 type="button"
                 class="dropdown-item"
-                @click="openPropertyDetailsModal(prop, true); activeCardMenuId = null"
+                @click="goToPropertyDetail(prop.id, true); activeCardMenuId = null"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -630,224 +630,6 @@
         </div>
       </div>
     </div>
-
-    <!-- MODAL 5: Property Details & Occupants Management -->
-    <div v-if="detailsModalOpen && selectedProperty" class="modal-backdrop" @click.self="detailsModalOpen = false">
-      <div class="modal-card modal-lg">
-        <div class="modal-header">
-          <div>
-            <div class="modal-header-badge-row">
-              <span class="type-badge">{{ selectedProperty.unitType || 'Apartment' }}</span>
-              <span class="modal-prop-id">ID: #{{ selectedProperty.id }}</span>
-            </div>
-            <h2 class="modal-title">{{ selectedProperty.flatAddress }}</h2>
-            <p class="modal-subtitle">Property and resident management</p>
-          </div>
-          <button class="close-btn" @click="detailsModalOpen = false">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <!-- Hierarchy Breakdown Pills -->
-          <div v-if="selectedProperty.hierarchyData" class="details-section">
-            <h4 class="details-section-title">Structure Hierarchy</h4>
-            <div class="hierarchy-tags">
-              <span v-for="(val, key) in selectedProperty.hierarchyData" :key="key" class="h-tag">
-                <strong>{{ key }}:</strong> {{ val }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Residents & Occupants Section -->
-          <div class="details-section">
-            <div class="residents-section-header">
-              <div>
-                <h4 class="details-section-title mb-0">
-                  Residents & Homeowners
-                  <span class="count-badge">({{ selectedProperty.residents?.length || 0 }})</span>
-                </h4>
-                <p class="text-hint">Occupants registered to this unit</p>
-              </div>
-              <button
-                v-if="!addingResidentMode"
-                type="button"
-                class="btn btn-sm btn-primary"
-                @click="addingResidentMode = true"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Resident
-              </button>
-            </div>
-
-            <!-- Inline Add Resident Form -->
-            <div v-if="addingResidentMode" class="add-resident-form-card">
-              <div class="add-resident-form-header">
-                <strong>Assign Resident to {{ selectedProperty.flatAddress }}</strong>
-                <button type="button" class="btn-text-close" @click="addingResidentMode = false">Cancel</button>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label-xs">Full Name <span class="req">*</span></label>
-                  <input
-                    v-model="residentForm.name"
-                    class="form-input"
-                    placeholder="e.g. Adebayo Adeleke"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label-xs">Phone Number <span class="req">*</span></label>
-                  <input
-                    v-model="residentForm.phone"
-                    class="form-input"
-                    placeholder="e.g. 08012345678"
-                  />
-                </div>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label-xs">Email Address (Optional)</label>
-                  <input
-                    v-model="residentForm.email"
-                    type="email"
-                    class="form-input"
-                    placeholder="e.g. resident@example.com"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label-xs">Role / Occupancy Status</label>
-                  <select v-model="residentForm.role" class="form-select">
-                    <option value="owner">Homeowner / Landlord</option>
-                    <option value="tenant">Tenant / Occupant</option>
-                  </select>
-                </div>
-              </div>
-
-              <p v-if="residentError" class="form-error">{{ residentError }}</p>
-
-              <div class="add-resident-form-actions">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline"
-                  @click="addingResidentMode = false"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  :disabled="savingResident"
-                  @click="saveResidentToProperty"
-                >
-                  <BrandSpinner v-if="savingResident" :size="14" color="#ffffff" style="margin-right: 6px;" />
-                  <span>{{ savingResident ? 'Saving...' : 'Save Resident' }}</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Existing Residents List -->
-            <div v-if="selectedProperty.residents && selectedProperty.residents.length > 0" class="residents-list-detailed">
-              <div
-                v-for="res in selectedProperty.residents"
-                :key="res.id"
-                class="resident-detail-card"
-              >
-                <div class="resident-info-left">
-                  <div class="avatar-circle">
-                    {{ res.name.charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="resident-meta">
-                    <div class="resident-name-row">
-                      <strong class="resident-name">{{ res.name }}</strong>
-                      <span class="role-badge" :class="res.role === 'owner' ? 'role-badge--owner' : 'role-badge--tenant'">
-                        {{ res.role === 'owner' ? 'Homeowner' : 'Tenant' }}
-                      </span>
-                    </div>
-                    <div class="resident-contacts">
-                      <span v-if="res.phone" class="contact-item">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        {{ res.phone }}
-                      </span>
-                      <span v-if="res.email" class="contact-item">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                        {{ res.email }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="resident-actions-right">
-                  <button
-                    type="button"
-                    class="btn-remove-resident"
-                    :disabled="deletingResidentId === res.id"
-                    @click="removeResidentFromProperty(res.id, res.name)"
-                    title="Remove resident from unit"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    {{ deletingResidentId === res.id ? 'Removing...' : 'Remove' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Empty Residents State -->
-            <div v-else-if="!addingResidentMode" class="residents-empty-state">
-              <div class="empty-icon-wrap">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-              </div>
-              <p class="empty-title">No residents assigned</p>
-              <p class="empty-desc">This unit is currently unoccupied. Add an owner or tenant to register passes and receive visitor arrivals.</p>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline mt-2"
-                @click="addingResidentMode = true"
-              >
-                + Assign Resident
-              </button>
-            </div>
-          </div>
-
-          <!-- Notes Section -->
-          <div v-if="selectedProperty.notes" class="details-section">
-            <h4 class="details-section-title">Notes</h4>
-            <p class="property-notes-text">{{ selectedProperty.notes }}</p>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-outline-danger"
-            :disabled="selectedProperty.isOccupied"
-            @click="detailsModalOpen = false; confirmDelete(selectedProperty)"
-          >
-            Delete Property
-          </button>
-          <div class="modal-footer-right">
-            <button
-              type="button"
-              class="btn btn-outline"
-              @click="detailsModalOpen = false; openEditModal(selectedProperty)"
-            >
-              Edit Property
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="detailsModalOpen = false"
-            >
-              Done
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -855,7 +637,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { propertiesApi, residentsApi } from '@/api/index'
+import { propertiesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import BrandSpinner from '@/components/BrandSpinner.vue'
 
@@ -1390,19 +1172,13 @@ async function saveSingleProperty() {
   }
 }
 
-// Property Details Modal State
-const detailsModalOpen = ref(false)
-const selectedProperty = ref<any>(null)
-const addingResidentMode = ref(false)
-const residentForm = ref({
-  name: '',
-  phone: '',
-  email: '',
-  role: 'owner',
-})
-const savingResident = ref(false)
-const residentError = ref('')
-const deletingResidentId = ref<number | null>(null)
+function goToPropertyDetail(propId: number, addResident: boolean = false) {
+  if (addResident) {
+    router.push(`/properties/${propId}?addResident=true`)
+  } else {
+    router.push(`/properties/${propId}`)
+  }
+}
 
 // 3-dots dropdown on property cards
 const activeCardMenuId = ref<number | null>(null)
@@ -1414,83 +1190,6 @@ function toggleCardMenu(propId: number, event: MouseEvent) {
 
 function closeCardMenu() {
   activeCardMenuId.value = null
-}
-
-function openPropertyDetailsModal(prop: any, openAddResident: boolean = false) {
-  selectedProperty.value = prop
-  addingResidentMode.value = openAddResident
-  residentForm.value = {
-    name: '',
-    phone: '',
-    email: '',
-    role: 'owner',
-  }
-  residentError.value = ''
-  detailsModalOpen.value = true
-}
-
-async function saveResidentToProperty() {
-  if (!selectedProperty.value || !activeEstateId.value) return
-  if (!residentForm.value.name.trim()) {
-    residentError.value = 'Resident name is required.'
-    return
-  }
-  if (!residentForm.value.phone.trim()) {
-    residentError.value = 'Phone number is required.'
-    return
-  }
-
-  savingResident.value = true
-  residentError.value = ''
-
-  try {
-    const payload: Record<string, any> = {
-      name: residentForm.value.name.trim(),
-      phone: residentForm.value.phone.trim(),
-      role: residentForm.value.role,
-      unit_id: selectedProperty.value.id,
-      estate_id: activeEstateId.value,
-    }
-    if (residentForm.value.email.trim()) {
-      payload.email = residentForm.value.email.trim()
-    }
-
-    await residentsApi.create(payload)
-    showToast(`Resident ${residentForm.value.name} assigned successfully!`, 'success')
-
-    await loadProperties()
-    await loadStats()
-
-    const updated = properties.value.find(p => p.id === selectedProperty.value.id)
-    if (updated) {
-      selectedProperty.value = updated
-    }
-    addingResidentMode.value = false
-    residentForm.value = { name: '', phone: '', email: '', role: 'owner' }
-  } catch (err: any) {
-    residentError.value = err?.response?.data?.message || 'Failed to assign resident.'
-  } finally {
-    savingResident.value = false
-  }
-}
-
-async function removeResidentFromProperty(residentId: number, residentName: string) {
-  if (!confirm(`Are you sure you want to remove ${residentName} from this property?`)) return
-  deletingResidentId.value = residentId
-  try {
-    await residentsApi.delete(residentId)
-    showToast(`Resident ${residentName} removed.`, 'success')
-    await loadProperties()
-    await loadStats()
-    const updated = properties.value.find(p => p.id === selectedProperty.value.id)
-    if (updated) {
-      selectedProperty.value = updated
-    }
-  } catch (err: any) {
-    showToast(err?.response?.data?.message || 'Failed to remove resident.', 'error')
-  } finally {
-    deletingResidentId.value = null
-  }
 }
 
 // Delete Property
@@ -1507,10 +1206,6 @@ async function executeDelete() {
   try {
     await propertiesApi.delete(deleteTarget.value.id)
     showToast('Property deleted.', 'success')
-    if (selectedProperty.value?.id === deleteTarget.value.id) {
-      detailsModalOpen.value = false
-      selectedProperty.value = null
-    }
     deleteTarget.value = null
     await loadProperties()
     await loadStats()
