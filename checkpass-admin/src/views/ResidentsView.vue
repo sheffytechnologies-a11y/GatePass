@@ -35,7 +35,7 @@
         <select
           v-if="estates.length > 1"
           v-model="estateFilter"
-          class="form-select toolbar-select"
+          class="toolbar-select"
           @change="load"
         >
           <option value="">All Estates</option>
@@ -44,13 +44,13 @@
           </option>
         </select>
 
-        <select v-model="roleFilter" class="form-select toolbar-select">
+        <select v-model="roleFilter" class="toolbar-select">
           <option value="all">All Roles</option>
           <option value="owner">Owners Only</option>
           <option value="tenant">Tenants Only</option>
         </select>
 
-        <select v-model="statusFilter" class="form-select toolbar-select">
+        <select v-model="statusFilter" class="toolbar-select">
           <option value="all">All Status</option>
           <option value="active">Active Only</option>
           <option value="inactive">Inactive Only</option>
@@ -904,24 +904,30 @@ onMounted(() => { load(); loadEstates() })
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .toolbar-select {
-  padding: 8px 12px;
+  padding: 8px 14px;
+  font-size: 13px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
-  font-size: 13px;
-  background: #ffffff;
+  background-color: #F9FAFB;
   color: #374151;
   font-weight: 500;
   cursor: pointer;
   outline: none;
-  transition: border-color 150ms ease;
+  white-space: nowrap;
+  width: auto;
+  min-width: 130px;
+  flex: 0 0 auto;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 
 .toolbar-select:focus {
   border-color: #0A5C38;
+  background-color: #ffffff;
 }
 
 .section-card { padding: 16px; }
@@ -1488,6 +1494,20 @@ onMounted(() => { load(); loadEstates() })
   }
   .desktop-modal-card {
     max-height: 98vh;
+  }
+}
+@media (max-width: 768px) {
+  .toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-group {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .toolbar-select {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 0;
   }
 }
 @media (max-width: 600px) {
