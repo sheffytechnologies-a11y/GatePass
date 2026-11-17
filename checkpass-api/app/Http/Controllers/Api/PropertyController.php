@@ -193,9 +193,9 @@ class PropertyController extends Controller
         $flatAddress = $data['flat_address'] ?? null;
         if (empty($flatAddress)) {
             if (! empty($data['hierarchy_data'])) {
-                $flatAddress = implode(', ', array_reverse(array_filter(array_values($data['hierarchy_data']))));
+                $flatAddress = implode(', ', array_filter(array_values($data['hierarchy_data'])));
             } else {
-                $flatAddress = collect([$data['flat'] ?? null, $data['house'] ?? null, $data['lane'] ?? null])
+                $flatAddress = collect([$data['lane'] ?? null, $data['house'] ?? null, $data['flat'] ?? null])
                     ->filter()
                     ->implode(', ');
             }
@@ -282,8 +282,8 @@ class PropertyController extends Controller
 
         foreach ($combinations as $combo) {
             // $combo is [valLevel1, valLevel2, valLevel3, ...]
-            // flat_address is reverse comma-delimited: e.g. "Flat 1, House 2, Lane 1"
-            $flatAddress = implode(', ', array_reverse($combo));
+            // flat_address is forward comma-delimited: e.g. "Lane 1, House 2, Flat 1" (Level 1 -> Level 2 -> Level 3)
+            $flatAddress = implode(', ', $combo);
 
             if (isset($existingAddresses[$flatAddress])) {
                 $skipped++;

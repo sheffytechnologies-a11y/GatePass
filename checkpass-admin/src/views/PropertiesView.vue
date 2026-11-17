@@ -302,7 +302,7 @@
             <input
               v-model="singleForm.flat_address"
               class="form-input"
-              placeholder="e.g. Flat 3B, House 12, Lane 2"
+              placeholder="e.g. Lane 2, House 12, Flat 3B"
             />
           </div>
 
@@ -1053,7 +1053,7 @@ function handleCsvFileSelect(event: Event) {
         const flat = cols[2] || ''
         const unit_type = cols[3] || batchUnitType.value || 'Apartment'
         const notes = cols[4] || ''
-        const flat_address = [flat, house, lane].filter(Boolean).join(', ')
+        const flat_address = [lane, house, flat].filter(Boolean).join(', ')
         if (flat_address) {
           rows.push({ lane, house, flat, unit_type, notes, flat_address })
         }
@@ -1154,12 +1154,12 @@ const sampleBatchPreview = computed(() => {
   const tierVals = batchConfigLevels.value.map(lvl => getTierValues(lvl))
   const samples: string[] = []
   
-  // Recursively compile combinations in reverse tier order (e.g. Unit -> House -> Street)
+  // Recursively compile combinations in forward tier order (e.g. Level 1 -> Level 2 -> Level 3)
   function buildCombos(tierIdx: number, currentCombo: string[]) {
     if (samples.length >= 6) return
     if (tierIdx >= tierVals.length) {
       if (currentCombo.length > 0) {
-        samples.push([...currentCombo].reverse().join(', '))
+        samples.push(currentCombo.join(', '))
       }
       return
     }
@@ -1253,23 +1253,23 @@ function formatTierDisplay(val: string, tierName?: string): string {
   return `${cleanTier} ${cleanVal}`
 }
 
-// Computed reverse-hierarchical address from tiers: Flat -> House -> Lane (auto-prefixed with defined names)
+// Computed forward-hierarchical address from tiers: Level 1 -> Level 2 -> Level 3 (auto-prefixed with defined names)
 const computedAddress = computed(() => {
   const parts: string[] = []
+
+  const t1Name = structureLevels.value[0]?.name || 'Lane'
+  const t1Formatted = formatTierDisplay(singleForm.value.lane, t1Name)
+  if (t1Formatted) parts.push(t1Formatted)
+
+  const t2Name = structureLevels.value[1]?.name || 'House'
+  const t2Formatted = formatTierDisplay(singleForm.value.house, t2Name)
+  if (t2Formatted) parts.push(t2Formatted)
 
   if (structureLevels.value.length >= 3) {
     const t3Name = structureLevels.value[2]?.name || 'Flat'
     const t3Formatted = formatTierDisplay(singleForm.value.flat, t3Name)
     if (t3Formatted) parts.push(t3Formatted)
   }
-
-  const t2Name = structureLevels.value[1]?.name || 'House'
-  const t2Formatted = formatTierDisplay(singleForm.value.house, t2Name)
-  if (t2Formatted) parts.push(t2Formatted)
-
-  const t1Name = structureLevels.value[0]?.name || 'Lane'
-  const t1Formatted = formatTierDisplay(singleForm.value.lane, t1Name)
-  if (t1Formatted) parts.push(t1Formatted)
 
   return parts.join(', ')
 })
