@@ -35,7 +35,11 @@
     </section>
 
     <!-- Template Cards Grid -->
-    <div class="templates-section">
+    <div v-if="loading" class="loading-state">
+      <BrandSpinner :size="40" color="#0A5C38" />
+    </div>
+
+    <div v-else class="templates-section">
       <div class="section-heading-row">
         <div>
           <h2 class="section-title">Available Layout Templates</h2>
@@ -200,8 +204,9 @@
           </button>
           <div class="modal-footer-end">
             <button type="button" class="btn btn-outline" @click="modalOpen = false">Cancel</button>
-            <button type="button" class="btn btn-primary" :disabled="savingModal" @click="saveTemplate">
-              {{ savingModal ? 'Saving...' : 'Save Template' }}
+            <button type="button" class="btn btn-primary btn-with-spinner" :disabled="savingModal" @click="saveTemplate">
+              <BrandSpinner v-if="savingModal" :size="16" color="#ffffff" />
+              <span>{{ savingModal ? 'Saving...' : 'Save Template' }}</span>
             </button>
           </div>
         </div>
@@ -215,6 +220,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { propertiesApi } from '@/api'
 import { useToast } from '@/composables/useToast'
+import BrandSpinner from '@/components/BrandSpinner.vue'
 
 interface StructureLevel {
   level: number
@@ -280,6 +286,7 @@ const defaultPresets = ref<TemplateItem[]>([
 ])
 
 const customTemplates = ref<TemplateItem[]>([])
+const loading = ref(true)
 
 // Dropdown menu state
 const activeDropdownId = ref<string | null>(null)
@@ -327,6 +334,7 @@ const allTemplates = computed(() => {
 // Load custom templates
 async function loadStructure() {
   if (!activeEstateId.value) return
+  loading.value = true
 
   // Load local customized defaults if any
   const storedDefaults = localStorage.getItem(`estate_default_presets_${activeEstateId.value}`)
@@ -355,6 +363,8 @@ async function loadStructure() {
         customTemplates.value = JSON.parse(stored)
       } catch {}
     }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -1111,6 +1121,23 @@ onUnmounted(() => {
 .btn-remove-tier:hover {
   background: #FEF2F2;
   border-color: #EF4444;
+}
+
+.loading-state {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 18px;
+}
+
+.btn-with-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 @media (max-width: 768px) {

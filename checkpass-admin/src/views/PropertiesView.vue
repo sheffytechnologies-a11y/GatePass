@@ -104,8 +104,8 @@
 
     <!-- Properties Inventory Grid -->
     <div v-if="loading" class="empty-state">
-      <div class="spinner" />
-      <p>Loading properties inventory...</p>
+      <BrandSpinner :size="40" color="#0A5C38" />
+      <p class="mt-3 text-hint">Loading properties inventory...</p>
     </div>
 
     <!-- Empty State: Ready to add properties -->
@@ -505,30 +505,33 @@
           <!-- Setup Mode Save Button -->
           <button
             v-if="addPropertyTab === 'setup' || editingProperty"
-            class="btn btn-primary"
+            class="btn btn-primary btn-with-spinner"
             :disabled="savingSingle"
             @click="saveSingleProperty"
           >
-            {{ savingSingle ? 'Saving...' : (editingProperty ? 'Update Property' : 'Save Property') }}
+            <BrandSpinner v-if="savingSingle" :size="16" color="#ffffff" />
+            <span>{{ savingSingle ? 'Saving...' : (editingProperty ? 'Update Property' : 'Save Property') }}</span>
           </button>
 
           <!-- Batch Mode Action Buttons -->
           <template v-else>
             <button
               v-if="batchMethod === 'generator'"
-              class="btn btn-primary"
+              class="btn btn-primary btn-with-spinner"
               :disabled="generatingBatch || calculatedBatchCount === 0"
               @click="executeBatchGeneration"
             >
-              {{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}
+              <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
+              <span>{{ generatingBatch ? 'Generating Properties...' : `Generate ${calculatedBatchCount} Properties` }}</span>
             </button>
             <button
               v-else
-              class="btn btn-primary"
+              class="btn btn-primary btn-with-spinner"
               :disabled="generatingBatch || csvProperties.length === 0"
               @click="uploadCsvBatch"
             >
-              {{ generatingBatch ? 'Importing Properties...' : `Import ${csvProperties.length} Properties` }}
+              <BrandSpinner v-if="generatingBatch" :size="16" color="#ffffff" />
+              <span>{{ generatingBatch ? 'Importing Properties...' : `Import ${csvProperties.length} Properties` }}</span>
             </button>
           </template>
         </div>
@@ -552,8 +555,9 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
-          <button class="btn btn-danger" :disabled="deleting" @click="executeDelete">
-            {{ deleting ? 'Deleting...' : 'Delete Property' }}
+          <button class="btn btn-danger btn-with-spinner" :disabled="deleting" @click="executeDelete">
+            <BrandSpinner v-if="deleting" :size="16" color="#ffffff" />
+            <span>{{ deleting ? 'Deleting...' : 'Delete Property' }}</span>
           </button>
         </div>
       </div>
@@ -567,6 +571,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { propertiesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
+import BrandSpinner from '@/components/BrandSpinner.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -2594,18 +2599,11 @@ onMounted(() => {
   font-size: 12px;
 }
 
-.spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid #E5E7EB;
-  border-top-color: #047857;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 10px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.btn-with-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 @media (max-width: 768px) {
