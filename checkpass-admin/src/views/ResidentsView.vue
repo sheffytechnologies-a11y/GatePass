@@ -1,33 +1,75 @@
 <template>
   <div class="mobile-page">
     <section class="hero-card hero-card--sand">
-      <div>
-        <div class="hero-eyebrow">Resident registry</div>
+      <div class="hero-title-group">
         <h1 class="hero-title">Assign residents to estates and units from a mobile-first flow.</h1>
       </div>
-      <button class="btn btn-primary hero-button" @click="openCreate">New Resident</button>
+      <button class="btn btn-primary hero-button" @click="openCreate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        <span>Add Resident</span>
+      </button>
     </section>
 
-    <section class="card section-card filter-card">
-      <input v-model="search" class="form-input" placeholder="Search by name or phone" @input="debouncedLoad" />
-      <select v-model="estateFilter" class="form-select" @change="load">
-        <option value="">All Estates</option>
-        <option v-for="estate in estates" :key="estate.id" :value="estate.id">{{ estate.name }}</option>
-      </select>
-    </section>
+    <!-- Filter & Search Toolbar (consistent with Properties tab design) -->
+    <div class="toolbar-card">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          v-model="search"
+          type="search"
+          placeholder="Search by name or phone..."
+          class="search-input"
+          @input="debouncedLoad"
+        />
+      </div>
+
+      <div class="filter-group">
+        <select
+          v-if="estates.length > 1"
+          v-model="estateFilter"
+          class="form-select toolbar-select"
+          @change="load"
+        >
+          <option value="">All Estates</option>
+          <option v-for="estate in estates" :key="estate.id" :value="estate.id">
+            🏡 {{ estate.name }}
+          </option>
+        </select>
+
+        <select v-model="roleFilter" class="form-select toolbar-select">
+          <option value="all">All Roles</option>
+          <option value="owner">Owners Only</option>
+          <option value="tenant">Tenants Only</option>
+        </select>
+
+        <select v-model="statusFilter" class="form-select toolbar-select">
+          <option value="all">All Status</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+        </select>
+      </div>
+    </div>
 
     <section class="card section-card">
       <div class="section-head">
         <div>
           <h2 class="section-title">Residents</h2>
-          <p class="section-copy">{{ residents.length }} resident{{ residents.length === 1 ? '' : 's' }} loaded.</p>
+          <p class="section-copy">{{ filteredResidents.length }} resident{{ filteredResidents.length === 1 ? '' : 's' }} loaded.</p>
         </div>
       </div>
 
       <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
-      <div v-else-if="residents.length === 0" class="empty-state">No residents found.</div>
+      <div v-else-if="filteredResidents.length === 0" class="empty-state">No residents found.</div>
       <div v-else class="stack-list">
-        <article v-for="resident in residents" :key="resident.id" class="record-card card">
+        <article v-for="resident in filteredResidents" :key="resident.id" class="record-card card">
           <div class="record-top">
             <div>
               <h3 class="record-title">{{ resident.user?.name ?? '—' }}</h3>
@@ -276,7 +318,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { residentsApi, estatesApi, unitsApi, propertiesApi } from '@/api/index'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
@@ -309,6 +351,23 @@ const estates = ref<any[]>([])
 const units = ref<any[]>([])
 const search = ref('')
 const estateFilter = ref('')
+const roleFilter = ref('all')
+const statusFilter = ref('all')
+
+const filteredResidents = computed(() => {
+  return residents.value.filter(r => {
+    if (roleFilter.value !== 'all' && (r.role ?? 'tenant').toLowerCase() !== roleFilter.value) {
+      return false
+    }
+    if (statusFilter.value === 'active' && !r.isActive) {
+      return false
+    }
+    if (statusFilter.value === 'inactive' && r.isActive) {
+      return false
+    }
+    return true
+  })
+})
 
 const modalOpen = ref(false)
 const editing = ref<any>(null)
@@ -532,13 +591,113 @@ onMounted(() => { load(); loadEstates() })
 
 <style scoped>
 .mobile-page { display: flex; flex-direction: column; gap: 16px; }
-.hero-card { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; padding: 20px; border-radius: 28px; color: white; }
-.hero-card--sand { background: linear-gradient(145deg, #5c3b12 0%, #9e6523 55%, #dca966 100%); }
-.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
-.hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
-.hero-button { background: white; color: #7d4b11; }
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 24px;
+  color: white;
+}
+.hero-card--sand {
+  background: linear-gradient(145deg, #5c3b12 0%, #9e6523 55%, #dca966 100%);
+  box-shadow: 0 4px 18px rgba(92, 59, 18, 0.18);
+}
+.hero-title-group {
+  flex: 1;
+  min-width: 240px;
+}
+.hero-title {
+  font-size: 24px;
+  line-height: 1.15;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: #ffffff;
+}
+.hero-button {
+  background: #ffffff;
+  color: #7d4b11;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.hero-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  background: #FFFDF9;
+}
+.hero-button:active {
+  transform: translateY(0);
+}
+
+.toolbar-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 13.5px;
+  color: #111827;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbar-select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  font-size: 13px;
+  background: #ffffff;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.toolbar-select:focus {
+  border-color: #0A5C38;
+}
+
 .section-card { padding: 16px; }
-.filter-card { display: flex; flex-direction: column; gap: 12px; }
 .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .section-title { font-size: 18px; font-weight: 700; }
 .section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
