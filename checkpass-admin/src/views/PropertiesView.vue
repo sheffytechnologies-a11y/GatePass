@@ -242,9 +242,6 @@
               <span class="role-pill">{{ res.role === 'owner' ? 'Owner' : 'Tenant' }}</span>
             </div>
           </div>
-          <div v-else class="vacant-note">
-            No residents assigned. Ready for assignment.
-          </div>
         </div>
       </div>
     </div>
