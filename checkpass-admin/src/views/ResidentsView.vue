@@ -102,303 +102,9 @@
       </div>
     </section>
 
-    <div v-if="modalOpen" class="sheet-overlay" @click.self="closeModal">
-      <!-- Desktop & Mobile Adaptive Modal for Create Resident -->
-      <div v-if="!editing" class="desktop-modal-card" @click.stop>
-        <!-- Modal Top Bar -->
-        <div class="modal-header-bar">
-          <div class="modal-header-left">
-            <button type="button" class="btn-icon-back" @click="closeModal" title="Back">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"/>
-                <polyline points="12 19 5 12 12 5"/>
-              </svg>
-            </button>
-            <div>
-              <div class="modal-eyebrow">RESIDENT REGISTRATION & ONBOARDING</div>
-              <h2 class="modal-main-title">Add Resident & Unit Assignment</h2>
-            </div>
-          </div>
-          <button type="button" class="btn-icon-close" @click="closeModal" title="Close modal">✕</button>
-        </div>
-
-        <!-- Scrollable Modal Body: 2-Column Responsive Web Grid -->
-        <div class="modal-scroll-body">
-          <div class="two-column-form-grid">
-            
-            <!-- LEFT COLUMN: Primary Resident & Property Unit -->
-            <div class="form-column">
-              <div class="column-header">
-                <span class="column-icon-badge">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </span>
-                <div>
-                  <h3 class="column-title">Primary Resident (Homeowner)</h3>
-                  <p class="column-sub">Account owner responsible for unit access and passes.</p>
-                </div>
-              </div>
-
-              <!-- Owner Photo Upload Space -->
-              <div class="photo-upload-container">
-                <div class="photo-preview-box" @click="triggerOwnerPhotoUpload" title="Click to upload photo">
-                  <img v-if="form.avatar" :src="form.avatar" alt="Resident Preview" class="photo-img" />
-                  <div v-else class="photo-placeholder">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span class="camera-badge">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                        <circle cx="12" cy="13" r="4"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-
-                <div class="photo-meta">
-                  <input
-                    ref="ownerPhotoInput"
-                    type="file"
-                    accept="image/*"
-                    class="d-none"
-                    @change="onOwnerPhotoChange"
-                  />
-                  <div class="photo-actions">
-                    <button type="button" class="btn btn-sm btn-outline-photo" @click="triggerOwnerPhotoUpload">
-                      {{ form.avatar ? 'Change Photo' : 'Upload Photo' }}
-                    </button>
-                    <button v-if="form.avatar" type="button" class="btn btn-sm btn-ghost-danger" @click="removeOwnerPhoto">
-                      Remove
-                    </button>
-                  </div>
-                  <span class="photo-hint">Resident profile photo (JPG, PNG • Max 5MB)</span>
-                </div>
-              </div>
-
-              <!-- Estate Selector if admin manages multiple estates -->
-              <div v-if="estates.length > 1" class="form-group">
-                <label class="form-label">Estate Community *</label>
-                <select v-model="form.estate_id" class="form-select" @change="onEstateChange">
-                  <option value="">Select estate...</option>
-                  <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
-                </select>
-              </div>
-
-              <!-- Personal Information Fields -->
-              <div class="form-group">
-                <label class="form-label">Owner's Full Name *</label>
-                <input v-model="form.name" class="form-input" placeholder="e.g. Babatunde Fashola" required />
-              </div>
-
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label class="form-label">Phone Number *</label>
-                  <input v-model="form.phone" class="form-input" type="tel" placeholder="e.g. 08012345678" required />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Email Address</label>
-                  <input v-model="form.email" class="form-input" type="email" placeholder="e.g. resident@example.com" />
-                </div>
-              </div>
-
-              <!-- Property Unit Assignment Box -->
-              <div class="property-picker-section">
-                <div class="label-row">
-                  <label class="form-label">Property Unit Assignment *</label>
-                  <button
-                    type="button"
-                    class="unit-add-link"
-                    @click="manualAddressMode = !manualAddressMode"
-                  >
-                    {{ manualAddressMode ? '← Pick from Configured Units' : '+ Custom / Manual Address' }}
-                  </button>
-                </div>
-
-                <div v-if="!manualAddressMode" class="form-group mb-0">
-                  <select
-                    :value="form.unit_id"
-                    class="form-select form-select-lg"
-                    @change="onSelectProperty(Number(($event.target as HTMLSelectElement).value) || '')"
-                  >
-                    <option value="">Select a configured property...</option>
-                    <option
-                      v-for="prop in estateProperties"
-                      :key="prop.id"
-                      :value="prop.id"
-                    >
-                      {{ prop.flatAddress }} — {{ prop.isOccupied ? 'Occupied (' + prop.residentsCount + ')' : 'Vacant' }} ({{ prop.unitType || 'Apartment' }})
-                    </option>
-                  </select>
-                  <p v-if="estateProperties.length === 0" class="field-hint">
-                    No configured properties found for this estate. Use manual entry or generate units in the Properties module.
-                  </p>
-                </div>
-
-                <div v-else class="address-row">
-                  <div class="form-group mb-0">
-                    <label class="form-label">Tier 1 (e.g. Lane / Block)</label>
-                    <input v-model="form.lane" class="form-input" placeholder="e.g. Lane 1" />
-                  </div>
-                  <div class="form-group mb-0">
-                    <label class="form-label">Tier 2 (e.g. House / Floor)</label>
-                    <input v-model="form.house" class="form-input" placeholder="e.g. House 5" />
-                  </div>
-                  <div class="form-group mb-0">
-                    <label class="form-label">Tier 3 (e.g. Flat / Unit)</label>
-                    <input v-model="form.flat" class="form-input" placeholder="e.g. Flat B" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Landlord is Occupant Toggle -->
-              <div class="toggle-control-card">
-                <label class="toggle-switch">
-                  <input type="checkbox" v-model="form.landlordIsOccupant" />
-                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </label>
-                <div class="toggle-meta">
-                  <span class="toggle-title">Landlord resides in this unit</span>
-                  <span class="toggle-desc">Toggle on if the homeowner physically lives in this property rather than renting to tenants.</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Co-Residents, Family & Tenants -->
-            <div class="form-column">
-              <div class="column-header column-header--between">
-                <div class="column-header-left">
-                  <span class="column-icon-badge column-icon-badge--blue">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                  </span>
-                  <div>
-                    <h3 class="column-title">Household Occupants & Tenants ({{ form.tenants.length }})</h3>
-                    <p class="column-sub">Register additional family members or co-tenants at this unit.</p>
-                  </div>
-                </div>
-
-                <button type="button" class="btn btn-sm btn-outline-add" @click="addTenant">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
-                  <span>Add Occupant</span>
-                </button>
-              </div>
-
-              <!-- Empty State when 0 tenants -->
-              <div v-if="form.tenants.length === 0" class="occupants-empty-box">
-                <div class="occupants-empty-icon">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                </div>
-                <h4>No Additional Occupants</h4>
-                <p>If other residents or tenants share this property, click "+ Add Occupant" to register them with separate gate access passes.</p>
-                <button type="button" class="btn btn-sm btn-secondary" @click="addTenant">
-                  + Add First Co-Resident
-                </button>
-              </div>
-
-              <!-- Occupant Cards List -->
-              <div v-else class="occupants-cards-list">
-                <div v-for="(tenant, i) in form.tenants" :key="i" class="occupant-card">
-                  <div class="occupant-card-top">
-                    <span class="occupant-badge">Occupant #{{ i + 1 }}</span>
-                    <button type="button" class="tenant-del-btn" @click="removeTenant(i)" title="Remove occupant">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                      </svg>
-                    </button>
-                  </div>
-
-                  <!-- Occupant Photo Mini Uploader -->
-                  <div class="occupant-photo-row">
-                    <div class="occupant-photo-box" @click="triggerTenantPhotoUpload(i)">
-                      <img v-if="tenant.avatar" :src="tenant.avatar" class="occupant-img" />
-                      <div v-else class="occupant-photo-placeholder">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      </div>
-                    </div>
-                    <input
-                      :id="`tenantPhoto_${i}`"
-                      type="file"
-                      accept="image/*"
-                      class="d-none"
-                      @change="onTenantPhotoChange(i, $event)"
-                    />
-                    <div class="occupant-photo-actions">
-                      <button type="button" class="link-btn-sm" @click="triggerTenantPhotoUpload(i)">
-                        {{ tenant.avatar ? 'Change Photo' : 'Upload Photo' }}
-                      </button>
-                      <button v-if="tenant.avatar" type="button" class="link-btn-sm text-danger" @click="removeTenantPhoto(i)">
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Full Name *</label>
-                    <input v-model="tenant.name" class="form-input" placeholder="e.g. Kemi Adeleke" required />
-                  </div>
-
-                  <div class="form-row-2col">
-                    <div class="form-group mb-0">
-                      <label class="form-label">Phone No. *</label>
-                      <input v-model="tenant.phone" class="form-input" type="tel" placeholder="e.g. 08023456789" required />
-                    </div>
-                    <div class="form-group mb-0">
-                      <label class="form-label">Email Address</label>
-                      <input v-model="tenant.email" class="form-input" type="email" placeholder="e.g. kemi@example.com" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div v-if="formError" class="form-error-banner mt-4">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>{{ formError }}</span>
-          </div>
-        </div>
-
-        <!-- Desktop Modal Footer -->
-        <div class="modal-footer-bar">
-          <div v-if="formError" class="form-error-banner footer-error">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>{{ formError }}</span>
-          </div>
-          <div v-else class="footer-info-hint">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>Temporary login credentials will be generated automatically for all new residents.</span>
-          </div>
-
-          <div class="modal-footer-actions">
-            <button type="button" class="btn btn-outline" @click="closeModal">Cancel</button>
-            <button type="button" class="btn btn-primary btn-save-resident" :disabled="saving" @click="save">
-              <BrandSpinner v-if="saving" :size="16" color="#ffffff" />
-              <span>{{ saving ? 'Saving Records...' : 'Save Resident Record' }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sheet for edit -->
-      <div v-else class="sheet card">
+    <!-- Sheet for edit -->
+    <div v-if="modalOpen && editing" class="sheet-overlay" @click.self="closeModal">
+      <div class="sheet card">
         <div class="sheet-head">
           <h3 class="sheet-title">Edit Resident</h3>
           <button class="sheet-close" @click="closeModal">✕</button>
@@ -499,31 +205,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { residentsApi, estatesApi, unitsApi, propertiesApi } from '@/api/index'
+import { useRouter } from 'vue-router'
+import { residentsApi, estatesApi, unitsApi } from '@/api/index'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 
+const router = useRouter()
 const { showToast } = useToast()
 const auth = useAuthStore()
-
-const estateProperties = ref<any[]>([])
-const manualAddressMode = ref(false)
-
-function onSelectProperty(propId: number | '') {
-  form.value.unit_id = propId
-  if (!propId) {
-    form.value.lane = ''
-    form.value.house = ''
-    form.value.flat = ''
-    return
-  }
-  const found = estateProperties.value.find((p: any) => p.id === propId)
-  if (found) {
-    form.value.lane = found.lane || ''
-    form.value.house = found.house || ''
-    form.value.flat = found.flat || ''
-  }
-}
 
 const loading = ref(true)
 const residents = ref<any[]>([])
@@ -572,58 +261,6 @@ const form = ref({
   is_active: true,
 })
 
-const ownerPhotoInput = ref<HTMLInputElement | null>(null)
-
-function triggerOwnerPhotoUpload() {
-  ownerPhotoInput.value?.click()
-}
-
-function onOwnerPhotoChange(e: Event) {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('Photo must be less than 5MB', 'error')
-    return
-  }
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.avatar = reader.result as string
-  }
-  reader.readAsDataURL(file)
-}
-
-function removeOwnerPhoto() {
-  form.value.avatar = ''
-  if (ownerPhotoInput.value) {
-    ownerPhotoInput.value.value = ''
-  }
-}
-
-function triggerTenantPhotoUpload(index: number) {
-  const el = document.getElementById(`tenantPhoto_${index}`) as HTMLInputElement
-  el?.click()
-}
-
-function onTenantPhotoChange(index: number, e: Event) {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('Photo must be less than 5MB', 'error')
-    return
-  }
-  const reader = new FileReader()
-  reader.onload = () => {
-    form.value.tenants[index].avatar = reader.result as string
-  }
-  reader.readAsDataURL(file)
-}
-
-function removeTenantPhoto(index: number) {
-  form.value.tenants[index].avatar = ''
-}
-
 let searchTimer: ReturnType<typeof setTimeout>
 function debouncedLoad() {
   clearTimeout(searchTimer)
@@ -662,42 +299,12 @@ async function loadUnits() {
   } catch {/* ignore */}
 }
 
-async function openCreate() {
-  editing.value = null
-  const currentEstateId = Number(estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')) || ''
-  form.value = {
-    name: '', phone: '', email: '', avatar: '',
-    lane: '', house: '', flat: '', landlordIsOccupant: false, tenants: [],
-    estate_id: currentEstateId, unit_id: '', role: 'owner', is_active: true,
-  }
-  formError.value = ''
-  units.value = []
-  estateProperties.value = []
-  manualAddressMode.value = false
-
+function openCreate() {
+  const currentEstateId = estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')
   if (currentEstateId) {
-    try {
-      const res = await propertiesApi.getAll(Number(currentEstateId))
-      estateProperties.value = res.data?.properties || []
-    } catch {
-      estateProperties.value = []
-    }
-  }
-  modalOpen.value = true
-}
-
-async function onEstateChange() {
-  form.value.unit_id = ''
-  form.value.lane = ''
-  form.value.house = ''
-  form.value.flat = ''
-  estateProperties.value = []
-  if (!form.value.estate_id) return
-  try {
-    const res = await propertiesApi.getAll(Number(form.value.estate_id))
-    estateProperties.value = res.data?.properties || []
-  } catch {
-    estateProperties.value = []
+    router.push(`/residents/new?estate_id=${currentEstateId}`)
+  } else {
+    router.push('/residents/new')
   }
 }
 
@@ -842,9 +449,6 @@ async function save() {
     saving.value = false
   }
 }
-
-function addTenant() { form.value.tenants.push({ name: '', phone: '', email: '', avatar: '' }) }
-function removeTenant(i: number) { form.value.tenants.splice(i, 1) }
 
 function confirmDelete(r: any) { deleteTarget.value = r }
 

@@ -34,6 +34,8 @@ const router = createRouter({
         { path: '/properties/setup', component: () => import('@/views/PropertySetupView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/properties/:id', component: () => import('@/views/PropertyDetailView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/residents', component: () => import('@/views/ResidentsView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/residents/new', component: () => import('@/views/ResidentCreateView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/residents/create', redirect: '/residents/new' },
         { path: '/emergencies', component: () => import('@/views/EmergenciesView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/notifications', component: () => import('@/views/NotificationsView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/news', component: () => import('@/views/NewsView.vue'), meta: { roles: ADMIN_ROLES } },
