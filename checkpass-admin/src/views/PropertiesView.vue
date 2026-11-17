@@ -4,16 +4,21 @@
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
+        <div class="hero-topology-pill" @click="openStructureModal" role="button" tabindex="0" title="Click to view or edit property setup">
+          <span class="pill-dot"></span>
+          <span class="pill-label">Property Setup:</span>
+          <span class="pill-value">{{ structureLevels.map(l => l.name).filter(Boolean).join(', ') || 'Lane, House, Flat' }}</span>
+        </div>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-primary hero-btn-white" @click="handlePrimaryAddProperty">
+        <button class="hero-btn-white" @click="handlePrimaryAddProperty">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Add Property
         </button>
-        <button class="btn btn-outline hero-btn-outline-white" @click="openStructureModal">
+        <button class="hero-btn-outline-white" @click="openStructureModal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -56,17 +61,6 @@
         </div>
         <div class="stat-val text-amber">{{ stats.vacantProperties }}</div>
         <div class="stat-hint">Ready for new tenant onboarding</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-meta">
-          <span class="stat-label">Hierarchy Structure</span>
-          <span class="stat-icon-wrap bg-blue-soft">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><path d="M12 8v4M6 16l6-4 6 4"/></svg>
-          </span>
-        </div>
-        <div class="stat-val text-blue">{{ currentPresetLabel }}</div>
-        <div class="stat-hint">{{ structureLevels.map(l => l.name).join(' → ') || 'Standard' }}</div>
       </div>
     </div>
 
@@ -1354,6 +1348,12 @@ onMounted(() => {
   box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.25);
 }
 
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .hero-eyebrow {
   font-size: 11px;
   text-transform: uppercase;
@@ -1369,6 +1369,48 @@ onMounted(() => {
   max-width: 620px;
   line-height: 1.35;
   margin: 0;
+}
+
+.hero-topology-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: #ffffff;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.hero-topology-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34D399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+  flex-shrink: 0;
+}
+
+.pill-label {
+  opacity: 0.88;
+  font-weight: 500;
+}
+
+.pill-value {
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .hero-actions {
@@ -1419,54 +1461,70 @@ onMounted(() => {
 }
 
 .hero-btn-white {
-  background: white;
-  color: #064E3B;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  background: #ffffff !important;
+  color: #064E3B !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  padding: 9px 18px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.2s ease !important;
 }
 
 .hero-btn-white:hover {
-  background: #f0fdf4;
-  transform: translateY(-1px);
+  background: #f0fdf4 !important;
+  color: #047857 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16) !important;
+}
+
+.hero-btn-white:active {
+  transform: translateY(0) scale(0.98) !important;
 }
 
 .hero-btn-outline-white {
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
   color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
   backdrop-filter: blur(8px) !important;
   font-weight: 600 !important;
-  padding: 8px 16px !important;
+  padding: 8.5px 18px !important;
   border-radius: 12px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  font-size: 13px !important;
+  gap: 7px !important;
+  font-size: 13.5px !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
 }
 
 .hero-btn-outline-white:hover {
-  background: rgba(255, 255, 255, 0.28) !important;
-  border-color: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
   color: #ffffff !important;
-  transform: translateY(-1px);
+  transform: translateY(-1px) !important;
+}
+
+.hero-btn-outline-white:active {
+  transform: translateY(0) scale(0.98) !important;
 }
 
 /* Stats Row */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
