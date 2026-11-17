@@ -116,9 +116,16 @@
           <p class="tpl-desc">{{ tpl.description || 'Custom hierarchy layout for this estate.' }}</p>
 
           <div class="tpl-tiers-preview">
-            <div class="tier-pill" v-for="(lvl, idx) in tpl.levels" :key="idx">
+            <div class="tier-pill" v-for="(lvl, idx) in tpl.levels.slice(0, 3)" :key="idx">
               <span class="tier-pill-level">L{{ lvl.level }}</span>
               <span class="tier-pill-name">{{ lvl.name }}</span>
+            </div>
+            <div
+              v-if="tpl.levels.length > 3"
+              class="tier-pill tier-pill--more"
+              :title="tpl.levels.slice(3).map(l => `L${l.level}: ${l.name}`).join(', ')"
+            >
+              +{{ tpl.levels.length - 3 }}
             </div>
           </div>
         </div>
@@ -813,7 +820,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
   padding: 10px 12px;
   background: #F9FAFB;
   border-radius: 12px;
@@ -829,6 +838,17 @@ onUnmounted(() => {
   border-radius: 6px;
   padding: 3px 8px;
   font-size: 12px;
+  flex-shrink: 0;
+}
+
+.tier-pill--more {
+  background: #F3F4F6;
+  color: #047857;
+  font-weight: 700;
+  border-color: #E5E7EB;
+  font-size: 11.5px;
+  cursor: help;
+  padding: 3px 7px;
 }
 
 .tier-pill-level {
