@@ -1847,6 +1847,21 @@ onMounted(() => {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
 }
 
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 10px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #6B7280;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
 .empty-icon-wrap {
   width: 64px;
   height: 64px;
