@@ -4,10 +4,12 @@
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
-        <div class="hero-topology-pill" @click="openStructureModal" role="button" tabindex="0" title="Click to view or edit property setup">
-          <span class="pill-dot"></span>
-          <span class="pill-label">Property Setup:</span>
-          <span class="pill-value">{{ structureLevels.map(l => l.name).filter(Boolean).join(', ') || 'Lane, House, Flat' }}</span>
+        <div class="hero-setup-meta">
+          <span class="setup-dot" :class="isStructureConfigured ? 'setup-dot--active' : 'setup-dot--pending'"></span>
+          <span class="setup-label">Property Setup:</span>
+          <span class="setup-value">
+            {{ isStructureConfigured ? (structureLevels.map(l => l.name).filter(Boolean).join(', ') || 'Configured') : 'Not configured' }}
+          </span>
         </div>
       </div>
       <div class="hero-actions">
@@ -1370,45 +1372,39 @@ onMounted(() => {
   margin: 0;
 }
 
-.hero-topology-pill {
+.hero-setup-meta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  width: fit-content;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 9999px;
-  padding: 5px 14px;
-  font-size: 13px;
-  color: #ffffff;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-  user-select: none;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 2px;
 }
 
-.hero-topology-pill:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-.pill-dot {
+.setup-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #34D399;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
   flex-shrink: 0;
 }
 
-.pill-label {
-  opacity: 0.88;
+.setup-dot--active {
+  background: #34D399;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.7);
+}
+
+.setup-dot--pending {
+  background: #FBBF24;
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
+}
+
+.setup-label {
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 500;
 }
 
-.pill-value {
-  font-weight: 700;
+.setup-value {
+  font-weight: 600;
   color: #ffffff;
 }
 
