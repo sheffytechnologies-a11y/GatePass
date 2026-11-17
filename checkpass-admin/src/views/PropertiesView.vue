@@ -288,8 +288,21 @@
             </div>
           </div>
 
-          <div class="form-group mt-4">
-            <label class="form-label">Hierarchy Levels (Tiers)</label>
+          <div class="form-group tiers-section">
+            <div class="tiers-header">
+              <label class="form-label tiers-label">Hierarchy Levels (Tiers)</label>
+              <button
+                type="button"
+                class="btn-add-tier-action"
+                @click="addTier"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Add Another Tier
+              </button>
+            </div>
             <div class="tiers-editor">
               <div v-for="(lvl, idx) in structureLevels" :key="idx" class="tier-row">
                 <span class="tier-num">Level {{ lvl.level }}</span>
@@ -306,13 +319,10 @@
                   Remove
                 </button>
               </div>
-              <button class="btn btn-sm btn-outline mt-2" @click="addTier">
-                + Add Another Tier
-              </button>
             </div>
           </div>
 
-          <div class="form-group mt-3 relabel-box">
+          <div class="form-group relabel-box">
             <label class="toggle-control">
               <input type="checkbox" v-model="relabelExistingUnits" />
               <span>
@@ -2137,14 +2147,14 @@ onMounted(() => {
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 10px;
+  gap: 16px;
   margin-top: 8px;
 }
 
 .preset-card {
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 16px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -2164,21 +2174,68 @@ onMounted(() => {
   font-weight: 700;
   font-size: 14px;
   color: #111827;
+  line-height: 20px;
 }
 
 .preset-desc {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #6B7280;
-  margin: 2px 0 6px;
+  margin: 4px 0 8px;
+  line-height: 16px;
 }
 
 .preset-sample {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #047857;
+  line-height: 16px;
 }
 
 /* Tiers Editor */
+.tiers-section {
+  margin-top: 24px;
+}
+
+.tiers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tiers-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.btn-add-tier-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0A5C38;
+  background: #ECFDF5;
+  border: 1px solid rgba(10, 92, 56, 0.2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-add-tier-action:hover {
+  background: #D1FAE5;
+  border-color: rgba(10, 92, 56, 0.35);
+  color: #064E3B;
+  transform: translateY(-1px);
+}
+
+.btn-add-tier-action:active {
+  transform: translateY(0);
+}
+
 .tiers-editor {
   display: flex;
   flex-direction: column;
@@ -2188,14 +2245,43 @@ onMounted(() => {
 .tier-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tier-num {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: #4B5563;
-  width: 70px;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.tier-row .form-input {
+  height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.tier-row .btn-outline-danger {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.tier-row .btn-outline-danger:hover {
+  background: #FEF2F2;
+  border-color: #EF4444;
 }
 
 /* Batch Modal Elements */
@@ -2736,8 +2822,9 @@ onMounted(() => {
 .relabel-box {
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 24px;
 }
 .toggle-control {
   display: flex;
