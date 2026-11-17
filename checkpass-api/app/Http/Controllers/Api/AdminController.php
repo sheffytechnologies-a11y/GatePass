@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Estate;
 use App\Models\Unit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -484,11 +485,64 @@ class AdminController extends Controller
 
         $query = Estate::query();
         if ($admin instanceof \App\Models\Admin && $admin->isEstateAdmin()) {
-            $query->where('id', $admin->currentEstateId());
+            if ($admin->estates()->exists()) {
+                $query->whereIn('id', $admin->estates()->pluck('estates.id'));
+            } else {
+                $query->where('id', $admin->currentEstateId());
+            }
         }
 
-        $estates = $query->get()->map(fn($e) => ['id' => $e->id, 'name' => $e->name]);
+        $estates = $query->get()->map(fn($e) => [
+            'id' => $e->id,
+            'name' => $e->name,
+            'address' => $e->address,
+            'state' => $e->state,
+            'city' => $e->city,
+            'role' => ($admin instanceof \App\Models\Admin && $admin->isSuperAdmin()) ? 'Super Admin' : 'Estate Admin',
+        ]);
         return response()->json(['estates' => $estates]);
+    }
+
+    /**
+     * POST /api/v1/admin/estates
+     */
+    public function createEstate(Request $request)
+    {
+        $data = $request->validate([
+            'name'    => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'state'   => 'nullable|string|max:255',
+            'city'    => 'nullable|string|max:255',
+        ]);
+
+        $estate = DB::transaction(function () use ($data, $request) {
+            $estate = Estate::create([
+                'name'      => $data['name'],
+                'address'   => $data['address'] ?? null,
+                'state'     => $data['state'] ?? null,
+                'city'      => $data['city'] ?? null,
+                'is_active' => true,
+            ]);
+
+            $admin = $request->user();
+            if ($admin instanceof \App\Models\Admin) {
+                $admin->estates()->syncWithoutDetaching([$estate->id]);
+            }
+
+            return $estate;
+        });
+
+        return response()->json([
+            'success' => true,
+            'estate'  => [
+                'id'      => $estate->id,
+                'name'    => $estate->name,
+                'address' => $estate->address,
+                'state'   => $estate->state,
+                'role'    => 'Estate Admin',
+            ],
+            'message' => 'Estate registered successfully.',
+        ], 201);
     }
 
     /**

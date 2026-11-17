@@ -77,6 +77,7 @@ export const residentsApi = {
 
 export const estatesApi = {
   getAll: () => client.get('/v1/admin/estates'),
+  create: (data: Record<string, unknown>) => client.post('/v1/admin/estates', data),
   getUnits: (estateId: number) => client.get(`/v1/admin/estates/${estateId}/units`),
 }
 
@@ -161,7 +162,7 @@ export const propertiesApi = {
     if (stored) {
       try {
         return { data: { structure: JSON.parse(stored) } }
-      } catch {}
+      } catch { }
     }
     return {
       data: {

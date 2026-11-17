@@ -55,15 +55,74 @@
         </div>
 
         <div class="dropdown-footer">
-          <router-link to="/register/estate" class="add-estate-btn" @click="isOpen = false">
+          <button type="button" class="add-estate-btn" @click="openCreateModal">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14M12 5v14"/>
             </svg>
             Add / Register New Estate
-          </router-link>
+          </button>
         </div>
       </div>
     </transition>
+
+    <!-- Modal: Register New Estate -->
+    <Teleport to="body">
+      <div v-if="createModalOpen" class="modal-backdrop" @click.self="createModalOpen = false">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <h2 class="modal-title">Add / Register New Estate</h2>
+              <p class="modal-subtitle">Register a new gated community or facility to your management portfolio.</p>
+            </div>
+            <button type="button" class="close-btn" @click="createModalOpen = false">✕</button>
+          </div>
+
+          <form @submit.prevent="submitCreateEstate">
+            <div class="modal-body">
+              <div v-if="createError" class="modal-alert-danger">
+                {{ createError }}
+              </div>
+
+              <div class="modal-field">
+                <label class="modal-label">Estate Name <span class="req">*</span></label>
+                <input
+                  v-model="createForm.name"
+                  type="text"
+                  class="modal-input"
+                  placeholder="e.g. Sheffy Estate, Lekki Horizon"
+                  required
+                />
+              </div>
+
+              <div class="modal-field">
+                <label class="modal-label">Street Address</label>
+                <input
+                  v-model="createForm.address"
+                  type="text"
+                  class="modal-input"
+                  placeholder="e.g. Plot 14, Admiralty Way, Lekki Phase 1"
+                />
+              </div>
+
+              <div class="modal-field">
+                <label class="modal-label">State</label>
+                <StateSelect v-model="createForm.state" placeholder="Select Nigerian State" />
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" @click="createModalOpen = false" :disabled="creating">
+                Cancel
+              </button>
+              <button type="submit" class="btn-submit" :disabled="creating || !createForm.name.trim()">
+                <span v-if="creating">Registering...</span>
+                <span v-else>Register Estate</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -71,6 +130,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore, type EstateWorkspace } from '@/stores/auth'
 import { estatesApi } from '@/api'
+import StateSelect from '@/components/StateSelect.vue'
+import { useToast } from '@/composables/useToast'
 
 const props = withDefaults(defineProps<{
   variant?: 'default' | 'hero'
@@ -128,6 +189,71 @@ async function loadEstates() {
     }
   } catch (err) {
     // Graceful fallback to cached estate
+  }
+}
+
+const { showToast } = useToast()
+
+const createModalOpen = ref(false)
+const creating = ref(false)
+const createError = ref('')
+const createForm = ref({
+  name: '',
+  address: '',
+  state: 'Lagos',
+})
+
+function openCreateModal() {
+  isOpen.value = false
+  createError.value = ''
+  createForm.value = {
+    name: '',
+    address: '',
+    state: 'Lagos',
+  }
+  createModalOpen.value = true
+}
+
+async function submitCreateEstate() {
+  if (!createForm.value.name.trim()) {
+    createError.value = 'Estate name is required.'
+    return
+  }
+  createError.value = ''
+  creating.value = true
+
+  try {
+    const res = await estatesApi.create({
+      name: createForm.value.name.trim(),
+      address: createForm.value.address.trim() || undefined,
+      state: createForm.value.state || undefined,
+    })
+
+    const newEstateRaw = res.data?.estate || res.data
+    const newEstate: EstateWorkspace = {
+      id: newEstateRaw.id,
+      name: newEstateRaw.name,
+      role: newEstateRaw.role || 'Estate Admin',
+      address: newEstateRaw.address || newEstateRaw.state || '',
+    }
+
+    // Update estates list in auth store
+    const existing = auth.estates || []
+    const updatedList = [...existing.filter(e => e.id !== newEstate.id), newEstate]
+    auth.setEstatesList(updatedList)
+
+    // Switch to newly created estate
+    auth.setActiveEstate(newEstate)
+
+    // Dispatch global event so other dashboard views update
+    window.dispatchEvent(new CustomEvent('checkpass:estate-switched', { detail: newEstate }))
+
+    showToast(`Estate "${newEstate.name}" registered successfully!`, 'success')
+    createModalOpen.value = false
+  } catch (err: any) {
+    createError.value = err.response?.data?.message || 'Failed to register estate.'
+  } finally {
+    creating.value = false
   }
 }
 
@@ -407,6 +533,169 @@ onUnmounted(() => {
 
 .switcher-trigger.switcher-trigger--hero .switcher-chevron {
   color: #0a5c38 !important;
+}
+
+/* ── In-App Register Estate Modal ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 4px 0 0;
+}
+
+.close-btn {
+  background: #F3F4F6;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #4B5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.close-btn:hover {
+  background: #E5E7EB;
+}
+
+.modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.modal-label .req {
+  color: #DC2626;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #E5E7EB;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  background: #F9FAFB;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.modal-input:focus {
+  border-color: #0A5C38;
+  background-color: #FFFFFF;
+}
+
+.modal-alert-danger {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #B91C1C;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: #F9FAFB;
+}
+
+.btn-cancel {
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  color: #374151;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+  background: #F3F4F6;
+}
+
+.btn-submit {
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #0A5C38;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #064E3B;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 </style>

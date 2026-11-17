@@ -204,6 +204,7 @@ Route::prefix('v1')->group(function () {
 
             // Estates & Units (reference data)
             Route::get('estates',                [AdminController::class, 'listEstates']);
+            Route::post('estates',               [AdminController::class, 'createEstate']);
             Route::get('estates/{id}/units',     [AdminController::class, 'listUnits']);
             Route::post('units',                 [AdminController::class, 'createUnit']);
 
