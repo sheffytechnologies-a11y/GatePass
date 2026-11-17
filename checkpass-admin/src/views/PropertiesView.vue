@@ -1427,7 +1427,6 @@ onMounted(() => {
   border: 1px solid #E5E7EB;
   border-radius: 16px;
   padding: 12px 16px;
-  flex-wrap: wrap;
 }
 
 .search-box {
@@ -1439,7 +1438,7 @@ onMounted(() => {
   border-radius: 10px;
   padding: 8px 14px;
   flex: 1;
-  min-width: 260px;
+  min-width: 220px;
 }
 
 .search-input {
@@ -1453,12 +1452,14 @@ onMounted(() => {
 
 .filter-group {
   display: flex;
+  align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .toolbar-select {
-  padding: 8px 12px;
+  padding: 8px 14px;
   font-size: 13px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
@@ -1466,6 +1467,7 @@ onMounted(() => {
   color: #374151;
   outline: none;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Properties Grid */
