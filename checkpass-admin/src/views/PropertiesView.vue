@@ -4,13 +4,6 @@
     <section class="hero-card hero-card--emerald">
       <div class="hero-copy">
         <h1 class="hero-title">Configure estate structure, generate units in bulk, and track occupancy.</h1>
-        <div class="hero-setup-meta" @click="goToPropertySetup" style="cursor: pointer;" title="Configure Estate Property Structure">
-          <span class="setup-dot" :class="isStructureConfigured ? 'setup-dot--active' : 'setup-dot--pending'"></span>
-          <span class="setup-label">Property Setup:</span>
-          <span class="setup-value">
-            {{ isStructureConfigured ? (structureLevels.map(l => l.name).filter(Boolean).join(', ') || 'Configured') : 'Not configured' }}
-          </span>
-        </div>
       </div>
       <div class="hero-actions">
         <button class="hero-btn-white" @click="handlePrimaryAddProperty">
@@ -115,36 +108,25 @@
       <p>Loading properties inventory...</p>
     </div>
 
-    <!-- Case 1: Structure NOT configured yet on newly added estate -->
-    <div v-else-if="properties.length === 0 && !isStructureConfigured" class="empty-state empty-card empty-card--setup-needed">
-      <div class="empty-icon-wrap empty-icon-wrap--amber">
-        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/><path d="M12 8v4M6 16l6-4 6 4"/>
-        </svg>
-      </div>
-      <h3>Property Setup Required</h3>
-      <p>Before adding properties or generating units, you must define your estate's physical layout. This ensures all unit codes, addresses, and visitor passes are formatted accurately and consistently across your estate.</p>
-      <div class="empty-actions">
-        <button class="btn btn-primary" @click="goToPropertySetup">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Setup Property Structure
-        </button>
-      </div>
-    </div>
-
-    <!-- Case 2: Structure IS configured, ready to add properties -->
+    <!-- Empty State: Ready to add properties -->
     <div v-else-if="properties.length === 0" class="empty-state empty-card">
       <div class="empty-icon-wrap">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round">
           <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/>
         </svg>
       </div>
-      <span class="ready-badge">Structure Configured · {{ currentPresetLabel }}</span>
-      <h3>Structure ready! Add your first property</h3>
-      <p>Your estate naming layout is configured. You can now add individual units with auto-compiled addresses or use Batch Upload to generate all units at once.</p>
+      <h3>Add your first property</h3>
+      <p>Select from built-in layout templates to add individual units or use batch upload to generate properties in bulk.</p>
       <div class="empty-actions">
-        <button class="btn btn-primary" @click="openCreateModal('setup')">+ Add Property</button>
+        <button class="btn btn-primary" @click="handlePrimaryAddProperty">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Property
+        </button>
         <button class="btn btn-outline" @click="openCreateModal('batch')">Batch Upload</button>
+        <button class="btn btn-outline" @click="goToPropertySetup">Setup Property Layout</button>
       </div>
     </div>
 
@@ -219,42 +201,6 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 0: Setup Required Gate Modal (Minimalist Inspired) -->
-    <div v-if="setupRequiredModalOpen" class="modal-backdrop" @click.self="setupRequiredModalOpen = false">
-      <div class="prompt-modal-card">
-        <button class="prompt-close-btn" @click="setupRequiredModalOpen = false" aria-label="Close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-
-        <div class="prompt-icon-halo">
-          <div class="prompt-icon-inner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-        </div>
-
-        <h3 class="prompt-modal-title">Property Setup Required</h3>
-        <p class="prompt-modal-desc">
-          You must define your estate's physical layout and naming structure before adding properties.
-        </p>
-
-        <div class="prompt-modal-actions">
-          <button class="prompt-btn prompt-btn--cancel" @click="setupRequiredModalOpen = false">
-            Cancel
-          </button>
-          <button class="prompt-btn prompt-btn--confirm" @click="goToPropertySetup">
-            Set Up Structure
-          </button>
         </div>
       </div>
     </div>
@@ -696,7 +642,6 @@ const PRESETS = [
 
 // Topology Structure
 const isStructureConfigured = ref(false)
-const setupRequiredModalOpen = ref(false)
 const structurePreset = ref('lane_house_flat')
 const structureLevels = ref<any[]>([
   { level: 1, name: 'Lane', slug: 'lane', required: true },
@@ -705,23 +650,13 @@ const structureLevels = ref<any[]>([
 ])
 
 function handlePrimaryAddProperty() {
-  if (!isStructureConfigured.value && properties.value.length === 0) {
-    setupRequiredModalOpen.value = true
-    return
-  }
   openCreateModal('setup')
 }
 
 function goToPropertySetup() {
   singleModalOpen.value = false
-  setupRequiredModalOpen.value = false
   router.push('/properties/setup')
 }
-
-const currentPresetLabel = computed(() => {
-  const match = PRESETS.find(p => p.id === structurePreset.value)
-  return match?.label || 'Custom Hierarchy'
-})
 
 function selectLocalPreset(p: any) {
   structurePreset.value = p.id
