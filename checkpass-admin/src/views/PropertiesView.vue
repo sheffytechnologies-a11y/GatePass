@@ -223,34 +223,37 @@
       </div>
     </div>
 
-    <!-- MODAL 0: Setup Required Gate Modal -->
+    <!-- MODAL 0: Setup Required Gate Modal (Minimalist Inspired) -->
     <div v-if="setupRequiredModalOpen" class="modal-backdrop" @click.self="setupRequiredModalOpen = false">
-      <div class="modal-card modal-sm">
-        <div class="modal-header">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="warning-icon-pill">⚙️</div>
-            <div>
-              <h2 class="modal-title">Property Setup Required</h2>
-              <p class="modal-subtitle">Define estate naming before adding properties.</p>
-            </div>
-          </div>
-          <button class="close-btn" @click="setupRequiredModalOpen = false">✕</button>
-        </div>
-        <div class="modal-body">
-          <p class="setup-alert-text">
-            You cannot add properties until you define your estate's naming structure and hierarchy (such as <strong>Lane · House · Flat</strong> or <strong>Block · Floor · Flat</strong>).
-          </p>
-          <div class="setup-reason-box">
-            <div class="setup-reason-title">💡 Why is this required?</div>
-            <p class="setup-reason-desc">
-              Setting up your topology ensures that all addresses, unit codes, gate passes, and resident directories are automatically standardized and correctly indexed across your entire estate.
-            </p>
+      <div class="prompt-modal-card">
+        <button class="prompt-close-btn" @click="setupRequiredModalOpen = false" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="prompt-icon-halo">
+          <div class="prompt-icon-inner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline" @click="setupRequiredModalOpen = false">Cancel</button>
-          <button class="btn btn-primary" @click="goToSetupFromAlert">
-            Set Up Structure Now &rarr;
+
+        <h3 class="prompt-modal-title">Property Setup Required</h3>
+        <p class="prompt-modal-desc">
+          You must define your estate's physical layout and naming structure before adding properties.
+        </p>
+
+        <div class="prompt-modal-actions">
+          <button class="prompt-btn prompt-btn--cancel" @click="setupRequiredModalOpen = false">
+            Cancel
+          </button>
+          <button class="prompt-btn prompt-btn--confirm" @click="goToSetupFromAlert">
+            Set Up Structure
           </button>
         </div>
       </div>
@@ -1916,46 +1919,139 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.warning-icon-pill {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #FEF3C7;
+.prompt-modal-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 32px 32px;
+  max-width: 430px;
+  width: 90%;
+  margin: auto;
+  text-align: center;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  animation: promptFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes promptFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.prompt-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.setup-alert-text {
-  font-size: 14px;
-  line-height: 1.55;
-  color: #374151;
-  margin: 0;
+.prompt-close-btn:hover {
+  background: #F3F4F6;
+  color: #111827;
 }
 
-.setup-reason-box {
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: 12px;
-  padding: 14px 16px;
+.prompt-icon-halo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  padding: 10px;
+  background: rgba(10, 92, 56, 0.08);
+  box-shadow: 0 0 0 10px rgba(10, 92, 56, 0.04);
+}
+
+.prompt-icon-inner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #0A5C38;
+  color: #ffffff;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(10, 92, 56, 0.25);
 }
 
-.setup-reason-title {
-  font-size: 13px;
+.prompt-modal-title {
+  font-size: 21px;
   font-weight: 700;
-  color: #166534;
+  color: #111827;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
 }
 
-.setup-reason-desc {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: #15803D;
-  margin: 0;
+.prompt-modal-desc {
+  font-size: 14px;
+  color: #6B7280;
+  line-height: 1.55;
+  max-width: 330px;
+  margin: 0 auto 28px;
+}
+
+.prompt-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.prompt-btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prompt-btn--cancel {
+  background: #ffffff;
+  border: 1.5px solid #E5E7EB;
+  color: #374151;
+}
+
+.prompt-btn--cancel:hover {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+  color: #111827;
+}
+
+.prompt-btn--confirm {
+  background: #0A5C38;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22);
+}
+
+.prompt-btn--confirm:hover {
+  background: #064E3B;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(10, 92, 56, 0.28);
+}
+
+.prompt-btn--confirm:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Modals */
