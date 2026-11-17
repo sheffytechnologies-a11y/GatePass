@@ -163,6 +163,282 @@
         </router-link>
       </div>
 
+      <!-- Executive Analytics & Visual Telemetry Grid -->
+      <div class="analytics-row">
+        <!-- Passes & Gate Traffic Influx Trend Card -->
+        <div class="card analytics-card">
+          <div class="card-header analytics-header">
+            <div>
+              <div class="header-sub">Gate Telemetry</div>
+              <h2 class="card-title">Visitor Passes & Gate Influx</h2>
+            </div>
+            <div class="tab-pill-group">
+              <button 
+                type="button" 
+                class="tab-pill" 
+                :class="{ active: passChartTab === 'trend' }"
+                @click="passChartTab = 'trend'"
+              >
+                7-Day Influx
+              </button>
+              <button 
+                type="button" 
+                class="tab-pill" 
+                :class="{ active: passChartTab === 'breakdown' }"
+                @click="passChartTab = 'breakdown'"
+              >
+                Categories
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- 7-Day Influx Area Chart -->
+            <div v-if="passChartTab === 'trend'" class="chart-container">
+              <div class="chart-legend-row">
+                <div class="legend-item">
+                  <span class="legend-dot legend-dot--total"></span>
+                  <span class="legend-text">Passes Issued ({{ totalWeekPasses }})</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-dot--arrived"></span>
+                  <span class="legend-text">Checked-in At Gate ({{ totalWeekArrived }})</span>
+                </div>
+                <div class="chart-stat-chip">
+                  <span>Avg: {{ avgDailyPasses }}/day</span>
+                </div>
+              </div>
+
+              <!-- SVG Chart -->
+              <div class="svg-chart-wrapper">
+                <svg viewBox="0 0 500 150" class="svg-chart" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="passAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#10B981" stop-opacity="0.25" />
+                      <stop offset="100%" stop-color="#10B981" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Horizontal grid lines -->
+                  <line x1="30" y1="20" x2="485" y2="20" stroke="#F1F5F9" stroke-width="1" />
+                  <line x1="30" y1="65" x2="485" y2="65" stroke="#F1F5F9" stroke-width="1" />
+                  <line x1="30" y1="110" x2="485" y2="110" stroke="#F1F5F9" stroke-width="1" />
+                  <line x1="30" y1="125" x2="485" y2="125" stroke="#E2E8F0" stroke-width="1.2" />
+
+                  <!-- Filled Area for Checked-in -->
+                  <path v-if="passTrendCoords.areaPath" :d="passTrendCoords.areaPath" fill="url(#passAreaGradient)" />
+
+                  <!-- Total line (dashed soft blue) -->
+                  <path v-if="passTrendCoords.totalPath" :d="passTrendCoords.totalPath" fill="none" stroke="#60A5FA" stroke-width="2" stroke-dasharray="4 3" />
+
+                  <!-- Arrived line (solid emerald) -->
+                  <path v-if="passTrendCoords.arrivedPath" :d="passTrendCoords.arrivedPath" fill="none" stroke="#059669" stroke-width="2.5" />
+
+                  <!-- Interactive Points -->
+                  <g v-for="(pt, idx) in passTrendCoords.points" :key="idx">
+                    <!-- Day label -->
+                    <text :x="pt.x" y="142" text-anchor="middle" font-size="11" font-weight="600" fill="#64748B">{{ pt.day }}</text>
+                    
+                    <!-- Total circle -->
+                    <circle :cx="pt.x" :cy="pt.yTotal" r="3.5" fill="#ffffff" stroke="#3B82F6" stroke-width="2" />
+
+                    <!-- Arrived circle -->
+                    <circle 
+                      :cx="pt.x" 
+                      :cy="pt.yArrived" 
+                      r="4.5" 
+                      fill="#059669" 
+                      stroke="#ffffff" 
+                      stroke-width="2" 
+                      class="chart-interactive-point"
+                      @mouseenter="hoveredPass = pt"
+                      @mouseleave="hoveredPass = null"
+                    />
+                  </g>
+                </svg>
+
+                <!-- Tooltip if hovered -->
+                <div v-if="hoveredPass" class="chart-tooltip" :style="{ left: `${(hoveredPass.x / 500) * 100}%` }">
+                  <div class="tooltip-header">{{ hoveredPass.day }} ({{ hoveredPass.label }})</div>
+                  <div class="tooltip-row"><span>Passes Issued:</span> <strong>{{ hoveredPass.total }}</strong></div>
+                  <div class="tooltip-row"><span>Checked-in:</span> <strong class="text-emerald">{{ hoveredPass.arrived }}</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category Breakdown Mode -->
+            <div v-else class="category-breakdown-box">
+              <div class="breakdown-headline">
+                <span>30-Day Visitor Categorization</span>
+                <span class="breakdown-total">{{ totalCategoriesCount }} Total Logs</span>
+              </div>
+              
+              <!-- Multi-segment bar -->
+              <div class="segmented-track">
+                <div class="segment seg-guest" :style="{ width: `${categoryPercentages.guest}%` }" :title="`Guests: ${categoryPercentages.guest}%`"></div>
+                <div class="segment seg-delivery" :style="{ width: `${categoryPercentages.delivery}%` }" :title="`Deliveries: ${categoryPercentages.delivery}%`"></div>
+                <div class="segment seg-artisan" :style="{ width: `${categoryPercentages.artisan}%` }" :title="`Artisans: ${categoryPercentages.artisan}%`"></div>
+                <div class="segment seg-family" :style="{ width: `${categoryPercentages.family}%` }" :title="`Family: ${categoryPercentages.family}%`"></div>
+              </div>
+
+              <!-- Legend grid -->
+              <div class="categories-detail-grid">
+                <div class="category-metric-card">
+                  <div class="cat-pill cat-pill--green">👤 Guests</div>
+                  <div class="cat-val">{{ analytics.typeDistribution?.guest || 0 }}</div>
+                  <div class="cat-sub">{{ categoryPercentages.guest }}% of traffic</div>
+                </div>
+                <div class="category-metric-card">
+                  <div class="cat-pill cat-pill--amber">📦 Delivery / Courier</div>
+                  <div class="cat-val">{{ analytics.typeDistribution?.delivery || 0 }}</div>
+                  <div class="cat-sub">{{ categoryPercentages.delivery }}% of traffic</div>
+                </div>
+                <div class="category-metric-card">
+                  <div class="cat-pill cat-pill--blue">🔧 Artisans & Service</div>
+                  <div class="cat-val">{{ analytics.typeDistribution?.artisan || 0 }}</div>
+                  <div class="cat-sub">{{ categoryPercentages.artisan }}% of traffic</div>
+                </div>
+                <div class="category-metric-card">
+                  <div class="cat-pill cat-pill--purple">👨‍👩‍👧 Family & Residents</div>
+                  <div class="cat-val">{{ analytics.typeDistribution?.family || 0 }}</div>
+                  <div class="cat-sub">{{ categoryPercentages.family }}% of traffic</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estate Financials & Dues Revenue Card -->
+        <div class="card analytics-card">
+          <div class="card-header analytics-header">
+            <div>
+              <div class="header-sub">Financial Health</div>
+              <h2 class="card-title">Estate Dues & Revenue Performance</h2>
+            </div>
+            <router-link to="/fees" class="card-link">Manage dues &rarr;</router-link>
+          </div>
+
+          <div class="card-body">
+            <!-- Dues Collection Rate Progress Tracker -->
+            <div class="dues-progress-box">
+              <div class="dues-summary-row">
+                <div>
+                  <span class="dues-label">Total Dues Collected</span>
+                  <div class="dues-main-val">₦{{ fmtNaira(stats.duesCollected) }}</div>
+                </div>
+                <div class="dues-rate-badge" :class="stats.collectionRate >= 75 ? 'rate-high' : 'rate-mid'">
+                  {{ stats.collectionRate }}% Collected
+                </div>
+              </div>
+
+              <!-- Animated Progress Track -->
+              <div class="progress-track-bg">
+                <div class="progress-track-fill" :style="{ width: `${Math.min(stats.collectionRate, 100)}%` }"></div>
+              </div>
+
+              <div class="dues-submetrics">
+                <span>Expected: <strong>₦{{ fmtNaira(stats.duesExpected) }}</strong></span>
+                <span class="pending-text">Outstanding: <strong>₦{{ fmtNaira(stats.duesPending) }}</strong></span>
+              </div>
+            </div>
+
+            <!-- 6-Month Revenue Bar Chart -->
+            <div class="monthly-revenue-section">
+              <div class="revenue-chart-title">6-Month Revenue Trend (₦)</div>
+              
+              <div class="svg-chart-wrapper">
+                <svg viewBox="0 0 500 120" class="svg-chart" preserveAspectRatio="none">
+                  <!-- Base line -->
+                  <line x1="15" y1="95" x2="485" y2="95" stroke="#E2E8F0" stroke-width="1" />
+
+                  <!-- Monthly Bars -->
+                  <g v-for="(bar, idx) in revenueBarCoords.bars" :key="idx">
+                    <!-- Bar rect -->
+                    <rect 
+                      :x="bar.x" 
+                      :y="bar.y" 
+                      :width="bar.width" 
+                      :height="bar.height" 
+                      rx="6" 
+                      fill="url(#revenueBarGrad)"
+                      class="revenue-bar"
+                      @mouseenter="hoveredMonth = bar"
+                      @mouseleave="hoveredMonth = null"
+                    />
+                    
+                    <!-- Month label -->
+                    <text :x="bar.labelX" :y="bar.labelY" text-anchor="middle" font-size="11" font-weight="600" fill="#64748B">
+                      {{ bar.month }}
+                    </text>
+                  </g>
+
+                  <defs>
+                    <linearGradient id="revenueBarGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#059669" />
+                      <stop offset="100%" stop-color="#10B981" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                <!-- Tooltip for hovered month -->
+                <div v-if="hoveredMonth" class="chart-tooltip" :style="{ left: `${(hoveredMonth.labelX / 500) * 100}%` }">
+                  <div class="tooltip-header">{{ hoveredMonth.month }} {{ hoveredMonth.year }}</div>
+                  <div class="tooltip-row">
+                    <span>Revenue:</span> 
+                    <strong class="text-emerald">₦{{ fmtNaira(hoveredMonth.amount) }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Occupancy & Command Dispatch Strip -->
+      <div class="command-strip-grid">
+        <!-- Unit Occupancy Status -->
+        <div class="command-widget-card">
+          <div class="widget-top">
+            <span class="widget-tag">Topology Status</span>
+            <router-link to="/properties" class="widget-action-link">View units &rarr;</router-link>
+          </div>
+          <div class="widget-title-row">
+            <h3 class="widget-title">Unit Occupancy</h3>
+            <span class="occupancy-pill">{{ stats.occupancyRate }}% Occupied</span>
+          </div>
+          <div class="occupancy-progress-bar">
+            <div class="occupancy-fill" :style="{ width: `${Math.min(stats.occupancyRate, 100)}%` }"></div>
+          </div>
+          <div class="occupancy-breakdown">
+            <span><strong>{{ stats.occupiedUnits }}</strong> Occupied</span>
+            <span>&bull;</span>
+            <span><strong>{{ stats.vacantUnits }}</strong> Vacant</span>
+            <span>&bull;</span>
+            <span><strong>{{ stats.totalUnits }}</strong> Total Units</span>
+          </div>
+        </div>
+
+        <!-- Gate Shift & Peak Traffic Influx -->
+        <div class="command-widget-card">
+          <div class="widget-top">
+            <span class="widget-tag">Security Intelligence</span>
+            <router-link to="/access" class="widget-action-link">Audit feed &rarr;</router-link>
+          </div>
+          <div class="widget-title-row">
+            <h3 class="widget-title">Peak Influx Window</h3>
+            <span class="peak-pill">⚡ Active Window</span>
+          </div>
+          <div class="peak-window-display">
+            <span class="peak-time">{{ stats.peakHour }}</span>
+            <span class="peak-desc">Peak visitor arrival window based on gate logging patterns.</span>
+          </div>
+          <div class="gate-status-footer">
+            <span class="status-live-dot"></span>
+            <span>All checkpoints synced &bull; Shift running smoothly</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Real-time Operational Panels (Recent Passes & Emergencies) directly visible without redundant quick-grid -->
       <div class="dashboard-panels">
         <div class="card">
@@ -333,6 +609,10 @@ const newEstate = ref({
   state: '',
 })
 
+const passChartTab = ref<'trend' | 'breakdown'>('trend')
+const hoveredPass = ref<any>(null)
+const hoveredMonth = ref<any>(null)
+
 const stats = ref({
   totalUsers: 0,
   totalResidents: 0,
@@ -340,7 +620,129 @@ const stats = ref({
   onSite: 0,
   todayEmergencies: 0,
   flaggedItems: 0,
+  occupancyRate: 0,
+  totalUnits: 0,
+  occupiedUnits: 0,
+  vacantUnits: 0,
+  duesExpected: 0,
+  duesCollected: 0,
+  duesPending: 0,
+  collectionRate: 0,
+  peakHour: '08:00 - 10:00',
 })
+
+const analytics = ref({
+  passTrend: [] as Array<{ day: string; date: string; label: string; total: number; arrived: number }>,
+  typeDistribution: {
+    guest: 0,
+    delivery: 0,
+    artisan: 0,
+    family: 0,
+  },
+  paymentMonths: [] as Array<{ month: string; year: number; amount: number }>,
+})
+
+const totalWeekPasses = computed(() => {
+  return (analytics.value.passTrend || []).reduce((acc, curr) => acc + (curr.total || 0), 0)
+})
+
+const totalWeekArrived = computed(() => {
+  return (analytics.value.passTrend || []).reduce((acc, curr) => acc + (curr.arrived || 0), 0)
+})
+
+const avgDailyPasses = computed(() => {
+  const len = (analytics.value.passTrend || []).length
+  if (!len) return 0
+  return Math.round(totalWeekPasses.value / len)
+})
+
+const totalCategoriesCount = computed(() => {
+  const dist = analytics.value.typeDistribution
+  if (!dist) return 0
+  return (dist.guest || 0) + (dist.delivery || 0) + (dist.artisan || 0) + (dist.family || 0)
+})
+
+const categoryPercentages = computed(() => {
+  const total = totalCategoriesCount.value || 1
+  const dist = analytics.value.typeDistribution || { guest: 0, delivery: 0, artisan: 0, family: 0 }
+  return {
+    guest: Math.round(((dist.guest || 0) / total) * 100),
+    delivery: Math.round(((dist.delivery || 0) / total) * 100),
+    artisan: Math.round(((dist.artisan || 0) / total) * 100),
+    family: Math.round(((dist.family || 0) / total) * 100),
+  }
+})
+
+function fmtNaira(val: number | null | undefined): string {
+  if (!val) return '0'
+  return new Intl.NumberFormat('en-NG').format(Math.round(val))
+}
+
+const passTrendCoords = computed(() => {
+  const trend = analytics.value.passTrend || []
+  if (trend.length === 0) return { totalPath: '', arrivedPath: '', areaPath: '', points: [] }
+  const width = 500
+  const height = 150
+  const padTop = 20
+  const padBottom = 25
+  const padLeft = 30
+  const padRight = 20
+
+  const maxVal = Math.max(...trend.map(t => Math.max(t.total, t.arrived)), 5)
+  const chartW = width - padLeft - padRight
+  const chartH = height - padTop - padBottom
+
+  const points = trend.map((t, idx) => {
+    const x = padLeft + (idx / Math.max(trend.length - 1, 1)) * chartW
+    const yTotal = padTop + chartH - (t.total / maxVal) * chartH
+    const yArrived = padTop + chartH - (t.arrived / maxVal) * chartH
+    return { ...t, x, yTotal, yArrived }
+  })
+
+  const totalD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yTotal.toFixed(1)}`).join(' ')
+  const arrivedD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yArrived.toFixed(1)}`).join(' ')
+  
+  const first = points[0]
+  const last = points[points.length - 1]
+  const areaD = `${arrivedD} L ${last.x.toFixed(1)} ${(height - padBottom).toFixed(1)} L ${first.x.toFixed(1)} ${(height - padBottom).toFixed(1)} Z`
+
+  return { totalPath: totalD, arrivedPath: arrivedD, areaPath: areaD, points, maxVal, height, width }
+})
+
+const revenueBarCoords = computed(() => {
+  const months = analytics.value.paymentMonths || []
+  if (months.length === 0) return { bars: [] }
+  const width = 500
+  const height = 120
+  const padTop = 15
+  const padBottom = 25
+  const padLeft = 20
+  const padRight = 20
+
+  const maxVal = Math.max(...months.map(m => m.amount), 50000)
+  const chartW = width - padLeft - padRight
+  const chartH = height - padTop - padBottom
+  const barWidth = 36
+  const gap = (chartW - (months.length * barWidth)) / Math.max(months.length - 1, 1)
+
+  const bars = months.map((m, idx) => {
+    const x = padLeft + idx * (barWidth + gap)
+    const barH = Math.max(6, (m.amount / maxVal) * chartH)
+    const y = padTop + chartH - barH
+    return {
+      ...m,
+      x,
+      y,
+      width: barWidth,
+      height: barH,
+      labelX: x + barWidth / 2,
+      labelY: height - 8,
+    }
+  })
+
+  return { bars, maxVal }
+})
+
 const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
 
@@ -363,7 +765,10 @@ async function load(isBackground = false) {
       dashboardApi.getSummary(),
       estatesApi.getAll().catch(() => ({ data: { estates: [] } }))
     ])
-    stats.value = summaryRes.data.stats
+    stats.value = { ...stats.value, ...summaryRes.data.stats }
+    if (summaryRes.data.analytics) {
+      analytics.value = summaryRes.data.analytics
+    }
     recentPasses.value = summaryRes.data.recentPasses
     recentEmergencies.value = summaryRes.data.recentEmergencies
     estates.value = estatesRes.data?.estates ?? []
@@ -980,5 +1385,471 @@ onUnmounted(() => {
   font-size: 13px;
   padding: 10px 14px;
   border-radius: 10px;
+}
+
+/* ── Executive Analytics & Visual Telemetry ── */
+.analytics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 16px;
+}
+
+.analytics-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.header-sub {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #059669;
+  margin-bottom: 2px;
+}
+
+.tab-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #F1F5F9;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid #E2E8F0;
+}
+
+.tab-pill {
+  border: none;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.tab-pill.active {
+  background: #ffffff;
+  color: #0A5C38;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.legend-dot--total {
+  background: #3B82F6;
+  border: 1px dashed #2563EB;
+}
+.legend-dot--arrived {
+  background: #059669;
+}
+
+.legend-text {
+  font-weight: 600;
+  color: #374151;
+}
+
+.chart-stat-chip {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #166534;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.svg-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 150px;
+}
+
+.svg-chart {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart-interactive-point {
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+.chart-interactive-point:hover {
+  transform: scale(1.4);
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.tooltip-header {
+  font-weight: 700;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.text-emerald {
+  color: #34D399 !important;
+}
+
+/* Category Breakdown Mode */
+.category-breakdown-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.breakdown-headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.breakdown-total {
+  font-size: 11px;
+  font-weight: 700;
+  background: #F1F5F9;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #475569;
+}
+
+.segmented-track {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #F1F5F9;
+}
+
+.segment {
+  height: 100%;
+  transition: width 300ms ease;
+}
+.seg-guest    { background: #10B981; }
+.seg-delivery { background: #F59E0B; }
+.seg-artisan  { background: #3B82F6; }
+.seg-family   { background: #8B5CF6; }
+
+.categories-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.category-metric-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.cat-pill {
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.cat-pill--green  { color: #059669; }
+.cat-pill--amber  { color: #D97706; }
+.cat-pill--blue   { color: #2563EB; }
+.cat-pill--purple { color: #7C3AED; }
+
+.cat-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0F172A;
+  font-family: var(--font-display);
+}
+
+.cat-sub {
+  font-size: 10.5px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+/* ── Dues & Financial Section ── */
+.dues-progress-box {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dues-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.dues-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dues-main-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #064E3B;
+  font-family: var(--font-display);
+  margin-top: 2px;
+}
+
+.dues-rate-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.rate-high {
+  background: #059669;
+  color: #ffffff;
+}
+.rate-mid {
+  background: #D97706;
+  color: #ffffff;
+}
+
+.progress-track-bg {
+  width: 100%;
+  height: 10px;
+  background: rgba(16, 185, 129, 0.16);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-track-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981, #059669);
+  border-radius: 999px;
+  transition: width 400ms ease-out;
+}
+
+.dues-submetrics {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #374151;
+}
+
+.pending-text {
+  color: #B45309;
+}
+
+.monthly-revenue-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.revenue-chart-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.revenue-bar {
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.revenue-bar:hover {
+  opacity: 0.85;
+}
+
+/* ── Occupancy & Security Command Strip ── */
+.command-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.command-widget-card {
+  background: #ffffff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
+
+.widget-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748B;
+}
+
+.widget-action-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-primary);
+  text-decoration: none;
+}
+.widget-action-link:hover {
+  text-decoration: underline;
+}
+
+.widget-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--c-text);
+  margin: 0;
+}
+
+.occupancy-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #065F46;
+  background: #ECFDF5;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #A7F3D0;
+}
+
+.occupancy-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #F1F5F9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.occupancy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981, #0A5C38);
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.occupancy-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.peak-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400E;
+  background: #FEF3C7;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #FDE68A;
+}
+
+.peak-window-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.peak-time {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  font-family: var(--font-display);
+}
+
+.peak-desc {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.gate-status-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #059669;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.status-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
 }
 </style>

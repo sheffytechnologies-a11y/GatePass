@@ -12,6 +12,9 @@ use App\Models\Resident;
 use App\Models\User;
 use App\Models\Estate;
 use App\Models\Unit;
+use App\Models\Fee;
+use App\Models\BillingTransaction;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -610,6 +613,144 @@ class AdminController extends Controller
             $this->scopeEstate($query, $request);
         }
 
+        // ── 7-Day Passes & Influx Trend ──────────────────────────────────────
+        $passTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $d = Carbon::today()->subDays($i);
+            $startOfDay = $d->copy()->startOfDay();
+            $endOfDay = $d->copy()->endOfDay();
+
+            $pDayQuery = Pass::query()->whereBetween('created_at', [$startOfDay, $endOfDay]);
+            $this->scopeEstate($pDayQuery, $request);
+            $totalCount = $pDayQuery->count();
+
+            $aDayQuery = Pass::query()
+                ->whereBetween('created_at', [$startOfDay, $endOfDay])
+                ->where(function ($q) {
+                    $q->whereNotNull('arrived_at')
+                      ->orWhereIn('status', ['On-site', 'Exited']);
+                });
+            $this->scopeEstate($aDayQuery, $request);
+            $arrivedCount = $aDayQuery->count();
+
+            $passTrend[] = [
+                'day'      => $d->format('D'),
+                'date'     => $d->toDateString(),
+                'label'    => $d->format('d M'),
+                'total'    => $totalCount,
+                'arrived'  => $arrivedCount,
+            ];
+        }
+
+        // ── Category Breakdown (Guest, Delivery, Artisan, Family) ────────────
+        $allPassesQuery = Pass::query()->where('created_at', '>=', Carbon::today()->subDays(30));
+        $this->scopeEstate($allPassesQuery, $request);
+        $typeDistribution = [
+            'guest'    => 0,
+            'delivery' => 0,
+            'artisan'  => 0,
+            'family'   => 0,
+        ];
+        foreach ($allPassesQuery->pluck('type') as $pt) {
+            $t = strtolower($pt ?? 'standard');
+            if (str_contains($t, 'deliver')) {
+                $typeDistribution['delivery']++;
+            } elseif (str_contains($t, 'artisan')) {
+                $typeDistribution['artisan']++;
+            } elseif (str_contains($t, 'fam')) {
+                $typeDistribution['family']++;
+            } else {
+                $typeDistribution['guest']++;
+            }
+        }
+
+        // ── Dues & Payment Analytics ─────────────────────────────────────────
+        $feeQuery = Fee::query();
+        $this->scopeEstate($feeQuery, $request);
+        $fees = $feeQuery->get();
+        $feeIds = $fees->pluck('id');
+
+        $totalDuesExpected = 0;
+        $totalDuesCollected = 0;
+        $totalDuesPending = 0;
+
+        if ($feeIds->isNotEmpty()) {
+            $feeUserRecords = DB::table('fee_user')
+                ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                ->whereIn('fees.id', $feeIds)
+                ->select('fee_user.payment_status', 'fees.amount')
+                ->get();
+
+            foreach ($feeUserRecords as $rec) {
+                $amount = (float) $rec->amount;
+                $totalDuesExpected += $amount;
+                if ($rec->payment_status === 'paid') {
+                    $totalDuesCollected += $amount;
+                } else {
+                    $totalDuesPending += $amount;
+                }
+            }
+        }
+
+        // 6-Month Payment / Dues History
+        $paymentMonths = [];
+        for ($m = 5; $m >= 0; $m--) {
+            $mDate = Carbon::today()->startOfMonth()->subMonths($m);
+            $mStart = $mDate->copy()->startOfMonth();
+            $mEnd = $mDate->copy()->endOfMonth();
+
+            $collectedMonth = 0;
+            if ($feeIds->isNotEmpty()) {
+                $collectedMonth = (float) DB::table('fee_user')
+                    ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                    ->whereIn('fees.id', $feeIds)
+                    ->where('fee_user.payment_status', 'paid')
+                    ->whereBetween('fee_user.updated_at', [$mStart, $mEnd])
+                    ->sum('fees.amount');
+            }
+
+            $btQuery = BillingTransaction::query()
+                ->where('status', 'success')
+                ->whereBetween('paid_at', [$mStart, $mEnd]);
+            $this->scopeEstate($btQuery, $request);
+            $collectedMonth += (float) $btQuery->sum('amount');
+
+            $paymentMonths[] = [
+                'month'  => $mDate->format('M'),
+                'year'   => $mDate->year,
+                'amount' => $collectedMonth,
+            ];
+        }
+
+        // ── Property Occupancy & Topology ────────────────────────────────────
+        $unitQuery = Unit::query();
+        $this->scopeEstate($unitQuery, $request);
+        $totalUnits = $unitQuery->count();
+        $occupiedUnits = (clone $unitQuery)->whereHas('residents', function ($q) {
+            $q->where('is_active', true);
+        })->count();
+        $vacantUnits = max(0, $totalUnits - $occupiedUnits);
+        $occupancyRate = $totalUnits > 0 ? round(($occupiedUnits / $totalUnits) * 100, 1) : 0;
+
+        // Peak Gate Hour Today
+        $todayPassQuery = Pass::query()->where('created_at', '>=', Carbon::today());
+        $this->scopeEstate($todayPassQuery, $request);
+        $todayPassList = $todayPassQuery->get(['created_at', 'arrived_at']);
+
+        $peakHourLabel = '08:00 - 10:00';
+        if ($todayPassList->isNotEmpty()) {
+            $hourBuckets = [];
+            foreach ($todayPassList as $p) {
+                $h = (int) Carbon::parse($p->created_at)->format('H');
+                $hourBuckets[$h] = ($hourBuckets[$h] ?? 0) + 1;
+            }
+            arsort($hourBuckets);
+            $peakHour = array_key_first($hourBuckets);
+            if ($peakHour !== null) {
+                $peakHourLabel = sprintf('%02d:00 - %02d:00', $peakHour, ($peakHour + 2) % 24);
+            }
+        }
+
         return response()->json([
             'stats' => [
                 'totalUsers'        => $userQuery->count(),
@@ -618,8 +759,22 @@ class AdminController extends Controller
                 'onSite'            => $onSiteQuery->where('status', 'On-site')->count(),
                 'todayEmergencies'  => $emergencyQuery->whereDate('created_at', today())->count(),
                 'flaggedItems'      => $flaggedQuery->where('items_flagged', true)->count(),
+                'occupancyRate'     => $occupancyRate,
+                'totalUnits'        => $totalUnits,
+                'occupiedUnits'     => $occupiedUnits,
+                'vacantUnits'       => $vacantUnits,
+                'duesExpected'      => $totalDuesExpected,
+                'duesCollected'     => $totalDuesCollected,
+                'duesPending'       => $totalDuesPending,
+                'collectionRate'    => ($totalDuesExpected > 0) ? round(($totalDuesCollected / $totalDuesExpected) * 100, 1) : 0,
+                'peakHour'          => $peakHourLabel,
             ],
-            'recentPasses' => $recentPassQuery->limit(10)->get()
+            'analytics' => [
+                'passTrend'         => $passTrend,
+                'typeDistribution'  => $typeDistribution,
+                'paymentMonths'     => $paymentMonths,
+            ],
+            'recentPasses' => $recentPassQuery->limit(8)->get()
                 ->map(fn(Pass $p) => $this->formatPassAdmin($p)),
             'recentEmergencies' => $recentEmergencyQuery->limit(5)->get()
                 ->map(fn(Emergency $e) => $this->formatEmergency($e)),
