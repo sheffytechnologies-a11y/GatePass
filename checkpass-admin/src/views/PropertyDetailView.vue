@@ -80,7 +80,7 @@
             <div class="card-body-clean">
               <div v-if="hierarchyTags.length > 0" class="hierarchy-tags">
                 <span v-for="(tag, tIdx) in hierarchyTags" :key="tIdx" class="h-tag">
-                  <strong>{{ tag.key }}:</strong> {{ tag.value }}
+                  <strong v-if="!tag.value.toLowerCase().startsWith(tag.key.toLowerCase())">{{ tag.key }}: </strong>{{ tag.value }}
                 </span>
               </div>
               <p v-else class="text-muted-empty">No explicit tier hierarchy recorded.</p>
@@ -865,7 +865,7 @@ onMounted(async () => {
 }
 
 .h-tag {
-  background: #F8FAFC;
+  background: transparent;
   border: 1px solid #E2E8F0;
   padding: 6px 12px;
   border-radius: 8px;

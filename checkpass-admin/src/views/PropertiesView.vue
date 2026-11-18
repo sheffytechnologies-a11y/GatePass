@@ -217,13 +217,13 @@
         <!-- Hierarchy Breakdown Tags -->
         <div v-if="prop.hierarchyData" class="hierarchy-tags">
           <span v-for="(val, key) in prop.hierarchyData" :key="key" class="h-tag">
-            <strong>{{ key }}:</strong> {{ val }}
+            <strong v-if="!String(val).toLowerCase().startsWith(String(key).toLowerCase())">{{ key }}: </strong>{{ val }}
           </span>
         </div>
         <div v-else class="hierarchy-tags">
-          <span v-if="prop.lane" class="h-tag"><strong>Lane:</strong> {{ prop.lane }}</span>
-          <span v-if="prop.house" class="h-tag"><strong>House:</strong> {{ prop.house }}</span>
-          <span v-if="prop.flat" class="h-tag"><strong>Flat:</strong> {{ prop.flat }}</span>
+          <span v-if="prop.lane" class="h-tag"><strong v-if="!String(prop.lane).toLowerCase().startsWith('lane')">Lane: </strong>{{ prop.lane }}</span>
+          <span v-if="prop.house" class="h-tag"><strong v-if="!String(prop.house).toLowerCase().startsWith('house')">House: </strong>{{ prop.house }}</span>
+          <span v-if="prop.flat" class="h-tag"><strong v-if="!String(prop.flat).toLowerCase().startsWith('flat')">Flat: </strong>{{ prop.flat }}</span>
         </div>
 
         <!-- Occupants & Homeowner Summary -->
@@ -306,14 +306,16 @@
 
         <!-- TAB 1: SETUP (Single Property Addition / Edit) -->
         <div v-if="addPropertyTab === 'setup' || editingProperty" class="modal-body">
-          <!-- Fallback input only if editing legacy property without tiers -->
-          <div v-if="editingProperty && !computedAddress" class="form-group">
-            <label class="form-label">Full Address / Code <span class="req">*</span></label>
+          <!-- Full Address Input (Direct Entry e.g. vip1,vvip3,1%3 or auto-compiled from tiers) -->
+          <div class="form-group">
+            <label class="form-label">Full Address / Unit Code <span class="req">*</span></label>
             <input
               v-model="singleForm.flat_address"
               class="form-input"
-              placeholder="e.g. Lane 2, House 12, Flat 3B"
+              placeholder="e.g. vip1,vvip3,1%3 or VIP 1, VVIP 3, 1% 3"
+              @input="onFullAddressInput"
             />
+            <span class="form-hint">Enter the full address directly (e.g. vip1,vvip3,1%3) or configure individual tiers below.</span>
           </div>
 
           <!-- Naming Structure Preset Selection (Lane / Block / Street setup) -->
@@ -350,15 +352,15 @@
           <div :class="structureLevels.length === 2 ? 'address-grid-2' : 'address-grid-3'">
             <div class="form-group">
               <label class="form-label">{{ tier1Label }}</label>
-              <input v-model="singleForm.lane" class="form-input" :placeholder="tier1Placeholder" />
+              <input v-model="singleForm.lane" class="form-input" :placeholder="tier1Placeholder" @input="onTierInput" />
             </div>
             <div class="form-group">
               <label class="form-label">{{ tier2Label }}</label>
-              <input v-model="singleForm.house" class="form-input" :placeholder="tier2Placeholder" />
+              <input v-model="singleForm.house" class="form-input" :placeholder="tier2Placeholder" @input="onTierInput" />
             </div>
             <div v-if="structureLevels.length > 2" class="form-group">
               <label class="form-label">{{ tier3Label }}</label>
-              <input v-model="singleForm.flat" class="form-input" :placeholder="tier3Placeholder" />
+              <input v-model="singleForm.flat" class="form-input" :placeholder="tier3Placeholder" @input="onTierInput" />
             </div>
           </div>
 
@@ -1085,8 +1087,29 @@ const computedAddress = computed(() => {
 })
 
 const effectiveAddress = computed(() => {
-  return computedAddress.value || singleForm.value.flat_address.trim()
+  return singleForm.value.flat_address.trim() || computedAddress.value
 })
+
+function onTierInput() {
+  if (computedAddress.value) {
+    singleForm.value.flat_address = computedAddress.value
+  }
+}
+
+function onFullAddressInput() {
+  const raw = singleForm.value.flat_address.trim()
+  if (!raw) return
+  const parts = raw.split(',').map(s => s.trim()).filter(Boolean)
+  if (parts.length >= 1) {
+    singleForm.value.lane = parts[0]
+  }
+  if (parts.length >= 2) {
+    singleForm.value.house = parts[1]
+  }
+  if (parts.length >= 3) {
+    singleForm.value.flat = parts[2]
+  }
+}
 
 function openCreateModal(tab?: 'setup' | 'batch' | Event) {
   const resolvedTab = (typeof tab === 'string' && (tab === 'setup' || tab === 'batch')) ? tab : 'setup'
@@ -1128,7 +1151,7 @@ async function saveSingleProperty() {
   if (!activeEstateId.value) return
   const addressToSave = effectiveAddress.value
   if (!addressToSave) {
-    singleError.value = 'Please provide at least one address tier (e.g. 1, 4, B).'
+    singleError.value = 'Please provide the property address (e.g. vip1,vvip3,1%3 or Lane 2, House 12).'
     return
   }
   singleError.value = ''
@@ -1767,15 +1790,16 @@ onUnmounted(() => {
 
 .h-tag {
   font-size: 11.5px;
-  background: #F3F4F6;
+  background: transparent;
+  border: 1px solid #E5E7EB;
   color: #4B5563;
   padding: 2px 8px;
   border-radius: 6px;
 }
 
 .occupants-summary {
-  background: #F9FAFB;
-  border: 1px solid #F3F4F6;
+  background: transparent;
+  border: 1px solid #E5E7EB;
   border-radius: 12px;
   padding: 11px 13px;
   display: flex;
@@ -1786,8 +1810,8 @@ onUnmounted(() => {
 }
 
 .property-card:hover .occupants-summary {
-  background: #F3F4F6;
-  border-color: #E5E7EB;
+  background: #FAFAFA;
+  border-color: #D1D5DB;
 }
 
 .occupants-meta-row {
