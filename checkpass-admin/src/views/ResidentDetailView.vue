@@ -1,6 +1,6 @@
 <template>
   <div class="resident-detail-page">
-    <!-- Top Bar with Back Link & Creative Sibling Navigator -->
+    <!-- Top Bar with Back Link & Creative Unit Household Controller -->
     <div class="top-nav-bar">
       <router-link to="/residents" class="btn-back">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -10,37 +10,82 @@
         <span>Back to Residents</span>
       </router-link>
 
-      <!-- Sibling Switcher: Quick Next / Prev among all estate residents -->
-      <div v-if="navIds.length > 1" class="sibling-nav">
-        <button
-          type="button"
-          class="btn-sibling"
-          :disabled="!hasPrev"
-          title="Previous Resident (Left Arrow)"
-          @click="navigatePrev"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-          <span class="sibling-text">Prev</span>
-        </button>
+      <!-- Unit Household Controller (Controls which person's details are displayed) -->
+      <div v-if="resident?.unit" class="household-controller" role="region" aria-label="Unit Household Switcher">
+        <!-- Section 1: Homeowner -->
+        <div class="controller-section homeowner-section">
+          <span class="section-label">HOMEOWNER</span>
+          <div v-if="homeowner" class="occupant-chips">
+            <button
+              type="button"
+              class="occupant-pill"
+              :class="{ 'is-selected': homeowner.id === resident.id }"
+              @click="selectOccupant(homeowner.id)"
+              :title="'View Homeowner: ' + (homeowner.user?.name || 'Owner')"
+            >
+              <span class="pill-avatar">
+                <img v-if="homeowner.user?.avatar" :src="homeowner.user.avatar" class="avatar-img" />
+                <span v-else class="avatar-mono">{{ initials(homeowner.user?.name) }}</span>
+                <span class="status-dot" :class="homeowner.isActive ? 'dot-active' : 'dot-disabled'"></span>
+              </span>
+              <span class="pill-name">{{ homeowner.user?.name || 'Homeowner' }}</span>
+              <span class="role-badge role-badge-owner">Owner</span>
+            </button>
+          </div>
+          <div v-else class="empty-owner-box">
+            <button type="button" class="btn-quick-add" @click="openAddModal('owner')">
+              + Add Owner
+            </button>
+          </div>
+        </div>
 
-        <span class="sibling-counter">
-          {{ currentIndex + 1 }} <span class="counter-divider">/</span> {{ navIds.length }}
-        </span>
+        <!-- Divider -->
+        <div class="controller-divider"></div>
 
-        <button
-          type="button"
-          class="btn-sibling"
-          :disabled="!hasNext"
-          title="Next Resident (Right Arrow)"
-          @click="navigateNext"
-        >
-          <span class="sibling-text">Next</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
+        <!-- Section 2: Residents (Tenants / Occupants) -->
+        <div class="controller-section residents-section">
+          <div class="section-header">
+            <span class="section-label">RESIDENTS</span>
+            <span class="section-count">({{ tenants.length }})</span>
+          </div>
+
+          <div class="occupants-row">
+            <div v-if="tenants.length > 0" class="occupant-chips">
+              <button
+                v-for="tenant in tenants"
+                :key="tenant.id"
+                type="button"
+                class="occupant-pill"
+                :class="{ 'is-selected': tenant.id === resident.id }"
+                @click="selectOccupant(tenant.id)"
+                :title="'View Resident: ' + (tenant.user?.name || 'Tenant')"
+              >
+                <span class="pill-avatar">
+                  <img v-if="tenant.user?.avatar" :src="tenant.user.avatar" class="avatar-img" />
+                  <span v-else class="avatar-mono">{{ initials(tenant.user?.name) }}</span>
+                  <span class="status-dot" :class="tenant.isActive ? 'dot-active' : 'dot-disabled'"></span>
+                </span>
+                <span class="pill-name">{{ tenant.user?.name || 'Resident' }}</span>
+                <span class="role-badge role-badge-tenant">Tenant</span>
+              </button>
+            </div>
+            <span v-else class="no-tenants-hint">None</span>
+
+            <!-- Quick Add Occupant CTA -->
+            <button
+              type="button"
+              class="btn-quick-add"
+              @click="openAddModal('tenant')"
+              title="Add a new resident occupant to this unit"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Add</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -107,7 +152,7 @@
           </div>
         </div>
 
-        <!-- Quick Profile Actions -->
+        <!-- Quick Profile Actions (Edit, Disable/Enable, Remove) -->
         <div class="profile-actions">
           <button
             type="button"
@@ -139,12 +184,28 @@
             </svg>
             <span>{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
           </button>
+
+          <!-- Remove Occupant from Unit CTA -->
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-delete-occupant"
+            @click="openDeleteConfirm"
+            title="Remove occupant from this unit"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+            <span>Remove</span>
+          </button>
         </div>
       </section>
 
-      <!-- 2-Column Grid: Details & Household on Left, Activities on Right -->
+      <!-- 2-Column Grid: Details on Left, Activities on Right -->
       <div class="profile-grid">
-        <!-- LEFT COLUMN: Contact & Household -->
+        <!-- LEFT COLUMN: Contact & Assigned Unit Info -->
         <div class="grid-sidebar">
           <!-- Contact Card -->
           <div class="card detail-card">
@@ -189,47 +250,39 @@
             </div>
           </div>
 
-          <!-- Household & Co-Residents in Same Unit -->
-          <div class="card detail-card">
+          <!-- Unit & Property Info Card -->
+          <div v-if="resident.unit" class="card detail-card">
             <div class="card-heading-row">
-              <h2 class="card-heading">Unit Household</h2>
-              <span class="count-badge">{{ coResidents.length }} co-resident{{ coResidents.length === 1 ? '' : 's' }}</span>
-            </div>
-
-            <div v-if="coResidents.length === 0" class="empty-household">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.8">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              <p>Sole registered occupant of this unit.</p>
-            </div>
-
-            <div v-else class="coresidents-list">
+              <h2 class="card-heading">Unit Information</h2>
               <router-link
-                v-for="cr in coResidents"
-                :key="cr.id"
-                :to="'/residents/' + cr.id"
-                class="coresident-chip"
-                :title="'View ' + cr.user?.name"
+                :to="'/properties/' + resident.unit.id"
+                class="link-view-property"
+                title="View full property details"
               >
-                <div class="chip-avatar">
-                  <div
-                    v-if="cr.user?.avatar"
-                    class="chip-avatar-img"
-                    :style="{ backgroundImage: `url(${cr.user.avatar})` }"
-                  />
-                  <span v-else class="chip-avatar-monogram">{{ initials(cr.user?.name) }}</span>
-                </div>
-                <div class="chip-info">
-                  <div class="chip-name">{{ cr.user?.name || 'Co-Resident' }}</div>
-                  <div class="chip-role">{{ cr.role === 'owner' ? 'Owner' : 'Tenant' }}</div>
-                </div>
-                <svg class="chip-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <polyline points="9 18 15 12 9 6"/>
+                <span>View Unit</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
                 </svg>
               </router-link>
+            </div>
+
+            <div class="contact-rows">
+              <div class="contact-item">
+                <span class="contact-label">Property Address</span>
+                <span class="contact-val">{{ resident.unit?.flatAddress || '—' }}</span>
+              </div>
+
+              <div class="contact-item">
+                <span class="contact-label">Community Estate</span>
+                <span class="contact-val">{{ resident.estate?.name || '—' }}</span>
+              </div>
+
+              <div class="contact-item">
+                <span class="contact-label">Registered Occupants</span>
+                <span class="contact-val font-mono">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'person' : 'people' }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -522,6 +575,131 @@
       </div>
     </div>
 
+    <!-- Add Occupant to Unit Modal -->
+    <div v-if="addModalOpen" class="modal-overlay" @click.self="closeAddModal">
+      <div class="modal-card">
+        <header class="modal-header">
+          <div>
+            <div class="modal-eyebrow">NEW UNIT OCCUPANT</div>
+            <h3 class="modal-title">Add Occupant to Unit</h3>
+            <p class="modal-subtitle">
+              {{ resident?.unit?.flatAddress || 'Selected Unit' }}
+              <span v-if="resident?.estate?.name">• {{ resident.estate.name }}</span>
+            </p>
+          </div>
+          <button type="button" class="btn-close" @click="closeAddModal">✕</button>
+        </header>
+
+        <form class="modal-body" @submit.prevent="submitAddOccupant">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Full Name <span class="req">*</span></label>
+              <input
+                v-model="addForm.name"
+                type="text"
+                class="form-input"
+                placeholder="e.g. Chioma Okafor"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Phone Number <span class="req">*</span></label>
+              <input
+                v-model="addForm.phone"
+                type="tel"
+                class="form-input"
+                placeholder="e.g. 08012345678"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Address (Optional)</label>
+              <input
+                v-model="addForm.email"
+                type="email"
+                class="form-input"
+                placeholder="e.g. chioma@example.com"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Household Role <span class="req">*</span></label>
+              <select v-model="addForm.role" class="form-select">
+                <option value="tenant">Tenant / Occupant</option>
+                <option value="owner">Homeowner</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Initial Gate Access</label>
+              <select v-model="addForm.is_active" class="form-select">
+                <option :value="true">Active (Gate Access Granted)</option>
+                <option :value="false">Disabled (Suspended)</option>
+              </select>
+            </div>
+          </div>
+
+          <p v-if="addError" class="modal-error">{{ addError }}</p>
+
+          <footer class="modal-footer">
+            <button type="button" class="btn btn-outline" @click="closeAddModal">Cancel</button>
+            <button type="submit" class="btn btn-primary" :disabled="savingAdd">
+              <BrandSpinner v-if="savingAdd" :size="16" color="#ffffff" />
+              <span>{{ savingAdd ? 'Adding...' : 'Add Occupant' }}</span>
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- Remove/Delete Occupant Confirmation Modal -->
+    <div v-if="deleteModalOpen" class="modal-overlay" @click.self="closeDeleteModal">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-header-danger">
+          <div class="danger-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Remove {{ resident?.role === 'owner' ? 'Homeowner' : 'Occupant' }}</h3>
+            <p class="modal-subtitle">{{ resident?.user?.name || 'Resident' }} • {{ resident?.unit?.flatAddress || 'Unit' }}</p>
+          </div>
+          <button type="button" class="btn-close" @click="closeDeleteModal">✕</button>
+        </div>
+
+        <div class="modal-body-danger">
+          <p>
+            Are you sure you want to remove <strong>{{ resident?.user?.name }}</strong> from this unit?
+          </p>
+          <div class="danger-warning-callout">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>This will detach their resident profile, suspend gate pass creation, and revoke pending visitor access.</span>
+          </div>
+          <p v-if="deleteError" class="modal-error">{{ deleteError }}</p>
+        </div>
+
+        <footer class="modal-footer modal-footer-padded">
+          <button type="button" class="btn btn-outline" @click="closeDeleteModal" :disabled="deletingResident">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger-solid"
+            :disabled="deletingResident"
+            @click="executeDeleteResident"
+          >
+            <BrandSpinner v-if="deletingResident" :size="16" color="#ffffff" />
+            <span>{{ deletingResident ? 'Removing...' : 'Yes, Remove Occupant' }}</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+
     <!-- Image Cropper Modal -->
     <ImageCropperModal
       v-model="cropperVisible"
@@ -551,7 +729,6 @@ const resident = ref<any>(null)
 const coResidents = ref<any[]>([])
 const passes = ref<any[]>([])
 const dues = ref<any[]>([])
-const navIds = ref<number[]>([])
 
 const activeTab = ref<'passes' | 'dues'>('passes')
 const togglingStatus = ref(false)
@@ -573,31 +750,55 @@ const editForm = ref({
   is_active: true,
 })
 
+// Add Occupant Modal state
+const addModalOpen = ref(false)
+const savingAdd = ref(false)
+const addError = ref('')
+const addForm = ref({
+  name: '',
+  phone: '',
+  email: '',
+  role: 'tenant',
+  is_active: true,
+})
+
+// Delete Occupant Modal state
+const deleteModalOpen = ref(false)
+const deletingResident = ref(false)
+const deleteError = ref('')
+
 // Cropper state
 const cropperVisible = ref(false)
 const cropperSrc = ref('')
 
-// Sibling Navigation Computed
-const currentIndex = computed(() => {
-  if (!resident.value || !navIds.value.length) return -1
-  return navIds.value.indexOf(Number(resident.value.id))
+// Unit Occupants Structure for Top-Right Household Controller
+const allOccupants = computed(() => {
+  if (!resident.value) return []
+  const map = new Map<number, any>()
+  if (resident.value && resident.value.id) {
+    map.set(Number(resident.value.id), resident.value)
+  }
+  coResidents.value.forEach((cr: any) => {
+    if (cr && cr.id) {
+      map.set(Number(cr.id), cr)
+    }
+  })
+  return Array.from(map.values())
 })
 
-const hasPrev = computed(() => currentIndex.value > 0)
-const hasNext = computed(() => currentIndex.value >= 0 && currentIndex.value < navIds.value.length - 1)
+// Homeowner (role === 'owner')
+const homeowner = computed(() => {
+  return allOccupants.value.find((o: any) => (o.role || '').toLowerCase() === 'owner') || null
+})
 
-function navigatePrev() {
-  if (hasPrev.value) {
-    const prevId = navIds.value[currentIndex.value - 1]
-    router.push(`/residents/${prevId}`)
-  }
-}
+// Residents / Tenants (role !== 'owner')
+const tenants = computed(() => {
+  return allOccupants.value.filter((o: any) => (o.role || '').toLowerCase() !== 'owner')
+})
 
-function navigateNext() {
-  if (hasNext.value) {
-    const nextId = navIds.value[currentIndex.value + 1]
-    router.push(`/residents/${nextId}`)
-  }
+function selectOccupant(id: number) {
+  if (!id || resident.value?.id === id) return
+  router.push(`/residents/${id}`)
 }
 
 // Fetch Resident Profile & Association Data
@@ -610,7 +811,6 @@ async function loadResident(id: number) {
     coResidents.value = res.data.coResidents || []
     passes.value = res.data.passes || []
     dues.value = res.data.dues || []
-    navIds.value = res.data.navIds || []
 
     // Populate edit form
     editForm.value = {
@@ -750,6 +950,98 @@ async function saveEdit() {
   }
 }
 
+// Add Occupant Handlers
+function openAddModal(role: 'owner' | 'tenant' = 'tenant') {
+  addForm.value = {
+    name: '',
+    phone: '',
+    email: '',
+    role,
+    is_active: true,
+  }
+  addError.value = ''
+  addModalOpen.value = true
+}
+
+function closeAddModal() {
+  addModalOpen.value = false
+  addError.value = ''
+}
+
+async function submitAddOccupant() {
+  if (!resident.value || savingAdd.value) return
+  savingAdd.value = true
+  addError.value = ''
+
+  try {
+    const payload: Record<string, unknown> = {
+      estate_id: resident.value.estate_id,
+      unit_id: resident.value.unit_id,
+      name: addForm.value.name.trim(),
+      phone: addForm.value.phone.trim(),
+      email: addForm.value.email.trim() || null,
+      role: addForm.value.role,
+      is_active: addForm.value.is_active,
+    }
+
+    const res = await residentsApi.create(payload)
+    const newResident = res.data.resident
+    showToast(`${newResident?.user?.name || addForm.value.name} added successfully!`, 'success')
+    closeAddModal()
+
+    if (newResident?.id) {
+      router.push(`/residents/${newResident.id}`)
+    } else {
+      loadResident(resident.value.id)
+    }
+  } catch (err: any) {
+    console.error('Failed adding occupant:', err)
+    addError.value = err.response?.data?.message || 'Could not add occupant to unit.'
+  } finally {
+    savingAdd.value = false
+  }
+}
+
+// Remove / Delete Occupant Handlers
+function openDeleteConfirm() {
+  if (!resident.value) return
+  deleteError.value = ''
+  deleteModalOpen.value = true
+}
+
+function closeDeleteModal() {
+  deleteModalOpen.value = false
+  deleteError.value = ''
+}
+
+async function executeDeleteResident() {
+  if (!resident.value || deletingResident.value) return
+  deletingResident.value = true
+  deleteError.value = ''
+
+  try {
+    const deletedId = resident.value.id
+    const deletedName = resident.value.user?.name || 'Resident'
+    await residentsApi.delete(deletedId)
+    showToast(`${deletedName} was removed from this unit.`, 'success')
+    closeDeleteModal()
+
+    // Navigate to next remaining occupant or back to registry
+    const remaining = coResidents.value.filter((cr: any) => cr.id !== deletedId)
+    if (remaining.length > 0) {
+      const nextTarget = remaining.find((cr: any) => (cr.role || '').toLowerCase() === 'owner') || remaining[0]
+      router.replace(`/residents/${nextTarget.id}`)
+    } else {
+      router.replace('/residents')
+    }
+  } catch (err: any) {
+    console.error('Failed deleting resident:', err)
+    deleteError.value = err.response?.data?.message || 'Could not remove occupant.'
+  } finally {
+    deletingResident.value = false
+  }
+}
+
 // Copy to Clipboard Utility
 async function copyText(text: string, msg = 'Copied to clipboard!') {
   if (!text) return
@@ -827,6 +1119,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   padding: 6px 0;
 }
 
@@ -852,53 +1146,300 @@ onMounted(async () => {
   transform: translateX(-2px);
 }
 
-/* Sibling Navigator */
-.sibling-nav {
+/* Unit Household Controller (Top Right Controller) */
+.household-controller {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 6px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.controller-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controller-section .section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #9CA3AF;
+  text-transform: uppercase;
+}
+
+.controller-section .section-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6B7280;
+}
+
+.section-header {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 4px 6px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
-.btn-sibling {
+.controller-divider {
+  width: 1px;
+  height: 24px;
+  background: #E5E7EB;
+}
+
+.occupant-chips, .occupants-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.occupant-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 5px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 12.5px;
+  color: #374151;
+  font-weight: 500;
+  user-select: none;
+}
+
+.occupant-pill:hover {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+  transform: translateY(-1px);
+}
+
+.occupant-pill.is-selected {
+  background: #ECFDF5;
+  border-color: #10B981;
+  color: #065F46;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.16);
+}
+
+.pill-avatar {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E5E7EB;
+}
+
+.pill-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  box-shadow: none;
+}
+
+.pill-avatar .avatar-mono {
+  font-size: 10px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.pill-avatar .status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+}
+
+.status-dot.dot-active {
+  background: #10B981;
+}
+
+.status-dot.dot-disabled {
+  background: #EF4444;
+}
+
+.pill-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.role-badge-owner {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.role-badge-tenant {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.btn-quick-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #059669;
+  background: #F0FDF4;
+  border: 1px dashed #A7F3D0;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-quick-add:hover {
+  background: #DCFCE7;
+  border-color: #059669;
+  color: #047857;
+}
+
+.no-tenants-hint {
+  font-size: 11.5px;
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+/* Link View Property in Sidebar */
+.link-view-property {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: transparent;
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 140ms ease;
-}
-
-.btn-sibling:hover:not(:disabled) {
-  background: #F3F4F6;
-  color: #111827;
-}
-
-.btn-sibling:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.sibling-counter {
   font-size: 12px;
   font-weight: 600;
-  color: #6B7280;
-  padding: 0 8px;
-  letter-spacing: 0.5px;
+  color: #0A5C38;
+  text-decoration: none;
+  transition: all 140ms ease;
 }
 
-.counter-divider {
-  color: #D1D5DB;
+.link-view-property:hover {
+  color: #053B23;
+  text-decoration: underline;
+}
+
+/* Delete / Remove Action */
+.btn-outline-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: #FFFFFF;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.btn-outline-danger:hover {
+  background: #FEF2F2;
+  border-color: #EF4444;
+}
+
+/* Danger Modal Styles */
+.modal-card-sm {
+  max-width: 440px;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 3px 0 0;
+}
+
+.modal-footer-padded {
+  padding: 16px 24px;
+}
+
+.modal-header-danger {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px 16px;
+}
+
+.danger-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #FEE2E2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-body-danger {
+  padding: 0 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.danger-warning-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  font-size: 12.5px;
+  color: #991B1B;
+  line-height: 1.4;
+}
+
+.btn-danger-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: #DC2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+  background: #B91C1C;
+}
+
+.btn-danger-solid:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Loading & Error */
