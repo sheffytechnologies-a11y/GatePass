@@ -179,13 +179,15 @@
             :disabled="submitting"
             @click="handleSubmit"
           >
-            <ion-spinner v-if="submitting" name="crescent" />
-            <span v-else>CREATE PASS</span>
+            <span>CREATE PASS</span>
           </ion-button>
 
         </div>
       </div>
     </ion-content>
+
+    <!-- Centered Brand Loading Popup Overlay -->
+    <BrandLoadingOverlay :visible="submitting" :size="92" color="#FFFFFF" />
 
     <!-- Interactive Image Cropper Modal -->
     <ImageCropperModal
@@ -200,12 +202,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons, IonButton, IonContent, IonSpinner, IonIcon } from '@ionic/vue'
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons, IonButton, IonContent, IonIcon } from '@ionic/vue'
 import { chevronDownOutline, chevronUpOutline } from 'ionicons/icons'
 import type { Pass } from '@/types'
 import { useToast } from '@/composables/useToast'
 import client from '@/api/client'
 import ImageCropperModal from '@/components/ImageCropperModal.vue'
+import BrandLoadingOverlay from '@/components/BrandLoadingOverlay.vue'
 
 const router = useRouter()
 const { showToast } = useToast()
