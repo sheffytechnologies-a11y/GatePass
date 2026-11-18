@@ -124,8 +124,16 @@
                   <button type="button" class="photo-remove-btn" @click="clearPhoto" title="Remove photo">&times;</button>
                 </div>
               </div>
-              <label v-else class="photo-upload-trigger">
-                <input ref="fileInputRef" type="file" accept="image/*" class="sr-only" @change="handlePhotoUpload" />
+              <div v-else class="photo-upload-trigger" @click="handleTriggerClick">
+                <input
+                  id="visitor-photo-input"
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="photo-file-input"
+                  @change="handlePhotoUpload"
+                  aria-label="Upload or take visitor photo"
+                />
                 <div class="photo-upload-box">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -133,7 +141,7 @@
                   </svg>
                   <span>Upload or take visitor photo</span>
                 </div>
-              </label>
+              </div>
             </div>
           </div>
 
@@ -236,15 +244,24 @@ const showCropper   = ref(false)
 const rawPhotoSrc   = ref('')
 const fileInputRef  = ref<HTMLInputElement | null>(null)
 
+function handleTriggerClick(e: MouseEvent) {
+  if (e.target !== fileInputRef.value && fileInputRef.value) {
+    fileInputRef.value.click()
+  }
+}
+
 function handlePhotoUpload(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
-  if (file.size > 8 * 1024 * 1024) {
-    showToast('Photo must be under 8MB', 'warning')
+  if (file.size > 25 * 1024 * 1024) {
+    showToast('Photo must be under 25MB', 'warning')
     return
   }
   const reader = new FileReader()
+  reader.onerror = () => {
+    showToast('Failed to load image. Please try another photo.', 'error')
+  }
   reader.onload = (evt) => {
     rawPhotoSrc.value = evt.target?.result as string
     showCropper.value = true
@@ -516,9 +533,28 @@ function goToHome() {
 
 .photo-opt-label { font-size: 11px; font-weight: 400; color: var(--w-muted); margin-left: 4px; }
 .photo-upload-wrap { margin-top: 4px; }
-.photo-upload-trigger { display: block; cursor: pointer; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.photo-upload-trigger {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  border-radius: var(--w-radius-md, 14px);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.photo-file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+  margin: 0;
+  padding: 0;
+}
 .photo-upload-box {
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -532,7 +568,10 @@ function goToHome() {
   font-weight: 500;
   transition: all 0.15s ease;
 }
-.photo-upload-box:active { background: rgba(10, 92, 56, 0.05); }
+.photo-upload-trigger:active .photo-upload-box {
+  background: rgba(10, 92, 56, 0.05);
+  border-color: var(--w-primary, #0A5C38);
+}
 .photo-upload-box svg { color: var(--w-primary, #0A5C38); }
 .photo-preview-box {
   display: inline-flex;
