@@ -226,22 +226,34 @@
           <span v-if="prop.flat" class="h-tag"><strong>Flat:</strong> {{ prop.flat }}</span>
         </div>
 
-        <!-- Occupants Section -->
+        <!-- Occupants & Homeowner Summary -->
         <div class="occupants-summary">
-          <div class="summary-label">
-            Occupants ({{ prop.residentsCount || 0 }})
+          <div class="occupants-meta-row">
+            <span class="summary-label">{{ getPropertyOwner(prop) ? 'Homeowner' : 'Occupancy' }}</span>
+            <span class="occupants-count-badge" :class="{ 'is-occupied': (prop.residentsCount || 0) > 0 }">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span>{{ prop.residentsCount || 0 }} Occupant{{ (prop.residentsCount || 0) === 1 ? '' : 's' }}</span>
+            </span>
           </div>
-          <div v-if="prop.residents && prop.residents.length > 0" class="residents-chips">
-            <div
-              v-for="res in prop.residents"
-              :key="res.id"
-              class="res-chip"
-              :title="`${res.name} (${res.phone || 'No phone'}) - ${res.role}`"
-            >
-              <div class="avatar-mini">{{ res.name.charAt(0).toUpperCase() }}</div>
-              <span class="res-chip-name">{{ res.name }}</span>
-              <span class="role-pill">{{ res.role === 'owner' ? 'Owner' : 'Tenant' }}</span>
-            </div>
+
+          <div class="owner-display-row">
+            <template v-if="getPropertyOwner(prop)">
+              <div class="avatar-mini">{{ getPropertyOwner(prop).name.charAt(0).toUpperCase() }}</div>
+              <span class="owner-display-name" :title="getPropertyOwner(prop).name">{{ getPropertyOwner(prop).name }}</span>
+            </template>
+            <template v-else-if="prop.residents && prop.residents.length > 0">
+              <div class="avatar-mini bg-blue">{{ prop.residents[0].name.charAt(0).toUpperCase() }}</div>
+              <span class="owner-display-name" :title="prop.residents[0].name">{{ prop.residents[0].name }}</span>
+              <span class="role-pill">Tenant</span>
+            </template>
+            <template v-else>
+              <span class="vacant-note">No residents assigned · Ready for assignment</span>
+            </template>
           </div>
         </div>
       </div>
@@ -1261,6 +1273,11 @@ watch(activeEstateId, () => {
   loadStats()
 })
 
+function getPropertyOwner(prop: any) {
+  if (!prop.residents || !prop.residents.length) return null
+  return prop.residents.find((r: any) => r.role === 'owner') || null
+}
+
 onMounted(() => {
   loadStructure()
   loadProperties()
@@ -1758,48 +1775,85 @@ onUnmounted(() => {
 
 .occupants-summary {
   background: #F9FAFB;
+  border: 1px solid #F3F4F6;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
   flex: 1;
+  transition: all 160ms ease;
+}
+
+.property-card:hover .occupants-summary {
+  background: #F3F4F6;
+  border-color: #E5E7EB;
+}
+
+.occupants-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .summary-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #6B7280;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
-.residents-chips {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.occupants-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6B7280;
+  background: #E5E7EB;
+  padding: 2px 8px;
+  border-radius: 999px;
+  transition: all 140ms ease;
 }
 
-.res-chip {
+.occupants-count-badge.is-occupied {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+.owner-display-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+}
+
+.owner-display-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .avatar-mini {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #047857;
+  background: #0A5C38;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
-.res-chip-name {
-  font-weight: 600;
-  color: #1F2937;
+.avatar-mini.bg-blue {
+  background: #2563EB;
 }
 
 .role-pill {
@@ -1809,11 +1863,12 @@ onUnmounted(() => {
   color: #4B5563;
   padding: 1px 6px;
   border-radius: 4px;
+  font-weight: 600;
 }
 
 .vacant-note {
   font-size: 12px;
-  color: #059669;
+  color: #9CA3AF;
   font-style: italic;
 }
 
