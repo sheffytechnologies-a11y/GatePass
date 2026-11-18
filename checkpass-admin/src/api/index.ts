@@ -333,7 +333,7 @@ export const feesApi = {
 export const newsApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/news', { params }),
   getOne: (id: number) => client.get(`/v1/admin/news/${id}`),
-  create: (data: { estate_id: number; title: string; content: string; image?: string | null }) =>
+  create: (data: { estate_id: number; title: string; content: string; target_audience?: string; image?: string | null }) =>
     client.post('/v1/admin/news', data),
   update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/news/${id}`, data),
   delete: (id: number) => client.delete(`/v1/admin/news/${id}`),

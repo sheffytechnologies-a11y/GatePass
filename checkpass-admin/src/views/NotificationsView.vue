@@ -159,6 +159,16 @@
             <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
           </select>
         </div>
+
+        <div class="audience-filter-wrap">
+          <select v-model="selectedAudience" class="estate-select" @change="loadNews">
+            <option value="all">All Audiences (Everyone)</option>
+            <option value="residents">🏠 Residents &amp; Tenants</option>
+            <option value="homeowners">🔑 Homeowners</option>
+            <option value="security">🛡️ Security Officers</option>
+            <option value="staff">👔 Estate Staff</option>
+          </select>
+        </div>
       </div>
 
       <div class="section-head">
@@ -192,6 +202,9 @@
           <div class="news-card-header">
             <div class="news-card-meta">
               <span class="estate-badge">{{ item.estateName || 'Estate Announcement' }}</span>
+              <span class="aud-pill" :class="`aud-pill--${item.targetAudience || 'all'}`">
+                {{ audienceLabel(item.targetAudience) }}
+              </span>
               <span class="news-date">{{ fmtDate(item.createdAt) }}</span>
             </div>
             <div class="news-card-actions">
@@ -260,6 +273,31 @@
             <select v-model="announcementForm.estate_id" class="form-input" required>
               <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
             </select>
+          </div>
+
+          <!-- Target Audience -->
+          <div class="form-group">
+            <label class="form-label">Target Audience *</label>
+            <div class="audience-options-grid">
+              <label
+                v-for="aud in audienceChoices"
+                :key="aud.key"
+                class="audience-radio-card"
+                :class="{ 'is-selected': announcementForm.target_audience === aud.key }"
+              >
+                <input
+                  type="radio"
+                  v-model="announcementForm.target_audience"
+                  :value="aud.key"
+                  class="sr-only"
+                />
+                <span class="aud-icon">{{ aud.icon }}</span>
+                <div class="aud-info">
+                  <strong>{{ aud.label }}</strong>
+                  <small>{{ aud.desc }}</small>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div class="form-group">
@@ -426,9 +464,28 @@ interface NewsItem {
   adminName?: string
   title: string
   content: string
+  targetAudience?: string
   image?: string | null
   createdAt?: string
   updatedAt?: string
+}
+
+const audienceChoices = [
+  { key: 'all', label: 'All Community', icon: '🌐', desc: 'Broadcast to everyone across estate' },
+  { key: 'residents', label: 'Residents & Tenants', icon: '🏠', desc: 'Active household occupants & tenants' },
+  { key: 'homeowners', label: 'Homeowners', icon: '🔑', desc: 'Property landlords & deed holders' },
+  { key: 'security', label: 'Security Officers', icon: '🛡️', desc: 'Gate guards & security dispatch' },
+  { key: 'staff', label: 'Estate Staff', icon: '👔', desc: 'Estate management & office personnel' },
+]
+
+function audienceLabel(aud?: string): string {
+  switch (aud) {
+    case 'security': return 'Security'
+    case 'staff': return 'Staff'
+    case 'residents': return 'Residents & Tenants'
+    case 'homeowners': return 'Homeowners'
+    default: return 'All Community'
+  }
 }
 
 const loadingNews = ref(true)
@@ -437,6 +494,7 @@ const deletingAnnouncement = ref(false)
 const newsList = ref<NewsItem[]>([])
 const estates = ref<any[]>([])
 const selectedEstateId = ref<number | null>(null)
+const selectedAudience = ref('all')
 const announcementSearch = ref('')
 let searchTimeout: any = null
 
@@ -449,6 +507,7 @@ const announcementForm = ref({
   estate_id: 1,
   title: '',
   content: '',
+  target_audience: 'all',
 })
 
 async function loadEstates() {
@@ -468,6 +527,7 @@ async function loadNews() {
   try {
     const params: Record<string, unknown> = {}
     if (selectedEstateId.value) params.estate_id = selectedEstateId.value
+    if (selectedAudience.value && selectedAudience.value !== 'all') params.target_audience = selectedAudience.value
     if (announcementSearch.value.trim()) params.search = announcementSearch.value.trim()
     const res = await newsApi.getAll(params)
     newsList.value = res.data?.news || []
@@ -493,6 +553,7 @@ function openCreateAnnouncementModal() {
     estate_id: defaultEstate,
     title: '',
     content: '',
+    target_audience: 'all',
   }
   showAnnouncementModal.value = true
 }
@@ -504,6 +565,7 @@ function openEditAnnouncementModal(item: NewsItem) {
     estate_id: item.estateId,
     title: item.title,
     content: item.content,
+    target_audience: item.targetAudience || 'all',
   }
   showAnnouncementModal.value = true
 }
@@ -896,6 +958,19 @@ onMounted(() => {
   border-radius: 6px;
 }
 
+.aud-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.aud-pill--all        { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+.aud-pill--residents  { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+.aud-pill--homeowners { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+.aud-pill--security   { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+.aud-pill--staff      { background: #F3E8FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+
 .news-date {
   font-size: 12px;
   color: #9CA3AF;
@@ -1142,5 +1217,68 @@ onMounted(() => {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+}
+
+/* ── Audience Grid & Cards in Modal ── */
+.audience-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.audience-radio-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.audience-radio-card:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.audience-radio-card.is-selected {
+  background: #ECFDF5;
+  border-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.aud-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.aud-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.aud-info strong {
+  font-size: 12.5px;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.aud-info small {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 </style>

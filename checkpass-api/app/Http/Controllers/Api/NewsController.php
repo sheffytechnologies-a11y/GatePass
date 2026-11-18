@@ -20,7 +20,7 @@ class NewsController extends Controller
     {
         $estateIds = $this->accessibleEstateIds($request->user());
 
-        $news = News::query()
+        $query = News::query()
             ->with(['estate', 'admin'])
             ->where(function ($q) use ($estateIds) {
                 if (!empty($estateIds)) {
@@ -29,8 +29,29 @@ class NewsController extends Controller
                 } else {
                     $q->whereNull('estate_id');
                 }
-            })
-            ->latest()
+            });
+
+        // If user is resident, scope by appropriate audience
+        if ($request->user() instanceof User) {
+            $resident = $request->user()->resident()->first();
+            $role = strtolower($resident->role ?? 'resident');
+            $allowedAudiences = ['all'];
+            if (in_array($role, ['resident', 'tenant', 'occupant'])) {
+                $allowedAudiences[] = 'residents';
+            } elseif (in_array($role, ['homeowner', 'owner', 'landlord'])) {
+                $allowedAudiences[] = 'homeowners';
+                $allowedAudiences[] = 'residents';
+            } else {
+                $allowedAudiences[] = 'residents';
+            }
+
+            $query->where(function ($q) use ($allowedAudiences) {
+                $q->whereIn('target_audience', $allowedAudiences)
+                  ->orWhereNull('target_audience');
+            });
+        }
+
+        $news = $query->latest()
             ->get()
             ->map(fn(News $item) => $this->formatNews($item));
 
@@ -52,6 +73,10 @@ class NewsController extends Controller
 
         if ($request->filled('estate_id')) {
             $query->where('estate_id', $request->estate_id);
+        }
+
+        if ($request->filled('target_audience') && $request->target_audience !== 'all') {
+            $query->where('target_audience', $request->target_audience);
         }
 
         if ($request->filled('search')) {
@@ -79,6 +104,7 @@ class NewsController extends Controller
             'estate_id' => ['required', 'integer', Rule::in($estateIds)],
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'target_audience' => 'nullable|string|in:all,security,staff,residents,homeowners',
             'image' => 'nullable|string',
         ]);
 
@@ -87,6 +113,7 @@ class NewsController extends Controller
             'admin_id' => $admin->id,
             'title' => $data['title'],
             'content' => $data['content'],
+            'target_audience' => $data['target_audience'] ?? 'all',
             'image' => $data['image'] ?? null,
         ]);
 
@@ -124,6 +151,7 @@ class NewsController extends Controller
             'estate_id' => ['sometimes', 'integer', Rule::in($estateIds)],
             'title' => 'sometimes|string|max:255',
             'content' => 'sometimes|string',
+            'target_audience' => 'sometimes|nullable|string|in:all,security,staff,residents,homeowners',
             'image' => 'sometimes|nullable|string',
         ]);
 
@@ -135,6 +163,9 @@ class NewsController extends Controller
         }
         if (array_key_exists('content', $data)) {
             $news->content = $data['content'];
+        }
+        if (array_key_exists('target_audience', $data)) {
+            $news->target_audience = $data['target_audience'] ?? 'all';
         }
         if (array_key_exists('image', $data)) {
             $news->image = $data['image'];
@@ -172,6 +203,7 @@ class NewsController extends Controller
             'adminRole' => $news->admin?->role === 'super_admin' ? 'Super Admin' : 'Estate Admin',
             'title' => $news->title,
             'content' => $news->content,
+            'targetAudience' => $news->target_audience ?? 'all',
             'image' => $news->image,
             'createdAt' => $news->created_at?->toIso8601String(),
             'updatedAt' => $news->updated_at?->toIso8601String(),

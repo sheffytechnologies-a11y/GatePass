@@ -15,6 +15,7 @@ class News extends Model
         'admin_id',
         'title',
         'content',
+        'target_audience',
         'image',
     ];
 

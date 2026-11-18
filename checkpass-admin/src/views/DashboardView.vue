@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-page">
     <!-- Top Hero Header Container Card -->
-    <section class="hero-card">
+    <section class="hero-card hero-card--emerald">
       <div class="hero-top-row">
         <div class="hero-badge-group">
           <span class="hero-eyebrow">Estate Command Center</span>
@@ -36,44 +36,6 @@
         <div class="hero-title-group">
           <h1 class="hero-title">Estate Command &amp; Security Overview</h1>
           <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
-        </div>
-
-        <div class="hero-actions-group">
-          <router-link to="/passes" class="btn btn-hero-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="12" y1="11" x2="12" y2="15"/>
-              <line x1="10" y1="13" x2="14" y2="13"/>
-            </svg>
-            <span>Issue Pass</span>
-          </router-link>
-
-          <router-link to="/residents/new" class="btn btn-hero-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <line x1="19" y1="8" x2="19" y2="14"/>
-              <line x1="22" y1="11" x2="16" y2="11"/>
-            </svg>
-            <span>Add Resident</span>
-          </router-link>
-
-          <router-link to="/properties" class="btn btn-hero-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span>Properties</span>
-          </router-link>
-
-          <button type="button" class="btn btn-hero-action btn-hero-action--subtle" @click="openBroadcastModal">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span>Broadcast</span>
-          </button>
         </div>
       </div>
     </section>
@@ -246,7 +208,88 @@
             </div>
           </div>
 
-          <!-- 2. Recent Passes Operational Table Card -->
+          <!-- 2. Estate Dues & Revenue Performance Chart Card -->
+          <div class="card chart-card dues-chart-card">
+            <div class="chart-header">
+              <div>
+                <span class="chart-eyebrow">Financial Telemetry &amp; Revenue</span>
+                <div class="chart-headline-row">
+                  <h3 class="chart-title">Estate Dues &amp; Collection Performance</h3>
+                  <span class="chart-big-count text-gold">₦{{ fmtNaira(stats.duesCollected) }} Collected</span>
+                </div>
+              </div>
+
+              <div class="chart-legend-box">
+                <div class="legend-chip">
+                  <span class="legend-square legend-square--gold"></span>
+                  <span>Monthly Collections</span>
+                </div>
+                <router-link to="/fees" class="dues-link-action">
+                  Manage Dues &rarr;
+                </router-link>
+              </div>
+            </div>
+
+            <!-- SVG Dues Bar Chart -->
+            <div class="svg-bar-chart-wrap">
+              <svg viewBox="0 0 520 180" class="svg-bar-chart" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="duesBarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#F59E0B" />
+                    <stop offset="100%" stop-color="#D97706" />
+                  </linearGradient>
+                </defs>
+                <line x1="20" y1="20" x2="500" y2="20" stroke="#F1F5F9" stroke-width="1" />
+                <line x1="20" y1="60" x2="500" y2="60" stroke="#F1F5F9" stroke-width="1" />
+                <line x1="20" y1="100" x2="500" y2="100" stroke="#F1F5F9" stroke-width="1" />
+                <line x1="20" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-width="1.2" />
+
+                <g
+                  v-for="(b, idx) in duesBarCoords"
+                  :key="idx"
+                  class="bar-group"
+                  @mouseenter="hoveredDuesBar = b"
+                  @mouseleave="hoveredDuesBar = null"
+                >
+                  <rect
+                    :x="b.x"
+                    :y="b.y"
+                    :width="b.barW"
+                    :height="b.barH"
+                    rx="5"
+                    ry="5"
+                    fill="url(#duesBarGrad)"
+                    class="bar-rect bar-rect--dues"
+                  />
+                  <text :x="b.centerX" y="160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#64748B">{{ b.month }}</text>
+                </g>
+              </svg>
+
+              <!-- Interactive hover tooltip -->
+              <div v-if="hoveredDuesBar" class="chart-tooltip chart-tooltip--gold" :style="{ left: `${(hoveredDuesBar.centerX / 520) * 100}%` }">
+                <div class="tooltip-header">{{ hoveredDuesBar.month }} {{ hoveredDuesBar.year }} &bull; Collections</div>
+                <div class="tooltip-row"><span>Amount:</span> <strong>₦{{ fmtNaira(hoveredDuesBar.amount) }}</strong></div>
+              </div>
+            </div>
+
+            <!-- Dues Key Financial Metrics Footer -->
+            <div class="dues-stats-footer">
+              <div class="dues-stat-pill">
+                <span class="stat-pill-label">Expected Total</span>
+                <strong class="stat-pill-val">₦{{ fmtNaira(stats.duesExpected) }}</strong>
+              </div>
+              <div class="dues-stat-pill">
+                <span class="stat-pill-label">Collected to Date</span>
+                <strong class="stat-pill-val text-green">₦{{ fmtNaira(stats.duesCollected) }} ({{ stats.collectionRate }}%)</strong>
+              </div>
+              <div class="dues-stat-pill">
+                <span class="stat-pill-label">Outstanding Balance</span>
+                <strong class="stat-pill-val text-amber">₦{{ fmtNaira(stats.duesPending) }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Recent Passes Operational Table Card -->
           <div class="card table-card">
             <div class="table-card-header">
               <div>
@@ -301,7 +344,59 @@
 
         <!-- ── SIDE RIGHT COLUMN (37%) ── -->
         <div class="dash-col-side">
-          <!-- 1. Pass Distribution Donut Card -->
+          <!-- 1. Dedicated Quick Access Card (Image 2 - Quick Access / Frequent Actions) -->
+          <div class="card quick-access-card">
+            <div class="quick-access-header">
+              <h3 class="quick-access-title">Quick Access</h3>
+              <span class="quick-access-sub">Frequent Actions</span>
+            </div>
+            <div class="quick-access-grid">
+              <router-link to="/passes" class="quick-action-item" title="Issue Visitor Pass">
+                <div class="quick-action-circle quick-action-circle--pass">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+                <span class="quick-action-label">Pass</span>
+              </router-link>
+
+              <router-link to="/residents/new" class="quick-action-item" title="Register New Resident">
+                <div class="quick-action-circle quick-action-circle--resident">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                  </svg>
+                </div>
+                <span class="quick-action-label">Resident</span>
+              </router-link>
+
+              <router-link to="/properties" class="quick-action-item" title="Manage Properties & Units">
+                <div class="quick-action-circle quick-action-circle--units">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                </div>
+                <span class="quick-action-label">Units</span>
+              </router-link>
+
+              <button type="button" class="quick-action-item" title="Broadcast Announcement" @click="openBroadcastModal">
+                <div class="quick-action-circle quick-action-circle--broadcast">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <span class="quick-action-label">Broadcast</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Pass Distribution Donut Card -->
           <div class="card donut-card">
             <div class="donut-header">
               <h3 class="donut-title">Pass Distribution</h3>
@@ -361,49 +456,137 @@
             </div>
           </div>
 
-          <!-- 2. Resident Notices & Broadcasts Card -->
+          <!-- 3. Resident Notices & Broadcasts Card -->
           <div class="card notice-sidebar-card">
             <div class="notice-top">
               <span class="notice-eyebrow">Resident Notices</span>
               <button type="button" class="btn-quick-post" @click="openBroadcastModal">+ Notice</button>
             </div>
             <div v-if="recentNews.length > 0" class="notice-preview-box">
-              <div class="notice-badge">{{ recentNews[0].estateName || 'Estate Notice' }}</div>
+              <div class="notice-badge-row">
+                <span class="notice-badge">{{ recentNews[0].estateName || 'Estate Notice' }}</span>
+                <span class="notice-aud-pill">Audience: {{ audienceLabel(recentNews[0].targetAudience) }}</span>
+              </div>
               <h4 class="notice-title">{{ recentNews[0].title }}</h4>
               <p class="notice-snippet">{{ recentNews[0].content }}</p>
-              <div class="notice-meta">Live in resident app &bull; {{ fmtDate(recentNews[0].createdAt) }}</div>
+              <div class="notice-meta">Live in mobile feed &bull; {{ fmtDate(recentNews[0].createdAt) }}</div>
             </div>
             <div v-else class="notice-empty">
               <p>No active announcements broadcasted.</p>
             </div>
             <router-link to="/notifications?tab=announcements" class="notice-link">Manage announcements &rarr;</router-link>
           </div>
+        </div>
+      </div>
 
-          <!-- 3. Real-Time Activity Feed Card -->
-          <div class="card timeline-card">
-            <div class="timeline-header">
-              <h3 class="timeline-title">Recent Activity</h3>
-              <router-link to="/access" class="card-link-sm">View feed</router-link>
+      <!-- ── CENTRAL ACTIVITY LOG & AUDIT TRAIL ── -->
+      <section class="card central-activity-card">
+        <div class="activity-log-header">
+          <div class="activity-log-headline">
+            <div class="activity-eyebrow-row">
+              <span class="activity-eyebrow">Comprehensive Audit Trail</span>
+              <span class="live-stream-badge">
+                <span class="status-dot"></span>
+                Live Event Stream
+              </span>
+            </div>
+            <h2 class="activity-title">Central Activity Log</h2>
+            <p class="activity-sub">Real-time gate passes, resident access, payments, security alerts &amp; broadcasts across your community.</p>
+          </div>
+
+          <div class="activity-search-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              v-model="activitySearchQuery"
+              type="search"
+              placeholder="Filter by resident, unit, visitor, or type..."
+              class="activity-search-input"
+            />
+          </div>
+        </div>
+
+        <!-- Filter Tab Buttons -->
+        <div class="activity-filter-tabs">
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'all' }"
+            @click="selectedActivityCategory = 'all'"
+          >
+            All Events ({{ allActivityItems.length }})
+          </button>
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'passes' }"
+            @click="selectedActivityCategory = 'passes'"
+          >
+            🎟️ Passes ({{ activityCountPasses }})
+          </button>
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'residents' }"
+            @click="selectedActivityCategory = 'residents'"
+          >
+            👤 Residents ({{ activityCountResidents }})
+          </button>
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'payments' }"
+            @click="selectedActivityCategory = 'payments'"
+          >
+            💳 Payments ({{ activityCountPayments }})
+          </button>
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'security' }"
+            @click="selectedActivityCategory = 'security'"
+          >
+            🚨 Security ({{ activityCountEmergencies }})
+          </button>
+          <button
+            type="button"
+            class="filter-tab-pill"
+            :class="{ active: selectedActivityCategory === 'broadcasts' }"
+            @click="selectedActivityCategory = 'broadcasts'"
+          >
+            📢 Broadcasts ({{ activityCountNews }})
+          </button>
+        </div>
+
+        <!-- Activity Feed List -->
+        <div v-if="filteredActivityFeed.length === 0" class="activity-empty-state">
+          <p>No activity records match your current filter.</p>
+        </div>
+        <div v-else class="activity-feed-grid">
+          <div
+            v-for="item in filteredActivityFeed"
+            :key="item.id"
+            class="activity-item-row"
+          >
+            <div class="activity-icon-col" :class="item.iconClass">
+              <span>{{ item.icon }}</span>
             </div>
 
-            <div v-if="activityFeed.length === 0" class="timeline-empty">
-              <p>No activity recorded yet.</p>
-            </div>
-            <div v-else class="timeline-feed">
-              <div v-for="item in activityFeed" :key="item.id" class="timeline-item">
-                <div class="timeline-icon-box" :class="item.iconClass">
-                  <span>{{ item.icon }}</span>
-                </div>
-                <div class="timeline-body">
-                  <div class="timeline-item-title">{{ item.title }}</div>
-                  <div class="timeline-item-sub">{{ item.subtitle }}</div>
-                  <div class="timeline-item-time">{{ item.time }}</div>
-                </div>
+            <div class="activity-details-col">
+              <div class="activity-title-line">
+                <span class="activity-action-text" v-html="item.title"></span>
+                <span class="activity-badge" :class="item.badgeClass">{{ item.badgeText }}</span>
+              </div>
+              <div class="activity-meta-line">
+                <span class="activity-sub-text">{{ item.subtitle }}</span>
+                <span class="activity-time-text" :title="item.timestamp">{{ item.timeLabel }}</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </template>
 
     <!-- Add Estate Modal -->
@@ -458,7 +641,7 @@
         <div class="modal-header">
           <div>
             <h2 class="modal-title">Publish Estate Notice</h2>
-            <p class="modal-sub">Broadcast announcement directly to all resident mobile app feeds.</p>
+            <p class="modal-sub">Broadcast targeted announcements to resident app feeds and security channels.</p>
           </div>
           <button class="modal-close" @click="showBroadcastModal = false">&times;</button>
         </div>
@@ -469,6 +652,31 @@
             <select v-model="broadcastForm.estate_id" class="form-select" required>
               <option v-for="e in estates" :key="e.id" :value="e.id">{{ e.name }}</option>
             </select>
+          </div>
+
+          <!-- Target Audience Selection -->
+          <div class="form-group">
+            <label class="form-label">Target Audience *</label>
+            <div class="audience-options-grid">
+              <label
+                v-for="aud in audienceChoices"
+                :key="aud.key"
+                class="audience-radio-card"
+                :class="{ 'is-selected': broadcastForm.target_audience === aud.key }"
+              >
+                <input
+                  type="radio"
+                  v-model="broadcastForm.target_audience"
+                  :value="aud.key"
+                  class="sr-only"
+                />
+                <span class="aud-icon">{{ aud.icon }}</span>
+                <div class="aud-info">
+                  <strong>{{ aud.label }}</strong>
+                  <small>{{ aud.desc }}</small>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div class="form-group">
@@ -487,8 +695,8 @@
             <textarea
               v-model="broadcastForm.content"
               class="form-textarea"
-              rows="5"
-              placeholder="Detail the announcement for residents: date, time, affected areas, guidelines..."
+              rows="4"
+              placeholder="Detail the announcement: date, time, guidelines, or contacts..."
               required
             ></textarea>
           </div>
@@ -499,7 +707,7 @@
             <button type="button" class="btn btn-secondary" @click="showBroadcastModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" :disabled="publishingNotice">
               <BrandSpinner v-if="publishingNotice" :size="18" color="#ffffff" />
-              <span v-else>Publish to Residents &rarr;</span>
+              <span v-else>Publish Broadcast &rarr;</span>
             </button>
           </div>
         </form>
@@ -536,6 +744,24 @@ const newEstate = ref({
   state: '',
 })
 
+const audienceChoices = [
+  { key: 'all', label: 'All Community', icon: '🌐', desc: 'Broadcast to everyone across estate' },
+  { key: 'residents', label: 'Residents & Tenants', icon: '🏠', desc: 'Active household occupants & tenants' },
+  { key: 'homeowners', label: 'Homeowners', icon: '🔑', desc: 'Property landlords & deed holders' },
+  { key: 'security', label: 'Security Officers', icon: '🛡️', desc: 'Gate guards & security dispatch' },
+  { key: 'staff', label: 'Estate Staff', icon: '👔', desc: 'Estate management & office personnel' },
+]
+
+function audienceLabel(aud?: string): string {
+  switch (aud) {
+    case 'security': return 'Security'
+    case 'staff': return 'Staff'
+    case 'residents': return 'Residents & Tenants'
+    case 'homeowners': return 'Homeowners'
+    default: return 'All Community'
+  }
+}
+
 const recentNews = ref<any[]>([])
 const showBroadcastModal = ref(false)
 const publishingNotice = ref(false)
@@ -544,6 +770,7 @@ const broadcastForm = ref({
   estate_id: 1,
   title: '',
   content: '',
+  target_audience: 'all',
 })
 
 function openBroadcastModal() {
@@ -562,10 +789,16 @@ async function handlePublishNotice() {
       estate_id: broadcastForm.value.estate_id,
       title: broadcastForm.value.title.trim(),
       content: broadcastForm.value.content.trim(),
+      target_audience: broadcastForm.value.target_audience,
     })
-    showToast('Announcement broadcasted to residents!', 'success')
+    showToast('Announcement broadcasted to estate community!', 'success')
     showBroadcastModal.value = false
-    broadcastForm.value = { estate_id: estates.value[0]?.id || 1, title: '', content: '' }
+    broadcastForm.value = {
+      estate_id: estates.value[0]?.id || 1,
+      title: '',
+      content: '',
+      target_audience: 'all',
+    }
     await load(false)
   } catch (e: any) {
     broadcastError.value = e.response?.data?.message || 'Could not publish notice. Please try again.'
@@ -693,55 +926,181 @@ const donutSegments = computed(() => {
 
 const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
+const recentResidents = ref<any[]>([])
+const recentPayments = ref<any[]>([])
 
-const activityFeed = computed(() => {
-  const items: Array<{
-    id: string
-    type: 'pass' | 'emergency' | 'news'
-    title: string
-    subtitle: string
-    time: string
-    icon: string
-    iconClass: string
-  }> = []
+// ── 6-Month Estate Dues Bar Coordinates ──
+const hoveredDuesBar = ref<any>(null)
 
-  for (const p of (recentPasses.value || []).slice(0, 4)) {
-    items.push({
+const duesBarCoords = computed(() => {
+  const months = analytics.value.paymentMonths || []
+  const data = months.length > 0 ? months : [
+    { month: 'Jun', year: 2026, amount: 450000 },
+    { month: 'Jul', year: 2026, amount: 620000 },
+    { month: 'Aug', year: 2026, amount: 580000 },
+    { month: 'Sep', year: 2026, amount: 750000 },
+    { month: 'Oct', year: 2026, amount: 890000 },
+    { month: 'Nov', year: 2026, amount: Math.max(stats.value.duesCollected, 940000) },
+  ]
+
+  const maxVal = Math.max(100000, ...data.map(d => d.amount))
+  const slotW = 500 / data.length
+  const barW = Math.min(26, slotW * 0.5)
+
+  return data.map((d, i) => {
+    const barH = Math.max(6, Math.round((d.amount / maxVal) * 115))
+    const centerX = 20 + i * slotW + slotW / 2
+    const x = centerX - barW / 2
+    const y = 140 - barH
+    return {
+      month: d.month,
+      year: d.year,
+      amount: d.amount,
+      x,
+      y,
+      barW,
+      barH,
+      centerX,
+    }
+  })
+})
+
+// ── Central Activity Log State & Computations ──
+interface ActivityLogItem {
+  id: string
+  category: 'passes' | 'residents' | 'payments' | 'security' | 'broadcasts'
+  type: string
+  title: string
+  subtitle: string
+  timestamp?: string
+  timeLabel: string
+  badgeClass: string
+  badgeText: string
+  icon: string
+  iconClass: string
+}
+
+const selectedActivityCategory = ref<'all' | 'passes' | 'residents' | 'payments' | 'security' | 'broadcasts'>('all')
+const activitySearchQuery = ref('')
+
+const allActivityItems = computed<ActivityLogItem[]>(() => {
+  const list: ActivityLogItem[] = []
+
+  // Passes
+  for (const p of recentPasses.value || []) {
+    list.push({
       id: `pass-${p.ulid}`,
-      type: 'pass',
+      category: 'passes',
+      type: 'Pass Access',
       title: `${p.visitorName || 'Visitor'} &bull; ${p.status || 'Pending'}`,
-      subtitle: p.resident?.name ? `Invited by ${p.resident.name}` : `Destination: Unit ${p.unit || '—'}`,
-      time: p.createdAt ? formatRelativeTime(p.createdAt) : 'Recently',
+      subtitle: p.resident?.name ? `Invited by ${p.resident.name} (${p.resident.unit || 'Unit'})` : `Destination: Unit ${p.unit || '—'}`,
+      timestamp: p.createdAt,
+      timeLabel: p.createdAt ? formatRelativeTime(p.createdAt) : 'Recently',
+      badgeClass: passStatusClass(p.status),
+      badgeText: p.status || 'Pass',
       icon: '🎟️',
       iconClass: 'icon-pass',
     })
   }
 
-  for (const e of (recentEmergencies.value || []).slice(0, 2)) {
-    items.push({
+  // Residents
+  for (const r of recentResidents.value || []) {
+    list.push({
+      id: `res-${r.id}`,
+      category: 'residents',
+      type: 'Resident Onboarding',
+      title: `${r.name} registered as ${r.role || 'Resident'}`,
+      subtitle: `Assigned unit: ${r.unit}`,
+      timestamp: r.createdAt,
+      timeLabel: r.createdAt ? formatRelativeTime(r.createdAt) : 'Recently',
+      badgeClass: 'badge-resident',
+      badgeText: r.role || 'Resident',
+      icon: '👤',
+      iconClass: 'icon-resident',
+    })
+  }
+
+  // Payments
+  for (const py of recentPayments.value || []) {
+    list.push({
+      id: `pay-${py.id}`,
+      category: 'payments',
+      type: 'Dues Payment',
+      title: `₦${fmtNaira(py.amount)} paid for ${py.feeName}`,
+      subtitle: `Paid by ${py.residentName || 'Resident'}`,
+      timestamp: py.paidAt,
+      timeLabel: py.paidAt ? formatRelativeTime(py.paidAt) : 'Recently',
+      badgeClass: 'badge-paid',
+      badgeText: 'Paid',
+      icon: '💳',
+      iconClass: 'icon-payment',
+    })
+  }
+
+  // Emergencies
+  for (const e of recentEmergencies.value || []) {
+    list.push({
       id: `emerg-${e.id}`,
-      type: 'emergency',
+      category: 'security',
+      type: 'Security Alert',
       title: `${e.type || 'Emergency'} reported`,
       subtitle: `${e.resident?.name || 'Resident'} (${e.resident?.unit || e.estate?.name || 'Estate'})`,
-      time: e.createdAt ? formatRelativeTime(e.createdAt) : 'Today',
+      timestamp: e.createdAt,
+      timeLabel: e.createdAt ? formatRelativeTime(e.createdAt) : 'Today',
+      badgeClass: 'badge-alert',
+      badgeText: 'Security Alert',
       icon: '🚨',
       iconClass: 'icon-danger',
     })
   }
 
-  for (const n of (recentNews.value || []).slice(0, 2)) {
-    items.push({
+  // News / Broadcasts
+  for (const n of recentNews.value || []) {
+    list.push({
       id: `news-${n.id}`,
-      type: 'news',
-      title: `${n.title || 'Notice Published'}`,
-      subtitle: `${n.estateName || 'Estate Notice'}`,
-      time: n.createdAt ? formatRelativeTime(n.createdAt) : 'Recently',
+      category: 'broadcasts',
+      type: 'Broadcast Notice',
+      title: n.title,
+      subtitle: `Audience: ${audienceLabel(n.targetAudience)} &bull; ${n.estateName || 'Estate Notice'}`,
+      timestamp: n.createdAt,
+      timeLabel: n.createdAt ? formatRelativeTime(n.createdAt) : 'Recently',
+      badgeClass: 'badge-broadcast',
+      badgeText: audienceLabel(n.targetAudience),
       icon: '📢',
       iconClass: 'icon-news',
     })
   }
 
-  return items
+  return list.sort((a, b) => {
+    const tA = a.timestamp ? new Date(a.timestamp).getTime() : 0
+    const tB = b.timestamp ? new Date(b.timestamp).getTime() : 0
+    return tB - tA
+  })
+})
+
+const activityCountPasses = computed(() => allActivityItems.value.filter(i => i.category === 'passes').length)
+const activityCountResidents = computed(() => allActivityItems.value.filter(i => i.category === 'residents').length)
+const activityCountPayments = computed(() => allActivityItems.value.filter(i => i.category === 'payments').length)
+const activityCountEmergencies = computed(() => allActivityItems.value.filter(i => i.category === 'security').length)
+const activityCountNews = computed(() => allActivityItems.value.filter(i => i.category === 'broadcasts').length)
+
+const filteredActivityFeed = computed(() => {
+  let list = allActivityItems.value
+
+  if (selectedActivityCategory.value !== 'all') {
+    list = list.filter(item => item.category === selectedActivityCategory.value)
+  }
+
+  if (activitySearchQuery.value.trim()) {
+    const q = activitySearchQuery.value.toLowerCase().trim()
+    list = list.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      item.subtitle.toLowerCase().includes(q) ||
+      item.type.toLowerCase().includes(q)
+    )
+  }
+
+  return list
 })
 
 const syncStatusLabel = computed(() => {
@@ -777,6 +1136,8 @@ async function load(showSpinner = true) {
     }
     recentPasses.value = summaryRes.data?.recentPasses || []
     recentEmergencies.value = summaryRes.data?.recentEmergencies || []
+    recentResidents.value = summaryRes.data?.recentResidents || []
+    recentPayments.value = summaryRes.data?.recentPayments || []
     recentNews.value = (newsRes.data?.news || []).slice(0, 3)
     estates.value = estatesRes.data?.estates ?? []
 
@@ -881,12 +1242,17 @@ onUnmounted(() => {
 }
 
 /* ── Top Hero Container Card ── */
+/* ── Top Hero Container Card (Emerald Gradient) ── */
 .hero-card {
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
   border-radius: 16px;
   padding: 24px 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.16);
+}
+
+.hero-card--emerald {
+  background: linear-gradient(135deg, #064E3B 0%, #047857 60%, #059669 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
 .hero-top-row {
@@ -910,10 +1276,10 @@ onUnmounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #0A5C38;
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
-  padding: 3px 9px;
+  color: #D1FAE5;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 3px 10px;
   border-radius: 999px;
 }
 
@@ -923,9 +1289,9 @@ onUnmounted(() => {
   gap: 6px;
   font-size: 11.5px;
   font-weight: 600;
-  color: #065F46;
-  background: #F0FDF4;
-  border: 1px solid #DCFCE7;
+  color: #FFFFFF;
+  background: rgba(16, 185, 129, 0.22);
+  border: 1px solid rgba(52, 211, 153, 0.35);
   padding: 3px 10px;
   border-radius: 999px;
 }
@@ -934,8 +1300,8 @@ onUnmounted(() => {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  background: #34D399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35);
 }
 
 .telemetry-sync-pill {
@@ -943,10 +1309,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 11.5px;
-  color: #6B7280;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  padding: 2px 8px;
+  color: #E2E8F0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 2px 10px;
   border-radius: 999px;
 }
 
@@ -954,11 +1320,11 @@ onUnmounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #9CA3AF;
+  background: #A7F3D0;
 }
 
 .telemetry-dot--syncing {
-  background: #3B82F6;
+  background: #60A5FA;
   animation: pulse 1s infinite;
 }
 
@@ -967,7 +1333,7 @@ onUnmounted(() => {
   border: none;
   font-size: 11px;
   font-weight: 700;
-  color: #0A5C38;
+  color: #FFFFFF;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -992,63 +1358,22 @@ onUnmounted(() => {
 }
 
 .hero-title-group {
-  max-width: 680px;
+  max-width: 780px;
 }
 
 .hero-title {
   font-size: 24px;
   font-weight: 800;
-  color: #111827;
+  color: #FFFFFF;
   letter-spacing: -0.02em;
   margin: 0 0 6px;
 }
 
 .hero-copy {
   font-size: 13.5px;
-  color: #4B5563;
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
   line-height: 1.5;
-}
-
-.hero-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.btn-hero-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 9px;
-  text-decoration: none;
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #D1D5DB;
-  cursor: pointer;
-  transition: all 140ms ease;
-}
-
-.btn-hero-action:hover {
-  background: #F9FAFB;
-  border-color: #9CA3AF;
-  color: #111827;
-  transform: translateY(-1px);
-}
-
-.btn-hero-action--subtle {
-  background: #ECFDF5;
-  color: #0A5C38;
-  border-color: #A7F3D0;
-}
-
-.btn-hero-action--subtle:hover {
-  background: #D1FAE5;
-  border-color: #6EE7B7;
 }
 
 /* ── KPI Stat Cards ── */
@@ -1221,6 +1546,80 @@ onUnmounted(() => {
 
 .legend-square--forest { background: #0A5C38; }
 .legend-square--mint   { background: #10B981; }
+.legend-square--gold   { background: #D97706; }
+
+.text-gold  { color: #D97706 !important; }
+.text-green { color: #059669 !important; }
+.text-amber { color: #D97706 !important; }
+
+/* ── Dues Chart Card ── */
+.dues-chart-card {
+  margin-top: 4px;
+}
+
+.bar-rect--dues {
+  transition: all 140ms ease;
+}
+
+.bar-group:hover .bar-rect--dues {
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 6px rgba(217, 119, 6, 0.25));
+}
+
+.chart-tooltip--gold {
+  border-left: 3px solid #F59E0B;
+}
+
+.dues-link-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A5C38;
+  text-decoration: none;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: all 140ms ease;
+}
+
+.dues-link-action:hover {
+  background: #D1FAE5;
+  color: #064E3B;
+  transform: translateY(-1px);
+}
+
+.dues-stats-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.dues-stat-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.stat-pill-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-pill-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
 
 .svg-bar-chart-wrap {
   width: 100%;
@@ -1491,55 +1890,413 @@ onUnmounted(() => {
 
 .notice-link:hover { text-decoration: underline; }
 
-/* ── Timeline Card ── */
-.timeline-card {
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.timeline-header {
+/* ── Notice Sidebar Audience Badge ── */
+.notice-badge-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
-.timeline-title { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
-.card-link-sm { font-size: 11.5px; font-weight: 600; color: #0A5C38; text-decoration: none; }
-.card-link-sm:hover { text-decoration: underline; }
-
-.timeline-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.notice-aud-pill {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0369A1;
+  background: #E0F2FE;
+  padding: 2px 7px;
+  border-radius: 6px;
 }
 
-.timeline-item {
+/* ── Dedicated Quick Access Card (Image 2) ── */
+.quick-access-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 18px 20px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.quick-access-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.quick-access-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.quick-access-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
-.timeline-icon-box {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+.quick-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 12px;
+  transition: transform 140ms ease;
+}
+
+.quick-action-item:hover {
+  transform: translateY(-2px);
+}
+
+.quick-action-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #F0F4F8;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-  background: #F3F4F6;
+  color: #1E293B;
+  transition: all 140ms ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.timeline-body { flex: 1; }
-.timeline-item-title { font-size: 12.5px; font-weight: 600; color: #111827; }
-.timeline-item-sub { font-size: 11.5px; color: #6B7280; }
-.timeline-item-time { font-size: 10.5px; color: #9CA3AF; margin-top: 2px; }
+.quick-action-item:hover .quick-action-circle {
+  background: #E2E8F0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
 
-.timeline-empty { font-size: 12.5px; color: #9CA3AF; font-style: italic; }
+.quick-action-circle--broadcast {
+  background: #FFFBEB;
+  color: #D97706;
+}
+
+.quick-action-item:hover .quick-action-circle--broadcast {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.quick-action-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1E293B;
+  text-align: center;
+}
+
+/* ── Central Activity Log & Audit Trail ── */
+.central-activity-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.activity-log-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.activity-log-headline {
+  max-width: 680px;
+}
+
+.activity-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.activity-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #0A5C38;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.live-stream-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #065F46;
+  background: #F0FDF4;
+  border: 1px solid #DCFCE7;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.activity-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.activity-sub {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.activity-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 320px;
+  max-width: 100%;
+}
+
+.activity-search-box svg {
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+.activity-search-input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #0F172A;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+}
+
+.activity-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.filter-tab-pill {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 140ms ease;
+}
+
+.filter-tab-pill:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.filter-tab-pill.active {
+  background: #0A5C38;
+  border-color: #0A5C38;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(10, 92, 56, 0.2);
+}
+
+.activity-feed-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-item-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 12px;
+  transition: all 140ms ease;
+}
+
+.activity-item-row:hover {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transform: translateX(2px);
+}
+
+.activity-icon-col {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.icon-pass     { background: #ECFDF5; }
+.icon-resident { background: #EFF6FF; }
+.icon-payment  { background: #FEF3C7; }
+.icon-danger   { background: #FEE2E2; }
+.icon-news     { background: #F5F3FF; }
+
+.activity-details-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.activity-title-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.activity-action-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.badge-resident  { background: #DBEAFE; color: #1D4ED8; }
+.badge-paid      { background: #FEF3C7; color: #B45309; }
+.badge-alert     { background: #FEE2E2; color: #DC2626; }
+.badge-broadcast { background: #EDE9FE; color: #6D28D9; }
+
+.activity-meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.activity-sub-text {
+  font-size: 12.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-time-text {
+  font-size: 11.5px;
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
+.activity-empty-state {
+  padding: 36px 20px;
+  text-align: center;
+  color: #94A3B8;
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+/* ── Broadcast Modal Audience Grid ── */
+.audience-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.audience-radio-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.audience-radio-card:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.audience-radio-card.is-selected {
+  background: #ECFDF5;
+  border-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.aud-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.aud-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.aud-info strong {
+  font-size: 12.5px;
+  color: #0F172A;
+  font-weight: 700;
+}
+
+.aud-info small {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* ── Generic UI / Modals ── */
 .estate-setup-banner {

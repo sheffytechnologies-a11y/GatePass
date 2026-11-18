@@ -1033,6 +1033,29 @@ class AdminController extends Controller
                 ->map(fn(Pass $p) => $this->formatPassAdmin($p)),
             'recentEmergencies' => $recentEmergencyQuery->limit(5)->get()
                 ->map(fn(Emergency $e) => $this->formatEmergency($e)),
+            'recentResidents' => (clone $residentQuery)->with(['user', 'unit'])->latest()->limit(5)->get()
+                ->map(fn($r) => [
+                    'id' => $r->id,
+                    'name' => $r->user?->name ?? 'Resident',
+                    'unit' => $r->unit?->flat_number ?? $r->unit?->unit_number ?? '—',
+                    'role' => $r->role ?? 'Resident',
+                    'createdAt' => $r->created_at?->toIso8601String(),
+                ]),
+            'recentPayments' => $feeIds->isNotEmpty() ? DB::table('fee_user')
+                ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                ->join('users', 'users.id', '=', 'fee_user.user_id')
+                ->whereIn('fees.id', $feeIds)
+                ->where('fee_user.payment_status', 'paid')
+                ->select(
+                    'fee_user.id',
+                    'fees.name as feeName',
+                    'fees.amount',
+                    'users.name as residentName',
+                    'fee_user.updated_at as paidAt'
+                )
+                ->latest('fee_user.updated_at')
+                ->limit(5)
+                ->get() : [],
         ]);
     }
 
