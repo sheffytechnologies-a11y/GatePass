@@ -1,6 +1,6 @@
 <!-- src/components/ImageCropperModal.vue -->
 <template>
-  <ion-modal :is-open="isOpen" class="cropper-modal" @didDismiss="handleCancel">
+  <ion-modal :is-open="isOpen" class="cropper-modal" @didPresent="onModalPresented" @didDismiss="handleCancel">
     <div class="cropper-shell">
       <!-- Header -->
       <div class="cropper-header">
@@ -179,13 +179,22 @@ watch(
   }
 )
 
+function onModalPresented() {
+  initStage()
+  if (props.imageSrc) {
+    loadImage(props.imageSrc)
+  }
+}
+
 function initStage() {
   if (!stageRef.value || !displayCanvasRef.value) return
   const rect = stageRef.value.getBoundingClientRect()
+  const w = rect.width > 50 ? rect.width : (stageRef.value.clientWidth > 50 ? stageRef.value.clientWidth : 320)
+  const h = rect.height > 50 ? rect.height : (stageRef.value.clientHeight > 50 ? stageRef.value.clientHeight : 320)
   const canvas = displayCanvasRef.value
-  canvas.width = rect.width
-  canvas.height = rect.height
-  cropBoxSize.value = Math.min(rect.width - 40, rect.height - 40, 280)
+  canvas.width = w
+  canvas.height = h
+  cropBoxSize.value = Math.max(160, Math.min(w - 40, h - 40, 280))
 }
 
 function resetTransforms() {

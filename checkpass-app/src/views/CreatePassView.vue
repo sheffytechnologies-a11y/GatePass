@@ -124,7 +124,7 @@
                   <button type="button" class="photo-remove-btn" @click="clearPhoto" title="Remove photo">&times;</button>
                 </div>
               </div>
-              <div v-else class="photo-upload-trigger" @click="handleTriggerClick">
+              <label v-else class="photo-upload-trigger" for="visitor-photo-input">
                 <input
                   id="visitor-photo-input"
                   ref="fileInputRef"
@@ -141,7 +141,7 @@
                   </svg>
                   <span>Upload or take visitor photo</span>
                 </div>
-              </div>
+              </label>
             </div>
           </div>
 
@@ -246,12 +246,6 @@ const validationError = computed(() => {
 const showCropper   = ref(false)
 const rawPhotoSrc   = ref('')
 const fileInputRef  = ref<HTMLInputElement | null>(null)
-
-function handleTriggerClick(e: MouseEvent) {
-  if (e.target !== fileInputRef.value && fileInputRef.value) {
-    fileInputRef.value.click()
-  }
-}
 
 function handlePhotoUpload(e: Event) {
   const target = e.target as HTMLInputElement

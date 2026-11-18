@@ -336,6 +336,45 @@ class PassController extends Controller
     }
 
     /**
+     * PATCH /api/v1/passes/{ulid}/decline-entry
+     */
+    public function declineEntry(Request $request, string $ulid)
+    {
+        $user = $request->user();
+
+        if ($user->type !== 'security') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'FORBIDDEN',
+                'message' => 'Only security users can decline entry.',
+            ], 403);
+        }
+
+        $pass = Pass::where('ulid', $ulid)
+            ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->first();
+
+        if (! $pass) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_FOUND',
+                'message' => 'Pass not found.',
+            ], 404);
+        }
+
+        $pass->update([
+            'status'      => 'Declined',
+            'verified_by' => $user->id,
+        ]);
+
+        $pass->load(['flaggedItems', 'resident.unit', 'resident.user']);
+
+        return response()->json([
+            'pass' => $this->formatPassForSecurity($pass),
+        ]);
+    }
+
+    /**
      * PATCH /api/v1/passes/{ulid}/mark-exited
      */
     public function markExited(Request $request, string $ulid)

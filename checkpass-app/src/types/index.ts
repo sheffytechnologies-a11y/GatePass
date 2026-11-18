@@ -56,14 +56,29 @@ export interface Resident {
 }
 
 export interface HomeSummary {
-  resident: Resident
+  userType?: string
+  user?: {
+    id?: number | string
+    name?: string
+    phone?: string
+    email?: string
+    estateName?: string
+    assignedStation?: string
+    dutyStatus?: string
+  }
+  resident?: Resident | null
   stats: {
     onPremises: number
     activePasses: number
     newToday: number
+    grantedToday?: number
+    declinedToday?: number
+    totalGranted?: number
   }
   recentPasses: Pass[]
   notifications: Notification[]
+  emergencies?: any[]
+  announcements?: any[]
 }
 
 export interface AccessPhrase {

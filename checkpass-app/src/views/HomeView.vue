@@ -16,54 +16,260 @@
 
         <!-- ── SECURITY VIEW ─────────────────────────────── -->
         <template v-if="auth.isSecurityUser">
-          <!-- Scan QR button -->
-          <button class="scan-qr-btn" @click="scannerOpen = true">
-            <span class="scan-icon">📷</span>
-            <div>
-              <div class="scan-btn-title">Scan QR Pass</div>
-              <div class="scan-btn-sub">Verify visitor at the gate</div>
+          <!-- Top Hero Card: Styled like EstateHero, displaying matrix of passes -->
+          <div class="security-hero-card">
+            <div class="sec-hero-top">
+              <div class="sec-hero-left">
+                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-station-title">{{ summary?.user?.assignedStation || 'Main Entrance Gate - Terminal 1' }}</div>
+              </div>
+              <div class="sec-duty-pill">
+                <span class="sec-duty-pulse"></span>
+                <span>On Duty</span>
+              </div>
             </div>
-          </button>
 
-          <button class="phrase-entry-btn" @click="phraseSheetOpen = true">
-            <span class="scan-icon">🗣️</span>
-            <div>
-              <div class="phrase-entry-title">Visitor Without Phone</div>
-              <div class="phrase-entry-sub">Verify the unit's daily access phrase</div>
-            </div>
-          </button>
-
-          <div class="security-stats">
-            <div class="stat-card">
-              <div class="stat-value">{{ summary.stats.onPremises }}</div>
-              <div class="stat-label">On-site</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">{{ summary.stats.activePasses }}</div>
-              <div class="stat-label">Active</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">{{ summary.stats.newToday }}</div>
-              <div class="stat-label">Today</div>
+            <!-- Matrix of Passes: Admitted Today | On-Site Now | Declined Access -->
+            <div class="sec-matrix-strip">
+              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'all'">
+                <div class="sec-matrix-val">{{ summary?.stats?.grantedToday ?? 0 }}</div>
+                <div class="sec-matrix-lbl">Granted Today</div>
+              </button>
+              <div class="sec-matrix-vdivider"></div>
+              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'onsite'">
+                <div class="sec-matrix-val text-onsite">{{ summary?.stats?.onPremises ?? 0 }}</div>
+                <div class="sec-matrix-lbl">Currently On-Site</div>
+              </button>
+              <div class="sec-matrix-vdivider"></div>
+              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'declined'">
+                <div class="sec-matrix-val text-declined">{{ summary?.stats?.declinedToday ?? 0 }}</div>
+                <div class="sec-matrix-lbl">Declined Access</div>
+              </button>
             </div>
           </div>
 
-          <section class="section">
-            <div class="section-header">
-              <div class="section-title">Today's Passes</div>
+          <!-- Sticky Sub-Tabs Bar: Access | Announcements | Emergencies -->
+          <div class="sec-tabs-sticky-shell">
+            <div class="sec-tabs-container">
+              <button
+                type="button"
+                class="sec-tab-item"
+                :class="{ active: activeSecurityTab === 'access' }"
+                @click="activeSecurityTab = 'access'"
+              >
+                <span>Access</span>
+                <span class="sec-pill-count">{{ filteredSecurityPasses.length }}</span>
+              </button>
+              <button
+                type="button"
+                class="sec-tab-item"
+                :class="{ active: activeSecurityTab === 'announcements' }"
+                @click="activeSecurityTab = 'announcements'"
+              >
+                <span>Announcements</span>
+                <span v-if="securityAnnouncements.length > 0" class="sec-pill-count">{{ securityAnnouncements.length }}</span>
+              </button>
+              <button
+                type="button"
+                class="sec-tab-item"
+                :class="{ active: activeSecurityTab === 'emergencies' }"
+                @click="activeSecurityTab = 'emergencies'"
+              >
+                <span>Emergencies</span>
+                <span v-if="securityEmergencies.length > 0" class="sec-pill-count sec-pill-count--red">{{ securityEmergencies.length }}</span>
+              </button>
             </div>
-            <div v-if="summary.recentPasses.length === 0">
-              <EmptyState icon="🎟️" heading="No passes today" body="No visitor passes have been created today." />
+          </div>
+
+          <!-- ── TAB 1: ACCESS CLEARANCES ── -->
+          <div v-if="activeSecurityTab === 'access'" class="sec-tab-content">
+            <!-- Filter Pills Row -->
+            <div class="sec-filter-chips">
+              <button
+                type="button"
+                class="sec-chip-btn"
+                :class="{ active: securityFilterTab === 'all' }"
+                @click="securityFilterTab = 'all'"
+              >
+                All Clearances
+              </button>
+              <button
+                type="button"
+                class="sec-chip-btn"
+                :class="{ active: securityFilterTab === 'onsite' }"
+                @click="securityFilterTab = 'onsite'"
+              >
+                On-Site ({{ onsiteCount }})
+              </button>
+              <button
+                type="button"
+                class="sec-chip-btn"
+                :class="{ active: securityFilterTab === 'exited' }"
+                @click="securityFilterTab = 'exited'"
+              >
+                Exited ({{ exitedCount }})
+              </button>
+              <button
+                type="button"
+                class="sec-chip-btn"
+                :class="{ active: securityFilterTab === 'declined' }"
+                @click="securityFilterTab = 'declined'"
+              >
+                Declined ({{ declinedCount }})
+              </button>
             </div>
-            <div v-else class="pass-list">
-              <PassCard
-                v-for="pass in summary.recentPasses"
-                :key="pass.id"
-                :pass="pass"
-                @click="router.push(`/pass/${pass.id}`)"
+
+            <!-- Search Bar -->
+            <div class="sec-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                v-model="securitySearchQuery"
+                type="text"
+                placeholder="Search visitor, car plate, resident, phone..."
+                class="sec-search-input"
               />
+              <button
+                v-if="securitySearchQuery"
+                type="button"
+                class="sec-search-clear"
+                @click="securitySearchQuery = ''"
+              >✕</button>
             </div>
-          </section>
+
+            <!-- Clearance Passes Cards -->
+            <div v-if="filteredSecurityPasses.length === 0" class="sec-empty-box">
+              <div class="sec-empty-icon">🛡️</div>
+              <h3 class="sec-empty-title">No Clearances Found</h3>
+              <p class="sec-empty-desc">
+                {{ securitySearchQuery ? 'No visitors match your search filter.' : 'Only visitors you grant or decline access to will appear here.' }}
+              </p>
+            </div>
+
+            <div v-else class="sec-passes-stream">
+              <div
+                v-for="pass in filteredSecurityPasses"
+                :key="pass.id"
+                class="sec-pass-card"
+                @click="router.push(`/pass/${pass.id}`)"
+              >
+                <!-- Card Header: Avatar, Name, Status Badge -->
+                <div class="sec-card-header">
+                  <div class="sec-visitor-info">
+                    <div class="sec-visitor-avatar" :style="{ background: avatarColor(pass.visitorName) }">
+                      {{ initials(pass.visitorName) }}
+                    </div>
+                    <div>
+                      <div class="sec-visitor-name">{{ pass.visitorName }}</div>
+                      <div class="sec-visitor-sub">
+                        <a v-if="pass.visitorPhone" :href="'tel:' + pass.visitorPhone" class="sec-phone-link" @click.stop>
+                          {{ pass.visitorPhone }}
+                        </a>
+                        <span v-if="pass.visitorPhone" class="sec-dot">•</span>
+                        <span>{{ pass.purpose || 'Visitor Access' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Status Pill -->
+                  <div class="sec-card-status">
+                    <span
+                      class="sec-status-pill"
+                      :class="{
+                        'pill-onsite': pass.status === 'On-site',
+                        'pill-exited': pass.status === 'Exited',
+                        'pill-declined': pass.status === 'Declined'
+                      }"
+                    >
+                      <span class="status-micro-dot"></span>
+                      {{ pass.status }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card Body: Host Resident, Unit, Vehicle Plate -->
+                <div class="sec-card-details">
+                  <div class="sec-meta-row">
+                    <span class="sec-meta-lbl">Host:</span>
+                    <span class="sec-meta-val font-semibold">{{ pass.hostName || 'Resident' }}</span>
+                    <span class="sec-dot">•</span>
+                    <span class="sec-meta-val">{{ pass.hostUnit || 'Residential Unit' }}</span>
+                  </div>
+
+                  <div class="sec-meta-row sec-meta-bottom">
+                    <span class="sec-plate-badge" :class="pass.vehiclePlate && pass.vehiclePlate.toLowerCase() !== 'pedestrian' ? 'badge-plate' : 'badge-walk'">
+                      {{ pass.vehiclePlate || 'Pedestrian' }}
+                    </span>
+                    <span class="sec-time-stamp">
+                      {{ pass.arrivedAt ? formatPassTime(pass.arrivedAt) : 'Logged today' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 2: ANNOUNCEMENTS ── -->
+          <div v-else-if="activeSecurityTab === 'announcements'" class="sec-tab-content">
+            <div v-if="securityAnnouncements.length === 0" class="sec-empty-box">
+              <div class="sec-empty-icon">📢</div>
+              <h3 class="sec-empty-title">No Estate Announcements</h3>
+              <p class="sec-empty-desc">New security bulletins and broadcasts from estate management will appear here.</p>
+            </div>
+
+            <div v-else class="sec-news-stream">
+              <div
+                v-for="item in securityAnnouncements"
+                :key="item.id"
+                class="sec-news-card"
+              >
+                <div class="sec-news-top">
+                  <span class="sec-news-cat">{{ item.category || 'Security Bulletin' }}</span>
+                  <span class="sec-news-date">{{ formatPassTime(item.createdAt) }}</span>
+                </div>
+                <h4 class="sec-news-title">{{ item.title }}</h4>
+                <p class="sec-news-text">{{ item.content }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 3: EMERGENCIES ── -->
+          <div v-else-if="activeSecurityTab === 'emergencies'" class="sec-tab-content">
+            <div v-if="securityEmergencies.length === 0" class="sec-empty-box">
+              <div class="sec-empty-icon">🛡️</div>
+              <h3 class="sec-empty-title">No Active Emergencies</h3>
+              <p class="sec-empty-desc">Perimeter is secure. Panic signals and emergency alerts from residents will appear here.</p>
+            </div>
+
+            <div v-else class="sec-emergency-stream">
+              <div
+                v-for="em in securityEmergencies"
+                :key="em.id"
+                class="sec-emergency-card"
+              >
+                <div class="sec-em-head">
+                  <div class="sec-em-badge">
+                    <span class="sec-em-dot"></span>
+                    <span>{{ (em.type || 'EMERGENCY').toUpperCase() }}</span>
+                  </div>
+                  <span class="sec-em-time">{{ formatPassTime(em.createdAt) }}</span>
+                </div>
+
+                <div class="sec-em-body">
+                  <div class="sec-em-resident">{{ em.residentName }}</div>
+                  <div class="sec-em-unit">{{ em.flatAddress }}</div>
+                </div>
+
+                <div v-if="em.phone" class="sec-em-footer">
+                  <a :href="'tel:' + em.phone" class="sec-em-call-btn">
+                    📞 Call Resident
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
 
         <!-- ── RESIDENT VIEW ─────────────────────────────── -->
@@ -792,7 +998,6 @@ import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
 import { usePassesStore } from '@/stores/passes'
 import EstateHero from '@/components/EstateHero.vue'
-import PassCard from '@/components/PassCard.vue'
 import NotifBell from '@/components/NotifBell.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
@@ -846,6 +1051,73 @@ const { showToast } = useToast()
 
 const scannerOpen = ref(false)
 const phraseSheetOpen = ref(false)
+
+// ── Security Role State & Computeds ──
+const activeSecurityTab   = ref<'access' | 'announcements' | 'emergencies'>('access')
+const securityFilterTab   = ref<'all' | 'onsite' | 'exited' | 'declined'>('all')
+const securitySearchQuery = ref('')
+
+const securityPasses = computed(() => {
+  return (summary.value?.recentPasses || []) as any[]
+})
+
+const onsiteCount = computed(() => {
+  return securityPasses.value.filter(p => p.status === 'On-site').length
+})
+
+const exitedCount = computed(() => {
+  return securityPasses.value.filter(p => p.status === 'Exited').length
+})
+
+const declinedCount = computed(() => {
+  return securityPasses.value.filter(p => p.status === 'Declined').length
+})
+
+const filteredSecurityPasses = computed(() => {
+  let list = securityPasses.value
+
+  // Tab filter
+  if (securityFilterTab.value === 'onsite') {
+    list = list.filter(p => p.status === 'On-site')
+  } else if (securityFilterTab.value === 'exited') {
+    list = list.filter(p => p.status === 'Exited')
+  } else if (securityFilterTab.value === 'declined') {
+    list = list.filter(p => p.status === 'Declined')
+  }
+
+  // Search filter
+  const q = securitySearchQuery.value.trim().toLowerCase()
+  if (!q) return list
+
+  return list.filter(p => {
+    return (
+      (p.visitorName && p.visitorName.toLowerCase().includes(q)) ||
+      (p.visitorPhone && p.visitorPhone.includes(q)) ||
+      (p.vehiclePlate && p.vehiclePlate.toLowerCase().includes(q)) ||
+      (p.purpose && p.purpose.toLowerCase().includes(q)) ||
+      (p.hostName && p.hostName.toLowerCase().includes(q)) ||
+      (p.hostUnit && p.hostUnit.toLowerCase().includes(q))
+    )
+  })
+})
+
+const securityAnnouncements = computed(() => {
+  return (summary.value as any)?.announcements || []
+})
+
+const securityEmergencies = computed(() => {
+  return (summary.value as any)?.emergencies || []
+})
+
+function formatPassTime(dateStr?: string) {
+  if (!dateStr) return ''
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+  } catch {
+    return dateStr
+  }
+}
 
 function onPhraseAdmitted(passId: string) {
   phraseSheetOpen.value = false
@@ -1271,6 +1543,10 @@ const displayedBuyItems = computed(() => {
 })
 
 const firstName = computed(() => {
+  if (auth.isSecurityUser) {
+    const secName = (summary.value as any)?.user?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || 'Officer'
+    return secName.trim().split(' ')[0]
+  }
   const name = auth.resident?.name || summary.value?.resident?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || ''
   const trimmed = name.trim()
   return trimmed ? trimmed.split(' ')[0] : 'Resident'
@@ -3354,29 +3630,565 @@ onMounted(() => {
   line-height: 1.45;
 }
 .sk-hero { height: 140px; border-radius: var(--w-radius-xl); display: block; }
-.security-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.stat-card { background: var(--w-surface); border-radius: var(--w-radius-md); padding: 16px 12px; text-align: center; }
-.stat-value { font-size: 28px; font-weight: 800; color: var(--w-primary); }
-.stat-label { font-size: 12px; color: var(--w-muted); font-weight: 600; margin-top: 4px; }
-.scan-qr-btn {
-  display: flex; align-items: center; gap: 14px;
-  width: 100%; padding: 18px 20px;
-  background: var(--w-primary); border: none; border-radius: var(--w-radius-lg);
-  cursor: pointer; text-align: left; transition: opacity 0.15s;
+/* ─── SECURITY HERO CARD & MATRIX ─── */
+.security-hero-card {
+  background: var(--w-primary, #0A5C38);
+  border-radius: var(--w-radius-xl, 20px);
+  padding: 20px;
+  color: white;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 14px rgba(10, 92, 56, 0.25);
 }
-.scan-qr-btn:active { opacity: 0.85; }
-.scan-icon { font-size: 30px; flex-shrink: 0; }
-.scan-btn-title { font-size: 16px; font-weight: 700; color: #fff; }
-.scan-btn-sub   { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
-.phrase-entry-btn {
-  display: flex; align-items: center; gap: 14px;
-  width: 100%; padding: 16px 20px; margin-top: 10px;
-  background: var(--w-surface); border: 2px solid var(--w-primary); border-radius: var(--w-radius-lg);
-  cursor: pointer; text-align: left; transition: opacity 0.15s;
+
+.sec-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }
-.phrase-entry-btn:active { opacity: 0.85; }
-.phrase-entry-title { font-size: 16px; font-weight: 700; color: var(--w-primary); }
-.phrase-entry-sub   { font-size: 13px; color: var(--w-muted); margin-top: 2px; }
+
+.sec-estate-eyebrow {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.sec-station-title {
+  font-family: var(--w-font-display, inherit);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.sec-duty-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: rgba(0, 201, 122, 0.2);
+  color: #00E68C;
+  border: 1px solid rgba(0, 230, 140, 0.3);
+}
+
+.sec-duty-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00E68C;
+  box-shadow: 0 0 0 0 rgba(0, 230, 140, 0.7);
+  animation: secPulseGreen 1.8s infinite;
+}
+
+@keyframes secPulseGreen {
+  0% { box-shadow: 0 0 0 0 rgba(0, 230, 140, 0.7); }
+  70% { box-shadow: 0 0 0 5px rgba(0, 230, 140, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 230, 140, 0); }
+}
+
+.sec-matrix-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sec-matrix-box {
+  flex: 1;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.sec-matrix-box:active {
+  transform: scale(0.95);
+}
+
+.sec-matrix-val {
+  font-family: var(--w-font-display, inherit);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.sec-matrix-lbl {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.sec-matrix-vdivider {
+  width: 1px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.text-onsite {
+  color: #6EE7B7 !important;
+}
+
+.text-declined {
+  color: #FCA5A5 !important;
+}
+
+/* ─── SECURITY STICKY TABS (ACCESS | ANNOUNCEMENTS | EMERGENCIES) ─── */
+.sec-tabs-sticky-shell {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--w-bg);
+  padding: 8px 0 12px;
+  margin: 0 -4px;
+}
+
+.sec-tabs-container {
+  display: flex;
+  background: #E5E7EB;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.sec-tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #4B5563;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sec-tab-item.active {
+  background: #FFFFFF;
+  color: #0A5C38;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.sec-pill-count {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
+}
+
+.sec-pill-count--red {
+  background: #FEE2E2 !important;
+  color: #DC2626 !important;
+}
+
+/* ─── SECURITY TAB CONTENTS ─── */
+.sec-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sec-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sec-filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.sec-chip-btn {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  color: #4B5563;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sec-chip-btn.active {
+  background: #0A5C38;
+  color: #FFFFFF;
+  border-color: #0A5C38;
+}
+
+.sec-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sec-search-wrap svg {
+  position: absolute;
+  left: 14px;
+  pointer-events: none;
+}
+
+.sec-search-input {
+  width: 100%;
+  padding: 10px 36px 10px 38px;
+  font-size: 13px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  outline: none;
+}
+
+.sec-search-input:focus {
+  border-color: #0A5C38;
+  box-shadow: 0 0 0 3px rgba(10, 92, 56, 0.12);
+}
+
+.sec-search-clear {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sec-empty-box {
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 1px solid #E5E7EB;
+  padding: 36px 20px;
+  text-align: center;
+}
+
+.sec-empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.sec-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.sec-empty-desc {
+  font-size: 12.5px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* ── Clearance Passes Stream ── */
+.sec-passes-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sec-pass-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 1px solid #E5E7EB;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.sec-pass-card:active {
+  transform: scale(0.985);
+}
+
+.sec-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sec-visitor-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sec-visitor-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sec-visitor-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sec-visitor-sub {
+  font-size: 11.5px;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sec-phone-link {
+  color: #0A5C38;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sec-dot {
+  color: #D1D5DB;
+}
+
+.sec-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.pill-onsite {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.pill-exited {
+  background: #F3F4F6;
+  color: #6B7280;
+  border: 1px solid #E5E7EB;
+}
+
+.pill-declined {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.status-micro-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sec-card-details {
+  border-top: 1px solid #F3F4F6;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sec-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #4B5563;
+}
+
+.sec-meta-lbl {
+  color: #9CA3AF;
+  font-size: 11px;
+}
+
+.sec-meta-val {
+  color: #1F2937;
+}
+
+.sec-meta-bottom {
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.sec-plate-badge {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge-plate {
+  background: #F3F4F6;
+  color: #111827;
+  border: 1px solid #D1D5DB;
+}
+
+.badge-walk {
+  background: #F9FAFB;
+  color: #6B7280;
+  border: 1px solid #E5E7EB;
+}
+
+.sec-time-stamp {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+/* ── Announcements Stream ── */
+.sec-news-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sec-news-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  border: 1px solid #E5E7EB;
+  padding: 16px;
+}
+
+.sec-news-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.sec-news-cat {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #ECFDF5;
+  color: #0A5C38;
+}
+
+.sec-news-date {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+.sec-news-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.sec-news-text {
+  font-size: 13px;
+  color: #4B5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Emergencies Stream ── */
+.sec-emergency-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sec-emergency-card {
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.sec-em-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sec-em-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #E11D48;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
+.sec-em-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.sec-em-time {
+  font-size: 11px;
+  color: #9F1239;
+  font-weight: 600;
+}
+
+.sec-em-body {
+  margin-bottom: 12px;
+}
+
+.sec-em-resident {
+  font-size: 15px;
+  font-weight: 800;
+  color: #881337;
+}
+
+.sec-em-unit {
+  font-size: 12.5px;
+  color: #9F1239;
+  margin-top: 2px;
+}
+
+.sec-em-call-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #E11D48;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 8px;
+}
 .notif-list { background: var(--w-surface); border-radius: var(--w-radius-md); overflow: hidden; }
 .notif-row {
   display: flex; align-items: center; gap: 12px; padding: 14px 16px;

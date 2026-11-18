@@ -85,6 +85,13 @@ router.beforeEach((to) => {
 
   // If already logged in: NEVER show onboarding, login, forgot-password, or splash screens
   if (token) {
+    const userType = localStorage.getItem('w_user_type')
+    if (userType === 'security') {
+      // Security users cannot invite visitors or view resident dues
+      if (to.path.includes('/create') || to.path.includes('/fees')) {
+        return '/tabs/home'
+      }
+    }
     if (to.path === '/login' || to.path === '/onboarding' || to.path === '/splash' || to.path === '/' || to.path === '/forgot-password') {
       return '/tabs/home'
     }

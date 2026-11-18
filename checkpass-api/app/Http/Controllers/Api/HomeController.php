@@ -18,35 +18,101 @@ class HomeController extends Controller
         $user = $request->user();
 
         if ($user->type === 'security') {
-            return $this->securitySummary();
+            return $this->securitySummary($user);
         }
 
         return $this->residentSummary($user);
     }
 
-    private function securitySummary()
+    private function securitySummary(User $user)
     {
-        $todayPasses = Pass::where(function ($q) {
-                $q->whereDate('created_at', today())
-                  ->orWhere('status', 'On-site');
+        // For security: "they cannot see pending visitor. only people they granted acces and declined."
+        $passesQuery = Pass::with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->where(function ($q) use ($user) {
+                $q->where('verified_by', $user->id);
+                if ($user->estate_id) {
+                    $q->orWhere('estate_id', $user->estate_id);
+                }
             })
-            ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+            ->whereIn('status', ['On-site', 'Exited', 'Declined']);
+
+        $passes = $passesQuery->latest('arrived_at')
+            ->latest('updated_at')
+            ->get();
+
+        $grantedToday = $passes->filter(function ($p) {
+            return $p->arrived_at && $p->arrived_at->isToday() && in_array($p->status, ['On-site', 'Exited']);
+        })->count();
+
+        $onPremises = $passes->filter(fn($p) => $p->status === 'On-site')->count();
+
+        $declinedToday = $passes->filter(function ($p) {
+            return $p->status === 'Declined' && $p->updated_at && $p->updated_at->isToday();
+        })->count();
+
+        $totalGranted = $passes->filter(fn($p) => in_array($p->status, ['On-site', 'Exited']))->count();
+
+        $estate = $user->estate;
+        $estateName = $estate?->name ?? 'Sheffy Estate';
+
+        // Emergencies for the emergencies tab
+        $emergencies = \App\Models\Emergency::where(function ($q) use ($user) {
+                if ($user->estate_id) {
+                    $q->where('estate_id', $user->estate_id);
+                }
+            })
+            ->with(['resident.user', 'resident.unit'])
             ->latest()
-            ->get()
-            ->sortByDesc(fn($p) => match ($p->status) {
-                'On-site' => 3, 'Pending' => 2, default => 1
+            ->limit(15)
+            ->get();
+
+        // Announcements for the announcements tab
+        $announcements = \App\Models\News::where(function ($q) use ($user) {
+                if ($user->estate_id) {
+                    $q->where('estate_id', $user->estate_id);
+                }
             })
-            ->values();
+            ->latest()
+            ->limit(15)
+            ->get();
 
         return response()->json([
             'userType' => 'security',
-            'resident' => null,
-            'stats' => [
-                'onPremises'   => Pass::where('status', 'On-site')->count(),
-                'activePasses' => Pass::whereIn('status', ['Pending', 'On-site'])->count(),
-                'newToday'     => Pass::whereDate('created_at', today())->count(),
+            'user'     => [
+                'id'              => $user->id,
+                'name'            => $user->name,
+                'phone'           => $user->phone,
+                'email'           => $user->email,
+                'estateName'      => $estateName,
+                'assignedStation' => 'Main Entrance Gate - Terminal 1',
+                'dutyStatus'      => $user->is_active ? 'On Duty' : 'Off Duty',
             ],
-            'recentPasses'  => $todayPasses->map(fn($pass) => $this->formatPassForSecurity($pass)),
+            'resident' => null,
+            'stats'    => [
+                'onPremises'    => $onPremises,
+                'grantedToday'  => $grantedToday,
+                'declinedToday' => $declinedToday,
+                'totalGranted'  => $totalGranted,
+                'activePasses'  => $onPremises,
+                'newToday'      => $grantedToday,
+            ],
+            'recentPasses'  => $passes->map(fn($pass) => $this->formatPassForSecurity($pass))->values(),
+            'emergencies'   => $emergencies->map(fn($e) => [
+                'id'           => $e->id,
+                'type'         => $e->type,
+                'status'       => $e->status,
+                'residentName' => $e->resident?->user?->name ?? 'Estate Resident',
+                'phone'        => $e->resident?->user?->phone ?? '',
+                'flatAddress'  => $e->resident?->unit?->flat_address ?? 'Residential Zone',
+                'createdAt'    => $e->created_at?->toIso8601String(),
+            ]),
+            'announcements' => $announcements->map(fn($a) => [
+                'id'        => $a->id,
+                'title'     => $a->title,
+                'content'   => $a->content,
+                'category'  => $a->category ?? 'General',
+                'createdAt' => $a->created_at?->toIso8601String(),
+            ]),
             'notifications' => [],
         ]);
     }

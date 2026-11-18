@@ -142,6 +142,7 @@ Route::prefix('v1')->group(function () {
             Route::get('{ulid}',          [PassController::class, 'show']);
             Route::patch('{ulid}/revoke', [PassController::class, 'revoke']);
             Route::patch('{ulid}/allow-entry', [PassController::class, 'allowEntry']);
+            Route::patch('{ulid}/decline-entry', [PassController::class, 'declineEntry']);
             Route::patch('{ulid}/mark-exited', [PassController::class, 'markExited']);
             Route::patch('{ulid}/extend', [PassController::class, 'extend']);
             Route::post('{ulid}/flag-item', [PassController::class, 'flagItem']);

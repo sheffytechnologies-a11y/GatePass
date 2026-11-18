@@ -27,6 +27,9 @@ export const passesApi = {
   allowEntry: (id: string) =>
     client.patch(`/v1/passes/${id}/allow-entry`),
 
+  declineEntry: (id: string) =>
+    client.patch(`/v1/passes/${id}/decline-entry`),
+
   markExited: (id: string) =>
     client.patch(`/v1/passes/${id}/mark-exited`),
 

@@ -6,83 +6,169 @@
         v-if="showTabBar"
         slot="bottom"
         class="custom-tab-bar"
+        :class="{ 'security-bar': auth.isSecurityUser }"
         :selected-tab="activeTab"
       >
 
-        <!-- 1. Home -->
-        <ion-tab-button
-          tab="home"
-          href="/tabs/home"
-          :class="{ 'is-active': activeTab === 'home' }"
-        >
-          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
-            <PhHouse :size="20" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
-            <span class="tab-label">Home</span>
-          </div>
-        </ion-tab-button>
+        <!-- SECURITY TABS: Home, Scan (Checkpass Logo FAB), Profile -->
+        <template v-if="auth.isSecurityUser">
+          <!-- 1. Home -->
+          <ion-tab-button
+            tab="home"
+            href="/tabs/home"
+            :class="{ 'is-active': activeTab === 'home' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
+              <PhHouse :size="20" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+              <span class="tab-label">Home</span>
+            </div>
+          </ion-tab-button>
 
-        <!-- 2. Fees / Dues -->
-        <ion-tab-button
-          tab="fees"
-          href="/tabs/fees"
-          :class="{ 'is-active': activeTab === 'fees' }"
-        >
-          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'fees' }">
-            <PhCreditCard :size="20" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
-            <span class="tab-label">Dues</span>
-          </div>
-        </ion-tab-button>
+          <!-- 2. Centre SCAN (Checkpass Logo) FAB Button -->
+          <ion-tab-button
+            tab="scan"
+            class="tab-create tab-scan"
+            aria-label="Scan Visitor QR Pass"
+            @click.stop.prevent="triggerSecurityScan"
+          >
+            <div class="create-fab scan-fab" title="Scan Visitor QR Pass">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="checkpass-fab-logo">
+                <rect x="3" y="3" width="7.5" height="7.5" rx="2" fill="#FFFFFF"/>
+                <rect x="13.5" y="3" width="7.5" height="7.5" rx="2" fill="#FFFFFF" fill-opacity="0.85"/>
+                <rect x="3" y="13.5" width="7.5" height="7.5" rx="2" fill="#FFFFFF" fill-opacity="0.85"/>
+                <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" fill="#FFFFFF"/>
+              </svg>
+            </div>
+          </ion-tab-button>
 
-        <!-- 3. Centre CREATE (+) FAB Button -->
-        <ion-tab-button
-          tab="create"
-          href="/tabs/create"
-          class="tab-create"
-          :class="{ 'is-active': activeTab === 'create' }"
-          aria-label="Create Pass"
-        >
-          <div class="create-fab">
-            <PhPlus :size="24" weight="bold" />
-          </div>
-        </ion-tab-button>
+          <!-- 3. Profile -->
+          <ion-tab-button
+            tab="profile"
+            href="/tabs/profile"
+            :class="{ 'is-active': activeTab === 'profile' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
+              <PhUser :size="20" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+              <span class="tab-label">Profile</span>
+            </div>
+          </ion-tab-button>
+        </template>
 
-        <!-- 4. SOS / Emergency -->
-        <ion-tab-button
-          tab="emergency"
-          href="/tabs/emergency"
-          :class="{ 'is-active': activeTab === 'emergency' }"
-        >
-          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'emergency' }">
-            <PhWarningCircle :size="20" :weight="activeTab === 'emergency' ? 'fill' : 'regular'" />
-            <span class="tab-label">Emergency</span>
-          </div>
-        </ion-tab-button>
+        <!-- RESIDENT TABS: Home, Dues, Create (+), Emergency, Profile -->
+        <template v-else>
+          <!-- 1. Home -->
+          <ion-tab-button
+            tab="home"
+            href="/tabs/home"
+            :class="{ 'is-active': activeTab === 'home' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
+              <PhHouse :size="20" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+              <span class="tab-label">Home</span>
+            </div>
+          </ion-tab-button>
 
-        <!-- 5. Profile -->
-        <ion-tab-button
-          tab="profile"
-          href="/tabs/profile"
-          :class="{ 'is-active': activeTab === 'profile' }"
-        >
-          <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
-            <PhUser :size="20" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
-            <span class="tab-label">Profile</span>
-          </div>
-        </ion-tab-button>
+          <!-- 2. Fees / Dues -->
+          <ion-tab-button
+            tab="fees"
+            href="/tabs/fees"
+            :class="{ 'is-active': activeTab === 'fees' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'fees' }">
+              <PhCreditCard :size="20" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
+              <span class="tab-label">Dues</span>
+            </div>
+          </ion-tab-button>
+
+          <!-- 3. Centre CREATE (+) FAB Button -->
+          <ion-tab-button
+            tab="create"
+            href="/tabs/create"
+            class="tab-create"
+            :class="{ 'is-active': activeTab === 'create' }"
+            aria-label="Create Pass"
+          >
+            <div class="create-fab">
+              <PhPlus :size="24" weight="bold" />
+            </div>
+          </ion-tab-button>
+
+          <!-- 4. SOS / Emergency -->
+          <ion-tab-button
+            tab="emergency"
+            href="/tabs/emergency"
+            :class="{ 'is-active': activeTab === 'emergency' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'emergency' }">
+              <PhWarningCircle :size="20" :weight="activeTab === 'emergency' ? 'fill' : 'regular'" />
+              <span class="tab-label">Emergency</span>
+            </div>
+          </ion-tab-button>
+
+          <!-- 5. Profile -->
+          <ion-tab-button
+            tab="profile"
+            href="/tabs/profile"
+            :class="{ 'is-active': activeTab === 'profile' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
+              <PhUser :size="20" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+              <span class="tab-label">Profile</span>
+            </div>
+          </ion-tab-button>
+        </template>
 
       </ion-tab-bar>
     </ion-tabs>
+
+    <!-- Global QR Scanner Modal for Security -->
+    <QRScannerModal
+      v-if="securityScannerOpen"
+      :is-open="true"
+      @close="securityScannerOpen = false"
+      @scanned="onSecurityScanned"
+    />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { IonPage, IonTabs, IonTabBar, IonTabButton, IonRouterOutlet } from '@ionic/vue'
 import { PhHouse, PhCreditCard, PhPlus, PhWarningCircle, PhUser } from '@phosphor-icons/vue'
+import { useAuthStore } from '@/stores/auth'
+import QRScannerModal from '@/components/QRScannerModal.vue'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
+const router = useRouter()
+const auth = useAuthStore()
+const { showToast } = useToast()
+
 const isModalOpen = ref(false)
+const securityScannerOpen = ref(false)
+
+function triggerSecurityScan() {
+  securityScannerOpen.value = true
+}
+
+function onSecurityScanned(value: string) {
+  securityScannerOpen.value = false
+  if (!value) return
+
+  // Value can be a ULID or a full URL like https://.../pass/01M...
+  let passId = value.trim()
+  if (passId.includes('/pass/')) {
+    passId = passId.split('/pass/')[1].split('?')[0].split('/')[0]
+  }
+
+  showToast('Pass scanned — opening verification...', 'info')
+  router.push(`/pass/${passId}`)
+}
+
+function handleOpenScannerEvent() {
+  securityScannerOpen.value = true
+}
 
 onMounted(() => {
   window.addEventListener('ionModalDidPresent', () => { isModalOpen.value = true })
@@ -91,6 +177,11 @@ onMounted(() => {
   window.addEventListener('ionAlertDidDismiss', () => { isModalOpen.value = false })
   window.addEventListener('ionActionSheetDidPresent', () => { isModalOpen.value = true })
   window.addEventListener('ionActionSheetDidDismiss', () => { isModalOpen.value = false })
+  window.addEventListener('open-gate-scanner', handleOpenScannerEvent)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('open-gate-scanner', handleOpenScannerEvent)
 })
 
 const showTabBar = computed(() => {
@@ -145,6 +236,21 @@ const activeTab = computed(() => {
   contain: none !important;
   overflow: visible !important;
   z-index: 999;
+}
+
+/* 3-tab security bar: slightly narrower, ultra-balanced */
+.custom-tab-bar.security-bar {
+  max-width: 310px !important;
+  padding: 0 10px;
+}
+
+.scan-fab {
+  background: var(--w-primary, #0A5C38) !important;
+  box-shadow: 0 4px 16px rgba(10, 92, 56, 0.42) !important;
+}
+
+.checkpass-fab-logo {
+  display: block;
 }
 
 ion-tab-button {

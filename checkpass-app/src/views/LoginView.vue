@@ -17,8 +17,41 @@
           
           <!-- Heading -->
           <div class="heading-block">
-            <h1>Log In</h1>
-            <p>Securely access visitor passes, gate alerts, and estate clearance.</p>
+            <h1>{{ activeRole === 'security' ? 'Gate Security Login' : 'Log In' }}</h1>
+            <p>{{ activeRole === 'security' ? 'Verify passes, monitor access clearances, and scan incoming visitors.' : 'Securely access visitor passes, gate alerts, and estate clearance.' }}</p>
+          </div>
+
+          <!-- Role Navigation Bar (Resident vs Security - inspired by web) -->
+          <div class="role-selector-wrap">
+            <div class="role-selector-tabs" role="tablist">
+              <button
+                type="button"
+                class="role-tab-btn"
+                :class="{ 'is-active': activeRole === 'resident' }"
+                @click="setRole('resident')"
+                role="tab"
+                :aria-selected="activeRole === 'resident'"
+              >
+                <svg width="17" height="17" viewBox="0 0 256 256" fill="currentColor" class="tab-role-icon">
+                  <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/>
+                </svg>
+                <span class="role-tab-label">Resident</span>
+              </button>
+
+              <button
+                type="button"
+                class="role-tab-btn"
+                :class="{ 'is-active': activeRole === 'security' }"
+                @click="setRole('security')"
+                role="tab"
+                :aria-selected="activeRole === 'security'"
+              >
+                <svg width="17" height="17" viewBox="0 0 256 256" fill="currentColor" class="tab-role-icon">
+                  <path d="M208,40H48A16,16,0,0,0,32,56v56c0,82.4,62.74,123.63,92.51,134.78a8.26,8.26,0,0,0,6.98,0C161.26,235.63,224,194.4,224,112V56A16,16,0,0,0,208,40Zm0,72c0,71.22-54.3,107.41-80,118.25C102.3,219.41,48,183.22,48,112V56H208Zm-34.34-29.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,132.69l50.34-50.35A8,8,0,0,1,173.66,82.34Z"/>
+                </svg>
+                <span class="role-tab-label">Security</span>
+              </button>
+            </div>
           </div>
 
           <!-- Banners for session expired or suspended -->
@@ -39,7 +72,7 @@
                 <input
                   v-model="loginIdentifier"
                   :type="isEmail ? 'email' : 'text'"
-                  placeholder="e.g. 0803 000 0000 or name@email.com"
+                  :placeholder="activeRole === 'security' ? 'e.g. 0814 394 8473 or security@estate.com' : 'e.g. 0803 000 0000 or name@email.com'"
                   autocomplete="username"
                   required
                 />
@@ -97,7 +130,7 @@
               class="login-submit-btn"
               :disabled="!canSubmit || loading"
             >
-              <span>Log In</span>
+              <span>{{ activeRole === 'security' ? 'Log In as Gate Security' : 'Log In' }}</span>
             </button>
 
             <!-- Section 1: Resident Guidance (No self-registration) -->
@@ -264,6 +297,7 @@ const route  = useRoute()
 const auth   = useAuthStore()
 const { showToast } = useToast()
 
+const activeRole      = ref<'resident' | 'security'>((route.query.role as any) === 'security' ? 'security' : 'resident')
 const loginIdentifier = ref('')
 const password        = ref('')
 const loading         = ref(false)
@@ -272,6 +306,11 @@ const showPassword    = ref(false)
 const fieldError      = ref({ login: '', password: '' })
 const legalModalOpen  = ref(false)
 const legalTab        = ref<'terms' | 'privacy'>('terms')
+
+function setRole(role: 'resident' | 'security') {
+  activeRole.value = role
+  authError.value = ''
+}
 
 function openLegalModal(tab: 'terms' | 'privacy') {
   legalTab.value = tab
@@ -312,7 +351,8 @@ async function handleLogin() {
       throw new Error('Invalid authentication response from server')
     }
     const { token, refreshToken, resident, userType, data: user } = res.data
-    auth.setSession({ token, refreshToken, resident, userType, user })
+    const effectiveType = userType || (user as any)?.type || activeRole.value
+    auth.setSession({ token, refreshToken, resident, userType: effectiveType, user })
 
     // Check if user logged in with default/initial password or requires password change
     const isDefaultPassword = password.value === '123456'
@@ -323,7 +363,11 @@ async function handleLogin() {
       showToast('Temporary password detected. Please set your new password.', 'warning')
       router.replace('/set-new-password')
     } else {
-      showToast('Welcome back!', 'success')
+      if (effectiveType === 'security') {
+        showToast('Logged in to Gate Security Portal', 'success')
+      } else {
+        showToast('Welcome back!', 'success')
+      }
       router.replace('/tabs/home')
     }
   } catch (e: any) {
@@ -442,6 +486,64 @@ async function showResidentAccessInfo() {
   color: #66756C;
   line-height: 1.45;
   margin: 0;
+}
+
+/* ─── ROLE SELECTOR TABS (RESIDENT / SECURITY) ─── */
+.role-selector-wrap {
+  margin-bottom: 22px;
+}
+
+.role-selector-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+}
+
+.role-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-tab-btn:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.6);
+  color: #1E293B;
+}
+
+.role-tab-btn.is-active {
+  background: #FFFFFF;
+  color: var(--w-primary, #0A5C38);
+  border-color: rgba(10, 92, 56, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tab-role-icon {
+  flex-shrink: 0;
+  color: #94A3B8;
+  transition: color 0.18s ease;
+}
+
+.role-tab-btn.is-active .tab-role-icon {
+  color: var(--w-primary, #0A5C38);
+}
+
+.role-tab-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-family: var(--w-font-display, inherit);
 }
 
 /* Banners */

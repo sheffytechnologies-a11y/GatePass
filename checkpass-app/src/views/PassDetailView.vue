@@ -59,7 +59,10 @@
           <!-- Security Gate Guard Actions (if applicable) -->
           <div v-if="canAllowEntry || canMarkExited" class="guard-actions-row">
             <button v-if="canAllowEntry" class="guard-btn guard-btn-allow" @click="handleAllowEntry">
-              <span>✅ Allow Entry</span>
+              <span>✅ Grant Access</span>
+            </button>
+            <button v-if="canAllowEntry" class="guard-btn guard-btn-decline" @click="handleDeclineEntry">
+              <span>❌ Decline</span>
             </button>
             <button v-if="canMarkExited" class="guard-btn guard-btn-exit" @click="handleMarkExited">
               <span>🚪 Mark Exited</span>
@@ -224,6 +227,17 @@ async function handleAllowEntry() {
     await load()
   } catch (err: any) {
     showToast(err.response?.data?.message || 'Failed to record entry.', 'error')
+  }
+}
+
+async function handleDeclineEntry() {
+  if (!pass.value) return
+  try {
+    await passesApi.declineEntry(pass.value.id)
+    showToast('Visitor access declined — entry denied', 'warning')
+    await load()
+  } catch (err: any) {
+    showToast(err.response?.data?.message || 'Failed to decline entry.', 'error')
   }
 }
 
@@ -473,6 +487,7 @@ onMounted(load)
 }
 .guard-btn:active { transform: scale(0.97); }
 .guard-btn-allow { background: rgba(0, 201, 122, 0.15); color: #065F46; }
+.guard-btn-decline { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
 .guard-btn-exit  { background: #EEF2FF; color: #4338CA; }
 
 /* Resident actions layout: Share on its own, Call & Revoke below */

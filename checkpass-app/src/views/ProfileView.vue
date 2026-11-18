@@ -443,11 +443,34 @@ const router = useRouter()
 const auth   = useAuthStore()
 const { showToast } = useToast()
 
-// ── BULLETPROOF RESIDENT PROFILE RESOLUTION (Never Blank) ──
+// ── BULLETPROOF RESIDENT / SECURITY PROFILE RESOLUTION (Never Blank) ──
 const effectiveResident = computed<Resident>(() => {
   const cachedUser = JSON.parse(localStorage.getItem('w_user') ?? 'null')
   const cachedResident = JSON.parse(localStorage.getItem('w_resident') ?? 'null')
   const homeSummary = JSON.parse(localStorage.getItem('cp_home_summary') ?? 'null')
+
+  if (auth.isSecurityUser) {
+    const secUser = homeSummary?.user || cachedUser || {}
+    const name = (secUser.name || 'Gate Security Officer').trim()
+    const flatAddress = (secUser.assignedStation || 'Main Entrance Gate · Terminal 1').trim()
+    const estateName = (secUser.estateName || 'Sheffy Estate').trim()
+    const phone = (secUser.phone || '').trim()
+
+    return {
+      id: String(secUser.id || 'sec-01'),
+      unitId: 'gate-01',
+      name,
+      phone,
+      flatAddress,
+      estateName,
+      lane: 'Main Gate',
+      house: 'Terminal 1',
+      flat: 'Security Post',
+      role: 'member',
+      pushEnabled: true,
+      isActive: true,
+    }
+  }
 
   const base = auth.resident || cachedResident || homeSummary?.resident || {}
 
@@ -554,7 +577,7 @@ function downloadImageBlob(blob: Blob, filename: string) {
 async function downloadResidentPass() {
   downloadingPass.value = true
   try {
-    showToast('Preparing download…', 'warning')
+    showToast('Preparing pass…', 'warning')
     const resObj = effectiveResident.value
 
     let passDataUrl = cachedPassDataUrl.value
@@ -575,10 +598,29 @@ async function downloadResidentPass() {
     const imageBlob = dataUrlToBlob(passDataUrl)
     const sanitizedName = (resObj.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
     const fileName = `checkpass-resident-pass-${sanitizedName}.png`
+    const imageFile = new File([imageBlob], fileName, { type: 'image/png' })
 
-    // Directly trigger download to user's device/files (no share sheet hijacking)
-    downloadImageBlob(imageBlob, fileName)
-    showToast('Resident pass downloaded to your device!', 'success')
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1)
+
+    // On iOS Safari, anchor download is blocked; native share sheet provides "Save to Files" & "Save Image"
+    if (isIOS && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+      try {
+        await navigator.share({
+          files: [imageFile],
+          title: 'Resident Gate Pass',
+          text: `${resObj.name} - Checkpass Resident Gate Pass`,
+        })
+        showToast('Resident pass saved!', 'success')
+      } catch (shareErr: any) {
+        if (shareErr?.name !== 'AbortError') {
+          downloadImageBlob(imageBlob, fileName)
+          showToast('Resident pass downloaded!', 'success')
+        }
+      }
+    } else {
+      downloadImageBlob(imageBlob, fileName)
+      showToast('Resident pass downloaded to your device!', 'success')
+    }
   } catch (err) {
     console.error('Error generating resident pass:', err)
     showToast('Failed to download resident pass.', 'error')

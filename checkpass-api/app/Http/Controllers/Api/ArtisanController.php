@@ -255,14 +255,6 @@ class ArtisanController extends Controller
         ]);
     }
 
-        $artisan->update($data);
-
-        return response()->json([
-            'message' => 'Artisan updated successfully.',
-            'artisan' => $this->formatArtisan($artisan->fresh()),
-        ]);
-    }
-
     /**
      * DELETE /api/v1/admin/artisans/{id}
      */
