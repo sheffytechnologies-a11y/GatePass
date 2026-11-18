@@ -198,40 +198,53 @@
               />
             </div>
 
-            <!-- 3-Dots Action Menu (View, Edit, Disable/Activate) -->
-            <div class="card-menu-wrap" @click.stop>
+            <!-- 3-Dots Action Menu Button (matching Property Cards) -->
+            <div class="card-more-wrapper" @click.stop>
               <button
                 type="button"
-                class="btn-kebab"
-                :class="{ active: openMenuId === user.id }"
-                title="Account options"
-                @click="toggleCardMenu(user.id)"
+                class="card-more-btn"
+                :class="{ 'is-active': activeCardMenuId === user.id }"
+                title="User options"
+                aria-label="User options"
+                @click.stop="toggleCardMenu(user.id)"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <circle cx="12" cy="5" r="2"/>
-                  <circle cx="12" cy="12" r="2"/>
-                  <circle cx="12" cy="19" r="2"/>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="5" r="2.2"/>
+                  <circle cx="12" cy="12" r="2.2"/>
+                  <circle cx="12" cy="19" r="2.2"/>
                 </svg>
               </button>
 
-              <div v-if="openMenuId === user.id" class="kebab-dropdown">
-                <button type="button" class="kebab-item" @click="handleMenuAction('view', user)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <!-- Dropdown Popover -->
+              <div v-if="activeCardMenuId === user.id" class="card-dropdown-popover" @click.stop>
+                <button type="button" class="dropdown-item" @click="handleMenuAction('view', user)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
                   <span>View Details</span>
                 </button>
-                <button type="button" class="kebab-item" @click="handleMenuAction('edit', user)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <button type="button" class="dropdown-item" @click="handleMenuAction('edit', user)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
                   <span>Edit Account</span>
                 </button>
-                <div class="kebab-divider"></div>
+                <div class="dropdown-divider"></div>
                 <button
                   type="button"
-                  class="kebab-item"
-                  :class="user.isActive ? 'text-amber' : 'text-emerald'"
+                  class="dropdown-item"
+                  :class="user.isActive ? 'dropdown-item--warning' : 'dropdown-item--success'"
                   @click="handleMenuAction('toggle-status', user)"
                 >
-                  <svg v-if="user.isActive" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg v-if="user.isActive" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                  </svg>
+                  <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
                   <span>{{ user.isActive ? 'Disable Account' : 'Activate Account' }}</span>
                 </button>
               </div>
@@ -481,14 +494,14 @@ const occupantFilter = ref('all')
 const statusFilter = ref('')
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const openMenuId = ref<number | null>(null)
+const activeCardMenuId = ref<number | null>(null)
 
 function toggleCardMenu(id: number) {
-  openMenuId.value = openMenuId.value === id ? null : id
+  activeCardMenuId.value = activeCardMenuId.value === id ? null : id
 }
 
 function closeCardMenu() {
-  openMenuId.value = null
+  activeCardMenuId.value = null
 }
 
 async function handleMenuAction(action: 'view' | 'edit' | 'toggle-status', user: any) {
@@ -1116,100 +1129,101 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-/* ── Card Kebab Dropdown Menu ──────────────────────── */
-.card-menu-wrap {
+/* ── 3-Dots Action Menu (matched with Property Cards) ── */
+.card-more-wrapper {
   position: relative;
+  display: inline-flex;
 }
 
-.btn-kebab {
+.card-more-btn {
+  background: transparent;
+  border: none;
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #9CA3AF;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #6B7280;
   cursor: pointer;
-  transition: all 140ms ease;
+  transition: all 0.15s ease;
 }
 
-.btn-kebab:hover, .btn-kebab.active {
+.card-more-btn:hover,
+.card-more-btn.is-active {
   background: #F3F4F6;
   color: #111827;
-  border-color: #E5E7EB;
 }
 
-.kebab-dropdown {
+.card-dropdown-popover {
   position: absolute;
   top: calc(100% + 4px);
   right: 0;
-  width: 172px;
+  width: 165px;
   background: #ffffff;
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.05);
   padding: 6px;
   z-index: 50;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  animation: dropIn 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: popoverFade 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes dropIn {
+@keyframes popoverFade {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-4px);
+    transform: translateY(-4px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-.kebab-item {
-  width: 100%;
+.dropdown-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #374151;
   font-size: 13px;
   font-weight: 500;
+  color: #374151;
+  border: none;
+  background: transparent;
   text-align: left;
   cursor: pointer;
-  transition: all 120ms ease;
+  transition: all 0.15s ease;
 }
 
-.kebab-item:hover {
+.dropdown-item:hover {
   background: #F3F4F6;
   color: #111827;
 }
 
-.kebab-item.text-amber {
+.dropdown-item--warning {
   color: #D97706;
 }
 
-.kebab-item.text-amber:hover {
+.dropdown-item--warning:hover {
   background: #FEF3C7;
   color: #B45309;
 }
 
-.kebab-item.text-emerald {
+.dropdown-item--success {
   color: #047857;
 }
 
-.kebab-item.text-emerald:hover {
+.dropdown-item--success:hover {
   background: #ECFDF5;
   color: #065F46;
 }
 
-.kebab-divider {
+.dropdown-divider {
   height: 1px;
   background: #F3F4F6;
   margin: 3px 0;
