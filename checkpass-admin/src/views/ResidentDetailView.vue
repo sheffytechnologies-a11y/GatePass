@@ -160,82 +160,82 @@
 
           <!-- Name & Core Meta -->
           <div class="profile-info">
-            <div class="profile-title-row">
-              <h1 class="profile-name">{{ resident.user?.name || 'Unnamed Resident' }}</h1>
-
-              <!-- Quick Profile Action Icons (Edit, Disable/Enable, Remove) with Hover Tooltip -->
-              <div class="profile-action-icons">
-                <button
-                  type="button"
-                  class="action-icon-btn btn-icon-edit"
-                  @click="openEditModal"
-                  title="Edit Resident"
-                  data-tooltip="Edit Resident"
-                  aria-label="Edit Resident"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 20h9"/>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                  </svg>
-                  <span class="custom-tooltip">Edit Resident</span>
-                </button>
-
-                <!-- Toggle Disable / Enable Account CTA -->
-                <button
-                  type="button"
-                  class="action-icon-btn"
-                  :class="resident.isActive ? 'btn-icon-disable' : 'btn-icon-enable'"
-                  :disabled="togglingStatus"
-                  @click="toggleAccountStatus"
-                  :title="resident.isActive ? 'Disable Account' : 'Activate Account'"
-                  :data-tooltip="resident.isActive ? 'Disable Account' : 'Activate Account'"
-                  :aria-label="resident.isActive ? 'Disable Account' : 'Activate Account'"
-                >
-                  <BrandSpinner v-if="togglingStatus" :size="13" color="currentColor" />
-                  <svg v-else-if="resident.isActive" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                  </svg>
-                  <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  <span class="custom-tooltip">{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
-                </button>
-
-                <!-- Remove Occupant from Unit CTA -->
-                <button
-                  type="button"
-                  class="action-icon-btn btn-icon-delete"
-                  @click="openDeleteConfirm"
-                  title="Remove"
-                  data-tooltip="Remove"
-                  aria-label="Remove"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    <line x1="10" y1="11" x2="10" y2="17"/>
-                    <line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
-                  <span class="custom-tooltip">Remove</span>
-                </button>
-              </div>
-
-              <!-- Badges (The Green) moved immediately after the icons -->
-              <div class="pill-group">
-                <span class="role-pill" :class="resident.role === 'owner' ? 'role-owner' : 'role-tenant'">
-                  {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
-                </span>
-                <span class="status-pill" :class="resident.isActive ? 'status-active' : 'status-disabled'">
-                  <span class="pill-dot"></span>
-                  {{ resident.isActive ? 'Active' : 'Disabled' }}
-                </span>
-              </div>
-            </div>
-
+            <h1 class="profile-name">{{ resident.user?.name || 'Unnamed Resident' }}</h1>
             <p class="joined-meta">
               Onboarded on {{ fmtDate(resident.createdAt) }}
             </p>
+          </div>
+        </div>
+
+        <!-- Hero Right Actions & Badges (Auto-layout right) -->
+        <div class="profile-hero-actions">
+          <!-- Quick Profile Action Icons (Edit, Disable/Enable, Remove) with Hover Tooltip -->
+          <div class="profile-action-icons">
+            <button
+              type="button"
+              class="action-icon-btn btn-icon-edit"
+              @click="openEditModal"
+              title="Edit Resident"
+              data-tooltip="Edit Resident"
+              aria-label="Edit Resident"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span class="custom-tooltip">Edit Resident</span>
+            </button>
+
+            <!-- Toggle Disable / Enable Account CTA -->
+            <button
+              type="button"
+              class="action-icon-btn"
+              :class="resident.isActive ? 'btn-icon-disable' : 'btn-icon-enable'"
+              :disabled="togglingStatus"
+              @click="toggleAccountStatus"
+              :title="resident.isActive ? 'Disable Account' : 'Activate Account'"
+              :data-tooltip="resident.isActive ? 'Disable Account' : 'Activate Account'"
+              :aria-label="resident.isActive ? 'Disable Account' : 'Activate Account'"
+            >
+              <BrandSpinner v-if="togglingStatus" :size="13" color="currentColor" />
+              <svg v-else-if="resident.isActive" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+              <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span class="custom-tooltip">{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
+            </button>
+
+            <!-- Remove Occupant from Unit CTA -->
+            <button
+              type="button"
+              class="action-icon-btn btn-icon-delete"
+              @click="openDeleteConfirm"
+              title="Remove"
+              data-tooltip="Remove"
+              aria-label="Remove"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
+              <span class="custom-tooltip">Remove</span>
+            </button>
+          </div>
+
+          <!-- Badges (The Green) immediately after the icons -->
+          <div class="pill-group">
+            <span class="role-pill" :class="resident.role === 'owner' ? 'role-owner' : 'role-tenant'">
+              {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
+            </span>
+            <span class="status-pill" :class="resident.isActive ? 'status-active' : 'status-disabled'">
+              <span class="pill-dot"></span>
+              {{ resident.isActive ? 'Active' : 'Disabled' }}
+            </span>
           </div>
         </div>
       </section>
@@ -1739,14 +1739,7 @@ onMounted(async () => {
 .profile-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.profile-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .profile-name {
@@ -1755,6 +1748,14 @@ onMounted(async () => {
   color: #111827;
   letter-spacing: -0.3px;
   margin: 0;
+}
+
+.profile-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .pill-group {
@@ -2578,6 +2579,9 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .hero-profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
     padding: 18px 20px;
   }
   .status-choice-group {
