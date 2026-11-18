@@ -1,8 +1,8 @@
 <template>
-  <div class="mobile-page">
+  <div class="mobile-page residents-page">
     <section class="hero-card hero-card--sand">
       <div class="hero-title-group">
-        <div class="hero-eyebrow">Resident Registry</div>
+        <div class="hero-eyebrow">RESIDENT REGISTRY</div>
         <h1 class="hero-title">Assign residents to estates and units from a mobile-first flow.</h1>
       </div>
       <button class="btn btn-primary hero-button" @click="openCreate">
@@ -16,7 +16,7 @@
       </button>
     </section>
 
-    <!-- Filter & Search Toolbar (consistent with Properties tab design) -->
+    <!-- Filter & Search Toolbar -->
     <div class="toolbar-card">
       <div class="search-box">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round">
@@ -59,16 +59,125 @@
       </div>
     </div>
 
+    <!-- Main Section Card -->
     <section class="card section-card">
       <div class="section-head">
         <div>
           <h2 class="section-title">Residents</h2>
           <p class="section-copy">{{ filteredResidents.length }} resident{{ filteredResidents.length === 1 ? '' : 's' }} loaded.</p>
         </div>
+
+        <!-- View Mode Switcher: Cards Grid vs Compact List -->
+        <div class="view-mode-toggle">
+          <button
+            type="button"
+            class="btn-view-toggle"
+            :class="{ active: viewMode === 'grid' }"
+            title="Card Grid View"
+            @click="viewMode = 'grid'"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>Cards</span>
+          </button>
+          <button
+            type="button"
+            class="btn-view-toggle"
+            :class="{ active: viewMode === 'list' }"
+            title="Compact List View"
+            @click="viewMode = 'list'"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"/>
+              <line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/>
+              <line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            <span>List</span>
+          </button>
+        </div>
       </div>
 
       <div v-if="loading" class="loading-state"><BrandSpinner :size="40" color="var(--c-primary)" /></div>
       <div v-else-if="filteredResidents.length === 0" class="empty-state">No residents found.</div>
+
+      <!-- CARDS GRID VIEW (Default, 3-column side-by-side) -->
+      <div v-else-if="viewMode === 'grid'" class="residents-grid">
+        <article
+          v-for="resident in filteredResidents"
+          :key="resident.id"
+          class="resident-grid-card"
+          tabindex="0"
+          role="button"
+          :aria-label="'View ' + (resident.user?.name ?? 'resident') + ' details'"
+          @click="goToDetail(resident.id)"
+          @keydown.enter="goToDetail(resident.id)"
+        >
+          <!-- Card Top: Avatar, Role Pill, Status Pill -->
+          <div class="grid-card-head">
+            <div class="avatar-box">
+              <div
+                v-if="resident.user?.avatar"
+                class="avatar-photo"
+                :style="{ backgroundImage: `url(${resident.user.avatar})` }"
+              />
+              <div v-else class="avatar-initials">
+                {{ initials(resident.user?.name) }}
+              </div>
+              <span
+                class="status-dot"
+                :class="resident.isActive ? 'dot-active' : 'dot-inactive'"
+                :title="resident.isActive ? 'Active' : 'Inactive'"
+              />
+            </div>
+
+            <div class="grid-card-badges">
+              <span :class="resident.role === 'owner' ? 'badge-role badge-role--owner' : 'badge-role badge-role--tenant'">
+                {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
+              </span>
+              <span class="status-pill" :class="resident.isActive ? 'status-active' : 'status-disabled'">
+                <span class="pill-dot"></span>
+                {{ resident.isActive ? 'Active' : 'Disabled' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Middle: Resident Name & Assigned Property Unit Box -->
+          <div class="grid-card-body">
+            <h3 class="grid-card-name" :title="resident.user?.name">{{ resident.user?.name ?? '—' }}</h3>
+
+            <div class="grid-unit-box">
+              <span class="grid-unit-label">ASSIGNED PROPERTY</span>
+              <div class="grid-unit-val">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="grid-unit-text">{{ resident.unit?.flatAddress || 'No unit assigned' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Bottom / Footer: Onboarded Date & Interactive Arrow -->
+          <div class="grid-card-foot">
+            <span class="grid-join-date">Joined {{ fmtDate(resident.createdAt) }}</span>
+            <div class="grid-view-link">
+              <span>View Profile</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- COMPACT LIST VIEW -->
       <div v-else class="resident-cards-list">
         <article
           v-for="resident in filteredResidents"
@@ -148,6 +257,7 @@ const search = ref('')
 const estateFilter = ref('')
 const roleFilter = ref('all')
 const statusFilter = ref('all')
+const viewMode = ref<'grid' | 'list'>('grid')
 
 const filteredResidents = computed(() => {
   return residents.value.filter(r => {
@@ -214,31 +324,45 @@ function initials(name?: string) {
 
 function fmtDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-NG', { dateStyle: 'medium' })
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-onMounted(() => { load(); loadEstates() })
+onMounted(() => {
+  load()
+  loadEstates()
+})
 </script>
 
 <style scoped>
-.mobile-page { display: flex; flex-direction: column; gap: 16px; }
+.residents-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Hero Card ─────────────────────────────────────── */
 .hero-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   padding: 24px 28px;
-  border-radius: 24px;
+  border-radius: 20px;
   color: white;
 }
+
 .hero-card--sand {
   background: linear-gradient(145deg, #5c3b12 0%, #9e6523 55%, #dca966 100%);
   box-shadow: 0 4px 18px rgba(92, 59, 18, 0.18);
 }
+
 .hero-title-group {
   flex: 1;
   min-width: 240px;
 }
+
 .hero-eyebrow {
   font-size: 11px;
   text-transform: uppercase;
@@ -247,13 +371,15 @@ onMounted(() => { load(); loadEstates() })
   font-weight: 700;
   margin-bottom: 6px;
 }
+
 .hero-title {
-  font-size: 24px;
-  line-height: 1.15;
-  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
   font-weight: 800;
   color: #ffffff;
+  margin: 0;
 }
+
 .hero-button {
   background: #ffffff;
   color: #7d4b11;
@@ -270,15 +396,14 @@ onMounted(() => { load(); loadEstates() })
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
+
 .hero-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   background: #FFFDF9;
 }
-.hero-button:active {
-  transform: translateY(0);
-}
 
+/* ── Toolbar Card ──────────────────────────────────── */
 .toolbar-card {
   display: flex;
   justify-content: space-between;
@@ -286,68 +411,359 @@ onMounted(() => { load(); loadEstates() })
   gap: 12px;
   background: #ffffff;
   border: 1px solid #E5E7EB;
-  border-radius: 16px;
-  padding: 12px 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 8px 14px;
+  gap: 8px;
   flex: 1;
   min-width: 220px;
 }
 
 .search-input {
   border: none;
-  background: transparent;
   outline: none;
-  width: 100%;
   font-size: 13.5px;
   color: #111827;
+  width: 100%;
+  background: transparent;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .toolbar-select {
-  padding: 8px 14px;
-  font-size: 13px;
-  border-radius: 10px;
+  padding: 7px 12px;
   border: 1px solid #E5E7EB;
-  background-color: #F9FAFB;
-  color: #374151;
+  border-radius: 8px;
+  background: #F9FAFB;
+  font-size: 12.5px;
   font-weight: 500;
-  cursor: pointer;
+  color: #374151;
   outline: none;
-  white-space: nowrap;
-  width: auto;
-  min-width: 130px;
-  flex: 0 0 auto;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  cursor: pointer;
+  transition: all 140ms ease;
 }
 
-.toolbar-select:focus {
+.toolbar-select:hover {
+  border-color: #D1D5DB;
+  background: #ffffff;
+}
+
+/* ── Section Card & View Switcher ──────────────────── */
+.section-card {
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.section-copy {
+  margin-top: 2px;
+  color: #6B7280;
+  font-size: 12.5px;
+}
+
+.view-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #F3F4F6;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.btn-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.btn-view-toggle:hover {
+  color: #111827;
+}
+
+.btn-view-toggle.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.loading-state, .empty-state {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  font-size: 13.5px;
+}
+
+/* ── 3-COLUMN CARDS GRID (User's Drawing) ───────────── */
+.residents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 16px;
+}
+
+.resident-grid-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  min-height: 200px;
+}
+
+.resident-grid-card:hover {
+  transform: translateY(-3px);
+  border-color: #D1D5DB;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.resident-grid-card:focus-visible {
+  outline: none;
   border-color: #0A5C38;
-  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.2);
 }
 
-.section-card { padding: 16px; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.section-title { font-size: 18px; font-weight: 700; }
-.section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
-.loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }
-.stack-list { display: flex; flex-direction: column; gap: 10px; }
+.grid-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.grid-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.grid-card-body {
+  margin: 14px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.grid-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.grid-unit-box {
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: background 160ms ease;
+}
+
+.resident-grid-card:hover .grid-unit-box {
+  background: #F3F4F6;
+}
+
+.grid-unit-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6B7280;
+}
+
+.grid-unit-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.grid-unit-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grid-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.grid-join-date {
+  font-size: 11.5px;
+  color: #6B7280;
+}
+
+.grid-view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  transition: all 160ms ease;
+}
+
+.resident-grid-card:hover .grid-view-link {
+  transform: translateX(3px);
+  color: #07472B;
+}
+
+/* ── Avatar Elements ───────────────────────────────── */
+.avatar-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #E5E7EB;
+}
+
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #E5E7EB;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.dot-active {
+  background: #10B981;
+}
+
+.dot-inactive {
+  background: #9CA3AF;
+}
+
+/* ── Badges ────────────────────────────────────────── */
+.badge-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+}
+
+.badge-role--owner {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+.badge-role--tenant {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+}
+
+.status-active {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.status-disabled {
+  background: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── COMPACT LIST VIEW STYLES ──────────────────────── */
 .resident-cards-list {
   display: flex;
   flex-direction: column;
@@ -375,65 +791,11 @@ onMounted(() => { load(); loadEstates() })
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
 }
 
-.resident-card:focus-visible {
-  outline: none;
-  border-color: #0A5C38;
-  box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.2);
-}
-
 .card-left {
   display: flex;
   align-items: center;
   gap: 14px;
   min-width: 0;
-}
-
-.avatar-box {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-}
-
-.avatar-photo {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-  border: 1px solid #E5E7EB;
-}
-
-.avatar-initials {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: #F3F4F6;
-  color: #374151;
-  font-size: 13.5px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #E5E7EB;
-}
-
-.status-dot {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-}
-
-.dot-active {
-  background: #10B981;
-}
-
-.dot-inactive {
-  background: #9CA3AF;
 }
 
 .resident-primary-info {
@@ -458,27 +820,6 @@ onMounted(() => { load(); loadEstates() })
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.badge-role {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 2px 7px;
-  border-radius: 5px;
-}
-
-.badge-role--owner {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #DBEAFE;
-}
-
-.badge-role--tenant {
-  background: #F3F4F6;
-  color: #4B5563;
-  border: 1px solid #E5E7EB;
 }
 
 .unit-location-row {
@@ -525,575 +866,6 @@ onMounted(() => { load(); loadEstates() })
   background: #ECFDF5;
 }
 
-@media (max-width: 580px) {
-  .join-date {
-    display: none;
-  }
-  .resident-card {
-    padding: 12px 14px;
-  }
-}
-
-.record-card { padding: 16px; border-radius: 20px; }
-.record-top, .record-bottom { display: flex; justify-content: space-between; gap: 12px; }
-.record-bottom { margin-top: 14px; align-items: center; }
-.record-title { font-size: 17px; font-weight: 700; color: var(--c-text); }
-.record-meta { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
-.record-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding: 14px; background: #f7f4ee; border-radius: 18px; }
-.detail-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-muted); margin-bottom: 4px; }
-.record-sub { color: var(--c-muted); font-size: 12px; }
-.row-actions { display: flex; gap: 8px; }
-.chip-row { display: flex; gap: 8px; overflow-x: auto; }
-.unit-add-link { background: none; border: none; color: var(--c-primary); font-size: 12px; font-weight: 700; }
-.unit-add-link:disabled { color: var(--c-muted); cursor: not-allowed; }
-.unit-add-box { display: flex; gap: 8px; margin-top: 8px; }
-.unit-add-box .form-input { flex: 1; }
-.chip { border: none; border-radius: 999px; padding: 10px 14px; background: #edf2ee; color: #4f5f56; white-space: nowrap; font-weight: 700; }
-.chip.active { background: var(--c-primary); color: white; }
-/* Edit/delete sheets */
-.sheet-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(10,18,14,0.65); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.sheet { width: min(var(--shell-width), 100%); border-radius: 28px; padding: 18px; }
-.sheet-sm { max-width: 420px; }
-.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.sheet-title { font-size: 18px; font-weight: 700; }
-.sheet-close { width: 32px; height: 32px; border: none; border-radius: 50%; background: #edf2ee; color: var(--c-text); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.sheet-body { display: flex; flex-direction: column; gap: 14px; }
-.sheet-actions { display: flex; gap: 10px; margin-top: 18px; }
-.sheet-actions .btn { flex: 1; justify-content: center; }
-.confirm-copy { color: var(--c-muted); font-size: 14px; margin-bottom: 4px; }
-.credentials-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-.credential-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 14px; background: var(--c-bg); border-radius: var(--radius);
-}
-.credential-row .record-sub { display: block; margin-top: 2px; }
-.credential-password {
-  font-family: monospace; font-size: 14px; font-weight: 700;
-  background: var(--c-surface); border: 1px solid var(--c-border);
-  padding: 4px 10px; border-radius: 8px; color: var(--c-primary);
-}
-
-/* Desktop-First Responsive Modal */
-.desktop-modal-card {
-  background: #ffffff;
-  width: 100%;
-  max-width: 1060px;
-  max-height: 92vh;
-  border-radius: 24px;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: modalScaleIn 0.22s ease-out;
-}
-
-@keyframes modalScaleIn {
-  from { opacity: 0; transform: scale(0.97) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 24px;
-  border-bottom: 1px solid #E5E7EB;
-  background: #FAFAFA;
-}
-
-.modal-header-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.btn-icon-back {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.btn-icon-back:hover {
-  background: #F1F5F9;
-  color: #0F172A;
-}
-
-.modal-eyebrow {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: #0A5C38;
-}
-
-.modal-main-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #0F172A;
-  margin-top: 2px;
-  font-family: var(--font-display, inherit);
-}
-
-.btn-icon-close {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.btn-icon-close:hover {
-  background: #FEE2E2;
-  color: #DC2626;
-  border-color: #FCA5A5;
-}
-
-.modal-scroll-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-  background: #F8FAFC;
-}
-
-.two-column-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-.form-column {
-  background: #ffffff;
-  border: 1px solid #E2E8F0;
-  border-radius: 18px;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-}
-
-.column-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #F1F5F9;
-}
-.column-header--between {
-  justify-content: space-between;
-}
-.column-header-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.column-icon-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #ECFDF5;
-  color: #059669;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.column-icon-badge--blue {
-  background: #EFF6FF;
-  color: #2563EB;
-}
-
-.column-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0F172A;
-}
-
-.column-sub {
-  font-size: 12px;
-  color: #64748B;
-  margin-top: 2px;
-}
-
-/* Photo Upload Space */
-.photo-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  background: #F8FAFC;
-  border: 1px dashed #CBD5E1;
-  border-radius: 14px;
-}
-
-.photo-preview-box {
-  width: 72px;
-  height: 72px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 2px solid #E2E8F0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-  transition: border-color 0.15s ease;
-}
-.photo-preview-box:hover {
-  border-color: #0A5C38;
-}
-
-.photo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.photo-placeholder {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.camera-badge {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 20px;
-  height: 20px;
-  background: #0A5C38;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-}
-
-.photo-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.photo-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-outline-photo {
-  background: #ffffff;
-  border: 1px solid #CBD5E1;
-  color: #334155;
-  font-weight: 600;
-  font-size: 12px;
-  padding: 5px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.btn-outline-photo:hover {
-  border-color: #0A5C38;
-  color: #0A5C38;
-}
-
-.btn-ghost-danger {
-  background: none;
-  border: none;
-  color: #DC2626;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 8px;
-  cursor: pointer;
-}
-.btn-ghost-danger:hover {
-  text-decoration: underline;
-}
-
-.photo-hint {
-  font-size: 11px;
-  color: #64748B;
-}
-
-.form-row-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.address-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-.toggle-control-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 14px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-}
-.toggle-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.toggle-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1E293B;
-}
-.toggle-desc {
-  font-size: 11.5px;
-  color: #64748B;
-  line-height: 1.4;
-}
-
-.btn-outline-add {
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  color: #047857;
-  font-weight: 700;
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.btn-outline-add:hover {
-  background: #DCFCE7;
-  border-color: #86EFAC;
-}
-
-/* Occupants Empty Box */
-.occupants-empty-box {
-  padding: 32px 20px;
-  text-align: center;
-  background: #F8FAFC;
-  border: 1.5px dashed #CBD5E1;
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.occupants-empty-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #E2E8F0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-.occupants-empty-box h4 {
-  font-size: 14px;
-  font-weight: 700;
-  color: #334155;
-  margin: 0;
-}
-.occupants-empty-box p {
-  font-size: 12px;
-  color: #64748B;
-  max-width: 320px;
-  line-height: 1.45;
-  margin: 0;
-}
-
-/* Occupants Cards List */
-.occupants-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 460px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.occupant-card {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-}
-
-.occupant-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.occupant-badge {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background: #E2E8F0;
-  color: #334155;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.tenant-del-btn {
-  background: none;
-  border: none;
-  color: #94A3B8;
-  padding: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-.tenant-del-btn:hover {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-.occupant-photo-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.occupant-photo-box {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1.5px solid #CBD5E1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.occupant-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.occupant-photo-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.occupant-photo-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.link-btn-sm {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #047857;
-  cursor: pointer;
-}
-.link-btn-sm:hover {
-  text-decoration: underline;
-}
-
-.form-error-banner {
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
-  color: #991B1B;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Modal Footer Bar */
-.modal-footer-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-top: 1px solid #E5E7EB;
-  background: #ffffff;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.footer-info-hint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #047857;
-  font-weight: 500;
-}
-
-.modal-footer-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.btn-save-resident {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 13.5px;
-  font-weight: 700;
-}
-
-.d-none { display: none !important; }
-
-.toggle-switch { position: relative; display: inline-flex; cursor: pointer; flex-shrink: 0; }
-.toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-.toggle-track { width: 44px; height: 26px; background: #E0E0E0; border-radius: 13px; transition: background 0.2s; position: relative; display: block; }
-.toggle-switch input:checked + .toggle-track { background: var(--c-primary); }
-.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.toggle-switch input:checked + .toggle-track .toggle-thumb { left: 21px; }
-
-@media (max-width: 860px) {
-  .two-column-form-grid {
-    grid-template-columns: 1fr;
-  }
-  .desktop-modal-card {
-    max-height: 98vh;
-  }
-}
 @media (max-width: 768px) {
   .toolbar-card {
     flex-direction: column;
@@ -1104,42 +876,16 @@ onMounted(() => { load(); loadEstates() })
     width: 100%;
   }
   .toolbar-select {
-    flex: 1 1 calc(50% - 10px);
-    min-width: 0;
+    flex: 1 1 calc(50% - 6px);
   }
-}
-@media (max-width: 600px) {
-  .form-row-2col {
+  .residents-grid {
     grid-template-columns: 1fr;
   }
-  .address-row {
-    grid-template-columns: 1fr;
-  }
-  .desktop-modal-card {
-    border-radius: 0;
-    max-height: 100vh;
-    height: 100%;
-  }
-}
-@media (max-width: 420px) {
-  .record-top, .record-bottom { flex-direction: column; align-items: flex-start; }
-  .detail-grid { grid-template-columns: 1fr; }
-  .record-badges { justify-content: flex-start; }
 }
 
-.property-picker-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 14px;
-  padding: 12px;
+@media (max-width: 580px) {
+  .join-date {
+    display: none;
+  }
 }
-.field-hint {
-  font-size: 11.5px;
-  color: #6B7280;
-  margin: 4px 0 0;
-}
-
 </style>

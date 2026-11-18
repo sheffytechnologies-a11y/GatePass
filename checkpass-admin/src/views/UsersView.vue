@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <!-- Filter & Search Toolbar (consistent with Residents & Properties tabs) -->
+    <!-- Filter & Search Toolbar -->
     <div class="toolbar-card">
       <div class="search-box">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round">
@@ -122,6 +122,42 @@
           <h2 class="section-title">Directory</h2>
           <p class="section-copy">{{ filteredUsers.length }} account{{ filteredUsers.length === 1 ? '' : 's' }} loaded.</p>
         </div>
+
+        <!-- View Mode Switcher: Cards Grid vs Compact List -->
+        <div class="view-mode-toggle">
+          <button
+            type="button"
+            class="btn-view-toggle"
+            :class="{ active: viewMode === 'grid' }"
+            title="Card Grid View"
+            @click="viewMode = 'grid'"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>Cards</span>
+          </button>
+          <button
+            type="button"
+            class="btn-view-toggle"
+            :class="{ active: viewMode === 'list' }"
+            title="Compact List View"
+            @click="viewMode = 'list'"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"/>
+              <line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/>
+              <line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            <span>List</span>
+          </button>
+        </div>
       </div>
 
       <div v-if="loading" class="loading-state">
@@ -132,7 +168,96 @@
         No accounts found matching your filters.
       </div>
 
-      <!-- Taste Skill User Cards List -->
+      <!-- CARDS GRID VIEW (Default, 3-column side-by-side) -->
+      <div v-else-if="viewMode === 'grid'" class="users-grid">
+        <article
+          v-for="user in filteredUsers"
+          :key="user.id"
+          class="user-grid-card"
+          tabindex="0"
+          role="button"
+          :aria-label="'View ' + user.name + ' profile'"
+          @click="handleUserClick(user)"
+          @keydown.enter="handleUserClick(user)"
+        >
+          <!-- Top Row: Avatar, Role Badges, Status Pill -->
+          <div class="grid-card-head">
+            <div class="avatar-box">
+              <div
+                v-if="user.avatar"
+                class="avatar-photo"
+                :style="{ backgroundImage: `url(${user.avatar})` }"
+              />
+              <div v-else class="avatar-initials" :style="{ background: avatarBg(user.id) }">
+                {{ initials(user.name) }}
+              </div>
+              <span
+                class="status-dot"
+                :class="user.isActive ? 'dot-active' : 'dot-inactive'"
+                :title="user.isActive ? 'Active' : 'Disabled'"
+              />
+            </div>
+
+            <div class="grid-card-badges">
+              <span
+                class="badge-type"
+                :class="'badge-type--' + (user.type || 'resident')"
+              >
+                {{ formatTypeLabel(user.type) }}
+              </span>
+
+              <span
+                v-if="user.residentRole"
+                class="badge-role"
+                :class="user.residentRole === 'owner' ? 'badge-role--owner' : 'badge-role--tenant'"
+              >
+                {{ user.residentRole === 'owner' ? 'Homeowner' : 'Tenant' }}
+              </span>
+
+              <span class="status-pill" :class="user.isActive ? 'status-active' : 'status-disabled'">
+                <span class="pill-dot"></span>
+                {{ user.isActive ? 'Active' : 'Disabled' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Mid Section: Name & Property Assignment Box -->
+          <div class="grid-card-body">
+            <h3 class="grid-card-name" :title="user.name">{{ user.name }}</h3>
+
+            <div v-if="user.unitAddress || addressLine(user)" class="grid-unit-box">
+              <span class="grid-unit-label">ASSIGNED PROPERTY</span>
+              <div class="grid-unit-val">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="grid-unit-text">{{ user.unitAddress || addressLine(user) }}</span>
+              </div>
+            </div>
+            <div v-else-if="user.email" class="grid-unit-box">
+              <span class="grid-unit-label">ACCOUNT EMAIL</span>
+              <div class="grid-unit-val">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span class="grid-unit-text">{{ user.email }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Joined Date & View Profile CTA -->
+          <div class="grid-card-foot">
+            <span class="grid-join-date">Joined {{ fmtDate(user.createdAt) }}</span>
+            <div class="grid-view-link">
+              <span>{{ user.type === 'resident' || user.residentId ? 'View Profile' : 'Manage' }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- COMPACT LIST VIEW -->
       <div v-else class="user-cards-list">
         <article
           v-for="user in filteredUsers"
@@ -166,9 +291,7 @@
               <div class="user-name-row">
                 <h3 class="user-name">{{ user.name }}</h3>
 
-                <!-- Role Badges -->
                 <div class="badge-row">
-                  <!-- Type badge -->
                   <span
                     class="badge-type"
                     :class="'badge-type--' + (user.type || 'resident')"
@@ -176,7 +299,6 @@
                     {{ formatTypeLabel(user.type) }}
                   </span>
 
-                  <!-- Occupancy Role if Resident -->
                   <span
                     v-if="user.residentRole"
                     class="badge-role"
@@ -187,7 +309,6 @@
                 </div>
               </div>
 
-              <!-- Unit Location if Resident (No estate name clutter) -->
               <div v-if="user.unitAddress || addressLine(user)" class="unit-location-row">
                 <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -327,6 +448,7 @@ const search = ref('')
 const typeFilter = ref('')
 const occupantFilter = ref('all')
 const statusFilter = ref('')
+const viewMode = ref<'grid' | 'list'>('grid')
 
 const saving = ref(false)
 const formError = ref('')
@@ -717,9 +839,9 @@ onMounted(() => {
   border-color: #0A5C38;
 }
 
-/* ── Section Card & List ───────────────────────────── */
+/* ── Section Card & View Switcher ──────────────────── */
 .section-card {
-  padding: 16px;
+  padding: 18px 20px;
   background: #ffffff;
   border: 1px solid #E5E7EB;
   border-radius: 16px;
@@ -728,8 +850,9 @@ onMounted(() => {
 .section-head {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 12px;
 }
 
 .section-title {
@@ -745,6 +868,40 @@ onMounted(() => {
   font-size: 12.5px;
 }
 
+.view-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #F3F4F6;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.btn-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.btn-view-toggle:hover {
+  color: #111827;
+}
+
+.btn-view-toggle.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
 .loading-state, .empty-state {
   min-height: 140px;
   display: flex;
@@ -754,47 +911,140 @@ onMounted(() => {
   font-size: 13.5px;
 }
 
-/* ── User Cards List ───────────────────────────────── */
-.user-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* ── 3-COLUMN USER CARDS GRID (User's Drawing) ─────── */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 16px;
 }
 
-.user-card {
+.user-grid-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
-  padding: 14px 18px;
   background: #ffffff;
   border: 1px solid #E5E7EB;
-  border-radius: 14px;
+  border-radius: 16px;
+  padding: 18px 20px;
   cursor: pointer;
   user-select: none;
   transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  min-height: 200px;
 }
 
-.user-card:hover {
-  transform: translateY(-2px);
+.user-grid-card:hover {
+  transform: translateY(-3px);
   border-color: #D1D5DB;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
 }
 
-.user-card:focus-visible {
+.user-grid-card:focus-visible {
   outline: none;
   border-color: #0A5C38;
   box-shadow: 0 0 0 2px rgba(10, 92, 56, 0.2);
 }
 
-.card-left {
+.grid-card-head {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 12px;
 }
 
+.grid-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.grid-card-body {
+  margin: 14px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.grid-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.grid-unit-box {
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 10px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: background 160ms ease;
+}
+
+.user-grid-card:hover .grid-unit-box {
+  background: #F3F4F6;
+}
+
+.grid-unit-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6B7280;
+}
+
+.grid-unit-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.grid-unit-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grid-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.grid-join-date {
+  font-size: 11.5px;
+  color: #6B7280;
+}
+
+.grid-view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  transition: all 160ms ease;
+}
+
+.user-grid-card:hover .grid-view-link {
+  transform: translateX(3px);
+  color: #07472B;
+}
+
+/* ── Avatar Elements ───────────────────────────────── */
 .avatar-box {
   position: relative;
   width: 44px;
@@ -842,42 +1092,13 @@ onMounted(() => {
   background: #9CA3AF;
 }
 
-.user-primary-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.user-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.user-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.badge-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
+/* ── Badges ────────────────────────────────────────── */
 .badge-type {
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  padding: 2px 7px;
+  padding: 2.5px 7px;
   border-radius: 5px;
 }
 
@@ -904,7 +1125,7 @@ onMounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  padding: 2px 7px;
+  padding: 2.5px 7px;
   border-radius: 5px;
 }
 
@@ -918,6 +1139,100 @@ onMounted(() => {
   background: #F3F4F6;
   color: #4B5563;
   border: 1px solid #E5E7EB;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+}
+
+.status-active {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.status-disabled {
+  background: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── COMPACT LIST VIEW STYLES ──────────────────────── */
+.user-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  border-color: #D1D5DB;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.user-primary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .unit-location-row {
@@ -943,35 +1258,6 @@ onMounted(() => {
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.status-active {
-  background: #ECFDF5;
-  color: #065F46;
-  border: 1px solid #A7F3D0;
-}
-
-.status-disabled {
-  background: #FEF2F2;
-  color: #991B1B;
-  border: 1px solid #FECACA;
-}
-
-.pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
 }
 
 .join-date {
@@ -1224,6 +1510,9 @@ onMounted(() => {
   }
   .toolbar-select {
     flex: 1 1 calc(50% - 6px);
+  }
+  .users-grid {
+    grid-template-columns: 1fr;
   }
 }
 
