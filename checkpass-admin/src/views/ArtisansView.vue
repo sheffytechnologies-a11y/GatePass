@@ -146,7 +146,7 @@
               </div>
               <div class="artisan-meta">
                 <h3 class="artisan-name">{{ artisan.name }}</h3>
-                <div class="artisan-trade">{{ artisan.trade }}</div>
+                <span class="cat-tag">{{ artisan.category }}</span>
               </div>
             </div>
 
@@ -196,9 +196,10 @@
             </div>
           </div>
 
-          <!-- Category and Rating Tag Row -->
+          <!-- Bottom Row: Trade Specialty & Rating -->
           <div class="card-category-row">
-            <span class="cat-tag">{{ artisan.category }}</span>
+            <span v-if="artisan.trade && artisan.trade.toLowerCase() !== artisan.category.toLowerCase()" class="artisan-trade-desc">{{ artisan.trade }}</span>
+            <span v-else></span>
             <div class="rating-box">
               <span class="star-icon">★</span>
               <span class="rating-num">{{ artisan.rating || 5.0 }}</span>
@@ -954,16 +955,32 @@ onUnmounted(() => {
   justify-content: center;
   flex-shrink: 0;
 }
+.artisan-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 0;
+}
 .artisan-name {
   font-size: 16px;
   font-weight: 700;
   color: #112019;
   margin: 0;
+  line-height: 1.25;
 }
 .artisan-trade {
   font-size: 13px;
   color: #616F67;
   margin-top: 2px;
+}
+.artisan-trade-desc {
+  font-size: 12.5px;
+  color: #616F67;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 }
 
 .status-badge {
