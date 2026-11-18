@@ -103,7 +103,7 @@
             >
               <span v-if="loading" class="spinner"></span>
               <span v-else class="btn-text">
-                Save &amp; Enter Checkpass
+                Save &amp; Continue
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </span>
             </button>
