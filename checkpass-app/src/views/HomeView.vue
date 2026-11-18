@@ -139,6 +139,19 @@
               >✕</button>
             </div>
 
+            <!-- Visitor Without Phone: Quick Access Phrase Trigger -->
+            <div class="sec-phrase-trigger-row">
+              <button type="button" class="sec-phrase-trigger-btn" @click="phraseSheetOpen = true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <span>Visitor Without Phone? Verify Daily Access Phrase</span>
+              </button>
+            </div>
+
             <!-- Clearance Passes Cards -->
             <div v-if="filteredSecurityPasses.length === 0" class="sec-empty-box">
               <div class="sec-empty-icon">🛡️</div>
@@ -3870,6 +3883,44 @@ onMounted(() => {
   color: #9CA3AF;
   font-size: 12px;
   cursor: pointer;
+}
+
+.sec-phrase-trigger-row {
+  margin-top: 4px;
+}
+
+.sec-phrase-trigger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1.5px dashed #D1D5DB;
+  border-radius: 12px;
+  color: #374151;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sec-phrase-trigger-btn svg {
+  color: #0A5C38;
+  flex-shrink: 0;
+}
+
+.sec-phrase-trigger-btn:hover {
+  background: #F9FAFB;
+  border-color: #0A5C38;
+}
+
+.sec-phrase-trigger-btn:active {
+  background: rgba(10, 92, 56, 0.06);
+  border-color: #0A5C38;
+  color: #0A5C38;
+  transform: scale(0.99);
 }
 
 .sec-empty-box {
