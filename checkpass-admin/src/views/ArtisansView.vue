@@ -135,8 +135,8 @@
           class="artisan-card card"
           role="button"
           tabindex="0"
-          @click="openReviewsModal(artisan)"
-          @keydown.enter="openReviewsModal(artisan)"
+          @click="goToArtisan(artisan.id)"
+          @keydown.enter="goToArtisan(artisan.id)"
         >
           <!-- Top Row: Avatar + Name + Trade & Status Badge + 3-Dots Action Menu -->
           <div class="card-top-row">
@@ -261,7 +261,7 @@
                 <td class="review-comment-cell">{{ rev.comment }}</td>
                 <td class="cell-date">{{ rev.date }}</td>
                 <td>
-                  <button class="btn btn-sm btn-secondary" @click="openReviewsModalById(rev.artisanId)">
+                  <button class="btn btn-sm btn-secondary" @click="goToArtisan(rev.artisanId)">
                     View Artisan
                   </button>
                 </td>
@@ -366,96 +366,6 @@
       </div>
     </div>
 
-    <!-- ── MODAL: ARTISAN DETAILS & REVIEWS DRAWER ── -->
-    <div v-if="activeReviewsArtisan" class="modal-overlay" @click.self="activeReviewsArtisan = null">
-      <div class="modal-dialog modal-dialog--details">
-        <div class="modal-header">
-          <div class="modal-artisan-profile">
-            <div class="avatar-badge avatar-badge--lg" :style="{ background: activeReviewsArtisan.avatarBg || '#0A5C38' }">
-              {{ activeReviewsArtisan.initials || 'AR' }}
-            </div>
-            <div>
-              <h3>{{ activeReviewsArtisan.name }}</h3>
-              <p class="modal-artisan-sub">
-                {{ activeReviewsArtisan.trade }} &middot; <span class="cat-tag-sm">{{ activeReviewsArtisan.category }}</span>
-              </p>
-            </div>
-          </div>
-          <button class="modal-close" @click="activeReviewsArtisan = null">&times;</button>
-        </div>
-
-        <div class="modal-body modal-body--details">
-          <!-- Overview Cards -->
-          <div class="details-overview-grid">
-            <div class="overview-box">
-              <span class="overview-lbl">Status</span>
-              <span class="status-badge" :class="activeReviewsArtisan.status === 'Active' ? 'status-badge--active' : 'status-badge--inactive'">
-                {{ activeReviewsArtisan.status || 'Active' }}
-              </span>
-            </div>
-            <div class="overview-box">
-              <span class="overview-lbl">Resident Rating</span>
-              <div class="rating-box">
-                <span class="star-icon">★</span>
-                <span class="rating-num">{{ activeReviewsArtisan.rating || 5.0 }}</span>
-                <span class="reviews-count">({{ (activeReviewsArtisan.reviews && activeReviewsArtisan.reviews.length) || 0 }})</span>
-              </div>
-            </div>
-            <div class="overview-box">
-              <span class="overview-lbl">Phone</span>
-              <a :href="`tel:${activeReviewsArtisan.phone}`" class="contact-val contact-val--link">
-                {{ activeReviewsArtisan.phone }} 📞
-              </a>
-            </div>
-            <div class="overview-box">
-              <span class="overview-lbl">WhatsApp</span>
-              <a :href="`https://wa.me/${activeReviewsArtisan.whatsapp}`" target="_blank" class="contact-val contact-val--wa">
-                Chat on WA ↗
-              </a>
-            </div>
-          </div>
-
-          <!-- Reviews list -->
-          <div class="details-reviews-block">
-            <h4 class="reviews-block-title">
-              Resident Reviews &amp; Feedback ({{ (activeReviewsArtisan.reviews && activeReviewsArtisan.reviews.length) || 0 }})
-            </h4>
-
-            <div v-if="!activeReviewsArtisan.reviews || activeReviewsArtisan.reviews.length === 0" class="no-reviews-note">
-              No resident reviews submitted yet for this service provider.
-            </div>
-            <div v-else class="reviews-list">
-              <div
-                v-for="rev in activeReviewsArtisan.reviews"
-                :key="rev.id"
-                class="review-item"
-              >
-                <div class="review-item-head">
-                  <div>
-                    <strong>{{ rev.residentName }}</strong>
-                    <span class="review-unit"> ({{ rev.residentUnit }})</span>
-                  </div>
-                  <span class="review-time">{{ rev.date }}</span>
-                </div>
-                <div class="review-stars">
-                  <span v-for="s in 5" :key="s" class="star" :class="{ filled: s <= rev.rating }">★</span>
-                </div>
-                <p class="review-comment">{{ rev.comment }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer modal-footer--between">
-          <button class="btn btn-secondary" @click="handleEditFromModal(activeReviewsArtisan)">
-            ✏️ Edit Profile
-          </button>
-          <button class="btn btn-primary" @click="activeReviewsArtisan = null">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- ── MODAL: EXECUTIVE SERVICES REPORT ── -->
     <div v-if="showReportModal" class="modal-overlay" @click.self="showReportModal = false">
@@ -553,169 +463,26 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToast'
+import {
+  type ArtisanItem,
+  type ArtisanReview,
+  loadArtisans,
+  saveArtisans,
+} from '@/data/artisans'
 
-export interface ArtisanReview {
-  id: string
-  residentName: string
-  residentUnit: string
-  rating: number
-  comment: string
-  date: string
-}
-
-export interface ArtisanItem {
-  id: string
-  name: string
-  trade: string
-  category: string
-  phone: string
-  whatsapp: string
-  rating: number
-  avatarBg: string
-  initials: string
-  status?: 'Active' | 'Under Review' | 'Inactive'
-  reviews: ArtisanReview[]
-}
-
+const router = useRouter()
 const { showToast } = useToast()
-const STORAGE_KEY = 'cp_estate_artisans'
-
-const defaultArtisans: ArtisanItem[] = [
-  {
-    id: 'art-1',
-    name: 'Chinedu Okafor',
-    trade: 'Senior Electrician & Inverter Specialist',
-    category: 'Electrician',
-    phone: '+2348031234567',
-    whatsapp: '2348031234567',
-    rating: 4.9,
-    avatarBg: '#0A5C38',
-    initials: 'CO',
-    status: 'Active',
-    reviews: [
-      {
-        id: 'rev-1',
-        residentName: 'Engr. Dapo Alabi',
-        residentUnit: 'House 14 • Palm Court',
-        rating: 5,
-        comment: 'Chinedu arrived in under 20 minutes when my inverter tripped. Very knowledgeable, neat cabling, and fair billing.',
-        date: '2 days ago',
-      },
-      {
-        id: 'rev-2',
-        residentName: 'Mrs. Fatima Bello',
-        residentUnit: 'Flat 3B • Block 1',
-        rating: 5,
-        comment: 'Replaced my water heater circuit breaker cleanly. No mess left behind, fully tested and verified.',
-        date: 'Last week',
-      },
-    ],
-  },
-  {
-    id: 'art-2',
-    name: 'Musa Abdullahi',
-    trade: 'Master Plumber & Water Pressure Engineer',
-    category: 'Plumber',
-    phone: '+2348023456789',
-    whatsapp: '2348023456789',
-    rating: 4.8,
-    avatarBg: '#1D4ED8',
-    initials: 'MA',
-    status: 'Active',
-    reviews: [
-      {
-        id: 'rev-3',
-        residentName: 'Chief Emeka Eze',
-        residentUnit: 'Unit 9A • Hibiscus Lane',
-        rating: 5,
-        comment: 'Resolved an annoying overhead tank overflow that two other plumbers failed to fix. Very polite gentleman.',
-        date: '3 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-3',
-    name: 'Emmanuel Bassey',
-    trade: 'HVAC & Inverter AC Specialist',
-    category: 'AC Repair',
-    phone: '+2348056789012',
-    whatsapp: '2348056789012',
-    rating: 4.9,
-    avatarBg: '#B45309',
-    initials: 'EB',
-    status: 'Active',
-    reviews: [
-      {
-        id: 'rev-4',
-        residentName: 'Dr. Chinedu Okafor',
-        residentUnit: 'House 4B • Emerald St',
-        rating: 5,
-        comment: 'Cleaned and recharged two inverter units. Excellent cooling restored and very neat drop cloths used indoors.',
-        date: '4 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-4',
-    name: 'SparklePro Cleaners (Mrs. Joy)',
-    trade: 'Deep Home & Move-In Cleaning',
-    category: 'Cleaning',
-    phone: '+2348089012345',
-    whatsapp: '2348089012345',
-    rating: 4.7,
-    avatarBg: '#7C3AED',
-    initials: 'SP',
-    status: 'Active',
-    reviews: [
-      {
-        id: 'rev-5',
-        residentName: 'Tolu Oladipo',
-        residentUnit: 'Flat 12 • Block 5',
-        rating: 5,
-        comment: 'SparklePro did my move-in cleaning. Kitchen cabinets looked brand new.',
-        date: '5 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-5',
-    name: 'Sunday Adeyemi',
-    trade: 'Furniture Maker & Locksmith',
-    category: 'Carpentry',
-    phone: '+2348078901234',
-    whatsapp: '2348078901234',
-    rating: 4.8,
-    avatarBg: '#059669',
-    initials: 'SA',
-    status: 'Active',
-    reviews: [
-      {
-        id: 'rev-6',
-        residentName: 'Pastor Segun Martins',
-        residentUnit: 'House 22 • Palm Court',
-        rating: 5,
-        comment: 'Fixed our master bedroom sliding wardrobe door that was off track for months. Sturdy craftsmanship.',
-        date: '1 week ago',
-      },
-    ],
-  },
-]
-
-function loadArtisans(): ArtisanItem[] {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return [...defaultArtisans]
-}
 
 const artisansList = ref<ArtisanItem[]>(loadArtisans())
 
 function persistArtisans() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(artisansList.value))
-  } catch {}
+  saveArtisans(artisansList.value)
+}
+
+function goToArtisan(id: string) {
+  router.push(`/artisans/${id}`)
 }
 
 const simulateEmpty = ref(false)
@@ -780,13 +547,6 @@ const allResidentReviews = computed(() => {
   }
   return reviews
 })
-
-function openReviewsModalById(artisanId: string) {
-  const art = artisansList.value.find(a => a.id === artisanId)
-  if (art) {
-    activeReviewsArtisan.value = art
-  }
-}
 
 function exportReportCSV() {
   const headers = ['ID', 'Name', 'Category', 'Trade', 'Phone', 'Status', 'Rating', 'Reviews Count']
@@ -964,12 +724,6 @@ function deleteArtisan(id: string) {
   }
 }
 
-// ── REVIEWS MODAL ──
-const activeReviewsArtisan = ref<ArtisanItem | null>(null)
-function openReviewsModal(artisan: ArtisanItem) {
-  activeReviewsArtisan.value = artisan
-}
-
 // ── 3-DOTS ACTION MENU & CARD INTERACTION ──
 const openActionMenuId = ref<string | null>(null)
 
@@ -979,7 +733,7 @@ function toggleActionMenu(id: string) {
 
 function handleViewDetails(artisan: ArtisanItem) {
   openActionMenuId.value = null
-  openReviewsModal(artisan)
+  goToArtisan(artisan.id)
 }
 
 function handleEdit(artisan: ArtisanItem) {
@@ -997,10 +751,7 @@ function handleDelete(id: string) {
   deleteArtisan(id)
 }
 
-function handleEditFromModal(artisan: ArtisanItem) {
-  activeReviewsArtisan.value = null
-  openEditModal(artisan)
-}
+
 
 function closeActionMenus(e: MouseEvent) {
   const target = e.target as HTMLElement
