@@ -119,7 +119,7 @@
           @click="goToDetail(resident.id)"
           @keydown.enter="goToDetail(resident.id)"
         >
-          <!-- Card Top: Avatar, Role Pill, Status Pill -->
+          <!-- Card Top: Avatar & 3-Dots Action Menu -->
           <div class="grid-card-head">
             <div class="avatar-box">
               <div
@@ -137,14 +137,43 @@
               />
             </div>
 
-            <div class="grid-card-badges">
-              <span :class="resident.role === 'owner' ? 'badge-role badge-role--owner' : 'badge-role badge-role--tenant'">
-                {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
-              </span>
-              <span class="status-pill" :class="resident.isActive ? 'status-active' : 'status-disabled'">
-                <span class="pill-dot"></span>
-                {{ resident.isActive ? 'Active' : 'Disabled' }}
-              </span>
+            <!-- 3-Dots Action Menu (View, Edit, Disable/Activate) -->
+            <div class="card-menu-wrap" @click.stop>
+              <button
+                type="button"
+                class="btn-kebab"
+                :class="{ active: openMenuId === resident.id }"
+                title="Resident options"
+                @click="toggleCardMenu(resident.id)"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="5" r="2"/>
+                  <circle cx="12" cy="12" r="2"/>
+                  <circle cx="12" cy="19" r="2"/>
+                </svg>
+              </button>
+
+              <div v-if="openMenuId === resident.id" class="kebab-dropdown">
+                <button type="button" class="kebab-item" @click="handleMenuAction('view', resident)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span>View Details</span>
+                </button>
+                <button type="button" class="kebab-item" @click="handleMenuAction('edit', resident)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Resident</span>
+                </button>
+                <div class="kebab-divider"></div>
+                <button
+                  type="button"
+                  class="kebab-item"
+                  :class="resident.isActive ? 'text-amber' : 'text-emerald'"
+                  @click="handleMenuAction('toggle-status', resident)"
+                >
+                  <svg v-if="resident.isActive" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -164,15 +193,15 @@
             </div>
           </div>
 
-          <!-- Card Bottom / Footer: Onboarded Date & Interactive Arrow -->
+          <!-- Card Bottom / Footer: Badges (Where green was) -->
           <div class="grid-card-foot">
-            <span class="grid-join-date">Joined {{ fmtDate(resident.createdAt) }}</span>
-            <div class="grid-view-link">
-              <span>View Profile</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </div>
+            <span :class="resident.role === 'owner' ? 'badge-role badge-role--owner' : 'badge-role badge-role--tenant'">
+              {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
+            </span>
+            <span class="status-pill" :class="resident.isActive ? 'status-active' : 'status-disabled'">
+              <span class="pill-dot"></span>
+              {{ resident.isActive ? 'Active' : 'Disabled' }}
+            </span>
           </div>
         </article>
       </div>
@@ -239,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { residentsApi, estatesApi } from '@/api/index'
 import { useAuthStore } from '@/stores/auth'
@@ -258,6 +287,45 @@ const estateFilter = ref('')
 const roleFilter = ref('all')
 const statusFilter = ref('all')
 const viewMode = ref<'grid' | 'list'>('grid')
+
+const openMenuId = ref<number | null>(null)
+
+function toggleCardMenu(id: number) {
+  openMenuId.value = openMenuId.value === id ? null : id
+}
+
+function closeCardMenu() {
+  openMenuId.value = null
+}
+
+async function handleMenuAction(action: 'view' | 'edit' | 'toggle-status', resident: any) {
+  closeCardMenu()
+  if (action === 'view') {
+    goToDetail(resident.id)
+    return
+  }
+  if (action === 'edit') {
+    goToDetail(resident.id, true)
+    return
+  }
+  if (action === 'toggle-status') {
+    await toggleResidentStatus(resident)
+  }
+}
+
+async function toggleResidentStatus(resident: any) {
+  const nextState = !resident.isActive
+  try {
+    await residentsApi.update(resident.id, { is_active: nextState })
+    resident.isActive = nextState
+    showToast(
+      `${resident.user?.name || 'Resident'} is now ${nextState ? 'active' : 'disabled'}.`,
+      nextState ? 'success' : 'info'
+    )
+  } catch (err: any) {
+    showToast(err?.response?.data?.message || 'Failed to update resident status.', 'error')
+  }
+}
 
 const filteredResidents = computed(() => {
   return residents.value.filter(r => {
@@ -311,8 +379,12 @@ function openCreate() {
   }
 }
 
-function goToDetail(id: number) {
-  router.push(`/residents/${id}`)
+function goToDetail(id: number, edit = false) {
+  if (edit) {
+    router.push({ path: `/residents/${id}`, query: { edit: '1' } })
+  } else {
+    router.push(`/residents/${id}`)
+  }
 }
 
 function initials(name?: string) {
@@ -330,6 +402,11 @@ function fmtDate(iso: string | null): string {
 onMounted(() => {
   load()
   loadEstates()
+  window.addEventListener('click', closeCardMenu)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeCardMenu)
 })
 </script>
 
@@ -641,26 +718,106 @@ onMounted(() => {
   justify-content: space-between;
   padding-top: 12px;
   border-top: 1px solid #F3F4F6;
+  gap: 8px;
 }
 
-.grid-join-date {
-  font-size: 11.5px;
-  color: #6B7280;
+/* ── Card Kebab Dropdown Menu ──────────────────────── */
+.card-menu-wrap {
+  position: relative;
 }
 
-.grid-view-link {
-  display: inline-flex;
+.btn-kebab {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #9CA3AF;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #0A5C38;
-  transition: all 160ms ease;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 140ms ease;
 }
 
-.resident-grid-card:hover .grid-view-link {
-  transform: translateX(3px);
-  color: #07472B;
+.btn-kebab:hover, .btn-kebab.active {
+  background: #F3F4F6;
+  color: #111827;
+  border-color: #E5E7EB;
+}
+
+.kebab-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 172px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropIn 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.kebab-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.kebab-item:hover {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.kebab-item.text-amber {
+  color: #D97706;
+}
+
+.kebab-item.text-amber:hover {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.kebab-item.text-emerald {
+  color: #047857;
+}
+
+.kebab-item.text-emerald:hover {
+  background: #ECFDF5;
+  color: #065F46;
+}
+
+.kebab-divider {
+  height: 1px;
+  background: #F3F4F6;
+  margin: 3px 0;
 }
 
 /* ── Avatar Elements ───────────────────────────────── */

@@ -801,10 +801,13 @@ watch(() => route.params.id, (newId) => {
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   const id = Number(route.params.id)
   if (id) {
-    loadResident(id)
+    await loadResident(id)
+    if (route.query.edit === '1' || route.query.edit === 'true') {
+      openEditModal()
+    }
   }
 })
 </script>
