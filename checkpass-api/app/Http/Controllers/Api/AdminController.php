@@ -178,20 +178,25 @@ class AdminController extends Controller
         // Fetch dues / fee records
         $dues = [];
         if ($resident->user_id) {
-            $dues = \DB::table('fee_user')
-                ->where('fee_user.user_id', $resident->user_id)
-                ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
-                ->select(
-                    'fee_user.id',
-                    'fees.name as fee_name',
-                    'fees.amount',
-                    'fee_user.status',
-                    'fee_user.paid_at',
-                    'fee_user.created_at'
-                )
-                ->latest('fee_user.created_at')
-                ->take(20)
-                ->get();
+            try {
+                $dues = \DB::table('fee_user')
+                    ->where('fee_user.user_id', $resident->user_id)
+                    ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                    ->select(
+                        'fee_user.id',
+                        'fees.name as fee_name',
+                        'fees.amount',
+                        \DB::raw("COALESCE(fee_user.payment_status, 'due') as status"),
+                        \DB::raw("fee_user.verified_at as paid_at"),
+                        'fee_user.created_at'
+                    )
+                    ->latest('fee_user.created_at')
+                    ->take(20)
+                    ->get();
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to fetch resident dues: ' . $e->getMessage());
+                $dues = [];
+            }
         }
 
         // Sibling resident IDs in current estate for fast navigation
