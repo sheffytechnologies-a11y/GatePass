@@ -14,15 +14,9 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'https://erp-api.hayokmedicare.ng',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
-        configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('Origin', 'https://erp-api.hayokmedicare.ng')
-            proxyReq.setHeader('Referer', 'https://erp-api.hayokmedicare.ng/')
-          })
-        },
       },
     },
   },
