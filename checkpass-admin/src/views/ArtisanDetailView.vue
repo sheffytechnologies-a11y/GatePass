@@ -1,6 +1,6 @@
 <template>
   <div class="artisan-detail-page">
-    <!-- Top Bar with Back Link & Creative Sibling Navigator -->
+    <!-- Top Bar with Back Link & Action CTAs -->
     <div class="top-nav-bar">
       <router-link to="/artisans" class="btn-back">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -11,50 +11,30 @@
       </router-link>
 
       <div class="top-bar-right">
-        <!-- Keyboard shortcuts hint -->
-        <span class="keyboard-tip" title="Use Left / Right arrow keys to navigate">
-          <kbd>&larr;</kbd> <kbd>&rarr;</kbd> keys
-        </span>
-
-        <!-- Sibling Navigator -->
-        <div v-if="allArtisans.length > 1" class="sibling-nav">
-          <button
-            type="button"
-            class="sibling-btn"
-            :disabled="!prevArtisanId"
-            title="Previous Artisan (Left Arrow)"
-            @click="goToArtisan(prevArtisanId)"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-            <span class="sibling-text">Prev</span>
-          </button>
-
-          <span class="sibling-counter">
-            <strong>{{ currentIndex + 1 }}</strong> of {{ allArtisans.length }}
-          </span>
-
-          <button
-            type="button"
-            class="sibling-btn"
-            :disabled="!nextArtisanId"
-            title="Next Artisan (Right Arrow)"
-            @click="goToArtisan(nextArtisanId)"
-          >
-            <span class="sibling-text">Next</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
-        </div>
-
         <button type="button" class="btn btn-outline" @click="openEditModal">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
           <span>Edit Profile</span>
+        </button>
+
+        <button
+          v-if="artisan"
+          type="button"
+          class="btn"
+          :class="artisan.status === 'Active' ? 'btn-disable' : 'btn-enable'"
+          :disabled="togglingStatus"
+          @click="toggleArtisanStatus"
+        >
+          <svg v-if="artisan.status === 'Active'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+          </svg>
+          <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>{{ artisan.status === 'Active' ? 'Disable Artisan' : 'Enable Artisan' }}</span>
         </button>
       </div>
     </div>
@@ -78,22 +58,20 @@
             </div>
 
             <div class="hero-identity">
-              <div class="hero-badge-row">
-                <span class="accredited-pill">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    <polyline points="9 12 11 14 15 10"/>
-                  </svg>
-                  Estate Accredited Artisan
-                </span>
-                <span class="category-pill">{{ artisan.category }}</span>
-                <span class="status-pill" :class="artisan.status === 'Active' ? 'status-pill--active' : 'status-pill--inactive'">
-                  <span class="status-dot"></span>
-                  {{ artisan.status || 'Active' }}
-                </span>
+              <div class="hero-name-row">
+                <h1 class="hero-name">{{ artisan.name }}</h1>
+                <div class="hero-pills-group">
+                  <span class="category-pill">{{ artisan.category }}</span>
+                  <span
+                    class="status-pill"
+                    :class="artisan.status === 'Active' ? 'status-pill--active' : 'status-pill--disabled'"
+                  >
+                    <span class="status-dot"></span>
+                    {{ artisan.status || 'Active' }}
+                  </span>
+                </div>
               </div>
 
-              <h1 class="hero-name">{{ artisan.name }}</h1>
               <p class="hero-trade">{{ artisan.trade }}</p>
 
               <div class="hero-meta-strip">
@@ -122,84 +100,6 @@
                 </span>
               </div>
             </div>
-          </div>
-
-          <!-- Hero Action Buttons -->
-          <div class="hero-actions">
-            <a
-              :href="`https://wa.me/${artisan.whatsapp}?text=${encodeURIComponent(`Hello ${artisan.name}, I am reaching out from Checkpass Estate regarding a maintenance request.`)}`"
-              target="_blank"
-              class="btn-cta btn-whatsapp"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.311.045-.698.059-1.146-.086-.285-.093-.654-.234-1.157-.453-2.147-.936-3.535-3.125-3.642-3.267-.107-.142-.871-1.159-.871-2.211 0-1.052.55-1.57.747-1.784.197-.214.43-.268.574-.268.143 0 .287.002.412.008.132.006.309-.05.483.37.18.435.617 1.506.671 1.616.054.11.09.239.018.384-.072.146-.108.236-.214.361-.107.125-.226.279-.323.375-.107.107-.219.224-.094.439.125.214.557.919 1.194 1.488.82.732 1.512.959 1.727 1.066.215.107.34.09.466-.054.125-.143.538-.626.681-.841.143-.215.287-.179.483-.107.197.072 1.253.591 1.468.699.215.107.359.161.412.251.054.09.054.52-.09.925z"/>
-                <path d="M12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.662 1.435 5.178L2 22l4.981-1.399C8.423 21.492 10.151 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.25c-1.637 0-3.17-.488-4.46-1.328l-.32-.208-2.96.831.815-2.884-.225-.339c-.933-1.407-1.45-3.076-1.45-4.822 0-4.742 3.858-8.6 8.6-8.6 4.743 0 8.6 3.858 8.6 8.6 0 4.742-3.857 8.6-8.6 8.6z"/>
-              </svg>
-              <span>Chat on WhatsApp</span>
-            </a>
-
-            <a :href="`tel:${artisan.phone}`" class="btn-cta btn-call">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <span>Call Provider</span>
-            </a>
-
-            <button type="button" class="btn-cta btn-copy" @click="copyPhone">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-              </svg>
-              <span>{{ copied ? 'Copied!' : 'Copy Phone' }}</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── KPI & TRUST STRIP (4 METRICS) ── -->
-      <section class="kpi-strip">
-        <div class="kpi-card card">
-          <div class="kpi-icon-wrap kpi-icon--amber">★</div>
-          <div class="kpi-content">
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{ artisan.rating ? Number(artisan.rating).toFixed(1) : '5.0' }}</span>
-              <span class="kpi-subval">/ 5.0</span>
-            </div>
-            <div class="kpi-label">Resident Rating</div>
-            <div class="kpi-footnote">{{ (artisan.reviews && artisan.reviews.length) || 0 }} Verified Reviews</div>
-          </div>
-        </div>
-
-        <div class="kpi-card card">
-          <div class="kpi-icon-wrap kpi-icon--green">🛡️</div>
-          <div class="kpi-content">
-            <div class="kpi-value-row">
-              <span class="kpi-value text-green">Accredited</span>
-            </div>
-            <div class="kpi-label">Estate Gate Clearance</div>
-            <div class="kpi-footnote">Active pass &amp; background check</div>
-          </div>
-        </div>
-
-        <div class="kpi-card card">
-          <div class="kpi-icon-wrap kpi-icon--blue">⚡</div>
-          <div class="kpi-content">
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{ artisan.responseTime || '< 20 mins' }}</span>
-            </div>
-            <div class="kpi-label">Avg. Response Time</div>
-            <div class="kpi-footnote">Fast on-site dispatch</div>
-          </div>
-        </div>
-
-        <div class="kpi-card card">
-          <div class="kpi-icon-wrap kpi-icon--purple">🤝</div>
-          <div class="kpi-content">
-            <div class="kpi-value-row">
-              <span class="kpi-value">{{ artisan.jobsCompleted || 48 }}+</span>
-            </div>
-            <div class="kpi-label">Completed Jobs</div>
-            <div class="kpi-footnote">100% Satisfaction Record</div>
           </div>
         </div>
       </section>
@@ -469,7 +369,6 @@
                     <div>
                       <div class="reviewer-name-row">
                         <strong>{{ rev.residentName }}</strong>
-                        <span class="verified-resident-tag">Verified Resident</span>
                       </div>
                       <div class="reviewer-unit-row">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -499,7 +398,7 @@
 
     <!-- ── MODAL: EDIT ARTISAN PROFILE ── -->
     <div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog--artisan">
         <div class="modal-header">
           <div>
             <h3>Edit Artisan Profile</h3>
@@ -536,6 +435,7 @@
                 <select v-model="editForm.status" class="form-input">
                   <option value="Active">Active (Visible to Residents)</option>
                   <option value="Under Review">Under Review</option>
+                  <option value="Disabled">Disabled</option>
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
@@ -557,20 +457,57 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Operating Address / Station</label>
-              <input v-model="editForm.address" type="text" class="form-input" />
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Operating Address / Station</label>
+                <input v-model="editForm.address" type="text" class="form-input" placeholder="e.g. Commercial Plaza, Shop 2" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Response Time / Hours</label>
+                <input v-model="editForm.responseTime" type="text" class="form-input" placeholder="e.g. < 20 mins or Mon - Sat" />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Years of Experience</label>
+                <input v-model.number="editForm.experienceYears" type="number" min="0" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Verified Since</label>
+                <input v-model="editForm.verifiedSince" type="text" class="form-input" placeholder="e.g. Nov 2024" />
+              </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">Skills &amp; Specializations (comma separated)</label>
-              <input v-model="editForm.skillsStr" type="text" class="form-input" placeholder="e.g. Inverter Wiring, DB Box Balancing" />
+              <input v-model="editForm.skillsStr" type="text" class="form-input" placeholder="e.g. Inverter Wiring, DB Box Balancing, Solar Balancing" />
+            </div>
+
+            <div class="form-group checklist-group">
+              <label class="form-label">Estate Accreditation Checklist</label>
+              <div class="checkbox-options">
+                <label class="checkbox-label">
+                  <input v-model="editForm.idVerified" type="checkbox" />
+                  <span>National Identity Verified (NIN / Driver's License)</span>
+                </label>
+                <label class="checkbox-label">
+                  <input v-model="editForm.policeCleared" type="checkbox" />
+                  <span>Security &amp; Police Background Clearance</span>
+                </label>
+                <label class="checkbox-label">
+                  <input v-model="editForm.gatePassCleared" type="checkbox" />
+                  <span>GatePass RFID / QR Security Tag Cleared</span>
+                </label>
+              </div>
             </div>
           </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="showEditModal = false">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+            <button type="submit" class="btn btn-primary" :disabled="saving">
+              {{ saving ? 'Saving...' : 'Save Profile Changes' }}
+            </button>
           </div>
         </form>
       </div>
@@ -579,24 +516,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import {
-  type ArtisanItem,
-  loadArtisans,
-  getArtisanById,
-  updateArtisan,
-  addArtisanReview
-} from '@/data/artisans'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { type ArtisanItem, getArtisanById, updateArtisan } from '@/data/artisans'
+import { artisansApi } from '@/api'
 import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
-const router = useRouter()
 const { showToast } = useToast()
 
 const artisan = ref<ArtisanItem | null>(null)
-const allArtisans = ref<ArtisanItem[]>([])
-const copied = ref(false)
+const loading = ref(false)
+const togglingStatus = ref(false)
+const saving = ref(false)
 
 // Edit Modal state
 const showEditModal = ref(false)
@@ -606,9 +538,15 @@ const editForm = ref({
   trade: '',
   phone: '',
   whatsapp: '',
-  status: 'Active' as 'Active' | 'Under Review' | 'Inactive',
+  status: 'Active' as 'Active' | 'Under Review' | 'Inactive' | 'Disabled',
   address: '',
-  skillsStr: ''
+  experienceYears: 5,
+  verifiedSince: '',
+  responseTime: '< 30 mins',
+  skillsStr: '',
+  idVerified: true,
+  policeCleared: true,
+  gatePassCleared: true,
 })
 
 // Add Review form
@@ -617,7 +555,7 @@ const newReviewForm = ref({
   residentName: '',
   residentUnit: '',
   rating: 5,
-  comment: ''
+  comment: '',
 })
 
 const ratingLabels: Record<number, string> = {
@@ -625,66 +563,54 @@ const ratingLabels: Record<number, string> = {
   4: '4 Stars - Very Good',
   3: '3 Stars - Satisfactory',
   2: '2 Stars - Needs Improvement',
-  1: '1 Star - Unsatisfactory'
+  1: '1 Star - Unsatisfactory',
 }
 
-function refreshArtisan() {
-  allArtisans.value = loadArtisans()
+async function refreshArtisan() {
+  loading.value = true
   const id = String(route.params.id)
+  try {
+    const res = await artisansApi.getOne(id)
+    if (res.data?.artisan) {
+      artisan.value = res.data.artisan
+      loading.value = false
+      return
+    }
+  } catch (err) {
+    console.warn('Backend fetch failed, falling back to local dataset:', err)
+  }
+
   const found = getArtisanById(id)
   if (found) {
     artisan.value = found
   } else {
     artisan.value = null
   }
+  loading.value = false
 }
 
 watch(() => route.params.id, () => {
   refreshArtisan()
 })
 
-const currentIndex = computed(() => {
-  if (!artisan.value) return -1
-  return allArtisans.value.findIndex(a => String(a.id) === String(artisan.value?.id))
-})
-
-const prevArtisanId = computed(() => {
-  if (currentIndex.value > 0) {
-    return allArtisans.value[currentIndex.value - 1].id
-  }
-  return null
-})
-
-const nextArtisanId = computed(() => {
-  if (currentIndex.value >= 0 && currentIndex.value < allArtisans.value.length - 1) {
-    return allArtisans.value[currentIndex.value + 1].id
-  }
-  return null
-})
-
-function goToArtisan(id: string | null) {
-  if (!id) return
-  router.push(`/artisans/${id}`)
-}
-
-function handleKeydown(e: KeyboardEvent) {
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) return
-  if (e.key === 'ArrowLeft' && prevArtisanId.value) {
-    goToArtisan(prevArtisanId.value)
-  } else if (e.key === 'ArrowRight' && nextArtisanId.value) {
-    goToArtisan(nextArtisanId.value)
-  }
-}
-
-async function copyPhone() {
-  if (!artisan.value?.phone) return
+async function toggleArtisanStatus() {
+  const current = artisan.value
+  if (!current || togglingStatus.value) return
+  togglingStatus.value = true
+  const newStatus: 'Active' | 'Disabled' = current.status === 'Active' ? 'Disabled' : 'Active'
   try {
-    await navigator.clipboard.writeText(artisan.value.phone)
-    copied.value = true
-    showToast('Phone number copied to clipboard', 'success')
-    setTimeout(() => { copied.value = false }, 2500)
-  } catch {
-    showToast('Failed to copy', 'error')
+    const res = await artisansApi.update(current.id, { status: newStatus })
+    if (res.data?.artisan) {
+      artisan.value = res.data.artisan
+    } else {
+      current.status = newStatus
+    }
+    updateArtisan(current.id, { status: newStatus })
+    showToast(`Artisan ${current.name} marked as ${newStatus}`, newStatus === 'Active' ? 'success' : 'warning')
+  } catch (err) {
+    showToast('Failed to update artisan status.', 'error')
+  } finally {
+    togglingStatus.value = false
   }
 }
 
@@ -697,75 +623,121 @@ function getStarPercentage(star: number): number {
 }
 
 function openEditModal() {
-  if (!artisan.value) return
+  const current = artisan.value
+  if (!current) return
   editForm.value = {
-    name: artisan.value.name,
-    category: artisan.value.category,
-    trade: artisan.value.trade,
-    phone: artisan.value.phone,
-    whatsapp: artisan.value.whatsapp,
-    status: artisan.value.status || 'Active',
-    address: artisan.value.address || '',
-    skillsStr: (artisan.value.skills || []).join(', ')
+    name: current.name,
+    category: current.category,
+    trade: current.trade,
+    phone: current.phone,
+    whatsapp: current.whatsapp,
+    status: (current.status || 'Active') as 'Active' | 'Under Review' | 'Inactive' | 'Disabled',
+    address: current.address || '',
+    experienceYears: current.experienceYears || 5,
+    verifiedSince: current.verifiedSince || 'Nov 2024',
+    responseTime: current.responseTime || '< 30 mins',
+    skillsStr: (current.skills || []).join(', '),
+    idVerified: current.idVerified !== false,
+    policeCleared: current.policeCleared !== false,
+    gatePassCleared: current.gatePassCleared !== false,
   }
   showEditModal.value = true
 }
 
-function saveArtisanChanges() {
-  if (!artisan.value) return
+async function saveArtisanChanges() {
+  const current = artisan.value
+  if (!current) return
+  saving.value = true
   const skills = editForm.value.skillsStr
     .split(',')
     .map(s => s.trim())
     .filter(Boolean)
 
-  const updated = updateArtisan(artisan.value.id, {
-    name: editForm.value.name,
+  const payload = {
+    name: editForm.value.name.trim(),
     category: editForm.value.category,
-    trade: editForm.value.trade,
-    phone: editForm.value.phone,
+    trade: editForm.value.trade.trim(),
+    phone: editForm.value.phone.trim(),
     whatsapp: editForm.value.whatsapp.replace(/\D/g, ''),
     status: editForm.value.status,
-    address: editForm.value.address,
-    skills: skills.length ? skills : artisan.value.skills
-  })
+    address: editForm.value.address.trim(),
+    experience_years: editForm.value.experienceYears,
+    verified_since: editForm.value.verifiedSince.trim(),
+    response_time: editForm.value.responseTime.trim(),
+    skills: skills.length ? skills : [editForm.value.trade],
+    id_verified: editForm.value.idVerified,
+    police_cleared: editForm.value.policeCleared,
+    gate_pass_cleared: editForm.value.gatePassCleared,
+  }
 
-  if (updated) {
-    artisan.value = updated
+  try {
+    const res = await artisansApi.update(current.id, payload)
+    if (res.data?.artisan) {
+      artisan.value = res.data.artisan
+    } else {
+      artisan.value = {
+        ...current,
+        name: payload.name,
+        category: payload.category,
+        trade: payload.trade,
+        phone: payload.phone,
+        whatsapp: payload.whatsapp,
+        status: payload.status,
+        address: payload.address,
+        experienceYears: payload.experience_years,
+        verifiedSince: payload.verified_since,
+        responseTime: payload.response_time,
+        skills: payload.skills,
+        idVerified: payload.id_verified,
+        policeCleared: payload.police_cleared,
+        gatePassCleared: payload.gate_pass_cleared,
+      }
+    }
+    if (artisan.value) {
+      updateArtisan(current.id, artisan.value)
+    }
     showEditModal.value = false
     showToast('Artisan profile updated successfully', 'success')
+  } catch (err) {
+    showToast('Failed to update artisan profile', 'error')
+  } finally {
+    saving.value = false
   }
 }
 
-function submitResidentReview() {
+async function submitResidentReview() {
   if (!artisan.value) return
   if (!newReviewForm.value.residentName.trim() || !newReviewForm.value.comment.trim()) {
     showToast('Please fill all review fields', 'error')
     return
   }
 
-  const added = addArtisanReview(artisan.value.id, {
-    residentName: newReviewForm.value.residentName,
-    residentUnit: newReviewForm.value.residentUnit || 'Estate Resident',
-    rating: newReviewForm.value.rating,
-    comment: newReviewForm.value.comment,
-    date: 'Just now'
-  })
+  try {
+    const res = await artisansApi.addReview(artisan.value.id, {
+      resident_name: newReviewForm.value.residentName.trim(),
+      resident_unit: newReviewForm.value.residentUnit.trim() || 'Estate Resident',
+      rating: newReviewForm.value.rating,
+      comment: newReviewForm.value.comment.trim(),
+    })
 
-  if (added) {
-    refreshArtisan()
+    if (res.data?.review && artisan.value) {
+      artisan.value.reviews = artisan.value.reviews || []
+      artisan.value.reviews.unshift(res.data.review)
+      if (res.data.artisan?.rating) {
+        artisan.value.rating = res.data.artisan.rating
+      }
+    }
     showAddReviewForm.value = false
     newReviewForm.value = { residentName: '', residentUnit: '', rating: 5, comment: '' }
     showToast('Resident review recorded successfully!', 'success')
+    await refreshArtisan()
+  } catch (err) {
+    showToast('Failed to record review.', 'error')
   }
 }
 
 onMounted(() => {
   refreshArtisan()
-  window.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 
@@ -812,69 +784,49 @@ onUnmounted(() => {
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.keyboard-tip {
-  font-size: 11.5px;
-  color: #9CA3AF;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.keyboard-tip kbd {
-  background: #F3F4F6;
-  border: 1px solid #D1D5DB;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 10px;
-  font-family: inherit;
-  font-weight: 600;
-  color: #4B5563;
-}
-
-.sibling-nav {
-  display: inline-flex;
-  align-items: center;
+.btn-disable {
   background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 9px;
-  padding: 3px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-}
-
-.sibling-btn {
+  color: #DC2626;
+  border: 1px solid #FECACA;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: transparent;
-  border: none;
-  font-size: 12.5px;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
-  color: #374151;
-  padding: 5px 10px;
-  border-radius: 6px;
   cursor: pointer;
-  transition: all 140ms ease;
+  transition: all 150ms ease;
 }
 
-.sibling-btn:hover:not(:disabled) {
-  background: #F3F4F6;
-  color: #111827;
+.btn-disable:hover:not(:disabled) {
+  background: #FEF2F2;
+  border-color: #F87171;
+  color: #B91C1C;
 }
 
-.sibling-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+.btn-enable {
+  background: #ffffff;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
 }
 
-.sibling-counter {
-  font-size: 12px;
-  color: #6B7280;
-  padding: 0 8px;
-  border-left: 1px solid #F3F4F6;
-  border-right: 1px solid #F3F4F6;
+.btn-enable:hover:not(:disabled) {
+  background: #ECFDF5;
+  border-color: #34D399;
+  color: #047857;
 }
 
 /* ── Hero Banner ── */
@@ -882,7 +834,7 @@ onUnmounted(() => {
   background: #ffffff;
   border: 1px solid #E5E7EB;
   border-radius: 16px;
-  padding: 28px 32px;
+  padding: 24px 28px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
@@ -890,29 +842,29 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 28px;
+  gap: 24px;
   flex-wrap: wrap;
 }
 
 .hero-profile-group {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
 }
 
 .avatar-badge-hero {
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
   color: #ffffff;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   letter-spacing: -0.5px;
   flex-shrink: 0;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .hero-identity {
@@ -921,25 +873,25 @@ onUnmounted(() => {
   gap: 6px;
 }
 
-.hero-badge-row {
+.hero-name-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-.accredited-pill {
+.hero-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.hero-pills-group {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #065F46;
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
-  padding: 3px 9px;
-  border-radius: 999px;
-  letter-spacing: 0.2px;
+  gap: 8px;
 }
 
 .category-pill {
@@ -968,9 +920,10 @@ onUnmounted(() => {
   border: 1px solid #DCFCE7;
 }
 
+.status-pill--disabled,
 .status-pill--inactive {
   background: #FEF2F2;
-  color: #B91C1C;
+  color: #DC2626;
   border: 1px solid #FEE2E2;
 }
 
@@ -981,16 +934,8 @@ onUnmounted(() => {
   background: currentColor;
 }
 
-.hero-name {
-  font-size: 26px;
-  font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.6px;
-  margin: 0;
-}
-
 .hero-trade {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 500;
   color: #4B5563;
   margin: 0;
@@ -1000,7 +945,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: #6B7280;
   margin-top: 2px;
   flex-wrap: wrap;
@@ -1016,138 +961,41 @@ onUnmounted(() => {
   color: #D1D5DB;
 }
 
-/* ── Hero Action CTAs ── */
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+/* Modal sizing and checklist styling */
+.modal-dialog--artisan {
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.btn-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
-  border: none;
-}
-
-.btn-whatsapp {
-  background: #25D366;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.28);
-}
-
-.btn-whatsapp:hover {
-  background: #20BA5A;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.38);
-}
-
-.btn-call {
-  background: #0A5C38;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.25);
-}
-
-.btn-call:hover {
-  background: #08482C;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(10, 92, 56, 0.35);
-}
-
-.btn-copy {
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #D1D5DB;
-}
-
-.btn-copy:hover {
+.checklist-group {
   background: #F9FAFB;
-  border-color: #9CA3AF;
-  color: #111827;
-}
-
-/* ── KPI Strip ── */
-.kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.kpi-card {
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 14px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  transition: all 160ms ease;
-}
-
-.kpi-card:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.kpi-icon-wrap {
-  width: 40px;
-  height: 40px;
+  padding: 12px 14px;
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+  border: 1px solid #E5E7EB;
 }
 
-.kpi-icon--amber { background: #FEF3C7; color: #D97706; }
-.kpi-icon--green { background: #DCFCE7; color: #16A34A; }
-.kpi-icon--blue  { background: #DBEAFE; color: #2563EB; }
-.kpi-icon--purple{ background: #F3E8FF; color: #7E22CE; }
-
-.kpi-content {
+.checkbox-options {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
 }
 
-.kpi-value-row {
+.checkbox-label {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.kpi-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.4px;
-}
-
-.kpi-subval {
-  font-size: 13px;
-  font-weight: 600;
-  color: #9CA3AF;
-}
-
-.kpi-label {
+  align-items: center;
+  gap: 8px;
   font-size: 12.5px;
-  font-weight: 600;
-  color: #4B5563;
-  margin-top: 1px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
 }
 
-.kpi-footnote {
-  font-size: 11px;
-  color: #9CA3AF;
-  margin-top: 3px;
+.checkbox-label input[type="checkbox"] {
+  accent-color: #0A5C38;
+  width: 15px;
+  height: 15px;
 }
 
 /* ── 2-Column Detail Grid ── */

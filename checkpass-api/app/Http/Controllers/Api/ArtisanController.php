@@ -79,7 +79,7 @@ class ArtisanController extends Controller
 
         $user = $request->user();
         $residentName = $data['resident_name'] ?? ($user?->name ?? 'Resident Neighbor');
-        $residentUnit = $data['resident_unit'] ?? ($user?->resident?->unit?->flatAddress ?? 'Verified Resident');
+        $residentUnit = $data['resident_unit'] ?? ($user?->resident?->unit?->flatAddress ?? 'Estate Resident');
 
         $reviews = $artisan->reviews ?? [];
         $newReview = [
@@ -158,10 +158,16 @@ class ArtisanController extends Controller
             'whatsapp' => 'nullable|string|max:50',
             'estate_id' => 'nullable|integer',
             'address' => 'nullable|string|max:255',
-            'status' => 'nullable|string|in:Active,Under Review,Inactive',
-            'experience_years' => 'nullable|integer',
+            'status' => 'nullable|string|in:Active,Under Review,Inactive,Disabled',
+            'verified_since' => 'nullable|string|max:100',
+            'experience_years' => 'nullable|integer|min:0',
+            'response_time' => 'nullable|string|max:100',
+            'jobs_completed' => 'nullable|integer|min:0',
             'skills' => 'nullable|array',
             'image_url' => 'nullable|string',
+            'gate_pass_cleared' => 'nullable|boolean',
+            'police_cleared' => 'nullable|boolean',
+            'id_verified' => 'nullable|boolean',
         ]);
 
         $initials = collect(explode(' ', trim($data['name'])))
@@ -186,13 +192,13 @@ class ArtisanController extends Controller
             'image_url' => $data['image_url'] ?? null,
             'status' => $data['status'] ?? 'Active',
             'address' => $data['address'] ?? 'Estate Service Directory',
-            'verified_since' => date('M Y'),
+            'verified_since' => $data['verified_since'] ?? date('M Y'),
             'experience_years' => $data['experience_years'] ?? 3,
-            'gate_pass_cleared' => true,
-            'police_cleared' => true,
-            'id_verified' => true,
-            'response_time' => '< 30 mins',
-            'jobs_completed' => 0,
+            'gate_pass_cleared' => isset($data['gate_pass_cleared']) ? (bool) $data['gate_pass_cleared'] : true,
+            'police_cleared' => isset($data['police_cleared']) ? (bool) $data['police_cleared'] : true,
+            'id_verified' => isset($data['id_verified']) ? (bool) $data['id_verified'] : true,
+            'response_time' => $data['response_time'] ?? '< 30 mins',
+            'jobs_completed' => $data['jobs_completed'] ?? 0,
             'skills' => $data['skills'] ?? [$data['trade']],
             'reviews' => [],
             'recent_gate_logs' => [],
@@ -229,14 +235,25 @@ class ArtisanController extends Controller
             'phone' => 'sometimes|required|string|max:50',
             'whatsapp' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
-            'status' => 'nullable|string|in:Active,Under Review,Inactive',
-            'experience_years' => 'nullable|integer',
+            'status' => 'nullable|string|in:Active,Under Review,Inactive,Disabled',
+            'verified_since' => 'nullable|string|max:100',
+            'experience_years' => 'nullable|integer|min:0',
+            'response_time' => 'nullable|string|max:100',
+            'jobs_completed' => 'nullable|integer|min:0',
             'skills' => 'nullable|array',
             'image_url' => 'nullable|string',
             'gate_pass_cleared' => 'nullable|boolean',
             'police_cleared' => 'nullable|boolean',
             'id_verified' => 'nullable|boolean',
         ]);
+
+        $artisan->update($data);
+
+        return response()->json([
+            'message' => 'Artisan updated successfully.',
+            'artisan' => $this->formatArtisan($artisan->fresh()),
+        ]);
+    }
 
         $artisan->update($data);
 

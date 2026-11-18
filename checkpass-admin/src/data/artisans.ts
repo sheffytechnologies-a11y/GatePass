@@ -25,7 +25,7 @@ export interface ArtisanItem {
   rating: number
   avatarBg: string
   initials: string
-  status?: 'Active' | 'Under Review' | 'Inactive'
+  status?: 'Active' | 'Under Review' | 'Inactive' | 'Disabled'
   address?: string
   verifiedSince?: string
   experienceYears?: number
@@ -338,7 +338,7 @@ export function createArtisan(data: {
   category: string
   phone: string
   whatsapp: string
-  status?: 'Active' | 'Under Review' | 'Inactive'
+  status?: 'Active' | 'Under Review' | 'Inactive' | 'Disabled'
   skills?: string[]
 }): ArtisanItem {
   const list = loadArtisans()

@@ -275,11 +275,11 @@
 
     <!-- ── MODAL: ADD / EDIT ARTISAN ── -->
     <div v-if="showArtisanModal" class="modal-overlay" @click.self="showArtisanModal = false">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog--artisan-form">
         <div class="modal-header">
           <div>
             <h3>{{ isEditing ? 'Edit Verified Artisan' : 'Add New Verified Artisan' }}</h3>
-            <p>Vetted contact and trade details for residents</p>
+            <p>Vetted contact, trade details, and clearance for estate residents</p>
           </div>
           <button class="modal-close" @click="showArtisanModal = false">&times;</button>
         </div>
@@ -287,7 +287,7 @@
         <form @submit.prevent="saveArtisan" class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Full Name*</label>
+              <label class="form-label">Full Name *</label>
               <input
                 v-model="artisanForm.name"
                 type="text"
@@ -297,7 +297,7 @@
               />
             </div>
             <div class="form-group">
-              <label class="form-label">Category*</label>
+              <label class="form-label">Category *</label>
               <select v-model="artisanForm.category" required class="form-input">
                 <option value="Electrician">Electrician</option>
                 <option value="Plumber">Plumber</option>
@@ -313,7 +313,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Trade Title / Specialty*</label>
+            <label class="form-label">Trade Title / Specialty *</label>
             <input
               v-model="artisanForm.trade"
               type="text"
@@ -325,7 +325,7 @@
 
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Phone Number*</label>
+              <label class="form-label">Phone Number *</label>
               <input
                 v-model="artisanForm.phone"
                 type="tel"
@@ -335,7 +335,7 @@
               />
             </div>
             <div class="form-group">
-              <label class="form-label">WhatsApp Number (digits only)*</label>
+              <label class="form-label">WhatsApp Number (digits only) *</label>
               <input
                 v-model="artisanForm.whatsapp"
                 type="text"
@@ -346,13 +346,85 @@
             </div>
           </div>
 
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Operating Address / Station</label>
+              <input
+                v-model="artisanForm.address"
+                type="text"
+                placeholder="e.g. Commercial Plaza, Shop 2 or On-Call"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Response Time / Hours</label>
+              <input
+                v-model="artisanForm.responseTime"
+                type="text"
+                placeholder="e.g. < 20 mins or Mon - Sat: 8 AM - 7 PM"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Years of Experience</label>
+              <input
+                v-model.number="artisanForm.experienceYears"
+                type="number"
+                min="0"
+                placeholder="e.g. 8"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Verified Since</label>
+              <input
+                v-model="artisanForm.verifiedSince"
+                type="text"
+                placeholder="e.g. Nov 2024"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Skills &amp; Specializations (comma separated)</label>
+            <input
+              v-model="artisanForm.skillsStr"
+              type="text"
+              placeholder="e.g. Inverter Wiring, DB Box Balancing, Solar Balancing"
+              class="form-input"
+            />
+          </div>
+
           <div class="form-group">
             <label class="form-label">Verification Status</label>
             <select v-model="artisanForm.status" class="form-input">
               <option value="Active">Active (Visible to Residents)</option>
               <option value="Under Review">Under Review</option>
+              <option value="Disabled">Disabled</option>
               <option value="Inactive">Inactive</option>
             </select>
+          </div>
+
+          <div class="form-group checklist-group">
+            <label class="form-label">Estate Accreditation Checklist</label>
+            <div class="checkbox-options">
+              <label class="checkbox-label">
+                <input v-model="artisanForm.idVerified" type="checkbox" />
+                <span>National Identity Verified (NIN / Driver's License)</span>
+              </label>
+              <label class="checkbox-label">
+                <input v-model="artisanForm.policeCleared" type="checkbox" />
+                <span>Security &amp; Police Background Clearance</span>
+              </label>
+              <label class="checkbox-label">
+                <input v-model="artisanForm.gatePassCleared" type="checkbox" />
+                <span>GatePass RFID / QR Security Tag Cleared</span>
+              </label>
+            </div>
           </div>
 
           <div class="modal-footer">
@@ -628,7 +700,15 @@ const artisanForm = ref({
   category: 'Electrician',
   phone: '',
   whatsapp: '',
-  status: 'Active' as 'Active' | 'Under Review' | 'Inactive',
+  status: 'Active' as 'Active' | 'Under Review' | 'Inactive' | 'Disabled',
+  address: '',
+  experienceYears: 5,
+  verifiedSince: '',
+  responseTime: '< 30 mins',
+  skillsStr: '',
+  idVerified: true,
+  policeCleared: true,
+  gatePassCleared: true,
 })
 
 function openCreateModal() {
@@ -641,6 +721,14 @@ function openCreateModal() {
     phone: '',
     whatsapp: '',
     status: 'Active',
+    address: '',
+    experienceYears: 5,
+    verifiedSince: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+    responseTime: '< 30 mins',
+    skillsStr: '',
+    idVerified: true,
+    policeCleared: true,
+    gatePassCleared: true,
   }
   showArtisanModal.value = true
 }
@@ -654,7 +742,15 @@ function openEditModal(artisan: ArtisanItem) {
     category: artisan.category,
     phone: artisan.phone,
     whatsapp: artisan.whatsapp,
-    status: artisan.status || 'Active',
+    status: (artisan.status || 'Active') as 'Active' | 'Under Review' | 'Inactive' | 'Disabled',
+    address: artisan.address || '',
+    experienceYears: artisan.experienceYears || 5,
+    verifiedSince: artisan.verifiedSince || 'Nov 2024',
+    responseTime: artisan.responseTime || '< 30 mins',
+    skillsStr: (artisan.skills || []).join(', '),
+    idVerified: artisan.idVerified !== false,
+    policeCleared: artisan.policeCleared !== false,
+    gatePassCleared: artisan.gatePassCleared !== false,
   }
   showArtisanModal.value = true
 }
@@ -684,48 +780,79 @@ function getAvatarColor(category: string): string {
 
 async function saveArtisan() {
   saving.value = true
+  const skills = artisanForm.value.skillsStr
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+
+  const payload = {
+    name: artisanForm.value.name.trim(),
+    trade: artisanForm.value.trade.trim(),
+    category: artisanForm.value.category,
+    phone: artisanForm.value.phone.trim(),
+    whatsapp: artisanForm.value.whatsapp.replace(/\D/g, '') || artisanForm.value.phone.replace(/\D/g, ''),
+    status: artisanForm.value.status,
+    address: artisanForm.value.address.trim(),
+    experience_years: artisanForm.value.experienceYears,
+    verified_since: artisanForm.value.verifiedSince.trim(),
+    response_time: artisanForm.value.responseTime.trim(),
+    skills: skills.length ? skills : [artisanForm.value.trade.trim()],
+    id_verified: artisanForm.value.idVerified,
+    police_cleared: artisanForm.value.policeCleared,
+    gate_pass_cleared: artisanForm.value.gatePassCleared,
+  }
+
   try {
     if (isEditing.value && editingId.value) {
       const idx = artisansList.value.findIndex(a => String(a.id) === String(editingId.value))
       if (idx !== -1) {
         artisansList.value[idx] = {
           ...artisansList.value[idx],
-          name: artisanForm.value.name.trim(),
-          trade: artisanForm.value.trade.trim(),
-          category: artisanForm.value.category,
-          phone: artisanForm.value.phone.trim(),
-          whatsapp: artisanForm.value.whatsapp.replace(/\D/g, ''),
-          status: artisanForm.value.status,
-          initials: getInitials(artisanForm.value.name),
-          avatarBg: getAvatarColor(artisanForm.value.category),
+          name: payload.name,
+          trade: payload.trade,
+          category: payload.category,
+          phone: payload.phone,
+          whatsapp: payload.whatsapp,
+          status: payload.status,
+          address: payload.address,
+          experienceYears: payload.experience_years,
+          verifiedSince: payload.verified_since,
+          responseTime: payload.response_time,
+          skills: payload.skills,
+          idVerified: payload.id_verified,
+          policeCleared: payload.police_cleared,
+          gatePassCleared: payload.gate_pass_cleared,
+          initials: getInitials(payload.name),
+          avatarBg: getAvatarColor(payload.category),
         }
         persistArtisans()
         showToast('Artisan details updated successfully!', 'success')
       }
       try {
-        await artisansApi.update(editingId.value, {
-          name: artisanForm.value.name.trim(),
-          trade: artisanForm.value.trade.trim(),
-          category: artisanForm.value.category,
-          phone: artisanForm.value.phone.trim(),
-          whatsapp: artisanForm.value.whatsapp.replace(/\D/g, ''),
-          status: artisanForm.value.status,
-        })
+        await artisansApi.update(editingId.value, payload)
       } catch (err) {
         console.warn('Backend update failed:', err)
       }
     } else {
       const newArtisan: ArtisanItem = {
         id: 'art-' + Date.now(),
-        name: artisanForm.value.name.trim(),
-        trade: artisanForm.value.trade.trim(),
-        category: artisanForm.value.category,
-        phone: artisanForm.value.phone.trim(),
-        whatsapp: artisanForm.value.whatsapp.replace(/\D/g, '') || artisanForm.value.phone.replace(/\D/g, ''),
-        status: artisanForm.value.status,
+        name: payload.name,
+        trade: payload.trade,
+        category: payload.category,
+        phone: payload.phone,
+        whatsapp: payload.whatsapp,
+        status: payload.status,
+        address: payload.address,
+        experienceYears: payload.experience_years,
+        verifiedSince: payload.verified_since,
+        responseTime: payload.response_time,
+        skills: payload.skills,
+        idVerified: payload.id_verified,
+        policeCleared: payload.police_cleared,
+        gatePassCleared: payload.gate_pass_cleared,
         rating: 5.0,
-        initials: getInitials(artisanForm.value.name),
-        avatarBg: getAvatarColor(artisanForm.value.category),
+        initials: getInitials(payload.name),
+        avatarBg: getAvatarColor(payload.category),
         reviews: [],
       }
       artisansList.value.unshift(newArtisan)
@@ -733,14 +860,7 @@ async function saveArtisan() {
       showToast('New artisan added to estate marketplace!', 'success')
 
       try {
-        const res = await artisansApi.create({
-          name: artisanForm.value.name.trim(),
-          trade: artisanForm.value.trade.trim(),
-          category: artisanForm.value.category,
-          phone: artisanForm.value.phone.trim(),
-          whatsapp: artisanForm.value.whatsapp.replace(/\D/g, '') || artisanForm.value.phone.replace(/\D/g, ''),
-          status: artisanForm.value.status,
-        })
+        const res = await artisansApi.create(payload)
         if (res.data?.artisan?.id) {
           artisansList.value[0].id = String(res.data.artisan.id)
           persistArtisans()
@@ -759,9 +879,9 @@ async function saveArtisan() {
 }
 
 async function toggleArtisanStatus(artisan: ArtisanItem) {
-  artisan.status = artisan.status === 'Active' ? 'Inactive' : 'Active'
+  artisan.status = artisan.status === 'Active' ? 'Disabled' : 'Active'
   persistArtisans()
-  showToast(`Artisan status set to ${artisan.status}`, 'warning')
+  showToast(`Artisan status set to ${artisan.status}`, artisan.status === 'Active' ? 'success' : 'warning')
   try {
     await artisansApi.update(artisan.id, { status: artisan.status })
   } catch (err) {
@@ -1237,6 +1357,35 @@ onUnmounted(() => {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
+}
+.modal-dialog--artisan-form {
+  max-width: 620px;
+}
+.checklist-group {
+  background: #F8FAF9;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #E5EAE7;
+}
+.checkbox-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+.checkbox-label input[type="checkbox"] {
+  accent-color: #0A5C38;
+  width: 15px;
+  height: 15px;
 }
 .modal-header {
   padding: 20px 24px 16px;

@@ -345,6 +345,7 @@ export const artisansApi = {
   create: (data: Record<string, unknown>) => client.post('/v1/admin/artisans', data),
   update: (id: string | number, data: Record<string, unknown>) => client.patch(`/v1/admin/artisans/${id}`, data),
   delete: (id: string | number) => client.delete(`/v1/admin/artisans/${id}`),
+  addReview: (id: string | number, data: Record<string, unknown>) => client.post(`/v1/artisans/${id}/reviews`, data),
 }
 
 export const publicApi = {
