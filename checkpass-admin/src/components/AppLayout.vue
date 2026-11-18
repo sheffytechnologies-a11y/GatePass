@@ -222,6 +222,7 @@ const navItems = computed(() => {
     { path: '/fees', label: 'Finance', icon: ICONS.finance },
     { path: '/artisans', label: 'Artisans & Services', icon: ICONS.artisans },
     { path: '/emergencies', label: 'Emergencies', icon: ICONS.emergencies },
+    { path: '/notifications', label: 'Notifications', icon: ICONS.notifications },
   )
 
   return items
@@ -229,13 +230,16 @@ const navItems = computed(() => {
 
 function isItemActive(path: string) {
   if (path === '/dashboard') {
-    return route.path === '/dashboard' || route.path.startsWith('/news')
+    return route.path === '/dashboard'
+  }
+  if (path === '/notifications') {
+    return route.path.startsWith('/notifications') || route.path.startsWith('/news')
   }
   return route.path.startsWith(path)
 }
 
 const pageTitle = computed(() => {
-  if (route.path.startsWith('/news')) return 'Estate Broadcasts & Notices'
+  if (route.path.startsWith('/notifications') || route.path.startsWith('/news')) return 'Notifications & Announcements'
   if (route.path.startsWith('/billing')) return 'Plan & Subscription'
   const match = navItems.value.find(n => route.path.startsWith(n.path))
   return match?.label ?? 'Dashboard'
