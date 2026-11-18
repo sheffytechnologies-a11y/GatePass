@@ -3,15 +3,6 @@
     <ion-header class="ion-no-border profile-header">
       <ion-toolbar class="profile-toolbar">
         <ion-title class="profile-page-title">Profile</ion-title>
-        <ion-buttons slot="end">
-          <button type="button" class="header-view-pass-btn" @click="openPassModal" aria-label="View Resident Pass">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            <span>View Pass</span>
-          </button>
-        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
@@ -430,7 +421,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent, IonButton,
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonIcon, IonToggle, IonSpinner, alertController,
 } from '@ionic/vue'
 import {
@@ -980,47 +971,6 @@ async function handleLogout() {
   letter-spacing: -0.3px;
   line-height: 1.2;
 }
-.header-view-pass-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: var(--w-primary, #0A5C38);
-  color: #FFFFFF !important;
-  border: none;
-  border-radius: 999px;
-  padding: 0 14px;
-  height: 34px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.1px;
-  text-transform: none !important;
-  box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
-}
-.header-view-pass-btn:hover {
-  background: #08482c;
-}
-.header-view-pass-btn:active {
-  transform: scale(0.96);
-  opacity: 0.9;
-}
-.header-view-pass-btn svg {
-  stroke: #FFFFFF !important;
-  color: #FFFFFF !important;
-  flex-shrink: 0;
-}
-.header-view-pass-btn span {
-  color: #FFFFFF !important;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: none !important;
-  line-height: 1;
-}
-
 .profile-card-arrow {
   color: rgba(255, 255, 255, 0.6);
   display: flex;
