@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\AccessPhraseController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\CrmLeadController;
+use App\Http\Controllers\Api\ArtisanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +129,11 @@ Route::prefix('v1')->group(function () {
         // News feed (resident/admin scoped)
         Route::get('news', [NewsController::class, 'feed']);
 
+        // Verified Artisans & Services directory
+        Route::get('artisans', [ArtisanController::class, 'index']);
+        Route::get('artisans/{id}', [ArtisanController::class, 'show']);
+        Route::post('artisans/{id}/reviews', [ArtisanController::class, 'storeReview']);
+
         // Passes
         Route::prefix('passes')->group(function () {
             Route::get('/',               [PassController::class, 'index']);
@@ -238,6 +244,13 @@ Route::prefix('v1')->group(function () {
             Route::get('news/{id}',         [NewsController::class, 'show']);
             Route::patch('news/{id}',       [NewsController::class, 'update']);
             Route::delete('news/{id}',      [NewsController::class, 'destroy']);
+
+            // Artisans Management
+            Route::get('artisans',          [ArtisanController::class, 'adminIndex']);
+            Route::post('artisans',         [ArtisanController::class, 'adminStore']);
+            Route::get('artisans/{id}',     [ArtisanController::class, 'adminShow']);
+            Route::patch('artisans/{id}',   [ArtisanController::class, 'adminUpdate']);
+            Route::delete('artisans/{id}',  [ArtisanController::class, 'adminDestroy']);
 
             // Billing (self-service subscription management)
             Route::prefix('billing')->group(function () {

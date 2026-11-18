@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Notification } from '@/types'
 import { notificationsApi } from '@/api/passes'
-import { MOCK_NOTIFICATIONS } from '@/api/mock'
 
 const STORAGE_KEY = 'cp_notifications'
 
@@ -18,7 +17,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) return JSON.parse(saved)
     } catch {}
-    return [...MOCK_NOTIFICATIONS]
+    return []
   }
 
   function saveLocal() {
@@ -31,7 +30,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     loading.value = true
     try {
       const res = await notificationsApi.getAll()
-      if (res?.data?.notifications && Array.isArray(res.data.notifications) && res.data.notifications.length > 0) {
+      if (res?.data?.notifications && Array.isArray(res.data.notifications)) {
         notifications.value = res.data.notifications
         saveLocal()
       } else {

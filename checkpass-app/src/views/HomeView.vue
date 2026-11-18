@@ -802,7 +802,7 @@ import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
-import { MOCK_HOME_SUMMARY, MOCK_RESIDENT } from '@/api/mock'
+import { MOCK_RESIDENT } from '@/api/mock'
 
 export type NewsFeedItem = {
   id: number
@@ -873,32 +873,6 @@ const newsLoading    = ref(false)
 const newsItems      = ref<NewsFeedItem[]>([])
 
 // ── ESTATE ANNOUNCEMENTS (News) State ──────────────────────────
-const defaultEstateNews: NewsFeedItem[] = [
-  {
-    id: 101,
-    title: 'Routine Transformer Maintenance & Grid Switchover',
-    authorRole: 'Estate Admin',
-    content: 'Dear Residents, please be informed that the estate facilities management team will be conducting scheduled quarterly maintenance on the central power transformer this Saturday between 10:00 AM and 2:00 PM. Alternative backup generators will supply essential street lighting and security gate systems during the maintenance window.',
-    image: null,
-    createdAt: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
-  },
-  {
-    id: 102,
-    title: 'Access Control Security Notice: Visitor Pre-Registration',
-    authorRole: 'Estate Admin',
-    content: 'In accordance with our estate security protocol, all visitors, ride-hailing cabs, and delivery dispatch riders must have a valid Checkpass QR code or 6-digit access code generated prior to arrival at the main gates. Thank you for keeping our community safe.',
-    image: null,
-    createdAt: new Date(Date.now() - 3600 * 1000 * 28).toISOString(),
-  },
-  {
-    id: 103,
-    title: 'Monthly Estate Environmental Sanitation Exercise',
-    authorRole: 'Estate Exco',
-    content: 'This is a gentle reminder that the mandatory estate-wide clean-up exercise holds on the last Saturday of the month from 7:00 AM to 10:00 AM. Vehicular movement within the estate will be temporarily restricted during these hours.',
-    image: null,
-    createdAt: new Date(Date.now() - 3600 * 1000 * 72).toISOString(),
-  },
-]
 
 const readNewsStorageKey = 'checkpass_read_news_ids'
 const dismissedNewsStorageKey = 'checkpass_dismissed_news_ids'
@@ -908,15 +882,9 @@ const dismissedNewsIds = ref<number[]>(JSON.parse(localStorage.getItem(dismissed
 const activeNewsFilter = ref<'all' | 'unread' | 'read'>('all')
 const selectedNewsItem = ref<NewsFeedItem | null>(null)
 
-// Combined active news list (backend items + default announcements, excluding dismissed)
+// Active news list from live backend estate feed (excluding dismissed items)
 const activeNewsList = computed(() => {
-  const combined = [...newsItems.value]
-  for (const def of defaultEstateNews) {
-    if (!combined.some(n => n.id === def.id)) {
-      combined.push(def)
-    }
-  }
-  return combined.filter(n => !dismissedNewsIds.value.includes(n.id))
+  return newsItems.value.filter(n => !dismissedNewsIds.value.includes(n.id))
 })
 
 const unreadNews = computed(() => activeNewsList.value.filter(n => !readNewsIds.value.includes(n.id)))
@@ -1167,150 +1135,25 @@ function getCategoryIcon(category: string): string {
   }
 }
 
-const artisansList = ref<ArtisanItem[]>([
-  {
-    id: 'art-1',
-    name: 'Chinedu Okafor',
-    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80',
-    trade: 'Senior Electrician & Inverter Specialist',
-    category: 'Electrician',
-    phone: '+2348031234567',
-    whatsapp: '2348031234567',
-    rating: 4.9,
-    avatarBg: '#0A5C38',
-    initials: 'CO',
-    reviews: [
-      {
-        id: 'rev-1',
-        residentName: 'Engr. Dapo Alabi',
-        residentUnit: 'House 14 • Palm Court',
-        rating: 5,
-        comment: 'Chinedu arrived in under 20 minutes when my inverter tripped. Very knowledgeable, neat cabling, and fair billing.',
-        date: '2 days ago',
-      },
-      {
-        id: 'rev-2',
-        residentName: 'Mrs. Folake Johnson',
-        residentUnit: 'Flat 4B • Block B',
-        rating: 5,
-        comment: 'He fixed our distribution board and labeled all circuits clearly. Highly recommended for any electrical fault.',
-        date: 'Last week',
-      },
-      {
-        id: 'rev-3',
-        residentName: 'Tunde Bakare',
-        residentUnit: 'Unit 9 • Jasmine',
-        rating: 4.8,
-        comment: 'Prompt and courteous. Replaced our changeover switch smoothly.',
-        date: '2 weeks ago',
-      },
-    ],
-  },
-  {
-    id: 'art-2',
-    name: 'Sunday Adebayo',
-    imageUrl: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=500&q=80',
-    trade: 'Plumbing & Water Heaters',
-    category: 'Plumber',
-    phone: '+2348059876543',
-    whatsapp: '2348059876543',
-    rating: 4.8,
-    avatarBg: '#0284C7',
-    initials: 'SA',
-    reviews: [
-      {
-        id: 'rev-4',
-        residentName: 'Dr. Stella Okon',
-        residentUnit: 'House 7 • Coral Close',
-        rating: 5,
-        comment: 'Diagnosed a stubborn pipe leakage under our kitchen tile without breaking excessive walls. Top-tier professional.',
-        date: '3 days ago',
-      },
-      {
-        id: 'rev-5',
-        residentName: 'Emeka Umeh',
-        residentUnit: 'Flat 2C • Pine Block',
-        rating: 4.5,
-        comment: 'Installed 2 Ariston water heaters in our bathrooms. Neat fittings and no drips.',
-        date: '10 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-3',
-    name: 'Musa Ibrahim',
-    imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=500&q=80',
-    trade: 'HVAC & AC Service / Gas Refill',
-    category: 'AC Repair',
-    phone: '+2348123456789',
-    whatsapp: '2348123456789',
-    rating: 5.0,
-    avatarBg: '#D97706',
-    initials: 'MI',
-    reviews: [
-      {
-        id: 'rev-6',
-        residentName: 'Barr. Charles Eze',
-        residentUnit: 'Villa 5 • Orchard Way',
-        rating: 5,
-        comment: 'Serviced 4 split units in my apartment. Cooling returned to ice-cold within 30 minutes. Cleaned up after himself.',
-        date: 'Yesterday',
-      },
-      {
-        id: 'rev-7',
-        residentName: 'Amina Bello',
-        residentUnit: 'House 22 • Silver Crest',
-        rating: 5,
-        comment: 'Very polite and trustworthy. Tested capacitor and fixed the AC without charging unnecessary spare part fees.',
-        date: '5 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-4',
-    name: 'Grace Sparkle Pro',
-    imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80',
-    trade: 'Deep Home Cleaning & Fumigation',
-    category: 'Cleaning',
-    phone: '+2348098765432',
-    whatsapp: '2348098765432',
-    rating: 4.9,
-    avatarBg: '#7C3AED',
-    initials: 'GS',
-    reviews: [
-      {
-        id: 'rev-8',
-        residentName: 'Ngozi Adeyemi',
-        residentUnit: 'House 3 • Maple View',
-        rating: 5,
-        comment: 'Grace and her team made our 4-bedroom terrace sparkle before our house-warming. Punctual and thorough.',
-        date: '4 days ago',
-      },
-    ],
-  },
-  {
-    id: 'art-5',
-    name: 'Yakubu Danladi',
-    imageUrl: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=500&q=80',
-    trade: 'Cabinetry, Door Locks & Woodwork',
-    category: 'Carpentry',
-    phone: '+2348076543210',
-    whatsapp: '2348076543210',
-    rating: 4.7,
-    avatarBg: '#B45309',
-    initials: 'YD',
-    reviews: [
-      {
-        id: 'rev-9',
-        residentName: 'Kalu Nwosu',
-        residentUnit: 'Flat 5A • Block D',
-        rating: 5,
-        comment: 'Fixed our master bedroom sliding wardrobe door that was off track for months. Sturdy craftsmanship.',
-        date: '1 week ago',
-      },
-    ],
-  },
-])
+const artisansList = ref<ArtisanItem[]>([])
+const artisansLoading = ref(false)
+
+async function loadArtisans() {
+  artisansLoading.value = true
+  try {
+    const res = await client.get('/v1/artisans')
+    if (res.data?.artisans && Array.isArray(res.data.artisans)) {
+      artisansList.value = res.data.artisans.map((a: any) => ({
+        ...a,
+        imageUrl: a.imageUrl || getCategoryCover(a.category),
+      }))
+    }
+  } catch (e) {
+    console.warn('Failed loading estate artisans:', e)
+  } finally {
+    artisansLoading.value = false
+  }
+}
 
 const displayedArtisans = computed(() => {
   if (activeServiceCategory.value === 'All') return artisansList.value
@@ -1344,37 +1187,31 @@ function ratingLabel(rating: number) {
   return '1.0 - Very Unsatisfactory'
 }
 
-function submitArtisanReview() {
-  if (!selectedArtisan.value || !newReviewComment.value.trim()) return
+async function submitArtisanReview() {
+  if (!selectedArtisan.value || !newReviewComment.value.trim() || submittingReview.value) return
   submittingReview.value = true
 
-  setTimeout(() => {
-    const residentName = auth.resident?.name || 'Resident Neighbor'
-    const residentUnit = auth.resident?.flatAddress || 'Estate Resident'
-
-    const newRev: ArtisanReview = {
-      id: 'rev-' + Date.now(),
-      residentName,
-      residentUnit,
+  try {
+    const res = await client.post(`/v1/artisans/${selectedArtisan.value.id}/reviews`, {
       rating: newReviewRating.value,
       comment: newReviewComment.value.trim(),
-      date: 'Just now',
+    })
+
+    if (res.data?.review && selectedArtisan.value) {
+      selectedArtisan.value.reviews.unshift(res.data.review)
+      if (res.data.artisan?.rating) {
+        selectedArtisan.value.rating = res.data.artisan.rating
+      }
     }
-
-    selectedArtisan.value!.reviews.unshift(newRev)
-
-    // Recalculate average rating
-    const total = selectedArtisan.value!.reviews.reduce((acc, r) => acc + r.rating, 0)
-    selectedArtisan.value!.rating = Number((total / selectedArtisan.value!.reviews.length).toFixed(1))
-    try {
-      localStorage.setItem('cp_estate_artisans', JSON.stringify(artisansList.value))
-    } catch {}
-
-    submittingReview.value = false
+    showToast('Your review has been posted successfully!', 'success')
     showReviewForm.value = false
     newReviewComment.value = ''
-    showToast('Your review has been posted successfully!', 'success')
-  }, 400)
+    await loadArtisans()
+  } catch (err: any) {
+    showToast(err.response?.data?.message || 'Failed to submit review.', 'error')
+  } finally {
+    submittingReview.value = false
+  }
 }
 
 // Buy & Sell (Resident Community Items)
@@ -1446,17 +1283,13 @@ const greeting  = computed(() => {
 })
 
 const totalPassesCount = computed(() => {
-  const storeCount = passesStore.passes.length
-  const statsActive = summary.value?.stats?.activePasses ?? 0
-  const summaryRecent = summary.value?.recentPasses?.length ?? 0
-  return Math.max(storeCount, statsActive, summaryRecent)
+  return passesStore.passes.length
 })
 
 const hasMoreThanFivePasses = computed(() => totalPassesCount.value > 5)
 
 const allActivePasses = computed(() => {
-  const source = passesStore.passes.length > 0 ? passesStore.passes : (summary.value?.recentPasses || [])
-  return source.filter(p => p.status !== 'Exited' && p.status !== 'Revoked')
+  return passesStore.passes.filter(p => p.status !== 'Exited' && p.status !== 'Revoked')
 })
 
 const displayedHomePasses = computed(() => allActivePasses.value.slice(0, 5))
@@ -1478,7 +1311,7 @@ async function loadSummary() {
       throw new Error('Invalid summary response from server')
     }
   } catch (err) {
-    // Graceful offline/demo fallback: use cached summary or MOCK_HOME_SUMMARY
+    // Graceful offline/live fallback: safe stats with empty passes
     let fallback: HomeSummary | null = null
     try {
       const cached = localStorage.getItem('cp_home_summary')
@@ -1500,9 +1333,10 @@ async function loadSummary() {
         flatAddress: 'VIP 2, VVIP 2, 1% 2',
       }
       fallback = {
-        ...MOCK_HOME_SUMMARY,
         resident: residentData,
         stats: { onPremises: 0, activePasses: 0, newToday: 0 },
+        recentPasses: [],
+        notifications: [],
       }
     }
 
@@ -1511,7 +1345,6 @@ async function loadSummary() {
     if (fallback.resident && (!auth.resident || !auth.resident.name)) {
       auth.updateResident(fallback.resident)
     }
-    // Prevent locking the dashboard behind an error screen
     summaryError.value = false
   } finally {
     summaryLoading.value = false
@@ -1536,17 +1369,17 @@ async function loadNews() {
         createdAt: item.createdAt ?? null,
       }))
     } else {
-      newsItems.value = defaultEstateNews
+      newsItems.value = []
     }
   } catch {
-    newsItems.value = defaultEstateNews
+    newsItems.value = []
   } finally {
     newsLoading.value = false
   }
 }
 
 async function onRefresh(event: CustomEvent) {
-  await Promise.all([loadSummary(), loadNews(), passesStore.fetchAll()])
+  await Promise.all([loadSummary(), loadNews(), loadArtisans(), passesStore.fetchAll()])
   ;(event.target as HTMLIonRefresherElement).complete()
 }
 
@@ -1606,17 +1439,9 @@ function statusClass(status: string) {
 
 onMounted(() => {
   loadSummary()
+  loadNews()
+  loadArtisans()
   passesStore.fetchAll()
-  try {
-    const saved = localStorage.getItem('cp_estate_artisans')
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      artisansList.value = parsed.map((a: any) => ({
-        ...a,
-        imageUrl: a.imageUrl || getCategoryCover(a.category),
-      }))
-    }
-  } catch {}
 })
 </script>
 

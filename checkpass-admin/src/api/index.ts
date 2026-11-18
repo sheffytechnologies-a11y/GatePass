@@ -339,6 +339,14 @@ export const newsApi = {
   delete: (id: number) => client.delete(`/v1/admin/news/${id}`),
 }
 
+export const artisansApi = {
+  getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/artisans', { params }),
+  getOne: (id: string | number) => client.get(`/v1/admin/artisans/${id}`),
+  create: (data: Record<string, unknown>) => client.post('/v1/admin/artisans', data),
+  update: (id: string | number, data: Record<string, unknown>) => client.patch(`/v1/admin/artisans/${id}`, data),
+  delete: (id: string | number) => client.delete(`/v1/admin/artisans/${id}`),
+}
+
 export const publicApi = {
   getPlatformStats: () => client.get('/v1/platform-stats'),
 }

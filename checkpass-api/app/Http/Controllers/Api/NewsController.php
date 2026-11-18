@@ -22,7 +22,14 @@ class NewsController extends Controller
 
         $news = News::query()
             ->with(['estate', 'admin'])
-            ->whereIn('estate_id', $estateIds)
+            ->where(function ($q) use ($estateIds) {
+                if (!empty($estateIds)) {
+                    $q->whereIn('estate_id', $estateIds)
+                      ->orWhereNull('estate_id');
+                } else {
+                    $q->whereNull('estate_id');
+                }
+            })
             ->latest()
             ->get()
             ->map(fn(News $item) => $this->formatNews($item));
@@ -179,8 +186,15 @@ class NewsController extends Controller
 
         if ($user instanceof User) {
             $resident = $user->resident()->first();
+            $ids = [];
+            if ($resident && $resident->estate_id) {
+                $ids[] = (int) $resident->estate_id;
+            }
+            if (!empty($user->estate_id) && !in_array((int) $user->estate_id, $ids)) {
+                $ids[] = (int) $user->estate_id;
+            }
 
-            return $resident ? [$resident->estate_id] : [];
+            return $ids;
         }
 
         return [];

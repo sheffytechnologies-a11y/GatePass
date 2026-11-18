@@ -466,6 +466,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToast'
+import { artisansApi } from '@/api/index'
 import {
   type ArtisanItem,
   type ArtisanReview,
@@ -477,6 +478,22 @@ const router = useRouter()
 const { showToast } = useToast()
 
 const artisansList = ref<ArtisanItem[]>(loadArtisans())
+
+async function loadArtisansFromBackend() {
+  try {
+    const res = await artisansApi.getAll()
+    if (res.data?.artisans && Array.isArray(res.data.artisans) && res.data.artisans.length > 0) {
+      artisansList.value = res.data.artisans
+      saveArtisans(res.data.artisans)
+    }
+  } catch (err) {
+    console.warn('Backend artisans unavailable, using local cache:', err)
+  }
+}
+
+onMounted(() => {
+  loadArtisansFromBackend()
+})
 
 function persistArtisans() {
   saveArtisans(artisansList.value)
@@ -665,11 +682,11 @@ function getAvatarColor(category: string): string {
   }
 }
 
-function saveArtisan() {
+async function saveArtisan() {
   saving.value = true
   try {
     if (isEditing.value && editingId.value) {
-      const idx = artisansList.value.findIndex(a => a.id === editingId.value)
+      const idx = artisansList.value.findIndex(a => String(a.id) === String(editingId.value))
       if (idx !== -1) {
         artisansList.value[idx] = {
           ...artisansList.value[idx],
@@ -682,7 +699,20 @@ function saveArtisan() {
           initials: getInitials(artisanForm.value.name),
           avatarBg: getAvatarColor(artisanForm.value.category),
         }
+        persistArtisans()
         showToast('Artisan details updated successfully!', 'success')
+      }
+      try {
+        await artisansApi.update(editingId.value, {
+          name: artisanForm.value.name.trim(),
+          trade: artisanForm.value.trade.trim(),
+          category: artisanForm.value.category,
+          phone: artisanForm.value.phone.trim(),
+          whatsapp: artisanForm.value.whatsapp.replace(/\D/g, ''),
+          status: artisanForm.value.status,
+        })
+      } catch (err) {
+        console.warn('Backend update failed:', err)
       }
     } else {
       const newArtisan: ArtisanItem = {
@@ -699,9 +729,26 @@ function saveArtisan() {
         reviews: [],
       }
       artisansList.value.unshift(newArtisan)
+      persistArtisans()
       showToast('New artisan added to estate marketplace!', 'success')
+
+      try {
+        const res = await artisansApi.create({
+          name: artisanForm.value.name.trim(),
+          trade: artisanForm.value.trade.trim(),
+          category: artisanForm.value.category,
+          phone: artisanForm.value.phone.trim(),
+          whatsapp: artisanForm.value.whatsapp.replace(/\D/g, '') || artisanForm.value.phone.replace(/\D/g, ''),
+          status: artisanForm.value.status,
+        })
+        if (res.data?.artisan?.id) {
+          artisansList.value[0].id = String(res.data.artisan.id)
+          persistArtisans()
+        }
+      } catch (err) {
+        console.warn('Backend create failed:', err)
+      }
     }
-    persistArtisans()
     showArtisanModal.value = false
     simulateEmpty.value = false
   } catch {
@@ -711,17 +758,27 @@ function saveArtisan() {
   }
 }
 
-function toggleArtisanStatus(artisan: ArtisanItem) {
+async function toggleArtisanStatus(artisan: ArtisanItem) {
   artisan.status = artisan.status === 'Active' ? 'Inactive' : 'Active'
   persistArtisans()
   showToast(`Artisan status set to ${artisan.status}`, 'warning')
+  try {
+    await artisansApi.update(artisan.id, { status: artisan.status })
+  } catch (err) {
+    console.warn('Could not sync status update to backend:', err)
+  }
 }
 
-function deleteArtisan(id: string) {
+async function deleteArtisan(id: string) {
   if (confirm('Are you sure you want to remove this artisan from the estate marketplace?')) {
-    artisansList.value = artisansList.value.filter(a => a.id !== id)
+    artisansList.value = artisansList.value.filter(a => String(a.id) !== String(id))
     persistArtisans()
     showToast('Artisan removed from marketplace directory.', 'success')
+    try {
+      await artisansApi.delete(id)
+    } catch (err) {
+      console.warn('Could not sync delete to backend:', err)
+    }
   }
 }
 
