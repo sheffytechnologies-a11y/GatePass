@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Models\Pass;
 use App\Models\Resident;
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Estate;
 use App\Models\Unit;
 use App\Models\Fee;
@@ -32,23 +33,77 @@ class AdminController extends Controller
      */
     public function listUsers(Request $request)
     {
-        $query = User::with(['resident.unit', 'resident.estate']);
-        $this->scopeEstate($query, $request);
+        $all = collect();
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('phone', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+        // Include Admins unless specifically filtering for resident or security
+        $includeAdmins = !$request->filled('type') || in_array($request->type, ['admin', 'staff']);
+        if ($includeAdmins) {
+            $adminQuery = Admin::query();
+            if ($request->filled('search')) {
+                $s = $request->search;
+                $adminQuery->where(function ($q) use ($s) {
+                    $q->where('name', 'like', "%{$s}%")
+                      ->orWhere('email', 'like', "%{$s}%");
+                });
+            }
+            if ($request->filled('status')) {
+                if ($request->status === 'active') {
+                    $adminQuery->where('is_active', true);
+                } elseif ($request->status === 'inactive') {
+                    $adminQuery->where('is_active', false);
+                }
+            }
+            $admins = $adminQuery->latest()->get()->map(function (Admin $a) {
+                return [
+                    'id'           => 'admin_' . $a->id,
+                    'rawId'        => $a->id,
+                    'name'         => $a->name,
+                    'phone'        => null,
+                    'email'        => $a->email,
+                    'avatar'       => null,
+                    'type'         => 'admin',
+                    'isActive'     => (bool) $a->is_active,
+                    'residentId'   => null,
+                    'residentRole' => null,
+                    'unitAddress'  => null,
+                    'createdAt'    => $a->created_at?->toIso8601String(),
+                ];
             });
+            $all = $all->concat($admins);
         }
 
-        $users = $query->latest()->get()->map(fn(User $u) => $this->formatUser($u));
+        // Include Users table records
+        if ($request->type !== 'admin') {
+            $query = User::with(['resident.unit', 'resident.estate']);
+            $this->scopeEstate($query, $request);
 
-        return response()->json(['users' => $users]);
+            if ($request->filled('type')) {
+                if ($request->type === 'staff') {
+                    $query->whereIn('type', ['admin', 'security']);
+                } else {
+                    $query->where('type', $request->type);
+                }
+            }
+            if ($request->filled('status')) {
+                if ($request->status === 'active') {
+                    $query->where('is_active', true);
+                } elseif ($request->status === 'inactive') {
+                    $query->where('is_active', false);
+                }
+            }
+            if ($request->filled('search')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%')
+                      ->orWhere('email', 'like', '%' . $request->search . '%');
+                });
+            }
+
+            $users = $query->latest()->get()->map(fn(User $u) => $this->formatUser($u));
+            $all = $all->concat($users);
+        }
+
+        return response()->json(['users' => $all->values()]);
     }
 
     /**
@@ -58,12 +113,46 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'name'     => 'required|string|max:255',
-            'phone'    => 'required|string|unique:users,phone',
+            'phone'    => 'nullable|string',
             'password' => 'required|string|min:6',
-            'type'     => 'required|in:resident,security',
-            'email'    => 'nullable|email|unique:users,email',
+            'type'     => 'required|in:admin,security,resident',
+            'email'    => 'nullable|email',
             'estate_id'=> 'nullable|exists:estates,id',
         ]);
+
+        if ($data['type'] === 'admin') {
+            if (!empty($data['email'])) {
+                $exists = Admin::where('email', $data['email'])->exists();
+                if ($exists) {
+                    return response()->json(['message' => 'An administrator with this email already exists.'], 422);
+                }
+            }
+            $admin = Admin::create([
+                'name'      => $data['name'],
+                'email'     => $data['email'] ?? strtolower(str_replace(' ', '', $data['name'])) . '@checkpass.com',
+                'password'  => Hash::make($data['password']),
+                'role'      => 'estate_admin',
+                'is_active' => true,
+            ]);
+            return response()->json(['user' => [
+                'id'        => 'admin_' . $admin->id,
+                'name'      => $admin->name,
+                'email'     => $admin->email,
+                'phone'     => null,
+                'type'      => 'admin',
+                'isActive'  => true,
+                'createdAt' => $admin->created_at?->toIso8601String(),
+            ]], 201);
+        }
+
+        if (empty($data['phone'])) {
+            return response()->json(['message' => 'Phone number is required for security personnel and residents.'], 422);
+        }
+
+        $existsPhone = User::where('phone', $data['phone'])->exists();
+        if ($existsPhone) {
+            return response()->json(['message' => 'A user with this phone number already exists.'], 422);
+        }
 
         $estateId = $this->resolveEstateId($request, $data['estate_id'] ?? null);
         $this->assertEstateAccess($request, $estateId);
@@ -84,8 +173,22 @@ class AdminController extends Controller
     /**
      * GET /api/v1/admin/users/{id}
      */
-    public function showUser(Request $request, int $id)
+    public function showUser(Request $request, $id)
     {
+        if (str_starts_with((string)$id, 'admin_')) {
+            $realId = (int) str_replace('admin_', '', (string)$id);
+            $admin = Admin::findOrFail($realId);
+            return response()->json(['user' => [
+                'id'        => 'admin_' . $admin->id,
+                'name'      => $admin->name,
+                'email'     => $admin->email,
+                'phone'     => null,
+                'type'      => 'admin',
+                'isActive'  => (bool) $admin->is_active,
+                'createdAt' => $admin->created_at?->toIso8601String(),
+            ]]);
+        }
+
         $user = User::findOrFail($id);
         $this->assertEstateAccess($request, $user->estate_id);
         return response()->json(['user' => $this->formatUser($user)]);
@@ -94,16 +197,44 @@ class AdminController extends Controller
     /**
      * PATCH /api/v1/admin/users/{id}
      */
-    public function updateUser(Request $request, int $id)
+    public function updateUser(Request $request, $id)
     {
+        if (str_starts_with((string)$id, 'admin_')) {
+            $realId = (int) str_replace('admin_', '', (string)$id);
+            $admin = Admin::findOrFail($realId);
+
+            $data = $request->validate([
+                'name'      => 'sometimes|string|max:255',
+                'email'     => ['sometimes', 'nullable', 'email', Rule::unique('admins', 'email')->ignore($realId)],
+                'password'  => 'sometimes|string|min:6',
+                'is_active' => 'sometimes|boolean',
+            ]);
+
+            if (isset($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            }
+
+            $admin->update($data);
+
+            return response()->json(['user' => [
+                'id'        => 'admin_' . $admin->id,
+                'name'      => $admin->name,
+                'email'     => $admin->email,
+                'phone'     => null,
+                'type'      => 'admin',
+                'isActive'  => (bool) $admin->is_active,
+                'createdAt' => $admin->created_at?->toIso8601String(),
+            ]]);
+        }
+
         $user = User::findOrFail($id);
         $this->assertEstateAccess($request, $user->estate_id);
 
         $data = $request->validate([
             'name'      => 'sometimes|string|max:255',
-            'phone'     => ['sometimes', 'string', Rule::unique('users', 'phone')->ignore($id)],
+            'phone'     => ['sometimes', 'nullable', 'string', Rule::unique('users', 'phone')->ignore($id)],
             'password'  => 'sometimes|string|min:6',
-            'type'      => 'sometimes|in:resident,security',
+            'type'      => 'sometimes|in:resident,security,admin',
             'is_active' => 'sometimes|boolean',
             'email'     => ['sometimes', 'nullable', 'email', Rule::unique('users', 'email')->ignore($id)],
         ]);
@@ -120,8 +251,15 @@ class AdminController extends Controller
     /**
      * DELETE /api/v1/admin/users/{id}
      */
-    public function deleteUser(Request $request, int $id)
+    public function deleteUser(Request $request, $id)
     {
+        if (str_starts_with((string)$id, 'admin_')) {
+            $realId = (int) str_replace('admin_', '', (string)$id);
+            $admin = Admin::findOrFail($realId);
+            $admin->delete();
+            return response()->json(['message' => 'Admin deleted.']);
+        }
+
         $user = User::findOrFail($id);
         $this->assertEstateAccess($request, $user->estate_id);
         $user->delete();

@@ -3,9 +3,9 @@
     <!-- Hero Header Card -->
     <section class="hero-card hero-card--emerald">
       <div class="hero-title-group">
-        <div class="hero-eyebrow">USER DIRECTORY & ACCESS CONTROL</div>
-        <h1 class="hero-title">Manage community members, admins, and gate security staff.</h1>
-        <p class="hero-subtext">Review roles, verify property assignments, and monitor active account statuses across the community.</p>
+        <div class="hero-eyebrow">STAFF & SECURITY MANAGEMENT</div>
+        <h1 class="hero-title">Staff & Security Directory</h1>
+        <p class="hero-subtext">Manage estate administrators, officers, and gate security personnel credentials.</p>
       </div>
       <button class="btn btn-primary hero-button" @click="startAdd">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -14,7 +14,7 @@
           <line x1="20" y1="8" x2="20" y2="14"/>
           <line x1="23" y1="11" x2="17" y2="11"/>
         </svg>
-        <span>Add User</span>
+        <span>Add Staff Member</span>
       </button>
     </section>
 
@@ -30,24 +30,8 @@
           </svg>
         </div>
         <div class="stat-info">
-          <span class="stat-number">{{ allUsers.length }}</span>
-          <span class="stat-title">Total Users</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrap bg-emerald-subtle">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <div class="stat-num-row">
-            <span class="stat-number">{{ allStats.residents }}</span>
-            <span class="stat-pill-hint">{{ allStats.landlords }} owners • {{ allStats.tenants }} tenants</span>
-          </div>
-          <span class="stat-title">Residents</span>
+          <span class="stat-number">{{ allStats.total }}</span>
+          <span class="stat-title">Total Staff</span>
         </div>
       </div>
 
@@ -59,7 +43,7 @@
         </div>
         <div class="stat-info">
           <span class="stat-number">{{ allStats.admins }}</span>
-          <span class="stat-title">Admins</span>
+          <span class="stat-title">Estate Admins</span>
         </div>
       </div>
 
@@ -75,6 +59,18 @@
           <span class="stat-title">Gate Security</span>
         </div>
       </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap bg-emerald-subtle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ allStats.active }}</span>
+          <span class="stat-title">Active on Duty</span>
+        </div>
+      </div>
     </div>
 
     <!-- Filter & Search Toolbar -->
@@ -87,7 +83,7 @@
         <input
           v-model="search"
           type="search"
-          placeholder="Search by name, phone, or email..."
+          placeholder="Search staff by name, phone, or email..."
           class="search-input"
           @input="debouncedLoad"
         />
@@ -95,21 +91,14 @@
 
       <div class="filter-group">
         <select v-model="typeFilter" class="toolbar-select" @change="load">
-          <option value="">All User Types</option>
-          <option value="resident">Residents</option>
-          <option value="admin">Administrators</option>
-          <option value="security">Security Personnel</option>
-        </select>
-
-        <select v-model="occupantFilter" class="toolbar-select">
-          <option value="all">All Occupancy</option>
-          <option value="owner">Homeowners Only</option>
-          <option value="tenant">Tenants Only</option>
+          <option value="">All Staff Roles</option>
+          <option value="admin">Estate Administrators</option>
+          <option value="security">Gate Security Personnel</option>
         </select>
 
         <select v-model="statusFilter" class="toolbar-select" @change="load">
           <option value="">All Status</option>
-          <option value="active">Active Accounts</option>
+          <option value="active">Active Staff</option>
           <option value="inactive">Disabled / Inactive</option>
         </select>
       </div>
@@ -119,8 +108,8 @@
     <section class="card section-card">
       <div class="section-head">
         <div>
-          <h2 class="section-title">Directory</h2>
-          <p class="section-copy">{{ filteredUsers.length }} account{{ filteredUsers.length === 1 ? '' : 's' }} loaded.</p>
+          <h2 class="section-title">Staff Directory</h2>
+          <p class="section-copy">{{ filteredUsers.length }} staff member{{ filteredUsers.length === 1 ? '' : 's' }} loaded.</p>
         </div>
 
         <!-- View Mode Switcher: Cards Grid vs Compact List -->
@@ -251,7 +240,7 @@
             </div>
           </div>
 
-          <!-- Mid Section: Name & Context Box (Unit for Residents, Role for Staff) -->
+          <!-- Mid Section: Name & Context Box (Role for Staff) -->
           <div class="grid-card-body">
             <h3 class="grid-card-name" :title="user.name">{{ user.name }}</h3>
 
@@ -265,43 +254,24 @@
               </div>
 
               <!-- Security Role -->
-              <div v-else-if="user.type === 'security'" class="grid-unit-val staff-val staff-val--security">
+              <div v-else class="grid-unit-val staff-val staff-val--security">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
                 <span class="grid-unit-text">Gate Security Personnel</span>
               </div>
-
-              <!-- Resident Unit Assignment -->
-              <div v-else class="grid-unit-val">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-                <span class="grid-unit-text" :class="{ 'text-muted-italic': !hasUnit(user) }">
-                  {{ user.unitAddress || addressLine(user) || 'No unit assigned' }}
-                </span>
-              </div>
             </div>
           </div>
 
-          <!-- Bottom Row: Badges (Where green was) -->
+          <!-- Bottom Row: Badges -->
           <div class="grid-card-foot">
             <div class="grid-card-badges">
               <span
                 class="badge-type"
-                :class="'badge-type--' + (user.type || 'resident')"
+                :class="'badge-type--' + (user.type || 'security')"
               >
                 {{ formatTypeLabel(user.type) }}
-              </span>
-
-              <span
-                v-if="user.residentRole"
-                class="badge-role"
-                :class="user.residentRole === 'owner' ? 'badge-role--owner' : 'badge-role--tenant'"
-              >
-                {{ user.residentRole === 'owner' ? 'Homeowner' : 'Tenant' }}
               </span>
             </div>
 
@@ -350,30 +320,17 @@
                 <div class="badge-row">
                   <span
                     class="badge-type"
-                    :class="'badge-type--' + (user.type || 'resident')"
+                    :class="'badge-type--' + (user.type || 'security')"
                   >
                     {{ formatTypeLabel(user.type) }}
-                  </span>
-
-                  <span
-                    v-if="user.residentRole"
-                    class="badge-role"
-                    :class="user.residentRole === 'owner' ? 'badge-role--owner' : 'badge-role--tenant'"
-                  >
-                    {{ user.residentRole === 'owner' ? 'Homeowner' : 'Tenant' }}
                   </span>
                 </div>
               </div>
 
-              <div v-if="user.unitAddress || addressLine(user)" class="unit-location-row">
-                <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-                <span class="unit-name">{{ user.unitAddress || addressLine(user) }}</span>
-              </div>
-              <div v-else-if="user.email" class="email-subtext">
-                {{ user.email }}
+              <div class="staff-contact-row">
+                <span v-if="user.email" class="staff-contact-item">{{ user.email }}</span>
+                <span v-if="user.email && user.phone" class="staff-contact-sep">•</span>
+                <span v-if="user.phone" class="staff-contact-item">{{ user.phone }}</span>
               </div>
             </div>
           </div>
@@ -397,12 +354,12 @@
       </div>
     </section>
 
-    <!-- EDIT / MANAGE MODAL (for Admin & Security accounts) -->
+    <!-- EDIT / MANAGE MODAL (for Staff accounts) -->
     <div v-if="editTarget" class="modal-overlay" @click.self="editTarget = null">
       <div class="modal-card">
         <header class="modal-header">
           <div>
-            <div class="modal-eyebrow">{{ (editTarget.type || 'USER').toUpperCase() }} ACCOUNT</div>
+            <div class="modal-eyebrow">{{ editTarget.type === 'admin' ? 'ESTATE ADMINISTRATOR' : 'GATE SECURITY' }}</div>
             <h3 class="modal-title">Edit {{ editTarget.name }}</h3>
           </div>
           <button type="button" class="btn-close" @click="editTarget = null">✕</button>
@@ -411,17 +368,21 @@
         <form class="modal-body" @submit.prevent="saveEdit">
           <div class="form-group">
             <label class="form-label">Full Name <span class="req">*</span></label>
-            <input v-model="editForm.name" class="form-input" required />
+            <input v-model="editForm.name" class="form-input" required placeholder="e.g. Samuel Okon" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Phone Number <span class="req">*</span></label>
-            <input v-model="editForm.phone" class="form-input" type="tel" required />
+            <label class="form-label">
+              Phone Number <span v-if="editTarget.type === 'security'" class="req">*</span>
+            </label>
+            <input v-model="editForm.phone" class="form-input" type="tel" :required="editTarget.type === 'security'" placeholder="e.g. 08012345678" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input v-model="editForm.email" class="form-input" type="email" />
+            <label class="form-label">
+              Email Address <span v-if="editTarget.type === 'admin'" class="req">*</span>
+            </label>
+            <input v-model="editForm.email" class="form-input" type="email" :required="editTarget.type === 'admin'" placeholder="e.g. admin@checkpass.com" />
           </div>
 
           <div class="form-group">
@@ -432,7 +393,7 @@
                 <div class="radio-indicator active-indicator"></div>
                 <div>
                   <strong>Active Account</strong>
-                  <p>Allowed to log in and access system functions.</p>
+                  <p>Allowed to log in and perform duty operations.</p>
                 </div>
               </label>
 
@@ -441,7 +402,7 @@
                 <div class="radio-indicator disabled-indicator"></div>
                 <div>
                   <strong>Disabled Account</strong>
-                  <p>Account suspended from portal access.</p>
+                  <p>Access suspended from estate operations.</p>
                 </div>
               </label>
             </div>
@@ -450,7 +411,7 @@
           <p v-if="formError" class="modal-error">{{ formError }}</p>
 
           <footer class="modal-footer">
-            <button type="button" class="btn btn-outline btn-danger-outline" @click="confirmDelete(editTarget)">Delete User</button>
+            <button type="button" class="btn btn-outline btn-danger-outline" @click="confirmDelete(editTarget)">Remove Staff</button>
             <button type="submit" class="btn btn-primary" :disabled="saving">
               <BrandSpinner v-if="saving" :size="16" color="#ffffff" />
               <span>{{ saving ? 'Saving...' : 'Save Changes' }}</span>
@@ -465,17 +426,17 @@
       <div class="modal-card modal-card-sm">
         <header class="modal-header">
           <div>
-            <div class="modal-eyebrow text-red">DELETE USER</div>
+            <div class="modal-eyebrow text-red">REMOVE STAFF</div>
             <h3 class="modal-title">Remove {{ deleteTarget.name }}?</h3>
           </div>
           <button type="button" class="btn-close" @click="deleteTarget = null">✕</button>
         </header>
         <div class="modal-body">
-          <p class="confirm-copy">This user account and associated system access credentials will be permanently removed.</p>
+          <p class="confirm-copy">This staff account and associated login credentials will be permanently removed.</p>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline" @click="deleteTarget = null">Cancel</button>
             <button type="button" class="btn btn-danger" :disabled="saving" @click="doDelete">
-              {{ saving ? 'Deleting...' : 'Delete Account' }}
+              {{ saving ? 'Deleting...' : 'Remove Staff Member' }}
             </button>
           </div>
         </div>
@@ -487,7 +448,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usersApi, residentsApi } from '@/api/index'
+import { usersApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import BrandSpinner from '@/components/BrandSpinner.vue'
 
@@ -498,17 +459,15 @@ const router = useRouter()
 const loading = ref(true)
 const users = ref<any[]>([])
 const allUsers = ref<any[]>([])
-const allResidents = ref<any[]>([])
 
 const search = ref('')
 const typeFilter = ref('')
-const occupantFilter = ref('all')
 const statusFilter = ref('')
 const viewMode = ref<'grid' | 'list'>('grid')
 
-const activeCardMenuId = ref<number | null>(null)
+const activeCardMenuId = ref<any>(null)
 
-function toggleCardMenu(id: number) {
+function toggleCardMenu(id: any) {
   activeCardMenuId.value = activeCardMenuId.value === id ? null : id
 }
 
@@ -518,18 +477,7 @@ function closeCardMenu() {
 
 async function handleMenuAction(action: 'view' | 'edit' | 'toggle-status', user: any) {
   closeCardMenu()
-  if (action === 'view') {
-    handleUserClick(user)
-    return
-  }
-  if (action === 'edit') {
-    const resId = getResidentId(user)
-    if (user.type === 'resident' || resId) {
-      if (resId) {
-        router.push({ path: `/residents/${resId}`, query: { edit: '1' } })
-        return
-      }
-    }
+  if (action === 'view' || action === 'edit') {
     openEdit(user)
     return
   }
@@ -542,14 +490,6 @@ async function toggleUserStatus(user: any) {
   const nextState = !user.isActive
   try {
     await usersApi.update(user.id, { is_active: nextState })
-    const resId = getResidentId(user)
-    if (resId) {
-      try {
-        await residentsApi.update(resId, { is_active: nextState })
-      } catch (e) {
-        console.warn('Resident status sync warning:', e)
-      }
-    }
     user.isActive = nextState
     showToast(
       `${user.name} is now ${nextState ? 'active' : 'disabled'}.`,
@@ -568,38 +508,20 @@ const editForm = ref({ name: '', phone: '', email: '', is_active: true })
 const deleteTarget = ref<any>(null)
 
 // ── Computed Stats ────────────────────────────────────────────────
-const allStats = computed(() => ({
-  admins: allUsers.value.filter(u => u.type === 'admin').length,
-  residents: allUsers.value.filter(u => u.type === 'resident').length,
-  securities: allUsers.value.filter(u => u.type === 'security').length,
-  tenants: allResidents.value.filter(r => r.role === 'tenant').length,
-  landlords: allResidents.value.filter(r => r.role === 'owner').length,
-}))
+const allStats = computed(() => {
+  const staff = allUsers.value.filter(u => u.type === 'admin' || u.type === 'security')
+  return {
+    total: staff.length,
+    admins: staff.filter(u => u.type === 'admin').length,
+    securities: staff.filter(u => u.type === 'security').length,
+    active: staff.filter(u => u.isActive).length,
+  }
+})
 
 // ── Filtered List ─────────────────────────────────────────────────
 const filteredUsers = computed(() => {
-  return users.value.filter(u => {
-    // Occupancy role filter (homeowner vs tenant)
-    if (occupantFilter.value !== 'all') {
-      const resRole = u.residentRole || getResidentRole(u.id)
-      if (resRole !== occupantFilter.value) {
-        return false
-      }
-    }
-    return true
-  })
+  return users.value.filter(u => u.type === 'admin' || u.type === 'security')
 })
-
-function getResidentRole(userId: number): string | null {
-  const r = allResidents.value.find(res => res.user?.id === userId)
-  return r ? r.role : null
-}
-
-function getResidentId(user: any): number | null {
-  if (user.residentId) return user.residentId
-  const r = allResidents.value.find(res => res.user?.id === user.id)
-  return r ? r.id : null
-}
 
 // ── Avatar & Color helpers ────────────────────────────────────────
 const COLORS = [
@@ -607,8 +529,9 @@ const COLORS = [
   '#BE185D', '#047857', '#C2410C', '#4338CA'
 ]
 
-function avatarBg(id: number): string {
-  return COLORS[id % COLORS.length]
+function avatarBg(id: any): string {
+  const num = typeof id === 'number' ? id : String(id).charCodeAt(String(id).length - 1)
+  return COLORS[num % COLORS.length]
 }
 
 function initials(name?: string): string {
@@ -619,21 +542,7 @@ function initials(name?: string): string {
 }
 
 function formatTypeLabel(type?: string): string {
-  switch ((type || '').toLowerCase()) {
-    case 'admin': return 'Admin'
-    case 'security': return 'Security'
-    default: return 'Resident'
-  }
-}
-
-function addressLine(user: any): string {
-  if (user.unitAddress) return user.unitAddress
-  const r = allResidents.value.find(res => res.user?.id === user.id)
-  return r?.unit?.flatAddress || r?.unit?.flat_address || ''
-}
-
-function hasUnit(user: any): boolean {
-  return !!(user.unitAddress || addressLine(user))
+  return (type || '').toLowerCase() === 'admin' ? 'Administrator' : 'Gate Security'
 }
 
 function fmtDate(iso: string | null): string {
@@ -643,14 +552,6 @@ function fmtDate(iso: string | null): string {
 
 // ── Interactive Navigation on Card Click ──────────────────────────
 function handleUserClick(user: any) {
-  const residentId = getResidentId(user)
-  if (user.type === 'resident' || residentId) {
-    if (residentId) {
-      router.push(`/residents/${residentId}`)
-      return
-    }
-  }
-  // Otherwise open modal for admin or security
   openEdit(user)
 }
 
@@ -667,9 +568,8 @@ function debouncedLoad() {
 
 async function loadStats() {
   try {
-    const [ur, rr] = await Promise.all([usersApi.getAll(), residentsApi.getAll()])
+    const ur = await usersApi.getAll({ type: 'staff' })
     allUsers.value = ur.data.users ?? []
-    allResidents.value = rr.data.residents ?? []
   } catch (e) {
     console.error('Failed loading stats:', e)
   }
@@ -680,18 +580,18 @@ async function load() {
   try {
     const p: Record<string, unknown> = {}
     if (search.value) p.search = search.value
-    if (typeFilter.value) p.type = typeFilter.value
+    p.type = typeFilter.value || 'staff'
     if (statusFilter.value) p.status = statusFilter.value
     const res = await usersApi.getAll(p)
     users.value = res.data.users ?? []
   } catch {
-    showToast('Failed to load users.', 'error')
+    showToast('Failed to load staff accounts.', 'error')
   } finally {
     loading.value = false
   }
 }
 
-// ── Edit & Delete for Non-resident accounts ───────────────────────
+// ── Edit & Delete for Staff accounts ──────────────────────────────
 function openEdit(user: any) {
   editTarget.value = user
   editForm.value = {
@@ -708,13 +608,16 @@ async function saveEdit() {
   formError.value = ''
   saving.value = true
   try {
-    await usersApi.update(editTarget.value.id, {
+    const payload: Record<string, any> = {
       name: editForm.value.name.trim(),
-      phone: editForm.value.phone.trim(),
       email: editForm.value.email.trim() || null,
       is_active: editForm.value.is_active,
-    })
-    showToast('User account updated successfully.', 'success')
+    }
+    if (editForm.value.phone.trim()) {
+      payload.phone = editForm.value.phone.trim()
+    }
+    await usersApi.update(editTarget.value.id, payload)
+    showToast('Staff account updated successfully.', 'success')
     editTarget.value = null
     await Promise.all([load(), loadStats()])
   } catch (err: any) {
@@ -734,11 +637,11 @@ async function doDelete() {
   saving.value = true
   try {
     await usersApi.delete(deleteTarget.value.id)
-    showToast('User deleted successfully.', 'success')
+    showToast('Staff member removed successfully.', 'success')
     deleteTarget.value = null
     await Promise.all([load(), loadStats()])
   } catch {
-    showToast('Failed to delete user.', 'error')
+    showToast('Failed to remove staff member.', 'error')
   } finally {
     saving.value = false
   }
@@ -1458,12 +1361,23 @@ onUnmounted(() => {
   gap: 6px;
 }
 
-.unit-location-row {
+.unit-location-row,
+.staff-contact-row {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 12.5px;
   color: #4B5563;
+}
+
+.staff-contact-item {
+  color: #4B5563;
+  font-weight: 500;
+}
+
+.staff-contact-sep {
+  color: #9CA3AF;
+  font-size: 11px;
 }
 
 .unit-name {
