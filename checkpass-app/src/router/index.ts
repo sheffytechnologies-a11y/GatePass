@@ -16,6 +16,12 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPasswordView.vue'),
+    meta: { public: true },
+  },
+  {
     path: '/onboarding',
     component: () => import('@/views/OnboardingView.vue'),
     meta: { public: true },
@@ -77,9 +83,9 @@ router.beforeEach((to) => {
   const token = localStorage.getItem('w_token')
   const onboarded = localStorage.getItem('w_onboarded') === 'true'
 
-  // If already logged in: NEVER show onboarding, login, or splash screens
+  // If already logged in: NEVER show onboarding, login, forgot-password, or splash screens
   if (token) {
-    if (to.path === '/login' || to.path === '/onboarding' || to.path === '/splash' || to.path === '/') {
+    if (to.path === '/login' || to.path === '/onboarding' || to.path === '/splash' || to.path === '/' || to.path === '/forgot-password') {
       return '/tabs/home'
     }
     return
