@@ -4,13 +4,13 @@
       <ion-toolbar class="profile-toolbar">
         <ion-title class="profile-page-title">Profile</ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear" class="header-view-pass-btn" @click="openPassModal" aria-label="View Resident Pass">
+          <button type="button" class="header-view-pass-btn" @click="openPassModal" aria-label="View Resident Pass">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
             <span>View Pass</span>
-          </ion-button>
+          </button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -504,12 +504,32 @@ const arrivalAlerts= ref(true)
 const expiryAlerts = ref(true)
 
 // ── RESIDENT PASS ID STATE & DOWNLOAD ──
-const showPassModal   = ref(false)
-const downloadingPass = ref(false)
+const showPassModal     = ref(false)
+const downloadingPass   = ref(false)
+const cachedPassDataUrl = ref<string | null>(null)
+
+async function pregeneratePassImage() {
+  try {
+    const resObj = effectiveResident.value
+    cachedPassDataUrl.value = await generateResidentPassImage({
+      resident: {
+        id: resObj.id,
+        name: resObj.name,
+        flatAddress: resObj.flatAddress,
+        estateName: resObj.estateName,
+        phone: resObj.phone,
+        role: resObj.role,
+      },
+    })
+  } catch (e) {
+    console.warn('Pre-generating pass image failed:', e)
+  }
+}
 
 function openPassModal() {
   console.log('[Checkpass] Opening Resident Pass modal')
   showPassModal.value = true
+  pregeneratePassImage()
 }
 
 function dataUrlToBlob(dataUrl: string): Blob {
@@ -529,62 +549,45 @@ function downloadImageBlob(blob: Blob, filename: string) {
   const a = document.createElement('a')
   a.href = url
   a.download = filename
-  a.target = '_blank'
+  a.style.display = 'none'
   document.body.appendChild(a)
   a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 2000)
+  setTimeout(() => {
+    if (document.body.contains(a)) {
+      document.body.removeChild(a)
+    }
+    URL.revokeObjectURL(url)
+  }, 4000)
 }
 
 async function downloadResidentPass() {
   downloadingPass.value = true
   try {
-    showToast('Generating resident pass…', 'warning')
+    showToast('Preparing download…', 'warning')
     const resObj = effectiveResident.value
-    const passDataUrl = await generateResidentPassImage({
-      resident: {
-        id: resObj.id,
-        name: resObj.name,
-        flatAddress: resObj.flatAddress,
-        estateName: resObj.estateName,
-        phone: resObj.phone,
-        role: resObj.role,
-      },
-    })
+
+    let passDataUrl = cachedPassDataUrl.value
+    if (!passDataUrl) {
+      passDataUrl = await generateResidentPassImage({
+        resident: {
+          id: resObj.id,
+          name: resObj.name,
+          flatAddress: resObj.flatAddress,
+          estateName: resObj.estateName,
+          phone: resObj.phone,
+          role: resObj.role,
+        },
+      })
+      cachedPassDataUrl.value = passDataUrl
+    }
 
     const imageBlob = dataUrlToBlob(passDataUrl)
     const sanitizedName = (resObj.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
     const fileName = `checkpass-resident-pass-${sanitizedName}.png`
-    const imageFile = new File([imageBlob], fileName, { type: 'image/png' })
 
-    const nav = navigator as Navigator & {
-      canShare?: (data?: ShareData) => boolean
-      share?: (data?: ShareData) => Promise<void>
-    }
-
-    let savedViaShare = false
-    // On iOS Safari and Android, navigator.share with files allows direct "Save Image" to Photos/Gallery
-    if (nav?.share && nav?.canShare && nav.canShare({ files: [imageFile] })) {
-      try {
-        await nav.share({
-          title: `${resObj.name} - Checkpass Resident Pass`,
-          text: `Official Checkpass Resident ID for ${resObj.name}.`,
-          files: [imageFile],
-        })
-        savedViaShare = true
-        showToast('Resident pass ready!', 'success')
-      } catch (shareErr: any) {
-        if (shareErr?.name === 'AbortError') {
-          return // User dismissed share sheet
-        }
-        console.warn('Share sheet dismissed or failed, falling back to file download:', shareErr)
-      }
-    }
-
-    if (!savedViaShare) {
-      downloadImageBlob(imageBlob, fileName)
-      showToast('Resident pass downloaded successfully!', 'success')
-    }
+    // Directly trigger download to user's device/files (no share sheet hijacking)
+    downloadImageBlob(imageBlob, fileName)
+    showToast('Resident pass downloaded to your device!', 'success')
   } catch (err) {
     console.error('Error generating resident pass:', err)
     showToast('Failed to download resident pass.', 'error')
@@ -598,16 +601,21 @@ async function shareResidentPass() {
   try {
     showToast('Preparing resident pass card…', 'warning')
     const resObj = effectiveResident.value
-    const passDataUrl = await generateResidentPassImage({
-      resident: {
-        id: resObj.id,
-        name: resObj.name,
-        flatAddress: resObj.flatAddress,
-        estateName: resObj.estateName,
-        phone: resObj.phone,
-        role: resObj.role,
-      },
-    })
+
+    let passDataUrl = cachedPassDataUrl.value
+    if (!passDataUrl) {
+      passDataUrl = await generateResidentPassImage({
+        resident: {
+          id: resObj.id,
+          name: resObj.name,
+          flatAddress: resObj.flatAddress,
+          estateName: resObj.estateName,
+          phone: resObj.phone,
+          role: resObj.role,
+        },
+      })
+      cachedPassDataUrl.value = passDataUrl
+    }
 
     const imageBlob = dataUrlToBlob(passDataUrl)
     const sanitizedName = (resObj.name || 'resident').toLowerCase().replace(/[^a-z0-9]/g, '-')
@@ -643,9 +651,9 @@ async function shareResidentPass() {
 
     if (!shared) {
       downloadImageBlob(imageBlob, fileName)
-      showToast('Resident pass downloaded successfully!', 'success')
+      showToast('Resident pass saved to your downloads!', 'success')
     } else {
-      showToast('Resident pass shared!', 'success')
+      showToast('Resident pass shared successfully!', 'success')
     }
   } catch (err) {
     console.error('Error sharing resident pass:', err)
@@ -973,21 +981,46 @@ async function handleLogout() {
   line-height: 1.2;
 }
 .header-view-pass-btn {
-  --color: #FFFFFF;
-  --background: var(--w-primary, #0A5C38);
-  --border-radius: 999px;
-  --padding-start: 14px;
-  --padding-end: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--w-primary, #0A5C38);
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: 999px;
+  padding: 0 14px;
   height: 34px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.1px;
+  text-transform: none !important;
   box-shadow: 0 2px 8px rgba(10, 92, 56, 0.22);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-right: 6px;
+  margin-right: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
 }
+.header-view-pass-btn:hover {
+  background: #08482c;
+}
+.header-view-pass-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+.header-view-pass-btn svg {
+  stroke: #FFFFFF !important;
+  color: #FFFFFF !important;
+  flex-shrink: 0;
+}
+.header-view-pass-btn span {
+  color: #FFFFFF !important;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none !important;
+  line-height: 1;
+}
+
 .profile-card-arrow {
   color: rgba(255, 255, 255, 0.6);
   display: flex;
@@ -999,10 +1032,6 @@ async function handleLogout() {
 .profile-card:active .profile-card-arrow {
   color: #FFFFFF;
   transform: translateX(2px);
-}
-.header-view-pass-btn:active {
-  transform: scale(0.96);
-  opacity: 0.9;
 }
 
 .profile-card {
