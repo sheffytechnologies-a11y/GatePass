@@ -1237,8 +1237,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 /* ── Top Hero Container Card ── */

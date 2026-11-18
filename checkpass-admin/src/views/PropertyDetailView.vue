@@ -658,8 +658,9 @@ onMounted(async () => {
 <style scoped>
 .property-detail-view {
   padding: 0 0 40px;
-  max-width: 1180px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 /* Page Top Navigation */

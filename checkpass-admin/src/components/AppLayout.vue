@@ -378,7 +378,7 @@ async function handleLogout() {
   font-size: 11px; font-weight: 800;
 }
 
-.content { flex: 1; padding: 28px 32px 48px; max-width: 1240px; width: 100%; margin: 0 auto; }
+.content { flex: 1; padding: 28px 32px 48px; width: 100%; max-width: 100%; margin: 0; }
 
 /* ── Toast ───────────────────────────────── */
 .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
