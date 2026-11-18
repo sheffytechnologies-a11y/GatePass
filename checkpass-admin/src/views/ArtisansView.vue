@@ -1,22 +1,22 @@
 <template>
   <div class="artisans-page">
-    <!-- Header -->
-    <section class="page-header">
-      <div>
-        <div class="eyebrow">Estate Marketplace &amp; Directory</div>
-        <h1 class="page-title">Verified Artisans &amp; Services</h1>
-        <p class="page-desc">
+    <!-- Hero Header Gradient Card -->
+    <section class="hero-card hero-card--emerald">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">Estate Marketplace &amp; Directory</div>
+        <h1 class="hero-title">Verified Artisans &amp; Services</h1>
+        <p class="hero-desc">
           Onboard, verify, and manage trusted service providers accessible to estate residents through the Checkpass Marketplace.
         </p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" @click="showReportModal = true">
+      <div class="hero-actions">
+        <button class="hero-btn-outline-white" @click="showReportModal = true">
           📑 Generate Report
         </button>
-        <button class="btn btn-secondary" @click="toggleSimulation">
+        <button class="hero-btn-outline-white" @click="toggleSimulation">
           {{ simulateEmpty ? '↺ View Filled State' : '⚙ Empty Preview' }}
         </button>
-        <button class="btn btn-primary" @click="openCreateModal">
+        <button class="hero-btn-white" @click="openCreateModal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -955,40 +955,120 @@ onUnmounted(() => {
   gap: 24px;
 }
 
-.page-header {
+/* Hero Section (Gradient Card matching Properties and Residents) */
+.hero-card--emerald {
+  background: linear-gradient(135deg, #064E3B 0%, #047857 60%, #059669 100%);
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-end;
   gap: 16px;
-  flex-wrap: wrap;
+  padding: 28px 32px;
+  border-radius: 20px;
+  color: white;
+  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.25);
 }
-.eyebrow {
-  font-size: 11px;
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 680px;
+}
+
+.hero-eyebrow {
+  font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--c-primary, #0A5C38);
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  color: #A7F3D0;
 }
-.page-title {
+
+.hero-title {
   font-size: 24px;
-  font-weight: 800;
-  color: #112019;
-  letter-spacing: -0.02em;
-  margin: 0 0 6px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.25;
 }
-.page-desc {
+
+.hero-desc {
   font-size: 14px;
-  color: #616F67;
-  max-width: 640px;
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
   line-height: 1.5;
 }
 
-.header-actions {
+.hero-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.hero-btn-white {
+  background: #ffffff !important;
+  color: #064E3B !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  padding: 9px 18px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.2s ease !important;
+}
+
+.hero-btn-white:hover {
+  background: #f0fdf4 !important;
+  color: #047857 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16) !important;
+}
+
+.hero-btn-white:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.hero-btn-outline-white {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(8px) !important;
+  font-weight: 600 !important;
+  padding: 9px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.hero-btn-outline-white:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.hero-btn-outline-white:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-card--emerald {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 22px;
+  }
+  .hero-actions {
+    width: 100%;
+  }
 }
 
 /* Metrics */
