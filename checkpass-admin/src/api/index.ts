@@ -45,10 +45,10 @@ export const dashboardApi = {
 
 export const usersApi = {
   getAll: (params?: Record<string, unknown>) => client.get('/v1/admin/users', { params }),
-  getOne: (id: number) => client.get(`/v1/admin/users/${id}`),
+  getOne: (id: number | string) => client.get(`/v1/admin/users/${id}`),
   create: (data: Record<string, unknown>) => client.post('/v1/admin/users', data),
-  update: (id: number, data: Record<string, unknown>) => client.patch(`/v1/admin/users/${id}`, data),
-  delete: (id: number) => client.delete(`/v1/admin/users/${id}`),
+  update: (id: number | string, data: Record<string, unknown>) => client.patch(`/v1/admin/users/${id}`, data),
+  delete: (id: number | string) => client.delete(`/v1/admin/users/${id}`),
 }
 
 export const passesApi = {

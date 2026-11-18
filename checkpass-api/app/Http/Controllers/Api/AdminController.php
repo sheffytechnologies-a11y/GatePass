@@ -178,20 +178,101 @@ class AdminController extends Controller
         if (str_starts_with((string)$id, 'admin_')) {
             $realId = (int) str_replace('admin_', '', (string)$id);
             $admin = Admin::findOrFail($realId);
-            return response()->json(['user' => [
-                'id'        => 'admin_' . $admin->id,
-                'name'      => $admin->name,
-                'email'     => $admin->email,
-                'phone'     => null,
-                'type'      => 'admin',
-                'isActive'  => (bool) $admin->is_active,
-                'createdAt' => $admin->created_at?->toIso8601String(),
-            ]]);
+            return response()->json([
+                'user' => [
+                    'id'              => 'admin_' . $admin->id,
+                    'name'            => $admin->name,
+                    'email'           => $admin->email,
+                    'phone'           => null,
+                    'type'            => 'admin',
+                    'roleTitle'       => 'Estate Administrator',
+                    'isActive'        => (bool) $admin->is_active,
+                    'createdAt'       => $admin->created_at?->toIso8601String(),
+                    'estate'          => $admin->estate ? ['id' => $admin->estate->id, 'name' => $admin->estate->name] : null,
+                    'assignedStation' => 'Central Administrative Office',
+                    'shift'           => 'Executive / Operations Shift',
+                ],
+                'stats' => [
+                    'totalGranted' => 0,
+                    'todayGranted' => 0,
+                    'onsiteNow'    => 0,
+                    'dutyStatus'   => $admin->is_active ? 'Active' : 'Suspended',
+                ],
+                'grantedAccess' => [],
+            ]);
         }
 
-        $user = User::findOrFail($id);
+        $user = User::with(['estate', 'resident.unit'])->findOrFail($id);
         $this->assertEstateAccess($request, $user->estate_id);
-        return response()->json(['user' => $this->formatUser($user)]);
+
+        $userData = $this->formatUser($user);
+        $userData['estate'] = $user->estate ? [
+            'id'   => $user->estate->id,
+            'name' => $user->estate->name,
+            'code' => $user->estate->code ?? 'CP',
+        ] : null;
+
+        $userData['assignedStation'] = $user->type === 'security'
+            ? 'Main Entrance Gate - Terminal 1'
+            : ($user->resident ? ($user->resident->unit?->flat_address ?? 'Residential Zone') : 'Estate Operations');
+
+        $userData['shift'] = $user->type === 'security' ? 'Day / Active Patrol Shift' : 'Standard Access';
+
+        // Query passes verified by this user
+        $passes = Pass::with(['resident.user', 'resident.unit'])
+            ->where(function ($q) use ($user) {
+                $q->where('verified_by', $user->id);
+                if ($user->type === 'security') {
+                    $q->orWhere(function ($sub) use ($user) {
+                        $sub->where('estate_id', $user->estate_id)->whereNotNull('arrived_at');
+                    });
+                }
+            })
+            ->latest('arrived_at')
+            ->latest('created_at')
+            ->limit(100)
+            ->get();
+
+        $grantedAccess = $passes->map(function ($p) {
+            return [
+                'id'               => $p->ulid,
+                'visitorName'      => $p->visitor_name,
+                'visitorPhone'     => $p->visitor_phone,
+                'vehiclePlate'     => $p->vehicle_plate ?: 'Pedestrian',
+                'purpose'          => $p->purpose ?: 'Visitor Access',
+                'residentName'     => $p->resident?->user?->name ?: 'Estate Resident',
+                'unitAddress'      => $p->resident?->unit?->flat_address ?: 'Residential Unit',
+                'passType'         => $p->type ?: 'One-time',
+                'status'           => $p->status,
+                'arrivedAt'        => $p->arrived_at?->toIso8601String(),
+                'arrivedFormatted' => $p->arrived_at ? $p->arrived_at->format('d M Y, h:i A') : ($p->created_at ? $p->created_at->format('d M Y, h:i A') : '-'),
+                'exitedAt'         => $p->exited_at?->toIso8601String(),
+                'exitedFormatted'  => $p->exited_at ? $p->exited_at->format('d M Y, h:i A') : null,
+                'gatePoint'        => 'Main Entrance Gate - Terminal 1',
+                'badgeCode'        => 'CP-' . strtoupper(substr($p->ulid, -4)),
+            ];
+        });
+
+        $totalGranted = $grantedAccess->count();
+        $todayGranted = $passes->filter(function ($p) {
+            return $p->arrived_at && $p->arrived_at->isToday();
+        })->count();
+        $onsiteNow = $passes->filter(function ($p) {
+            return $p->status === 'On-site';
+        })->count();
+
+        $stats = [
+            'totalGranted' => $totalGranted,
+            'todayGranted' => $todayGranted,
+            'onsiteNow'    => $onsiteNow,
+            'dutyStatus'   => $user->is_active ? 'On Duty' : 'Off Duty',
+        ];
+
+        return response()->json([
+            'user'          => $userData,
+            'stats'         => $stats,
+            'grantedAccess' => $grantedAccess,
+        ]);
     }
 
     /**

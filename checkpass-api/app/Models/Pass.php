@@ -21,6 +21,7 @@ class Pass extends Model
         'recurring_days',
         'status',
         'items_flagged',
+        'verified_by',
         'qr_data',
         'share_token',
         'expires_at',
@@ -66,6 +67,11 @@ class Pass extends Model
     public function estate()
     {
         return $this->belongsTo(Estate::class);
+    }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     public function flaggedItems()

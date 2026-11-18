@@ -477,7 +477,11 @@ function closeCardMenu() {
 
 async function handleMenuAction(action: 'view' | 'edit' | 'toggle-status', user: any) {
   closeCardMenu()
-  if (action === 'view' || action === 'edit') {
+  if (action === 'view') {
+    router.push(`/users/${user.id}`)
+    return
+  }
+  if (action === 'edit') {
     openEdit(user)
     return
   }
@@ -552,7 +556,7 @@ function fmtDate(iso: string | null): string {
 
 // ── Interactive Navigation on Card Click ──────────────────────────
 function handleUserClick(user: any) {
-  openEdit(user)
+  router.push(`/users/${user.id}`)
 }
 
 function startAdd() {

@@ -322,8 +322,9 @@ class PassController extends Controller
 
         if ($pass->status !== 'On-site' || ! $pass->arrived_at) {
             $pass->update([
-                'status' => 'On-site',
-                'arrived_at' => now(),
+                'status'      => 'On-site',
+                'arrived_at'  => now(),
+                'verified_by' => $user->id,
             ]);
         }
 

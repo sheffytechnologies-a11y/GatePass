@@ -27,6 +27,7 @@ const router = createRouter({
         { path: '/access', component: () => import('@/views/AccessView.vue'), meta: { roles: ['super_admin', 'estate_admin', 'security'] } },
         { path: '/users', alias: ['/staff'], component: () => import('@/views/UsersView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/users/new', alias: ['/staff/new'], component: () => import('@/views/UsersCreateView.vue'), meta: { roles: ADMIN_ROLES } },
+        { path: '/users/:id', alias: ['/staff/:id'], component: () => import('@/views/UserDetailView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/fees', component: () => import('@/views/FeesView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/passes', component: () => import('@/views/PassesView.vue'), meta: { roles: ADMIN_ROLES } },
         { path: '/passes/:id', component: () => import('@/views/PassDetailView.vue'), meta: { roles: ADMIN_ROLES } },
