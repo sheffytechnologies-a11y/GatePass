@@ -59,8 +59,8 @@
       </div>
     </div>
 
-    <!-- Main Section Card -->
-    <section class="card section-card">
+    <!-- Main Listing Section (Unboxed, clean cards directly on page) -->
+    <section class="residents-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Residents</h2>
@@ -549,12 +549,9 @@ onUnmounted(() => {
   background: #ffffff;
 }
 
-/* ── Section Card & View Switcher ──────────────────── */
-.section-card {
-  padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 16px;
+/* ── Section & View Switcher (Unboxed) ──────────────────── */
+.residents-section {
+  margin-top: 4px;
 }
 
 .section-head {

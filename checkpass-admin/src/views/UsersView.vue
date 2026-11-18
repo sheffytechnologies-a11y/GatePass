@@ -104,8 +104,8 @@
       </div>
     </div>
 
-    <!-- Main List Section -->
-    <section class="card section-card">
+    <!-- Main List Section (Unboxed, clean cards directly on page) -->
+    <section class="staff-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Staff Directory</h2>
@@ -862,12 +862,9 @@ onUnmounted(() => {
   border-color: #0A5C38;
 }
 
-/* ── Section Card & View Switcher ──────────────────── */
-.section-card {
-  padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 16px;
+/* ── Section & View Switcher (Unboxed) ──────────────────── */
+.staff-section {
+  margin-top: 4px;
 }
 
 .section-head {

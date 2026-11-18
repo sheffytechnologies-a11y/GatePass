@@ -39,7 +39,7 @@
       </div>
     </section>
 
-    <section class="section-card card">
+    <section class="access-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Access feed</h2>
@@ -342,6 +342,7 @@ onMounted(() => {
 .stat-card { padding: 16px 14px; border-radius: 20px; }
 .stat-value { font-size: 24px; font-weight: 800; color: var(--c-primary); }
 .stat-label { margin-top: 4px; font-size: 12px; color: var(--c-muted); }
+.access-section { margin-top: 4px; }
 .section-card { padding: 16px; }
 .search-card { gap: 12px; display: flex; flex-direction: column; }
 .chip-row { display: flex; gap: 8px; overflow-x: auto; }

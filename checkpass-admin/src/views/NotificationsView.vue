@@ -7,7 +7,7 @@
       </div>
     </section>
 
-    <section class="card section-card">
+    <section class="notifications-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Notifications</h2>
@@ -119,8 +119,9 @@ onMounted(load)
 .hero-card--mint { background: linear-gradient(145deg, #0b5f56 0%, #0d8b73 58%, #72d9c6 100%); }
 .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
 .hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
+.notifications-section { margin-top: 4px; }
 .section-card { padding: 16px; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
 .section-title { font-size: 18px; font-weight: 700; }
 .section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
 .loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }

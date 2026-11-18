@@ -54,8 +54,8 @@
       </div>
     </section>
 
-    <!-- Announcements List -->
-    <section class="card section-card">
+    <!-- Announcements List (Unboxed, clean cards directly on page) -->
+    <section class="news-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Published Announcements</h2>
@@ -525,6 +525,10 @@ onMounted(async () => {
   color: #1E293B;
   outline: none;
   cursor: pointer;
+}
+
+.news-section {
+  margin-top: 4px;
 }
 
 .news-grid {

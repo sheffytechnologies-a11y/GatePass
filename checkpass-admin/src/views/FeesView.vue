@@ -28,7 +28,7 @@
       </div>
     </section>
 
-    <section class="section-card card">
+    <section class="fees-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Fee list</h2>
@@ -279,6 +279,7 @@ onMounted(async () => {
 .hero-copy { margin-top: 8px; color: rgba(255,255,255,0.82); font-size: 14px; }
 .hero-button { margin-top: 16px; background: white; color: var(--c-primary); justify-content: center; }
 
+.fees-section { margin-top: 4px; }
 .section-card { padding: 16px; }
 .search-card { display: flex; flex-direction: column; gap: 10px; }
 .filter-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }

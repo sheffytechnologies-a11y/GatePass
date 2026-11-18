@@ -15,7 +15,7 @@
       </div>
     </section>
 
-    <section class="card section-card">
+    <section class="emergencies-section">
       <div class="section-head">
         <div>
           <h2 class="section-title">Reported incidents</h2>
@@ -195,12 +195,13 @@ onUnmounted(() => {
 .hero-card--alert { background: linear-gradient(145deg, #6d1118 0%, #c1272d 56%, #f3836f 100%); }
 .hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
 .hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
+.emergencies-section { margin-top: 4px; }
 .section-card { padding: 16px; }
 .filter-card { display: flex; flex-direction: column; gap: 12px; }
 .chip-row { display: flex; gap: 8px; overflow-x: auto; }
 .chip { border: none; border-radius: 999px; padding: 10px 14px; background: #f2e7e7; color: #725252; white-space: nowrap; font-weight: 700; }
 .chip.active { background: #b91c1c; color: white; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
 .section-title { font-size: 18px; font-weight: 700; }
 .section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
 .loading-state, .empty-state { min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--c-muted); }

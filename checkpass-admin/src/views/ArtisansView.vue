@@ -205,38 +205,6 @@
               <span class="reviews-count">({{ (artisan.reviews && artisan.reviews.length) || 0 }})</span>
             </div>
           </div>
-
-          <!-- Contact Strip -->
-          <div class="contact-strip" @click.stop>
-            <div class="contact-item">
-              <span class="contact-lbl">Phone:</span>
-              <a :href="`tel:${artisan.phone}`" class="contact-val" @click.stop>{{ artisan.phone }}</a>
-            </div>
-            <div class="contact-item">
-              <span class="contact-lbl">WhatsApp:</span>
-              <a
-                :href="`https://wa.me/${artisan.whatsapp}`"
-                target="_blank"
-                class="contact-val contact-val--wa"
-                @click.stop
-              >
-                Chat on WA ↗
-              </a>
-            </div>
-          </div>
-
-          <!-- Clean card footer -->
-          <div class="card-footer">
-            <div class="footer-reviews-note">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>{{ (artisan.reviews && artisan.reviews.length) || 0 }} {{ (artisan.reviews && artisan.reviews.length) === 1 ? 'review' : 'reviews' }}</span>
-            </div>
-            <span class="card-click-hint">
-              View details &rarr;
-            </span>
-          </div>
         </div>
       </div>
     </div>
