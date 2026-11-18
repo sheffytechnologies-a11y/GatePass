@@ -1,6 +1,6 @@
 <template>
   <div class="resident-detail-page">
-    <!-- Top Bar with Back Link & Creative Unit Household Controller -->
+    <!-- Top Bar with Back Link -->
     <div class="top-nav-bar">
       <router-link to="/residents" class="btn-back">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -9,16 +9,6 @@
         </svg>
         <span>Back to Residents</span>
       </router-link>
-
-      <!-- Unit Reference Breadcrumb Badge -->
-      <div v-if="resident?.unit" class="top-unit-pill">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-        <span class="top-unit-address">{{ resident.unit.flatAddress }}</span>
-        <span v-if="resident.estate?.name" class="top-estate-tag">{{ resident.estate.name }}</span>
-      </div>
     </div>
 
     <!-- Loading State -->
@@ -172,6 +162,66 @@
           <div class="profile-info">
             <div class="profile-title-row">
               <h1 class="profile-name">{{ resident.user?.name || 'Unnamed Resident' }}</h1>
+
+              <!-- Quick Profile Action Icons (Edit, Disable/Enable, Remove) with Hover Tooltip -->
+              <div class="profile-action-icons">
+                <button
+                  type="button"
+                  class="action-icon-btn btn-icon-edit"
+                  @click="openEditModal"
+                  title="Edit Resident"
+                  data-tooltip="Edit Resident"
+                  aria-label="Edit Resident"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  <span class="custom-tooltip">Edit Resident</span>
+                </button>
+
+                <!-- Toggle Disable / Enable Account CTA -->
+                <button
+                  type="button"
+                  class="action-icon-btn"
+                  :class="resident.isActive ? 'btn-icon-disable' : 'btn-icon-enable'"
+                  :disabled="togglingStatus"
+                  @click="toggleAccountStatus"
+                  :title="resident.isActive ? 'Disable Account' : 'Activate Account'"
+                  :data-tooltip="resident.isActive ? 'Disable Account' : 'Activate Account'"
+                  :aria-label="resident.isActive ? 'Disable Account' : 'Activate Account'"
+                >
+                  <BrandSpinner v-if="togglingStatus" :size="13" color="currentColor" />
+                  <svg v-else-if="resident.isActive" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                  </svg>
+                  <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span class="custom-tooltip">{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
+                </button>
+
+                <!-- Remove Occupant from Unit CTA -->
+                <button
+                  type="button"
+                  class="action-icon-btn btn-icon-delete"
+                  @click="openDeleteConfirm"
+                  title="Remove"
+                  data-tooltip="Remove"
+                  aria-label="Remove"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
+                  <span class="custom-tooltip">Remove</span>
+                </button>
+              </div>
+
+              <!-- Badges (The Green) moved immediately after the icons -->
               <div class="pill-group">
                 <span class="role-pill" :class="resident.role === 'owner' ? 'role-owner' : 'role-tenant'">
                   {{ resident.role === 'owner' ? 'Homeowner' : 'Tenant' }}
@@ -183,69 +233,10 @@
               </div>
             </div>
 
-            <div class="unit-banner">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-              <span class="unit-address">{{ resident.unit?.flatAddress || 'Unassigned Unit' }}</span>
-              <span v-if="resident.estate?.name" class="estate-bullet">• {{ resident.estate.name }}</span>
-            </div>
-
             <p class="joined-meta">
               Onboarded on {{ fmtDate(resident.createdAt) }}
             </p>
           </div>
-        </div>
-
-        <!-- Quick Profile Actions (Edit, Disable/Enable, Remove) -->
-        <div class="profile-actions">
-          <button
-            type="button"
-            class="btn btn-outline btn-edit"
-            @click="openEditModal"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20h9"/>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-            <span>Edit Resident</span>
-          </button>
-
-          <!-- Toggle Disable / Enable Account CTA -->
-          <button
-            type="button"
-            class="btn"
-            :class="resident.isActive ? 'btn-disable' : 'btn-enable'"
-            :disabled="togglingStatus"
-            @click="toggleAccountStatus"
-          >
-            <BrandSpinner v-if="togglingStatus" :size="14" color="currentColor" />
-            <svg v-else-if="resident.isActive" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-            </svg>
-            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <span>{{ resident.isActive ? 'Disable Account' : 'Activate Account' }}</span>
-          </button>
-
-          <!-- Remove Occupant from Unit CTA -->
-          <button
-            type="button"
-            class="btn btn-outline-danger btn-delete-occupant"
-            @click="openDeleteConfirm"
-            title="Remove occupant from this unit"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              <line x1="10" y1="11" x2="10" y2="17"/>
-              <line x1="14" y1="11" x2="14" y2="17"/>
-            </svg>
-            <span>Remove</span>
-          </button>
         </div>
       </section>
 
@@ -1822,85 +1813,112 @@ onMounted(async () => {
   background: currentColor;
 }
 
-.unit-banner {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.unit-address {
-  font-weight: 600;
-  color: #111827;
-}
-
-.estate-bullet {
-  color: #6B7280;
-  font-size: 12.5px;
-}
-
 .joined-meta {
   font-size: 12px;
   color: #6B7280;
   margin: 0;
 }
 
-/* Actions in Header */
-.profile-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.btn-edit {
+/* Action Icons beside Name */
+.profile-action-icons {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  border-radius: 10px;
 }
 
-.btn-disable {
+.action-icon-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+}
+
+.action-icon-btn:hover {
+  background: #F9FAFB;
+  color: #111827;
+  border-color: #D1D5DB;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.action-icon-btn.btn-icon-disable {
+  color: #DC2626;
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+.action-icon-btn.btn-icon-disable:hover {
+  background: #FEE2E2;
+  border-color: #F87171;
+  color: #B91C1C;
+}
+
+.action-icon-btn.btn-icon-enable {
+  color: #0A5C38;
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+}
+.action-icon-btn.btn-icon-enable:hover {
+  background: #D1FAE5;
+  border-color: #6EE7B7;
+  color: #064E2E;
+}
+
+.action-icon-btn.btn-icon-delete {
+  color: #9CA3AF;
+  background: #FFFFFF;
+  border-color: #E5E7EB;
+}
+.action-icon-btn.btn-icon-delete:hover {
   background: #FEF2F2;
   color: #DC2626;
-  border: 1px solid #FCA5A5;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 160ms ease;
+  border-color: #FCA5A5;
 }
 
-.btn-disable:hover:not(:disabled) {
-  background: #FEE2E2;
-}
-
-.btn-enable {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
-  font-size: 13.5px;
+/* Floating Tooltip on Hover */
+.action-icon-btn .custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #111827;
+  color: #FFFFFF;
+  font-size: 11px;
   font-weight: 600;
-  background: #0A5C38;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 160ms ease;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.btn-enable:hover:not(:disabled) {
-  background: #07472B;
+.action-icon-btn .custom-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -4px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: #111827 transparent transparent transparent;
+}
+
+.action-icon-btn:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Right Main Household Content */
@@ -2560,12 +2578,7 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .hero-profile-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .profile-actions {
-    width: 100%;
-    justify-content: flex-start;
+    padding: 18px 20px;
   }
   .status-choice-group {
     grid-template-columns: 1fr;
