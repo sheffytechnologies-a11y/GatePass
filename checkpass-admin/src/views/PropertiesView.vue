@@ -1715,10 +1715,10 @@ onUnmounted(() => {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #065F46;
-  background: #ECFDF5;
-  padding: 2px 8px;
-  border-radius: 6px;
+  color: #6B7280;
+  background: transparent;
+  padding: 0;
+  letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
 
@@ -1812,14 +1812,13 @@ onUnmounted(() => {
   font-size: 11.5px;
   font-weight: 600;
   color: #6B7280;
-  background: #E5E7EB;
-  padding: 2px 8px;
-  border-radius: 999px;
+  background: transparent;
+  padding: 0;
   transition: all 140ms ease;
 }
 
 .occupants-count-badge.is-occupied {
-  background: #ECFDF5;
+  background: transparent;
   color: #047857;
 }
 
