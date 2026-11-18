@@ -83,20 +83,12 @@
               <router-link to="/forgot-password" class="forgot-link">Forgot your Password?</router-link>
             </div>
 
-            <!-- Terms of Service & Privacy Policy Checkbox (Always unchecked by default) -->
-            <div class="terms-consent-row">
-              <label class="terms-checkbox-label" for="agreeTermsCheck">
-                <input
-                  id="agreeTermsCheck"
-                  v-model="agreeTerms"
-                  type="checkbox"
-                  class="terms-checkbox-input"
-                  required
-                />
-              </label>
-              <div class="terms-text">
-                I agree to the <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button> &amp; <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button>
-              </div>
+            <!-- Terms of Service & Privacy Policy Notice (No B2B Master Services Agreement) -->
+            <div class="terms-consent-notice">
+              By logging in, you agree to CheckPass
+              <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('terms')">Terms of Service</button>
+              &amp;
+              <button type="button" class="legal-link-btn" @click.stop.prevent="openLegalModal('privacy')">Privacy Policy</button>
             </div>
 
             <!-- Primary Action Button -->
@@ -278,7 +270,6 @@ const loading         = ref(false)
 const authError       = ref('')
 const showPassword    = ref(false)
 const fieldError      = ref({ login: '', password: '' })
-const agreeTerms      = ref(false)
 const legalModalOpen  = ref(false)
 const legalTab        = ref<'terms' | 'privacy'>('terms')
 
@@ -288,7 +279,6 @@ function openLegalModal(tab: 'terms' | 'privacy') {
 }
 
 function acceptLegalModal() {
-  agreeTerms.value = true
   legalModalOpen.value = false
 }
 
@@ -297,7 +287,6 @@ const suspendedBanner = computed(() => route.query.suspended === '1')
 const isEmail         = computed(() => loginIdentifier.value.includes('@'))
 
 const canSubmit = computed(() => {
-  if (!agreeTerms.value) return false
   const val = loginIdentifier.value.trim()
   if (val.includes('@')) {
     return val.length >= 5 && password.value.length >= 1
@@ -777,43 +766,14 @@ async function showResidentAccessInfo() {
   color: #A3B3A9;
 }
 
-/* ── Terms & Privacy Checkbox Row ── */
-.terms-consent-row {
+/* ── Terms & Privacy Notice ── */
+.terms-consent-notice {
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748B;
   margin: 14px 0 6px;
-  padding: 0 4px;
-}
-
-.terms-consent-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 14px 0 6px;
-  padding: 0 4px;
-}
-
-.terms-checkbox-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  margin-top: 2px;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.terms-checkbox-input {
-  margin-top: 3px;
-  width: 17px;
-  height: 17px;
-  accent-color: #0A5C38;
-  cursor: pointer;
-  flex-shrink: 0;
-  border-radius: 4px;
-}
-
-.terms-text {
-  font-size: 12.5px;
-  line-height: 1.45;
-  color: #475569;
+  padding: 0 8px;
 }
 
 .legal-link-btn {
@@ -824,8 +784,12 @@ async function showResidentAccessInfo() {
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
-  font-size: 12.5px;
+  font-size: 12px;
   display: inline;
+}
+
+.legal-link-btn:hover {
+  color: #053B23;
 }
 
 /* ── In-App Legal Modal Sheet ── */
