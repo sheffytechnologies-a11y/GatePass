@@ -10,82 +10,14 @@
         <span>Back to Residents</span>
       </router-link>
 
-      <!-- Unit Household Controller (Controls which person's details are displayed) -->
-      <div v-if="resident?.unit" class="household-controller" role="region" aria-label="Unit Household Switcher">
-        <!-- Section 1: Homeowner -->
-        <div class="controller-section homeowner-section">
-          <span class="section-label">HOMEOWNER</span>
-          <div v-if="homeowner" class="occupant-chips">
-            <button
-              type="button"
-              class="occupant-pill"
-              :class="{ 'is-selected': homeowner.id === resident.id }"
-              @click="selectOccupant(homeowner.id)"
-              :title="'View Homeowner: ' + (homeowner.user?.name || 'Owner')"
-            >
-              <span class="pill-avatar">
-                <img v-if="homeowner.user?.avatar" :src="homeowner.user.avatar" class="avatar-img" />
-                <span v-else class="avatar-mono">{{ initials(homeowner.user?.name) }}</span>
-                <span class="status-dot" :class="homeowner.isActive ? 'dot-active' : 'dot-disabled'"></span>
-              </span>
-              <span class="pill-name">{{ homeowner.user?.name || 'Homeowner' }}</span>
-              <span class="role-badge role-badge-owner">Owner</span>
-            </button>
-          </div>
-          <div v-else class="empty-owner-box">
-            <button type="button" class="btn-quick-add" @click="openAddModal('owner')">
-              + Add Owner
-            </button>
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="controller-divider"></div>
-
-        <!-- Section 2: Residents (Tenants / Occupants) -->
-        <div class="controller-section residents-section">
-          <div class="section-header">
-            <span class="section-label">RESIDENTS</span>
-            <span class="section-count">({{ tenants.length }})</span>
-          </div>
-
-          <div class="occupants-row">
-            <div v-if="tenants.length > 0" class="occupant-chips">
-              <button
-                v-for="tenant in tenants"
-                :key="tenant.id"
-                type="button"
-                class="occupant-pill"
-                :class="{ 'is-selected': tenant.id === resident.id }"
-                @click="selectOccupant(tenant.id)"
-                :title="'View Resident: ' + (tenant.user?.name || 'Tenant')"
-              >
-                <span class="pill-avatar">
-                  <img v-if="tenant.user?.avatar" :src="tenant.user.avatar" class="avatar-img" />
-                  <span v-else class="avatar-mono">{{ initials(tenant.user?.name) }}</span>
-                  <span class="status-dot" :class="tenant.isActive ? 'dot-active' : 'dot-disabled'"></span>
-                </span>
-                <span class="pill-name">{{ tenant.user?.name || 'Resident' }}</span>
-                <span class="role-badge role-badge-tenant">Tenant</span>
-              </button>
-            </div>
-            <span v-else class="no-tenants-hint">None</span>
-
-            <!-- Quick Add Occupant CTA -->
-            <button
-              type="button"
-              class="btn-quick-add"
-              @click="openAddModal('tenant')"
-              title="Add a new resident occupant to this unit"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              <span>Add</span>
-            </button>
-          </div>
-        </div>
+      <!-- Unit Reference Breadcrumb Badge -->
+      <div v-if="resident?.unit" class="top-unit-pill">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="top-unit-address">{{ resident.unit.flatAddress }}</span>
+        <span v-if="resident.estate?.name" class="top-estate-tag">{{ resident.estate.name }}</span>
       </div>
     </div>
 
@@ -100,10 +32,124 @@
       <router-link to="/residents" class="btn btn-primary">Return to Registry</router-link>
     </div>
 
-    <!-- Main Profile Content -->
+    <!-- Main Profile Content: 2-Column Master Layout (Vertical Sidebar Left, Content Right) -->
     <div v-else-if="resident" class="content-wrap">
-      <!-- Hero Profile Header Card -->
-      <section class="card hero-profile-card">
+      <div class="household-master-layout">
+        <!-- LEFT COLUMN: Vertical Unit Household Sidebar -->
+        <aside class="household-vertical-sidebar card" aria-label="Unit Household Directory">
+          <div class="sidebar-header">
+            <div>
+              <span class="sidebar-eyebrow">UNIT HOUSEHOLD</span>
+              <h2 class="sidebar-title">{{ resident.unit?.flatAddress || 'Household' }}</h2>
+            </div>
+            <span class="occupants-total-badge">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'member' : 'members' }}</span>
+          </div>
+
+          <!-- Section 1: Homeowner -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <span class="sidebar-section-label">HOMEOWNER</span>
+            </div>
+
+            <div v-if="homeowner" class="occupant-list">
+              <button
+                type="button"
+                class="occupant-vertical-card"
+                :class="{ 'is-active': homeowner.id === resident.id }"
+                @click="selectOccupant(homeowner.id)"
+                :title="'View Homeowner: ' + (homeowner.user?.name || 'Owner')"
+              >
+                <div class="occ-avatar-wrap">
+                  <img v-if="homeowner.user?.avatar" :src="homeowner.user.avatar" class="occ-avatar-img" />
+                  <div v-else class="occ-avatar-monogram">{{ initials(homeowner.user?.name) }}</div>
+                  <span class="occ-status-dot" :class="homeowner.isActive ? 'dot-active' : 'dot-disabled'"></span>
+                </div>
+                <div class="occ-info">
+                  <span class="occ-name">{{ homeowner.user?.name || 'Homeowner' }}</span>
+                  <div class="occ-tags">
+                    <span class="role-badge role-badge-owner">Owner</span>
+                    <span class="occ-status-text" :class="homeowner.isActive ? 'text-active' : 'text-disabled'">
+                      {{ homeowner.isActive ? 'Active' : 'Disabled' }}
+                    </span>
+                  </div>
+                </div>
+                <svg class="occ-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+
+            <div v-else class="sidebar-empty-box">
+              <p class="sidebar-empty-text">No homeowner attached</p>
+              <button type="button" class="btn-sidebar-add" @click="openAddModal('owner')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Owner</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 2: Residents / Tenants -->
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              <div class="sidebar-section-label-group">
+                <span class="sidebar-section-label">RESIDENTS / TENANTS</span>
+                <span class="sidebar-section-count">({{ tenants.length }})</span>
+              </div>
+              <button
+                type="button"
+                class="btn-mini-add"
+                @click="openAddModal('tenant')"
+                title="Add a new resident occupant"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add</span>
+              </button>
+            </div>
+
+            <div v-if="tenants.length > 0" class="occupant-list">
+              <button
+                v-for="tenant in tenants"
+                :key="tenant.id"
+                type="button"
+                class="occupant-vertical-card"
+                :class="{ 'is-active': tenant.id === resident.id }"
+                @click="selectOccupant(tenant.id)"
+                :title="'View Resident: ' + (tenant.user?.name || 'Tenant')"
+              >
+                <div class="occ-avatar-wrap">
+                  <img v-if="tenant.user?.avatar" :src="tenant.user.avatar" class="occ-avatar-img" />
+                  <div v-else class="occ-avatar-monogram">{{ initials(tenant.user?.name) }}</div>
+                  <span class="occ-status-dot" :class="tenant.isActive ? 'dot-active' : 'dot-disabled'"></span>
+                </div>
+                <div class="occ-info">
+                  <span class="occ-name">{{ tenant.user?.name || 'Resident' }}</span>
+                  <div class="occ-tags">
+                    <span class="role-badge role-badge-tenant">Tenant</span>
+                    <span class="occ-status-text" :class="tenant.isActive ? 'text-active' : 'text-disabled'">
+                      {{ tenant.isActive ? 'Active' : 'Disabled' }}
+                    </span>
+                  </div>
+                </div>
+                <svg class="occ-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+
+            <div v-else class="sidebar-empty-box">
+              <p class="sidebar-empty-text">No tenants assigned</p>
+              <button type="button" class="btn-sidebar-add" @click="openAddModal('tenant')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Resident</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT COLUMN: Main Person Content Area -->
+        <main class="household-main-content">
+          <!-- Hero Profile Header Card -->
+          <section class="card hero-profile-card">
         <div class="profile-main">
           <!-- Avatar with status ring -->
           <div class="avatar-wrap">
@@ -203,95 +249,22 @@
         </div>
       </section>
 
-      <!-- 2-Column Grid: Details on Left, Activities on Right -->
-      <div class="profile-grid">
-        <!-- LEFT COLUMN: Contact & Assigned Unit Info -->
-        <div class="grid-sidebar">
-          <!-- Contact Card -->
-          <div class="card detail-card">
-            <h2 class="card-heading">Contact Information</h2>
-            <div class="contact-rows">
-              <div class="contact-item">
-                <span class="contact-label">Phone Number</span>
-                <div class="contact-val-row">
-                  <span class="contact-val">{{ resident.user?.phone || '—' }}</span>
-                  <button
-                    v-if="resident.user?.phone"
-                    type="button"
-                    class="btn-icon-copy"
-                    title="Copy phone number"
-                    @click="copyText(resident.user.phone, 'Phone number copied!')"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="contact-item">
-                <span class="contact-label">Email Address</span>
-                <div class="contact-val-row">
-                  <span class="contact-val">{{ resident.user?.email || 'No email attached' }}</span>
-                  <button
-                    v-if="resident.user?.email"
-                    type="button"
-                    class="btn-icon-copy"
-                    title="Copy email address"
-                    @click="copyText(resident.user.email, 'Email copied!')"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="contact-item">
-                <span class="contact-label">Account System ID</span>
-                <span class="contact-val font-mono">#{{ resident.id }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Unit & Property Info Card -->
-          <div v-if="resident.unit" class="card detail-card">
-            <div class="card-heading-row">
-              <h2 class="card-heading">Unit Information</h2>
-              <router-link
-                :to="'/properties/' + resident.unit.id"
-                class="link-view-property"
-                title="View full property details"
-              >
-                <span>View Unit</span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                  <polyline points="15 3 21 3 21 9"/>
-                  <line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-              </router-link>
-            </div>
-
-            <div class="contact-rows">
-              <div class="contact-item">
-                <span class="contact-label">Property Address</span>
-                <span class="contact-val">{{ resident.unit?.flatAddress || '—' }}</span>
-              </div>
-
-              <div class="contact-item">
-                <span class="contact-label">Community Estate</span>
-                <span class="contact-val">{{ resident.estate?.name || '—' }}</span>
-              </div>
-
-              <div class="contact-item">
-                <span class="contact-label">Registered Occupants</span>
-                <span class="contact-val font-mono">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'person' : 'people' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT COLUMN: Interactive Activity Tabs (Passes & Dues) -->
-        <div class="grid-main">
-          <div class="card tabs-card">
+          <!-- Bottom: Sub-tabs card (Tenant Info, Passes, Dues) -->
+          <section class="card tabs-card">
             <!-- Tab Headers -->
             <div class="tab-bar">
+              <button
+                type="button"
+                class="tab-btn"
+                :class="{ active: activeTab === 'info' }"
+                @click="activeTab = 'info'"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span>{{ resident.role === 'owner' ? 'Owner Info' : 'Tenant Info' }}</span>
+              </button>
               <button
                 type="button"
                 class="tab-btn"
@@ -323,7 +296,95 @@
               </button>
             </div>
 
-            <!-- TAB 1: Passes Activity -->
+            <!-- TAB 1: Resident Info (Contact & Property) -->
+            <div v-if="activeTab === 'info'" class="tab-content tab-info-content">
+              <div class="info-sections-grid">
+                <!-- Contact Information Panel -->
+                <div class="info-panel">
+                  <div class="info-panel-header">
+                    <h3 class="info-panel-title">Contact Information</h3>
+                    <span class="info-panel-badge">Direct Communication</span>
+                  </div>
+
+                  <div class="contact-rows">
+                    <div class="contact-item">
+                      <span class="contact-label">Phone Number</span>
+                      <div class="contact-val-row">
+                        <span class="contact-val">{{ resident.user?.phone || '—' }}</span>
+                        <button
+                          v-if="resident.user?.phone"
+                          type="button"
+                          class="btn-icon-copy"
+                          title="Copy phone number"
+                          @click="copyText(resident.user.phone, 'Phone number copied!')"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="contact-item">
+                      <span class="contact-label">Email Address</span>
+                      <div class="contact-val-row">
+                        <span class="contact-val">{{ resident.user?.email || 'No email attached' }}</span>
+                        <button
+                          v-if="resident.user?.email"
+                          type="button"
+                          class="btn-icon-copy"
+                          title="Copy email address"
+                          @click="copyText(resident.user.email, 'Email copied!')"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="contact-item">
+                      <span class="contact-label">Account System ID</span>
+                      <span class="contact-val font-mono">#{{ resident.id }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Unit & Property Info Panel -->
+                <div v-if="resident.unit" class="info-panel">
+                  <div class="info-panel-header">
+                    <h3 class="info-panel-title">Unit Information</h3>
+                    <router-link
+                      :to="'/properties/' + resident.unit.id"
+                      class="link-view-property"
+                      title="View full property details"
+                    >
+                      <span>View Unit</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                    </router-link>
+                  </div>
+
+                  <div class="contact-rows">
+                    <div class="contact-item">
+                      <span class="contact-label">Property Address</span>
+                      <span class="contact-val">{{ resident.unit?.flatAddress || '—' }}</span>
+                    </div>
+
+                    <div class="contact-item">
+                      <span class="contact-label">Community Estate</span>
+                      <span class="contact-val">{{ resident.estate?.name || '—' }}</span>
+                    </div>
+
+                    <div class="contact-item">
+                      <span class="contact-label">Registered Household Occupants</span>
+                      <span class="contact-val font-mono">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'person' : 'people' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: Passes Activity -->
             <div v-if="activeTab === 'passes'" class="tab-content">
               <div v-if="passes.length === 0" class="empty-state-tab">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.6">
@@ -429,8 +490,8 @@
                 </table>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
 
@@ -730,7 +791,7 @@ const coResidents = ref<any[]>([])
 const passes = ref<any[]>([])
 const dues = ref<any[]>([])
 
-const activeTab = ref<'passes' | 'dues'>('passes')
+const activeTab = ref<'info' | 'passes' | 'dues'>('info')
 const togglingStatus = ref(false)
 
 // Edit Modal state
@@ -1146,136 +1207,280 @@ onMounted(async () => {
   transform: translateX(-2px);
 }
 
-/* Unit Household Controller (Top Right Controller) */
-.household-controller {
+/* Top Unit Reference Badge */
+.top-unit-pill {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
   background: #ffffff;
   border: 1px solid #E5E7EB;
-  border-radius: 14px;
-  padding: 6px 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: #374151;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
-.controller-section {
+.top-unit-pill svg {
+  color: #0A5C38;
+}
+
+.top-unit-address {
+  font-weight: 700;
+  color: #111827;
+}
+
+.top-estate-tag {
+  color: #6B7280;
+  font-size: 12px;
+}
+
+/* Master 2-Column Layout (Vertical Left Household Sidebar, Content Right) */
+.household-master-layout {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* Vertical Unit Household Sidebar */
+.household-vertical-sidebar {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 20px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 20px;
 }
 
-.controller-section .section-label {
-  font-size: 10px;
+.sidebar-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.sidebar-eyebrow {
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #9CA3AF;
   text-transform: uppercase;
 }
 
-.controller-section .section-count {
-  font-size: 10px;
+.sidebar-title {
+  font-size: 15px;
   font-weight: 700;
-  color: #6B7280;
+  color: #111827;
+  margin: 3px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
 }
 
-.section-header {
+.occupants-total-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #F3F4F6;
+  color: #4B5563;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-section-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
 }
 
-.controller-divider {
-  width: 1px;
-  height: 24px;
+.sidebar-section-label-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sidebar-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  text-transform: uppercase;
+}
+
+.sidebar-section-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+}
+
+.btn-mini-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #059669;
+  background: #F0FDF4;
+  border: 1px dashed #A7F3D0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.btn-mini-add:hover {
+  background: #DCFCE7;
+  border-color: #059669;
+}
+
+.occupant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.occupant-vertical-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  color: inherit;
+}
+
+.occupant-vertical-card:hover {
+  background: #F3F4F6;
+  border-color: #D1D5DB;
+  transform: translateY(-1px);
+}
+
+.occupant-vertical-card.is-active {
+  background: #ECFDF5;
+  border-color: #10B981;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
+}
+
+.occ-avatar-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.occ-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ffffff;
+}
+
+.occ-avatar-monogram {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   background: #E5E7EB;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.occupant-chips, .occupants-row {
+.occupant-vertical-card.is-active .occ-avatar-monogram {
+  background: #0A5C38;
+  color: #ffffff;
+}
+
+.occ-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+
+.dot-active {
+  background: #10B981;
+}
+
+.dot-disabled {
+  background: #EF4444;
+}
+
+.occ-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.occ-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.occupant-vertical-card.is-active .occ-name {
+  color: #065F46;
+  font-weight: 700;
+}
+
+.occ-tags {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.occupant-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 10px 4px 5px;
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
-  font-size: 12.5px;
-  color: #374151;
-  font-weight: 500;
-  user-select: none;
-}
-
-.occupant-pill:hover {
-  background: #F9FAFB;
-  border-color: #D1D5DB;
-  transform: translateY(-1px);
-}
-
-.occupant-pill.is-selected {
-  background: #ECFDF5;
-  border-color: #10B981;
-  color: #065F46;
+.occ-status-text {
+  font-size: 10.5px;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.16);
 }
 
-.pill-avatar {
-  position: relative;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+.text-active {
+  color: #059669;
+}
+
+.text-disabled {
+  color: #DC2626;
+}
+
+.occ-arrow {
+  color: #9CA3AF;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #E5E7EB;
+  transition: transform 140ms ease;
 }
 
-.pill-avatar .avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: none;
-  box-shadow: none;
-}
-
-.pill-avatar .avatar-mono {
-  font-size: 10px;
-  font-weight: 700;
-  color: #374151;
-}
-
-.pill-avatar .status-dot {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1px solid #ffffff;
-}
-
-.status-dot.dot-active {
-  background: #10B981;
-}
-
-.status-dot.dot-disabled {
-  background: #EF4444;
-}
-
-.pill-name {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.occupant-vertical-card.is-active .occ-arrow {
+  color: #10B981;
+  transform: translateX(2px);
 }
 
 .role-badge {
@@ -1297,31 +1502,41 @@ onMounted(async () => {
   color: #6B7280;
 }
 
-.btn-quick-add {
+.sidebar-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #F9FAFB;
+  border: 1px dashed #D1D5DB;
+  border-radius: 12px;
+}
+
+.sidebar-empty-text {
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.btn-sidebar-add {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px 9px;
-  font-size: 11.5px;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
   font-weight: 600;
   color: #059669;
-  background: #F0FDF4;
-  border: 1px dashed #A7F3D0;
-  border-radius: 9999px;
+  background: #FFFFFF;
+  border: 1px solid #A7F3D0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: all 140ms ease;
 }
 
-.btn-quick-add:hover {
-  background: #DCFCE7;
+.btn-sidebar-add:hover {
+  background: #ECFDF5;
   border-color: #059669;
-  color: #047857;
-}
-
-.no-tenants-hint {
-  font-size: 11.5px;
-  color: #9CA3AF;
-  font-style: italic;
 }
 
 /* Link View Property in Sidebar */
@@ -1687,19 +1902,12 @@ onMounted(async () => {
   background: #07472B;
 }
 
-/* 2-Column Grid Layout */
-.profile-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-/* Sidebar Cards */
-.grid-sidebar {
+/* Right Main Household Content */
+.household-main-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .detail-card {
@@ -1931,6 +2139,49 @@ onMounted(async () => {
 
 .tab-content {
   padding: 20px;
+}
+
+/* Info Sub-Tab Styling */
+.tab-info-content {
+  padding: 22px 24px;
+}
+
+.info-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.info-panel {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.info-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.info-panel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.info-panel-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B7280;
+  background: #E5E7EB;
+  padding: 2px 7px;
+  border-radius: 6px;
 }
 
 .empty-state-tab {
@@ -2297,7 +2548,16 @@ onMounted(async () => {
   border: 0;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
+  .household-master-layout {
+    grid-template-columns: 1fr;
+  }
+  .household-vertical-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
   .hero-profile-card {
     flex-direction: column;
     align-items: flex-start;
@@ -2305,9 +2565,6 @@ onMounted(async () => {
   .profile-actions {
     width: 100%;
     justify-content: flex-start;
-  }
-  .profile-grid {
-    grid-template-columns: 1fr;
   }
   .status-choice-group {
     grid-template-columns: 1fr;
