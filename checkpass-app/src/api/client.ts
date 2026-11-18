@@ -30,7 +30,15 @@ const processQueue = (error: unknown, token: string | null) => {
 }
 
 client.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    // If the server returned HTML (e.g. index.html SPA fallback on 404 or misconfigured proxy)
+    if (typeof res.data === 'string' && (res.data.includes('<!DOCTYPE html') || res.data.includes('<html'))) {
+      const err = new Error('Invalid JSON response: Received HTML from API endpoint') as any
+      err.response = { ...res, status: 502, data: { message: 'Server returned HTML instead of JSON' } }
+      return Promise.reject(err)
+    }
+    return res
+  },
   async (error) => {
     const original = error.config
     const code = error.response?.data?.code

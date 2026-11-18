@@ -23,9 +23,9 @@
           <div class="profile-card-main">
             <div class="profile-avatar">{{ initials }}</div>
             <div class="profile-info">
-              <div class="profile-name">{{ auth.resident?.name }}</div>
-              <div class="profile-unit">{{ auth.resident?.flatAddress }}</div>
-              <div class="profile-estate">{{ auth.resident?.estateName }}</div>
+              <div class="profile-name">{{ residentDisplayName }}</div>
+              <div class="profile-unit">{{ residentDisplayUnit }}</div>
+              <div class="profile-estate">{{ residentDisplayEstate }}</div>
             </div>
             <div class="profile-card-arrow" aria-hidden="true">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -771,9 +771,25 @@ async function showTerms() {
   await alert.present()
 }
 
-const initials = computed(() =>
-  auth.resident?.name?.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase() || ''
-)
+const residentDisplayName = computed(() => {
+  const name = auth.resident?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || ''
+  return name.trim() || 'Resident Account'
+})
+
+const residentDisplayUnit = computed(() => {
+  return auth.resident?.flatAddress || 'VIP 2, VVIP 2, 1% 2'
+})
+
+const residentDisplayEstate = computed(() => {
+  return auth.resident?.estateName || 'Sheffy Estate'
+})
+
+const initials = computed(() => {
+  const name = residentDisplayName.value.trim()
+  if (!name || name === 'Resident Account') return 'RA'
+  const parts = name.split(' ').filter(Boolean)
+  return parts.map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() || 'RA'
+})
 
 async function savePreferences() {
   try {

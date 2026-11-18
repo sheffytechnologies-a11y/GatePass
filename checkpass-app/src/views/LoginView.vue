@@ -308,6 +308,9 @@ async function handleLogin() {
     }
 
     const res = await authApi.login(credential, password.value)
+    if (!res.data || typeof res.data !== 'object' || !res.data.token) {
+      throw new Error('Invalid authentication response from server')
+    }
     const { token, refreshToken, resident, userType, data: user } = res.data
     auth.setSession({ token, refreshToken, resident, userType, user })
 

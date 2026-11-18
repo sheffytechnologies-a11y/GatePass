@@ -69,10 +69,10 @@
         <!-- ── RESIDENT VIEW ─────────────────────────────── -->
         <template v-else>
           <EstateHero
-            :flat-address="auth.resident?.flatAddress || ''"
-            :estate-name="auth.resident?.estateName || ''"
+            :flat-address="auth.resident?.flatAddress || summary?.resident?.flatAddress || ''"
+            :estate-name="auth.resident?.estateName || summary?.resident?.estateName || ''"
             :gate-open="true"
-            :stats="summary.stats"
+            :stats="summary?.stats"
           />
 
           <section class="section">
@@ -1434,8 +1434,9 @@ const displayedBuyItems = computed(() => {
 })
 
 const firstName = computed(() => {
-  const name = auth.resident?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || ''
-  return name.split(' ')[0]
+  const name = auth.resident?.name || summary.value?.resident?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || ''
+  const trimmed = name.trim()
+  return trimmed ? trimmed.split(' ')[0] : 'Resident'
 })
 const greeting  = computed(() => {
   const h = new Date().getHours()
@@ -1446,15 +1447,15 @@ const greeting  = computed(() => {
 
 const totalPassesCount = computed(() => {
   const storeCount = passesStore.passes.length
-  const statsActive = summary.value.stats?.activePasses ?? 0
-  const summaryRecent = summary.value.recentPasses?.length ?? 0
+  const statsActive = summary.value?.stats?.activePasses ?? 0
+  const summaryRecent = summary.value?.recentPasses?.length ?? 0
   return Math.max(storeCount, statsActive, summaryRecent)
 })
 
 const hasMoreThanFivePasses = computed(() => totalPassesCount.value > 5)
 
 const allActivePasses = computed(() => {
-  const source = passesStore.passes.length > 0 ? passesStore.passes : summary.value.recentPasses
+  const source = passesStore.passes.length > 0 ? passesStore.passes : (summary.value?.recentPasses || [])
   return source.filter(p => p.status !== 'Exited' && p.status !== 'Revoked')
 })
 
@@ -1466,38 +1467,48 @@ async function loadSummary() {
   summaryError.value   = false
   try {
     const res = await client.get('/v1/home/summary')
-    if (res.data) {
+    if (res.data && typeof res.data === 'object' && res.data.stats) {
       summary.value = res.data
       notifStore.notifications = res.data.notifications || []
       if (res.data.resident) auth.updateResident(res.data.resident)
       try {
         localStorage.setItem('cp_home_summary', JSON.stringify(res.data))
       } catch {}
+    } else {
+      throw new Error('Invalid summary response from server')
     }
   } catch (err) {
     // Graceful offline/demo fallback: use cached summary or MOCK_HOME_SUMMARY
     let fallback: HomeSummary | null = null
     try {
       const cached = localStorage.getItem('cp_home_summary')
-      if (cached) fallback = JSON.parse(cached)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed && typeof parsed === 'object' && parsed.stats) {
+          fallback = parsed
+        }
+      }
     } catch {}
 
     if (!fallback) {
       const storedUser = JSON.parse(localStorage.getItem('w_user') ?? 'null')
-      const residentData = auth.resident || {
+      const storedResident = JSON.parse(localStorage.getItem('w_resident') ?? 'null')
+      const residentData = auth.resident || storedResident || {
         ...MOCK_RESIDENT,
-        name: storedUser?.name || 'Sheriff',
-        estateName: storedUser?.estateName || 'Emerald Court',
+        name: storedUser?.name || 'Kemi Adeleke',
+        estateName: storedUser?.estateName || 'Sheffy Estate',
+        flatAddress: 'VIP 2, VVIP 2, 1% 2',
       }
       fallback = {
         ...MOCK_HOME_SUMMARY,
         resident: residentData,
+        stats: { onPremises: 0, activePasses: 0, newToday: 0 },
       }
     }
 
     summary.value = fallback
     notifStore.notifications = fallback.notifications || []
-    if (fallback.resident && !auth.resident) {
+    if (fallback.resident && (!auth.resident || !auth.resident.name)) {
       auth.updateResident(fallback.resident)
     }
     // Prevent locking the dashboard behind an error screen
