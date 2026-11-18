@@ -251,25 +251,37 @@
             </div>
           </div>
 
-          <!-- Mid Section: Name & Property Assignment Box -->
+          <!-- Mid Section: Name & Context Box (Unit for Residents, Role for Staff) -->
           <div class="grid-card-body">
             <h3 class="grid-card-name" :title="user.name">{{ user.name }}</h3>
 
-            <div v-if="user.unitAddress || addressLine(user)" class="grid-unit-box">
-              <span class="grid-unit-label">ASSIGNED PROPERTY</span>
-              <div class="grid-unit-val">
+            <div class="grid-unit-box">
+              <!-- Admin Role -->
+              <div v-if="user.type === 'admin'" class="grid-unit-val staff-val staff-val--admin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span class="grid-unit-text">Estate Administrator</span>
+              </div>
+
+              <!-- Security Role -->
+              <div v-else-if="user.type === 'security'" class="grid-unit-val staff-val staff-val--security">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span class="grid-unit-text">Gate Security Personnel</span>
+              </div>
+
+              <!-- Resident Unit Assignment -->
+              <div v-else class="grid-unit-val">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                   <polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
-                <span class="grid-unit-text">{{ user.unitAddress || addressLine(user) }}</span>
-              </div>
-            </div>
-            <div v-else-if="user.email" class="grid-unit-box">
-              <span class="grid-unit-label">ACCOUNT EMAIL</span>
-              <div class="grid-unit-val">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <span class="grid-unit-text">{{ user.email }}</span>
+                <span class="grid-unit-text" :class="{ 'text-muted-italic': !hasUnit(user) }">
+                  {{ user.unitAddress || addressLine(user) || 'No unit assigned' }}
+                </span>
               </div>
             </div>
           </div>
@@ -618,6 +630,10 @@ function addressLine(user: any): string {
   if (user.unitAddress) return user.unitAddress
   const r = allResidents.value.find(res => res.user?.id === user.id)
   return r?.unit?.flatAddress || r?.unit?.flat_address || ''
+}
+
+function hasUnit(user: any): boolean {
+  return !!(user.unitAddress || addressLine(user))
 }
 
 function fmtDate(iso: string | null): string {
@@ -1086,38 +1102,60 @@ onUnmounted(() => {
   background: #F9FAFB;
   border: 1px solid #F3F4F6;
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 10px 12px;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
   transition: background 160ms ease;
+  min-height: 42px;
+  box-sizing: border-box;
 }
 
 .user-grid-card:hover .grid-unit-box {
   background: #F3F4F6;
 }
 
-.grid-unit-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #6B7280;
-}
-
 .grid-unit-val {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: #111827;
+  width: 100%;
+  min-width: 0;
+}
+
+.grid-unit-val svg {
+  color: #6B7280;
+  flex-shrink: 0;
 }
 
 .grid-unit-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.text-muted-italic {
+  color: #9CA3AF;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.staff-val--admin {
+  color: #065F46;
+}
+
+.staff-val--admin svg {
+  color: #059669;
+}
+
+.staff-val--security {
+  color: #92400E;
+}
+
+.staff-val--security svg {
+  color: #D97706;
 }
 
 .grid-card-foot {

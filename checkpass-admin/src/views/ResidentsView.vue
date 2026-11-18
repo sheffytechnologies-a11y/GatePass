@@ -195,13 +195,14 @@
             <h3 class="grid-card-name" :title="resident.user?.name">{{ resident.user?.name ?? '—' }}</h3>
 
             <div class="grid-unit-box">
-              <span class="grid-unit-label">ASSIGNED PROPERTY</span>
               <div class="grid-unit-val">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                   <polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
-                <span class="grid-unit-text">{{ resident.unit?.flatAddress || 'No unit assigned' }}</span>
+                <span class="grid-unit-text" :class="{ 'text-muted-italic': !resident.unit?.flatAddress }">
+                  {{ resident.unit?.flatAddress || 'No unit assigned' }}
+                </span>
               </div>
             </div>
           </div>
@@ -691,38 +692,44 @@ onUnmounted(() => {
   background: #F9FAFB;
   border: 1px solid #F3F4F6;
   border-radius: 10px;
-  padding: 9px 12px;
+  padding: 10px 12px;
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
   transition: background 160ms ease;
+  min-height: 42px;
+  box-sizing: border-box;
 }
 
 .resident-grid-card:hover .grid-unit-box {
   background: #F3F4F6;
 }
 
-.grid-unit-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #6B7280;
-}
-
 .grid-unit-val {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: #111827;
+  width: 100%;
+  min-width: 0;
+}
+
+.grid-unit-val svg {
+  color: #6B7280;
+  flex-shrink: 0;
 }
 
 .grid-unit-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.text-muted-italic {
+  color: #9CA3AF;
+  font-weight: 500;
+  font-style: italic;
 }
 
 .grid-card-foot {
