@@ -11,20 +11,8 @@
           <span>Back to Residents</span>
         </button>
         <div class="header-titles">
-          <div class="page-eyebrow">RESIDENT REGISTRATION & ONBOARDING</div>
           <h1 class="page-title">Add Resident & Unit Assignment</h1>
-          <p class="page-subtitle">
-            Register homeowners, assign property units, and add household occupants with automatic gate pass credentials.
-          </p>
         </div>
-      </div>
-
-      <div class="header-actions">
-        <button type="button" class="btn-ghost" @click="goBack">Cancel</button>
-        <button type="button" class="btn btn-primary btn-save-header" :disabled="saving" @click="save">
-          <BrandSpinner v-if="saving" :size="16" color="#ffffff" />
-          <span>{{ saving ? 'Saving Records...' : 'Save Resident Record' }}</span>
-        </button>
       </div>
     </header>
 
@@ -39,16 +27,7 @@
       <!-- COLUMN 1: Primary Resident (Homeowner) -->
       <section class="form-card">
         <div class="card-head">
-          <div class="card-icon-wrap bg-emerald">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="card-title">Primary Resident (Homeowner)</h2>
-            <p class="card-desc">Account owner responsible for unit access and passes.</p>
-          </div>
+          <h2 class="card-title">Primary Resident (Homeowner)</h2>
         </div>
 
         <div class="card-body">
@@ -192,27 +171,12 @@
 
       <!-- COLUMN 2: Household Occupants & Tenants -->
       <section class="form-card">
-        <div class="card-head">
-          <div class="card-icon-wrap bg-blue">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <div class="flex-1">
-            <div class="head-between">
-              <div>
-                <h2 class="card-title">Household Occupants & Tenants ({{ form.tenants.length }})</h2>
-                <p class="card-desc">Register additional family members or co-tenants at this unit.</p>
-              </div>
-              <button type="button" class="btn btn-outline-emerald btn-sm" @click="addTenant">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <span>Add Occupant</span>
-              </button>
-            </div>
-          </div>
+        <div class="card-head head-between">
+          <h2 class="card-title">Household Occupants & Tenants ({{ form.tenants.length }})</h2>
+          <button type="button" class="btn btn-outline-emerald btn-sm" @click="addTenant">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add Occupant</span>
+          </button>
         </div>
 
         <div class="card-body">
@@ -1338,16 +1302,23 @@ onMounted(() => {
 .bottom-action-bar {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 252px;
   right: 0;
   background: #ffffff;
   border-top: 1px solid #E5E7EB;
-  padding: 14px 28px;
+  padding: 16px 36px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
   z-index: 100;
+}
+
+@media (max-width: 900px) {
+  .bottom-action-bar {
+    left: 0;
+    padding: 14px 20px;
+  }
 }
 
 .footer-hint {
