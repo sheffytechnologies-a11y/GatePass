@@ -3,30 +3,6 @@
     <!-- Top Hero Header Container Card -->
     <section class="hero-card hero-card--emerald">
       <div class="hero-top-row">
-        <div class="hero-badge-group">
-          <span class="hero-eyebrow">Estate Command Center</span>
-          <span class="gate-status-pill">
-            <span class="status-dot"></span>
-            Gate Active &bull; Shift Live
-          </span>
-          <div class="telemetry-sync-pill" :title="`Auto-refreshes every 30s. ${syncStatusLabel}`">
-            <span class="telemetry-dot" :class="{ 'telemetry-dot--syncing': isSyncing }"></span>
-            <span class="telemetry-label">{{ syncStatusLabel }}</span>
-            <button
-              type="button"
-              class="btn-telemetry-sync"
-              :disabled="isSyncing"
-              @click="manualSync"
-              title="Sync live gate telemetry now"
-            >
-              <svg :class="{ 'spin-anim': isSyncing }" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-              </svg>
-              <span>Sync</span>
-            </button>
-          </div>
-        </div>
-
         <div class="hero-switcher-box">
           <EstateSwitcher variant="hero" />
         </div>
@@ -729,9 +705,7 @@ const auth = useAuthStore()
 const { showToast } = useToast()
 
 const loading = ref(true)
-const secondsSinceSync = ref(0)
 let syncInterval: ReturnType<typeof setInterval> | null = null
-let tickerInterval: ReturnType<typeof setInterval> | null = null
 
 const estates = ref<any[]>([])
 const showAddEstateModal = ref(false)
@@ -1103,20 +1077,7 @@ const filteredActivityFeed = computed(() => {
   return list
 })
 
-const syncStatusLabel = computed(() => {
-  if (isSyncing.value) return 'Syncing live telemetry…'
-  if (secondsSinceSync.value === 0) return 'Just synced'
-  if (secondsSinceSync.value < 60) return `Synced ${secondsSinceSync.value}s ago`
-  const mins = Math.floor(secondsSinceSync.value / 60)
-  return `Synced ${mins}m ago`
-})
-
 const isSyncing = ref(false)
-
-async function manualSync() {
-  await load(false)
-  showToast('Live gate telemetry synced.', 'success')
-}
 
 async function load(showSpinner = true) {
   if (showSpinner) loading.value = true
@@ -1144,7 +1105,6 @@ async function load(showSpinner = true) {
     if (!auth.activeEstateId && estates.value.length > 0) {
       auth.setActiveEstate(estates.value[0])
     }
-    secondsSinceSync.value = 0
   } catch (err: any) {
     if (showSpinner) {
       showToast('Failed to load dashboard data.', 'error')
@@ -1218,9 +1178,6 @@ function fmtDate(dt?: string) {
 
 onMounted(() => {
   load()
-  tickerInterval = setInterval(() => {
-    secondsSinceSync.value += 1
-  }, 1000)
   syncInterval = setInterval(() => {
     load(false)
   }, 30000)
@@ -1228,7 +1185,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (syncInterval) clearInterval(syncInterval)
-  if (tickerInterval) clearInterval(tickerInterval)
 })
 </script>
 
@@ -1259,10 +1215,19 @@ onUnmounted(() => {
 .hero-top-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 16px;
-  flex-wrap: wrap;
   gap: 12px;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  width: 100%;
+  padding: 80px 20px;
 }
 
 .hero-badge-group {
