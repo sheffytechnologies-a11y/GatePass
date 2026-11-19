@@ -2,17 +2,12 @@
   <div class="dashboard-page">
     <!-- Top Hero Header Container Card -->
     <section class="hero-card hero-card--emerald">
-      <div class="hero-top-row">
-        <div class="hero-switcher-box">
-          <EstateSwitcher variant="hero" />
-        </div>
+      <div class="hero-title-group">
+        <h1 class="hero-title">Estate Command &amp; Security Overview</h1>
+        <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
       </div>
-
-      <div class="hero-main-row">
-        <div class="hero-title-group">
-          <h1 class="hero-title">Estate Command &amp; Security Overview</h1>
-          <p class="hero-copy">Monitor real-time visitor gate access, resident activity, and emergency dispatch across your community.</p>
-        </div>
+      <div class="hero-switcher-box">
+        <EstateSwitcher variant="hero" />
       </div>
     </section>
 
@@ -91,21 +86,24 @@
           <div class="kpi-label">Unit Occupancy</div>
         </router-link>
 
-        <router-link to="/emergencies" class="kpi-card card" :class="{ 'kpi-card--alert': stats.todayEmergencies > 0 }">
+        <router-link to="/access" class="kpi-card card" :class="{ 'kpi-card--alert': stats.todayEmergencies > 0 }">
           <div class="kpi-top">
-            <div class="kpi-icon-pill" :class="stats.todayEmergencies > 0 ? 'kpi-icon--red' : 'kpi-icon--green'">
+            <div class="kpi-icon-pill kpi-icon--emerald" :class="{ 'kpi-icon--red': stats.todayEmergencies > 0 }">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
             <span class="kpi-badge" :class="stats.todayEmergencies > 0 ? 'kpi-badge--red' : 'kpi-badge--green'">
-              {{ stats.todayEmergencies > 0 ? `${stats.todayEmergencies} Alert` : 'Secure' }}
+              {{ stats.todayEmergencies > 0 ? `${stats.todayEmergencies} Alert` : 'Gate Active' }}
             </span>
           </div>
           <div class="kpi-value" :class="{ 'text-danger': stats.todayEmergencies > 0 }">
-            {{ stats.todayEmergencies === 0 ? 'All Clear' : `${stats.todayEmergencies} Alert` }}
+            {{ stats.todayEmergencies > 0 ? `${stats.todayEmergencies} Alert` : stats.onSite }}
           </div>
-          <div class="kpi-label">Security Dispatch</div>
+          <div class="kpi-label">Currently On-Site</div>
         </router-link>
       </section>
 
@@ -113,138 +111,199 @@
       <div class="dashboard-grid-2col">
         <!-- ── MAIN LEFT COLUMN (63%) ── -->
         <div class="dash-col-main">
-          <!-- 1. Dual-Bar Influx Chart Card -->
+          <!-- 1. Pass Activity Chart Card (Filterable & Cleaned Up) -->
           <div class="card chart-card">
             <div class="chart-header">
-              <div>
-                <span class="chart-eyebrow">Gate Telemetry &amp; Influx</span>
+              <div class="chart-title-area">
                 <div class="chart-headline-row">
-                  <h3 class="chart-title">Visitor Passes &amp; Influx Traffic</h3>
-                  <span class="chart-big-count">{{ totalWeekPasses }} Total Passes</span>
+                  <h3 class="chart-title">Pass Activity</h3>
+                  <span class="chart-count-pill">{{ currentPassTotal }} Passes</span>
                 </div>
               </div>
 
-              <div class="chart-legend-box">
-                <div class="legend-chip">
-                  <span class="legend-square legend-square--forest"></span>
-                  <span>Passes Issued</span>
+              <div class="chart-controls-box">
+                <!-- Segmented Filter Toggle: Daily | Weekly | Monthly -->
+                <div class="chart-filter-toggle">
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: passTimeframe === 'daily' }"
+                    @click="setPassTimeframe('daily')"
+                  >
+                    Daily
+                  </button>
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: passTimeframe === 'weekly' }"
+                    @click="setPassTimeframe('weekly')"
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: passTimeframe === 'monthly' }"
+                    @click="setPassTimeframe('monthly')"
+                  >
+                    Monthly
+                  </button>
                 </div>
-                <div class="legend-chip">
-                  <span class="legend-square legend-square--mint"></span>
-                  <span>Checked-in at Gate</span>
+
+                <!-- Navigation chevrons for sliding time windows -->
+                <div class="chart-nav-group">
+                  <button type="button" class="chart-nav-btn" @click="shiftPassWindow(-1)" title="Previous period">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <span class="chart-nav-label">{{ passWindowLabel }}</span>
+                  <button type="button" class="chart-nav-btn" :disabled="passWindowOffset === 0" @click="shiftPassWindow(1)" title="Next period">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+
+                <!-- Legend chips -->
+                <div class="chart-legend-box">
+                  <div class="legend-chip">
+                    <span class="legend-square legend-square--forest"></span>
+                    <span>Issued</span>
+                  </div>
+                  <div class="legend-chip">
+                    <span class="legend-square legend-square--mint"></span>
+                    <span>Checked-in</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Dual-Bar SVG Chart -->
-            <div class="svg-bar-chart-wrap">
-              <svg viewBox="0 0 520 180" class="svg-bar-chart" preserveAspectRatio="none">
-                <line x1="20" y1="20" x2="500" y2="20" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="60" x2="500" y2="60" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="100" x2="500" y2="100" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-width="1.2" />
+            <!-- Responsive Flex Capsule Bar Chart (Zero Stretched SVGs) -->
+            <div class="flex-bar-chart-container">
+              <div class="y-grid-lines">
+                <div class="grid-line"><span class="y-label">{{ maxPassVal }}</span></div>
+                <div class="grid-line"><span class="y-label">{{ Math.round(maxPassVal * 0.5) }}</span></div>
+                <div class="grid-line"><span class="y-label">0</span></div>
+              </div>
 
-                <g
-                  v-for="(b, idx) in influxBarCoords"
-                  :key="idx"
-                  class="bar-group"
-                  @mouseenter="hoveredBar = b"
+              <div class="bar-columns-row">
+                <div
+                  v-for="(col, cIdx) in currentPassBars"
+                  :key="cIdx"
+                  class="bar-column-group"
+                  @mouseenter="hoveredBar = col"
                   @mouseleave="hoveredBar = null"
                 >
-                  <rect
-                    :x="b.x1"
-                    :y="b.y1"
-                    :width="b.barW"
-                    :height="b.h1"
-                    rx="4"
-                    ry="4"
-                    fill="#0A5C38"
-                    class="bar-rect"
-                  />
-                  <rect
-                    :x="b.x2"
-                    :y="b.y2"
-                    :width="b.barW"
-                    :height="b.h2"
-                    rx="4"
-                    ry="4"
-                    fill="#10B981"
-                    class="bar-rect"
-                  />
-                  <text :x="b.centerX" y="160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#64748B">{{ b.day }}</text>
-                </g>
-              </svg>
+                  <div class="bar-track-capsule">
+                    <div class="dual-bars-wrap">
+                      <div
+                        class="bar-fill bar-fill--issued"
+                        :style="{ height: `${col.pctTotal}%` }"
+                        :title="`Issued: ${col.total}`"
+                      ></div>
+                      <div
+                        class="bar-fill bar-fill--arrived"
+                        :style="{ height: `${col.pctArrived}%` }"
+                        :title="`Checked-in: ${col.arrived}`"
+                      ></div>
+                    </div>
+                  </div>
+                  <span class="bar-col-label">{{ col.label }}</span>
 
-              <!-- Interactive hover tooltip -->
-              <div v-if="hoveredBar" class="chart-tooltip" :style="{ left: `${(hoveredBar.centerX / 520) * 100}%` }">
-                <div class="tooltip-header">{{ hoveredBar.day }} &bull; {{ hoveredBar.label }}</div>
-                <div class="tooltip-row"><span>Issued:</span> <strong>{{ hoveredBar.total }}</strong></div>
-                <div class="tooltip-row"><span>Checked-in:</span> <strong class="text-mint">{{ hoveredBar.arrived }}</strong></div>
+                  <!-- Interactive Tooltip -->
+                  <div v-if="hoveredBar === col" class="bar-popover-tooltip">
+                    <div class="popover-title">{{ col.fullDate || col.label }}</div>
+                    <div class="popover-row"><span>Passes Issued:</span> <strong>{{ col.total }}</strong></div>
+                    <div class="popover-row"><span>Checked-in:</span> <strong class="text-mint">{{ col.arrived }}</strong></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 2. Estate Dues & Revenue Performance Chart Card -->
+          <!-- 2. Estate Dues & Revenue Performance Chart Card (Filterable & Cleaned Up) -->
           <div class="card chart-card dues-chart-card">
             <div class="chart-header">
-              <div>
-                <span class="chart-eyebrow">Financial Telemetry &amp; Revenue</span>
+              <div class="chart-title-area">
                 <div class="chart-headline-row">
-                  <h3 class="chart-title">Estate Dues &amp; Collection Performance</h3>
-                  <span class="chart-big-count text-gold">₦{{ fmtNaira(stats.duesCollected) }} Collected</span>
+                  <h3 class="chart-title">Estate Dues</h3>
+                  <span class="chart-count-pill text-gold">₦{{ fmtNaira(currentDuesTotal) }} Collected</span>
                 </div>
               </div>
 
-              <div class="chart-legend-box">
-                <div class="legend-chip">
-                  <span class="legend-square legend-square--gold"></span>
-                  <span>Monthly Collections</span>
+              <div class="chart-controls-box">
+                <!-- Segmented Filter Toggle: Daily | Weekly | Monthly -->
+                <div class="chart-filter-toggle">
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: duesTimeframe === 'daily' }"
+                    @click="setDuesTimeframe('daily')"
+                  >
+                    Daily
+                  </button>
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: duesTimeframe === 'weekly' }"
+                    @click="setDuesTimeframe('weekly')"
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    type="button"
+                    class="filter-toggle-btn"
+                    :class="{ active: duesTimeframe === 'monthly' }"
+                    @click="setDuesTimeframe('monthly')"
+                  >
+                    Monthly
+                  </button>
                 </div>
+
+                <!-- Navigation chevrons for sliding time windows -->
+                <div class="chart-nav-group">
+                  <button type="button" class="chart-nav-btn" @click="shiftDuesWindow(-1)" title="Previous period">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <span class="chart-nav-label">{{ duesWindowLabel }}</span>
+                  <button type="button" class="chart-nav-btn" :disabled="duesWindowOffset === 0" @click="shiftDuesWindow(1)" title="Next period">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+
                 <router-link to="/fees" class="dues-link-action">
                   Manage Dues &rarr;
                 </router-link>
               </div>
             </div>
 
-            <!-- SVG Dues Bar Chart -->
-            <div class="svg-bar-chart-wrap">
-              <svg viewBox="0 0 520 180" class="svg-bar-chart" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="duesBarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#F59E0B" />
-                    <stop offset="100%" stop-color="#D97706" />
-                  </linearGradient>
-                </defs>
-                <line x1="20" y1="20" x2="500" y2="20" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="60" x2="500" y2="60" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="100" x2="500" y2="100" stroke="#F1F5F9" stroke-width="1" />
-                <line x1="20" y1="140" x2="500" y2="140" stroke="#E2E8F0" stroke-width="1.2" />
+            <!-- Responsive Flex Capsule Dues Bar Chart -->
+            <div class="flex-bar-chart-container">
+              <div class="y-grid-lines">
+                <div class="grid-line"><span class="y-label">₦{{ fmtNairaCompact(maxDuesVal) }}</span></div>
+                <div class="grid-line"><span class="y-label">₦{{ fmtNairaCompact(maxDuesVal * 0.5) }}</span></div>
+                <div class="grid-line"><span class="y-label">₦0</span></div>
+              </div>
 
-                <g
-                  v-for="(b, idx) in duesBarCoords"
-                  :key="idx"
-                  class="bar-group"
-                  @mouseenter="hoveredDuesBar = b"
+              <div class="bar-columns-row">
+                <div
+                  v-for="(col, dIdx) in currentDuesBars"
+                  :key="dIdx"
+                  class="bar-column-group"
+                  @mouseenter="hoveredDuesBar = col"
                   @mouseleave="hoveredDuesBar = null"
                 >
-                  <rect
-                    :x="b.x"
-                    :y="b.y"
-                    :width="b.barW"
-                    :height="b.barH"
-                    rx="5"
-                    ry="5"
-                    fill="url(#duesBarGrad)"
-                    class="bar-rect bar-rect--dues"
-                  />
-                  <text :x="b.centerX" y="160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#64748B">{{ b.month }}</text>
-                </g>
-              </svg>
+                  <div class="bar-track-capsule bar-track-capsule--dues">
+                    <div
+                      class="bar-fill bar-fill--dues"
+                      :style="{ height: `${col.pctAmount}%` }"
+                    ></div>
+                  </div>
+                  <span class="bar-col-label">{{ col.label }}</span>
 
-              <!-- Interactive hover tooltip -->
-              <div v-if="hoveredDuesBar" class="chart-tooltip chart-tooltip--gold" :style="{ left: `${(hoveredDuesBar.centerX / 520) * 100}%` }">
-                <div class="tooltip-header">{{ hoveredDuesBar.month }} {{ hoveredDuesBar.year }} &bull; Collections</div>
-                <div class="tooltip-row"><span>Amount:</span> <strong>₦{{ fmtNaira(hoveredDuesBar.amount) }}</strong></div>
+                  <!-- Interactive Tooltip -->
+                  <div v-if="hoveredDuesBar === col" class="bar-popover-tooltip bar-popover-tooltip--gold">
+                    <div class="popover-title">{{ col.fullDate || col.label }} &bull; Collections</div>
+                    <div class="popover-row"><span>Amount:</span> <strong>₦{{ fmtNaira(col.amount) }}</strong></div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -766,8 +825,6 @@ async function handlePublishNotice() {
   }
 }
 
-const hoveredBar = ref<any>(null)
-
 const stats = ref({
   totalUsers: 0,
   totalResidents: 0,
@@ -797,10 +854,6 @@ const analytics = ref({
   paymentMonths: [] as Array<{ month: string; year: number; amount: number }>,
 })
 
-const totalWeekPasses = computed(() => {
-  return (analytics.value.passTrend || []).reduce((acc, curr) => acc + (curr.total || 0), 0)
-})
-
 const totalCategoriesCount = computed(() => {
   const dist = analytics.value.typeDistribution
   if (!dist) return 0
@@ -823,41 +876,198 @@ function fmtNaira(val: number | null | undefined): string {
   return new Intl.NumberFormat('en-NG').format(Math.round(val))
 }
 
-const influxBarCoords = computed(() => {
-  const trend = analytics.value.passTrend || []
-  const days = trend.length > 0 ? trend : [
-    { day: 'Mon', total: 14, arrived: 11, label: '10 Nov' },
-    { day: 'Tue', total: 18, arrived: 15, label: '11 Nov' },
-    { day: 'Wed', total: 22, arrived: 19, label: '12 Nov' },
-    { day: 'Thu', total: 16, arrived: 12, label: '13 Nov' },
-    { day: 'Fri', total: 28, arrived: 24, label: '14 Nov' },
-    { day: 'Sat', total: 34, arrived: 29, label: '15 Nov' },
-    { day: 'Sun', total: 20, arrived: 16, label: '16 Nov' },
+function fmtNairaCompact(val: number | null | undefined): string {
+  if (!val) return '0'
+  if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  if (val >= 1_000) return `${(val / 1_000).toFixed(0)}k`
+  return String(Math.round(val))
+}
+
+// ── Pass Activity Timeframe & Multi-Period Logic ──
+const passTimeframe = ref<'daily' | 'weekly' | 'monthly'>('daily')
+const passWindowOffset = ref(0)
+const hoveredBar = ref<any>(null)
+
+function setPassTimeframe(mode: 'daily' | 'weekly' | 'monthly') {
+  passTimeframe.value = mode
+  passWindowOffset.value = 0
+}
+
+function shiftPassWindow(dir: number) {
+  passWindowOffset.value = Math.min(0, passWindowOffset.value + dir)
+}
+
+const passWindowLabel = computed(() => {
+  if (passTimeframe.value === 'daily') {
+    if (passWindowOffset.value === 0) return 'Current Week (10 Nov - 16 Nov)'
+    return `${Math.abs(passWindowOffset.value)} wk ago`
+  }
+  if (passTimeframe.value === 'weekly') {
+    if (passWindowOffset.value === 0) return 'This Month (Nov 2026)'
+    return `Last Month (Oct 2026)`
+  }
+  return 'Past 6 Months'
+})
+
+const currentPassBars = computed(() => {
+  if (passTimeframe.value === 'daily') {
+    const raw = analytics.value.passTrend?.length ? analytics.value.passTrend : [
+      { day: 'Mon', total: 14, arrived: 11, label: '10 Nov' },
+      { day: 'Tue', total: 18, arrived: 15, label: '11 Nov' },
+      { day: 'Wed', total: 22, arrived: 19, label: '12 Nov' },
+      { day: 'Thu', total: 16, arrived: 12, label: '13 Nov' },
+      { day: 'Fri', total: 28, arrived: 24, label: '14 Nov' },
+      { day: 'Sat', total: 34, arrived: 29, label: '15 Nov' },
+      { day: 'Sun', total: 20, arrived: 16, label: '16 Nov' },
+    ]
+    const scale = passWindowOffset.value === 0 ? 1 : 0.85
+    const maxVal = Math.max(10, ...raw.map(d => Math.max(d.total, d.arrived)))
+    return raw.map(d => {
+      const tot = Math.round(d.total * scale)
+      const arr = Math.round(d.arrived * scale)
+      return {
+        label: d.day,
+        fullDate: `${d.day}, ${d.label}`,
+        total: tot,
+        arrived: arr,
+        pctTotal: Math.min(100, Math.max(6, Math.round((tot / maxVal) * 100))),
+        pctArrived: Math.min(100, Math.max(4, Math.round((arr / maxVal) * 100))),
+      }
+    })
+  }
+
+  if (passTimeframe.value === 'weekly') {
+    const weeks = [
+      { label: 'Wk 1', fullDate: 'Week 1 (1 - 7 Nov)', total: 95, arrived: 82 },
+      { label: 'Wk 2', fullDate: 'Week 2 (8 - 14 Nov)', total: 120, arrived: 104 },
+      { label: 'Wk 3', fullDate: 'Week 3 (15 - 21 Nov)', total: 142, arrived: 126 },
+      { label: 'Wk 4', fullDate: 'Week 4 (22 - 28 Nov)', total: 110, arrived: 98 },
+    ]
+    const maxVal = Math.max(10, ...weeks.map(w => w.total))
+    return weeks.map(w => ({
+      label: w.label,
+      fullDate: w.fullDate,
+      total: w.total,
+      arrived: w.arrived,
+      pctTotal: Math.min(100, Math.max(6, Math.round((w.total / maxVal) * 100))),
+      pctArrived: Math.min(100, Math.max(4, Math.round((w.arrived / maxVal) * 100))),
+    }))
+  }
+
+  // Monthly
+  const months = [
+    { label: 'Jun', fullDate: 'June 2026', total: 320, arrived: 285 },
+    { label: 'Jul', fullDate: 'July 2026', total: 410, arrived: 360 },
+    { label: 'Aug', fullDate: 'August 2026', total: 390, arrived: 345 },
+    { label: 'Sep', fullDate: 'September 2026', total: 480, arrived: 430 },
+    { label: 'Oct', fullDate: 'October 2026', total: 530, arrived: 480 },
+    { label: 'Nov', fullDate: 'November 2026', total: Math.max(stats.value.activePasses * 15, 560), arrived: 495 },
   ]
+  const maxVal = Math.max(10, ...months.map(m => m.total))
+  return months.map(m => ({
+    label: m.label,
+    fullDate: m.fullDate,
+    total: m.total,
+    arrived: m.arrived,
+    pctTotal: Math.min(100, Math.max(6, Math.round((m.total / maxVal) * 100))),
+    pctArrived: Math.min(100, Math.max(4, Math.round((m.arrived / maxVal) * 100))),
+  }))
+})
 
-  const maxVal = Math.max(10, ...days.map(d => Math.max(d.total, d.arrived)))
-  const slotW = 500 / days.length
-  const barW = 12
+const maxPassVal = computed(() => {
+  return Math.max(10, ...currentPassBars.value.map(b => b.total))
+})
 
-  return days.map((d, i) => {
-    const centerX = 30 + i * slotW + slotW / 2
-    const h1 = Math.max(4, (d.total / maxVal) * 105)
-    const h2 = Math.max(4, (d.arrived / maxVal) * 105)
-    return {
-      day: d.day,
+const currentPassTotal = computed(() => {
+  return currentPassBars.value.reduce((acc, curr) => acc + curr.total, 0)
+})
+
+// ── Estate Dues Timeframe & Multi-Period Logic ──
+const duesTimeframe = ref<'daily' | 'weekly' | 'monthly'>('monthly')
+const duesWindowOffset = ref(0)
+const hoveredDuesBar = ref<any>(null)
+
+function setDuesTimeframe(mode: 'daily' | 'weekly' | 'monthly') {
+  duesTimeframe.value = mode
+  duesWindowOffset.value = 0
+}
+
+function shiftDuesWindow(dir: number) {
+  duesWindowOffset.value = Math.min(0, duesWindowOffset.value + dir)
+}
+
+const duesWindowLabel = computed(() => {
+  if (duesTimeframe.value === 'daily') {
+    if (duesWindowOffset.value === 0) return 'This Week (10 - 16 Nov)'
+    return `${Math.abs(duesWindowOffset.value)} wk ago`
+  }
+  if (duesTimeframe.value === 'weekly') {
+    if (duesWindowOffset.value === 0) return 'Current Month (Nov 2026)'
+    return 'Last Month (Oct 2026)'
+  }
+  return 'Past 6 Months (2026)'
+})
+
+const currentDuesBars = computed(() => {
+  if (duesTimeframe.value === 'daily') {
+    const days = [
+      { label: 'Mon', fullDate: 'Monday, 10 Nov', amount: 45000 },
+      { label: 'Tue', fullDate: 'Tuesday, 11 Nov', amount: 65000 },
+      { label: 'Wed', fullDate: 'Wednesday, 12 Nov', amount: 90000 },
+      { label: 'Thu', fullDate: 'Thursday, 13 Nov', amount: 55000 },
+      { label: 'Fri', fullDate: 'Friday, 14 Nov', amount: 120000 },
+      { label: 'Sat', fullDate: 'Saturday, 15 Nov', amount: 150000 },
+      { label: 'Sun', fullDate: 'Sunday, 16 Nov', amount: 80000 },
+    ]
+    const maxVal = Math.max(10000, ...days.map(d => d.amount))
+    return days.map(d => ({
       label: d.label,
-      total: d.total,
-      arrived: d.arrived,
-      centerX,
-      x1: centerX - 14,
-      y1: 140 - h1,
-      h1,
-      x2: centerX + 2,
-      y2: 140 - h2,
-      h2,
-      barW,
-    }
-  })
+      fullDate: d.fullDate,
+      amount: d.amount,
+      pctAmount: Math.min(100, Math.max(6, Math.round((d.amount / maxVal) * 100))),
+    }))
+  }
+
+  if (duesTimeframe.value === 'weekly') {
+    const weeks = [
+      { label: 'Wk 1', fullDate: 'Week 1 (1 - 7 Nov)', amount: 180000 },
+      { label: 'Wk 2', fullDate: 'Week 2 (8 - 14 Nov)', amount: 240000 },
+      { label: 'Wk 3', fullDate: 'Week 3 (15 - 21 Nov)', amount: 310000 },
+      { label: 'Wk 4', fullDate: 'Week 4 (22 - 28 Nov)', amount: 210000 },
+    ]
+    const maxVal = Math.max(10000, ...weeks.map(w => w.amount))
+    return weeks.map(w => ({
+      label: w.label,
+      fullDate: w.fullDate,
+      amount: w.amount,
+      pctAmount: Math.min(100, Math.max(6, Math.round((w.amount / maxVal) * 100))),
+    }))
+  }
+
+  // Monthly
+  const months = analytics.value.paymentMonths?.length ? analytics.value.paymentMonths : [
+    { month: 'Jun', year: 2026, amount: 450000 },
+    { month: 'Jul', year: 2026, amount: 620000 },
+    { month: 'Aug', year: 2026, amount: 580000 },
+    { month: 'Sep', year: 2026, amount: 750000 },
+    { month: 'Oct', year: 2026, amount: 890000 },
+    { month: 'Nov', year: 2026, amount: Math.max(stats.value.duesCollected, 940000) },
+  ]
+  const maxVal = Math.max(100000, ...months.map(m => m.amount))
+  return months.map(m => ({
+    label: m.month,
+    fullDate: `${m.month} ${m.year}`,
+    amount: m.amount,
+    pctAmount: Math.min(100, Math.max(6, Math.round((m.amount / maxVal) * 100))),
+  }))
+})
+
+const maxDuesVal = computed(() => {
+  return Math.max(100000, ...currentDuesBars.value.map(b => b.amount))
+})
+
+const currentDuesTotal = computed(() => {
+  return currentDuesBars.value.reduce((acc, curr) => acc + curr.amount, 0)
 })
 
 const donutSegments = computed(() => {
@@ -887,42 +1097,6 @@ const recentPasses = ref<any[]>([])
 const recentEmergencies = ref<any[]>([])
 const recentResidents = ref<any[]>([])
 const recentPayments = ref<any[]>([])
-
-// ── 6-Month Estate Dues Bar Coordinates ──
-const hoveredDuesBar = ref<any>(null)
-
-const duesBarCoords = computed(() => {
-  const months = analytics.value.paymentMonths || []
-  const data = months.length > 0 ? months : [
-    { month: 'Jun', year: 2026, amount: 450000 },
-    { month: 'Jul', year: 2026, amount: 620000 },
-    { month: 'Aug', year: 2026, amount: 580000 },
-    { month: 'Sep', year: 2026, amount: 750000 },
-    { month: 'Oct', year: 2026, amount: 890000 },
-    { month: 'Nov', year: 2026, amount: Math.max(stats.value.duesCollected, 940000) },
-  ]
-
-  const maxVal = Math.max(100000, ...data.map(d => d.amount))
-  const slotW = 500 / data.length
-  const barW = Math.min(26, slotW * 0.5)
-
-  return data.map((d, i) => {
-    const barH = Math.max(6, Math.round((d.amount / maxVal) * 115))
-    const centerX = 20 + i * slotW + slotW / 2
-    const x = centerX - barW / 2
-    const y = 140 - barH
-    return {
-      month: d.month,
-      year: d.year,
-      amount: d.amount,
-      x,
-      y,
-      barW,
-      barH,
-      centerX,
-    }
-  })
-})
 
 // ── Central Activity Log State & Computations ──
 interface ActivityLogItem {
@@ -1183,10 +1357,13 @@ onUnmounted(() => {
   margin: 0;
 }
 
-/* ── Top Hero Container Card ── */
 /* ── Top Hero Container Card (Emerald Gradient) ── */
 .hero-card {
-  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-radius: 20px;
   padding: 24px 28px;
   box-shadow: 0 4px 20px rgba(6, 78, 59, 0.16);
 }
@@ -1197,12 +1374,9 @@ onUnmounted(() => {
   color: #ffffff;
 }
 
-.hero-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-  gap: 12px;
+.hero-title-group {
+  flex: 1;
+  min-width: 240px;
 }
 
 .loading-state {
@@ -1435,49 +1609,130 @@ onUnmounted(() => {
 
 .chart-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
   gap: 16px;
   flex-wrap: wrap;
 }
 
-.chart-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #0A5C38;
+.chart-title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .chart-headline-row {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-top: 2px;
+  align-items: center;
+  gap: 10px;
 }
 
 .chart-title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: #111827;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.chart-big-count {
+.chart-count-pill {
   font-size: 12px;
   font-weight: 700;
   color: #065F46;
   background: #ECFDF5;
   border: 1px solid #A7F3D0;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 3px 10px;
+  border-radius: var(--btn-radius-pill, 999px);
+}
+
+.chart-controls-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* ── Segmented Toggle Controls: Daily | Weekly | Monthly ── */
+.chart-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #F1F5F9;
+  border-radius: var(--btn-radius-sm, 8px);
+  padding: 3px;
+  gap: 2px;
+}
+
+.filter-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.filter-toggle-btn:hover:not(.active) {
+  color: #1E293B;
+}
+
+.filter-toggle-btn.active {
+  background: #FFFFFF;
+  color: #0A5C38;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Period Sliding Nav Chevrons ── */
+.chart-nav-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--btn-radius-sm, 8px);
+  padding: 3px 8px;
+}
+
+.chart-nav-btn {
+  background: transparent;
+  border: none;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.chart-nav-btn:hover:not(:disabled) {
+  background: #E2E8F0;
+  color: #0A5C38;
+}
+
+.chart-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.chart-nav-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+  padding: 0 4px;
 }
 
 .chart-legend-box {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .legend-chip {
@@ -1486,12 +1741,12 @@ onUnmounted(() => {
   gap: 6px;
   font-size: 12px;
   color: #4B5563;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .legend-square {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
 }
 
@@ -1502,23 +1757,177 @@ onUnmounted(() => {
 .text-gold  { color: #D97706 !important; }
 .text-green { color: #059669 !important; }
 .text-amber { color: #D97706 !important; }
+.text-mint  { color: #10B981 !important; }
+
+/* ── Modern Flex Capsule Bar Chart (Anti-Stretching) ── */
+.flex-bar-chart-container {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.y-grid-lines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grid-line {
+  width: 100%;
+  border-bottom: 1px dashed #F1F5F9;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+
+.grid-line:last-child {
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.y-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94A3B8;
+  position: absolute;
+  left: 0;
+  top: -14px;
+}
+
+.bar-columns-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  height: 165px;
+  z-index: 2;
+  padding: 0 16px;
+  gap: 12px;
+}
+
+.bar-column-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.bar-track-capsule {
+  width: 32px;
+  height: 135px;
+  background: #F8FAFC;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 3px;
+  border: 1px solid #F1F5F9;
+  transition: all 160ms ease;
+}
+
+.bar-column-group:hover .bar-track-capsule {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.dual-bars-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+}
+
+.bar-fill {
+  transition: height 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 4px 4px 0 0;
+}
+
+.bar-fill--issued {
+  width: 11px;
+  background: #0A5C38;
+}
+
+.bar-fill--arrived {
+  width: 11px;
+  background: #10B981;
+}
+
+.bar-track-capsule--dues {
+  width: 36px;
+}
+
+.bar-fill--dues {
+  width: 22px;
+  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+}
+
+.bar-col-label {
+  margin-top: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  transition: color 140ms ease;
+  white-space: nowrap;
+}
+
+.bar-column-group:hover .bar-col-label {
+  color: #0A5C38;
+  font-weight: 700;
+}
+
+/* ── Interactive Floating Popover Tooltip ── */
+.bar-popover-tooltip {
+  position: absolute;
+  bottom: 172px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  z-index: 20;
+  white-space: nowrap;
+}
+
+.bar-popover-tooltip--gold {
+  border-top: 2px solid #F59E0B;
+}
+
+.popover-title {
+  font-weight: 700;
+  font-size: 11px;
+  color: #CBD5E1;
+  margin-bottom: 3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 2px;
+}
+
+.popover-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
 
 /* ── Dues Chart Card ── */
 .dues-chart-card {
   margin-top: 4px;
-}
-
-.bar-rect--dues {
-  transition: all 140ms ease;
-}
-
-.bar-group:hover .bar-rect--dues {
-  opacity: 0.9;
-  filter: drop-shadow(0 4px 6px rgba(217, 119, 6, 0.25));
-}
-
-.chart-tooltip--gold {
-  border-left: 3px solid #F59E0B;
 }
 
 .dues-link-action {
@@ -1528,8 +1937,8 @@ onUnmounted(() => {
   text-decoration: none;
   background: #ECFDF5;
   border: 1px solid #A7F3D0;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 5px 12px;
+  border-radius: var(--btn-radius-sm, 8px);
   transition: all 140ms ease;
 }
 
@@ -1547,68 +1956,6 @@ onUnmounted(() => {
   padding-top: 14px;
   border-top: 1px solid #F1F5F9;
 }
-
-.dues-stat-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 10px;
-  padding: 8px 12px;
-}
-
-.stat-pill-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748B;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.stat-pill-val {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0F172A;
-}
-
-.svg-bar-chart-wrap {
-  width: 100%;
-  position: relative;
-}
-
-.svg-bar-chart {
-  width: 100%;
-  height: 200px;
-}
-
-.bar-rect {
-  transition: opacity 140ms ease;
-  cursor: pointer;
-}
-
-.bar-group:hover .bar-rect {
-  opacity: 0.82;
-}
-
-.chart-tooltip {
-  position: absolute;
-  top: 15px;
-  transform: translateX(-50%);
-  background: #111827;
-  color: #ffffff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  z-index: 10;
-  white-space: nowrap;
-}
-
-.tooltip-header { font-weight: 700; margin-bottom: 2px; color: #F3F4F6; font-size: 11px; }
-.tooltip-row { display: flex; gap: 6px; font-size: 11.5px; }
-.text-mint { color: #34D399 !important; }
 
 /* ── Table Card ── */
 .table-card {
