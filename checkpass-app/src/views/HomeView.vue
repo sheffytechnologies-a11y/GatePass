@@ -4334,8 +4334,8 @@ onMounted(() => {
 /* ─── SECURITY HERO CARD & MATRIX ─── */
 .security-hero-card {
   background: var(--w-primary, #0A5C38);
-  border-radius: var(--w-radius-xl, 16px);
-  padding: 14px 16px;
+  border-radius: var(--w-radius-xl, 18px);
+  padding: 18px 20px;
   color: white;
   margin-bottom: 4px;
   box-shadow: 0 4px 14px rgba(10, 92, 56, 0.25);
@@ -4345,31 +4345,31 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .sec-estate-eyebrow {
-  font-size: 11.5px;
+  font-size: 12px;
   opacity: 0.85;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
   font-weight: 500;
 }
 
 .sec-station-title {
   font-family: var(--w-font-display, inherit);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.1px;
-  line-height: 1.25;
+  letter-spacing: -0.15px;
+  line-height: 1.3;
 }
 
 .sec-duty-pill {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   background: rgba(0, 201, 122, 0.2);
   color: #00E68C;
@@ -4377,8 +4377,8 @@ onMounted(() => {
 }
 
 .sec-duty-pulse {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #00E68C;
   box-shadow: 0 0 0 0 rgba(0, 230, 140, 0.7);
@@ -4414,24 +4414,24 @@ onMounted(() => {
 
 .sec-matrix-val {
   font-family: var(--w-font-display, inherit);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 21px;
+  font-weight: 750;
   letter-spacing: -0.3px;
   line-height: 1.1;
   color: #FFFFFF !important;
 }
 
 .sec-matrix-lbl {
-  font-size: 10px;
+  font-size: 11px;
   color: #FFFFFF;
   opacity: 0.85;
-  margin-top: 1px;
+  margin-top: 2px;
   font-weight: 500;
 }
 
 .sec-matrix-vdivider {
   width: 1px;
-  height: 24px;
+  height: 32px;
   background: rgba(255, 255, 255, 0.22);
 }
 
