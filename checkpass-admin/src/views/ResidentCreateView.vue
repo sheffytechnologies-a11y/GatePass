@@ -676,26 +676,7 @@ onMounted(() => {
   gap: 12px;
 }
 
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #F3F4F6;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  cursor: pointer;
-  width: fit-content;
-  transition: all 0.15s ease;
-}
 
-.btn-back:hover {
-  background: #E5E7EB;
-  color: #111827;
-}
 
 .page-eyebrow {
   font-size: 11px;

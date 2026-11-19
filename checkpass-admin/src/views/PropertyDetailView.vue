@@ -2,7 +2,7 @@
   <div class="property-detail-view">
     <!-- Top Navigation / Breadcrumb -->
     <div class="page-top-nav">
-      <router-link to="/properties" class="back-link">
+      <router-link to="/properties" class="btn-back">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
@@ -671,24 +671,7 @@ onMounted(async () => {
   margin-bottom: 20px;
 }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #047857;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: #F0FDF4;
-  border: 1px solid #DCFCE7;
-  transition: all 0.15s ease;
-}
 
-.back-link:hover {
-  background: #DCFCE7;
-}
 
 .breadcrumbs {
   display: flex;

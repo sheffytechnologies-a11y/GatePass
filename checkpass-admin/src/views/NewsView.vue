@@ -2,8 +2,8 @@
   <div class="mobile-page news-page">
     <!-- Breadcrumb & Back to Dashboard bar -->
     <div class="page-top-nav">
-      <router-link to="/dashboard" class="btn-back-dashboard">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <router-link to="/dashboard" class="btn-back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -381,28 +381,7 @@ onMounted(async () => {
   padding: 4px 0;
 }
 
-.btn-back-dashboard {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1px solid #E2E8F0;
-  color: #374151;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 10px;
-  text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 150ms ease;
-}
 
-.btn-back-dashboard:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
-  color: #0A5C38;
-  transform: translateX(-2px);
-}
 
 .breadcrumb-trail {
   display: flex;

@@ -1,11 +1,14 @@
 <template>
   <div class="create-page">
     <div class="create-head">
-      <button class="nav-back" @click="goBack">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <button type="button" class="btn-back" @click="goBack" title="Back to Staff & Security">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        <span>Back to Staff & Security</span>
       </button>
       <h1 class="create-title">Add Staff Member</h1>
-      <div class="nav-spacer"></div>
     </div>
 
     <div class="create-card card">
@@ -207,29 +210,16 @@ async function save() {
 
 .create-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .create-title {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.nav-back {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  background: #edf2ee;
-  cursor: pointer;
-}
-
-.nav-spacer {
-  width: 36px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  font-family: var(--font-display, inherit);
 }
 
 .create-card {
