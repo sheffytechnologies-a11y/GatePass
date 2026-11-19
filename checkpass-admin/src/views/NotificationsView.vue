@@ -278,26 +278,11 @@
           <!-- Target Audience -->
           <div class="form-group">
             <label class="form-label">Target Audience *</label>
-            <div class="audience-options-grid">
-              <label
-                v-for="aud in audienceChoices"
-                :key="aud.key"
-                class="audience-radio-card"
-                :class="{ 'is-selected': announcementForm.target_audience === aud.key }"
-              >
-                <input
-                  type="radio"
-                  v-model="announcementForm.target_audience"
-                  :value="aud.key"
-                  class="sr-only"
-                />
-                <span class="aud-icon">{{ aud.icon }}</span>
-                <div class="aud-info">
-                  <strong>{{ aud.label }}</strong>
-                  <small>{{ aud.desc }}</small>
-                </div>
-              </label>
-            </div>
+            <select v-model="announcementForm.target_audience" class="form-input" required>
+              <option v-for="aud in audienceChoices" :key="aud.key" :value="aud.key">
+                {{ aud.icon }} {{ aud.label }} &mdash; {{ aud.desc }}
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -317,7 +302,7 @@
               v-model="announcementForm.content"
               rows="5"
               class="form-textarea"
-              placeholder="Provide detailed instructions, time windows, or emergency contacts for residents..."
+              placeholder="Provide detailed instructions, time windows, or guidelines..."
               required
             ></textarea>
           </div>
@@ -325,7 +310,7 @@
           <div class="sheet-actions">
             <button type="button" class="btn btn-outline" @click="showAnnouncementModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" :disabled="savingAnnouncement">
-              {{ savingAnnouncement ? 'Publishing...' : (isEditingAnnouncement ? 'Save Changes' : 'Publish to Resident App') }}
+              {{ savingAnnouncement ? 'Publishing...' : (isEditingAnnouncement ? 'Save Changes' : 'Publish') }}
             </button>
           </div>
         </form>
@@ -578,7 +563,7 @@ async function saveAnnouncement() {
       showToast('Announcement updated successfully.', 'success')
     } else {
       await newsApi.create(announcementForm.value)
-      showToast('Announcement published to resident feeds!', 'success')
+      showToast('Announcement published successfully!', 'success')
     }
     showAnnouncementModal.value = false
     loadNews()
@@ -598,7 +583,7 @@ async function doDeleteAnnouncement() {
   deletingAnnouncement.value = true
   try {
     await newsApi.delete(deleteAnnouncementTarget.value.id)
-    showToast('Announcement removed from resident app.', 'success')
+    showToast('Announcement removed.', 'success')
     deleteAnnouncementTarget.value = null
     loadNews()
   } catch {

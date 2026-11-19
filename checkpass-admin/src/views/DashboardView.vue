@@ -633,26 +633,11 @@
           <!-- Target Audience Selection -->
           <div class="form-group">
             <label class="form-label">Target Audience *</label>
-            <div class="audience-options-grid">
-              <label
-                v-for="aud in audienceChoices"
-                :key="aud.key"
-                class="audience-radio-card"
-                :class="{ 'is-selected': broadcastForm.target_audience === aud.key }"
-              >
-                <input
-                  type="radio"
-                  v-model="broadcastForm.target_audience"
-                  :value="aud.key"
-                  class="sr-only"
-                />
-                <span class="aud-icon">{{ aud.icon }}</span>
-                <div class="aud-info">
-                  <strong>{{ aud.label }}</strong>
-                  <small>{{ aud.desc }}</small>
-                </div>
-              </label>
-            </div>
+            <select v-model="broadcastForm.target_audience" class="form-select" required>
+              <option v-for="aud in audienceChoices" :key="aud.key" :value="aud.key">
+                {{ aud.icon }} {{ aud.label }} &mdash; {{ aud.desc }}
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -683,7 +668,7 @@
             <button type="button" class="btn btn-secondary" @click="showBroadcastModal = false">Cancel</button>
             <button type="submit" class="btn btn-primary" :disabled="publishingNotice">
               <BrandSpinner v-if="publishingNotice" :size="18" color="#ffffff" />
-              <span v-else>Publish Broadcast &rarr;</span>
+              <span v-else>Publish</span>
             </button>
           </div>
         </form>
