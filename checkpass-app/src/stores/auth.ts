@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import type { Resident } from '@/types'
 
 export interface UserRoleItem {
-  role: 'resident' | 'security' | 'homeowner'
+  role: 'admin' | 'homeowner' | 'resident' | 'security' | string
   label: string
   description?: string
   propertiesCount?: number
@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   const userType = ref<'resident' | 'security'>(
     (localStorage.getItem('w_user_type') as 'resident' | 'security') ?? 'resident'
   )
-  const activeRole = ref<'resident' | 'security' | 'homeowner'>(
+  const activeRole = ref<'admin' | 'homeowner' | 'resident' | 'security'>(
     (localStorage.getItem('checkpass_active_role') as any) ||
     (localStorage.getItem('w_user_type') as any) ||
     'resident'
@@ -29,11 +29,12 @@ export const useAuthStore = defineStore('auth', () => {
   const onboardingComplete = ref(localStorage.getItem('w_onboarded') === 'true')
 
   const isAuthenticated = computed(() => !!token.value)
+  const isAdminUser = computed(() => activeRole.value === 'admin')
   const isSecurityUser = computed(() => activeRole.value === 'security')
   const isHomeownerUser = computed(() => activeRole.value === 'homeowner')
   const isResidentUser = computed(() => activeRole.value === 'resident')
 
-  function setActiveRole(role: 'resident' | 'security' | 'homeowner') {
+  function setActiveRole(role: 'admin' | 'homeowner' | 'resident' | 'security') {
     activeRole.value = role
     userType.value = role === 'security' ? 'security' : 'resident'
     localStorage.setItem('checkpass_active_role', role)
@@ -52,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
     userType?: string
     user?: object
     roles?: UserRoleItem[]
-    activeRole?: 'resident' | 'security' | 'homeowner'
+    activeRole?: 'admin' | 'homeowner' | 'resident' | 'security'
   }) {
     token.value = data.token
     refreshToken.value = data.refreshToken
@@ -124,6 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
     userRoles,
     onboardingComplete,
     isAuthenticated,
+    isAdminUser,
     isSecurityUser,
     isHomeownerUser,
     isResidentUser,

@@ -29,21 +29,106 @@
             >
               <svg v-if="r.role === 'homeowner'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
                 <path d="M3 21h18M3 7v14M21 7v14M9 3h6v18M13 7h-2M13 11h-2M13 15h-2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 1. Admin -->
+              <svg v-if="r.role === 'admin'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
               </svg>
               <svg v-else-if="r.role === 'resident'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 2. Homeowner -->
+              <svg v-else-if="r.role === 'homeowner'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
+                <path d="M3 21h18M3 7v14M21 7v14M9 3h6v18M13 7h-2M13 11h-2M13 15h-2"/>
               </svg>
               <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- 3. Occupant (Person icon) -->
+              <svg v-else-if="r.role === 'resident' || r.role === 'occupant'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <!-- 4. Security -->
+              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
               <span class="role-tab-label">{{ r.label }}</span>
             </button>
           </div>
         </div>
 
+        <!-- ── ADMIN VIEW ─────────────────────────────── -->
+        <template v-if="auth.isAdminUser">
+          <div class="security-hero-card admin-hero-card">
+            <div class="sec-hero-top">
+              <div class="sec-hero-left">
+                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-station-title">Estate Administration</div>
+              </div>
+              <div class="sec-duty-pill admin-pill">
+                <span class="sec-duty-pulse"></span>
+                <span>Command Active</span>
+              </div>
+            </div>
+
+            <!-- Matrix: Passes Today | On-Site Now | Total Arrears -->
+            <div class="sec-matrix-strip">
+              <div class="sec-matrix-box">
+                <div class="sec-matrix-val">{{ summary?.stats?.grantedToday ?? 0 }}</div>
+                <div class="sec-matrix-lbl">Passes Today</div>
+              </div>
+              <div class="sec-matrix-vdivider"></div>
+              <div class="sec-matrix-box">
+                <div class="sec-matrix-val">{{ summary?.stats?.onPremises ?? 0 }}</div>
+                <div class="sec-matrix-lbl">On-Site Now</div>
+              </div>
+              <div class="sec-matrix-vdivider"></div>
+              <div class="sec-matrix-box">
+                <div class="sec-matrix-val text-white">₦0</div>
+                <div class="sec-matrix-lbl">Levies In Arrears</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Direct Admin Console Link / Quick Access -->
+          <div class="admin-quick-portal-card">
+            <div class="admin-portal-header">
+              <div class="admin-portal-icon">🏢</div>
+              <div class="admin-portal-info">
+                <h4>Estate Management Console</h4>
+                <p>Access resident roster, billing, pass logs, and operations.</p>
+              </div>
+            </div>
+            <a href="http://localhost:3100" target="_blank" class="admin-portal-btn">
+              <span>Open Admin Dashboard</span>
+              <span>→</span>
+            </a>
+          </div>
+
+          <!-- Live Gate Activity Feed -->
+          <div class="admin-activity-section">
+            <div class="sec-section-header">
+              <h3 class="sec-section-heading">Live Gate Operations</h3>
+            </div>
+            <div v-if="displayedSecurityPasses.length === 0" class="sec-empty-box">
+              <div class="sec-empty-icon">🛡️</div>
+              <h3 class="sec-empty-title">All Gates Clear</h3>
+              <p class="sec-empty-desc">Real-time visitor gate admissions and dispatches will appear here.</p>
+            </div>
+            <div v-else class="pass-mini-list">
+              <PassCard
+                v-for="pass in displayedSecurityPasses"
+                :key="pass.id"
+                :pass="pass"
+                @admitted="onPhraseAdmitted"
+              />
+            </div>
+          </div>
+        </template>
+
         <!-- ── SECURITY VIEW ─────────────────────────────── -->
         <template v-if="auth.isSecurityUser">
+        <template v-else-if="auth.isSecurityUser">
           <!-- Top Hero Card: Styled like EstateHero, displaying matrix of passes -->
           <div class="security-hero-card">
             <div class="sec-hero-top">
@@ -2156,14 +2241,19 @@ const orderedRoles = computed(() => {
   }
   return roles.map(r => {
     let displayLabel = r.label
+    if (r.role === 'admin') displayLabel = 'Admin'
     if (r.role === 'homeowner') displayLabel = 'Homeowner'
     if (r.role === 'resident') displayLabel = 'Occupant'
+    if (r.role === 'resident' || r.role === 'occupant') displayLabel = 'Occupant'
+    if (r.role === 'security' || r.role === 'guard') displayLabel = 'Security'
     return {
       ...r,
       label: displayLabel,
     }
   }).sort((a, b) => {
     const order: Record<string, number> = { homeowner: 1, resident: 2, security: 3 }
+    // Strictly: admin -> homeowner -> occupants -> security
+    const order: Record<string, number> = { admin: 1, homeowner: 2, resident: 3, occupant: 3, security: 4, guard: 4 }
     const orderA = order[a.role] ?? 99
     const orderB = order[b.role] ?? 99
     return orderA - orderB
@@ -2171,9 +2261,19 @@ const orderedRoles = computed(() => {
 })
 
 function handleRoleSwitch(role: 'resident' | 'security' | 'homeowner') {
+function handleRoleSwitch(role: any) {
   if (auth.activeRole === role) return
   auth.setActiveRole(role)
   const roleName = role === 'homeowner' ? 'Homeowner' : role === 'resident' ? 'Occupant' : 'Gate Security'
+  const roleNames: Record<string, string> = {
+    admin: 'Admin',
+    homeowner: 'Homeowner',
+    resident: 'Occupant',
+    occupant: 'Occupant',
+    security: 'Gate Security',
+    guard: 'Gate Security',
+  }
+  const roleName = roleNames[role] || role
   showToast(`Switched to ${roleName} view`, 'success')
   loadSummary()
 }
@@ -2353,24 +2453,40 @@ onMounted(() => {
 .content-pad { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 20px; }
 
 /* ─── ROLE SELECTOR TABS (HOMEOWNER / OCCUPANT) ─── */
+/* ─── ROLE SELECTOR TABS (ADMIN / HOMEOWNER / OCCUPANT / SECURITY) ─── */
 .role-selector-wrap {
   width: 100%;
   margin-bottom: -6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 0;
+}
+
+.role-selector-wrap::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .role-selector-tabs {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
+  display: flex;
+  align-items: center;
   gap: 6px;
   background: #EBE8E2;
   padding: 4px;
   border-radius: 14px;
   border: 1px solid #DFDBD3;
+  width: 100%;
+  min-width: max-content;
 }
 
 .role-tab-btn {
   display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -2378,9 +2494,12 @@ onMounted(() => {
   border: 1px solid transparent;
   border-radius: 10px;
   padding: 9px 14px;
+  padding: 9px 16px;
   color: #64748B;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex: 1 0 auto;
 }
 
 .role-tab-btn:hover:not(.is-active) {
@@ -2393,6 +2512,10 @@ onMounted(() => {
   color: var(--w-primary, #0A5C38);
   border-color: rgba(10, 92, 56, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.role-tab-btn:active {
+  transform: scale(0.975);
 }
 
 .tab-role-icon {
@@ -2410,6 +2533,78 @@ onMounted(() => {
   font-weight: 700;
   letter-spacing: -0.01em;
   font-family: var(--w-font-display, inherit);
+}
+
+/* ─── ADMIN VIEW HERO & PORTAL CARDS ─── */
+.admin-hero-card {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  border-color: #334155;
+}
+
+.admin-pill {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60A5FA;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.admin-quick-portal-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.admin-portal-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-portal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.admin-portal-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 2px;
+}
+
+.admin-portal-info p {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+}
+
+.admin-portal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0A5C38;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 11px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.admin-portal-btn:active {
+  opacity: 0.9;
 }
 .section { display: flex; flex-direction: column; gap: 10px; }
 .section-header { display: flex; justify-content: space-between; align-items: center; }

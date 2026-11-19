@@ -188,8 +188,8 @@
                   v-for="(col, cIdx) in currentPassBars"
                   :key="cIdx"
                   class="bar-column-group"
-                  @mouseenter="hoveredBar = col"
-                  @mouseleave="hoveredBar = null"
+                  @mouseenter="hoveredBarIndex = cIdx"
+                  @mouseleave="hoveredBarIndex = null"
                 >
                   <div class="bar-track-capsule">
                     <div class="dual-bars-wrap">
@@ -208,10 +208,22 @@
                   <span class="bar-col-label">{{ col.label }}</span>
 
                   <!-- Interactive Tooltip -->
-                  <div v-if="hoveredBar === col" class="bar-popover-tooltip">
+                  <div v-if="hoveredBarIndex === cIdx" class="bar-popover-tooltip">
                     <div class="popover-title">{{ col.fullDate || col.label }}</div>
-                    <div class="popover-row"><span>Passes Issued:</span> <strong>{{ col.total }}</strong></div>
-                    <div class="popover-row"><span>Checked-in:</span> <strong class="text-mint">{{ col.arrived }}</strong></div>
+                    <div class="popover-row">
+                      <span class="popover-dot popover-dot--issued"></span>
+                      <span class="popover-lbl">Issued:</span>
+                      <strong class="popover-val">{{ col.total }}</strong>
+                    </div>
+                    <div class="popover-row">
+                      <span class="popover-dot popover-dot--arrived"></span>
+                      <span class="popover-lbl">Checked-in:</span>
+                      <strong class="popover-val text-mint">{{ col.arrived }}</strong>
+                    </div>
+                    <div v-if="col.total > 0" class="popover-row popover-subrow">
+                      <span class="popover-lbl">Rate:</span>
+                      <strong class="popover-val">{{ Math.round((col.arrived / col.total) * 100) }}%</strong>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -287,8 +299,8 @@
                   v-for="(col, dIdx) in currentDuesBars"
                   :key="dIdx"
                   class="bar-column-group"
-                  @mouseenter="hoveredDuesBar = col"
-                  @mouseleave="hoveredDuesBar = null"
+                  @mouseenter="hoveredDuesBarIndex = dIdx"
+                  @mouseleave="hoveredDuesBarIndex = null"
                 >
                   <div class="bar-track-capsule bar-track-capsule--dues">
                     <div
@@ -299,9 +311,13 @@
                   <span class="bar-col-label">{{ col.label }}</span>
 
                   <!-- Interactive Tooltip -->
-                  <div v-if="hoveredDuesBar === col" class="bar-popover-tooltip bar-popover-tooltip--gold">
-                    <div class="popover-title">{{ col.fullDate || col.label }} &bull; Collections</div>
-                    <div class="popover-row"><span>Amount:</span> <strong>₦{{ fmtNaira(col.amount) }}</strong></div>
+                  <div v-if="hoveredDuesBarIndex === dIdx" class="bar-popover-tooltip bar-popover-tooltip--gold">
+                    <div class="popover-title">{{ col.fullDate || col.label }}</div>
+                    <div class="popover-row">
+                      <span class="popover-dot popover-dot--gold"></span>
+                      <span class="popover-lbl">Collections:</span>
+                      <strong class="popover-val text-gold">₦{{ fmtNaira(col.amount) }}</strong>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -886,7 +902,7 @@ function fmtNairaCompact(val: number | null | undefined): string {
 // ── Pass Activity Timeframe & Multi-Period Logic ──
 const passTimeframe = ref<'daily' | 'weekly' | 'monthly'>('daily')
 const passWindowOffset = ref(0)
-const hoveredBar = ref<any>(null)
+const hoveredBarIndex = ref<number | null>(null)
 
 function setPassTimeframe(mode: 'daily' | 'weekly' | 'monthly') {
   passTimeframe.value = mode
@@ -985,7 +1001,7 @@ const currentPassTotal = computed(() => {
 // ── Estate Dues Timeframe & Multi-Period Logic ──
 const duesTimeframe = ref<'daily' | 'weekly' | 'monthly'>('monthly')
 const duesWindowOffset = ref(0)
-const hoveredDuesBar = ref<any>(null)
+const hoveredDuesBarIndex = ref<number | null>(null)
 
 function setDuesTimeframe(mode: 'daily' | 'weekly' | 'monthly') {
   duesTimeframe.value = mode
@@ -1902,18 +1918,51 @@ onUnmounted(() => {
 /* ── Interactive Floating Popover Tooltip ── */
 .bar-popover-tooltip {
   position: absolute;
-  bottom: 172px;
+  bottom: 150px;
   left: 50%;
   transform: translateX(-50%);
   background: #0F172A;
   color: #ffffff;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 11.5px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  font-size: 11px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   pointer-events: none;
-  z-index: 20;
+  z-index: 50;
   white-space: nowrap;
+  min-width: 125px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: popoverFadeIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bar-popover-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #0F172A transparent transparent transparent;
+}
+
+.bar-column-group:first-child .bar-popover-tooltip {
+  left: 0;
+  transform: translateX(0);
+}
+.bar-column-group:first-child .bar-popover-tooltip::after {
+  left: 18px;
+  transform: none;
+}
+.bar-column-group:last-child .bar-popover-tooltip {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+.bar-column-group:last-child .bar-popover-tooltip::after {
+  left: auto;
+  right: 18px;
+  transform: none;
 }
 
 .bar-popover-tooltip--gold {
@@ -1923,17 +1972,67 @@ onUnmounted(() => {
 .popover-title {
   font-weight: 700;
   font-size: 11px;
-  color: #CBD5E1;
-  margin-bottom: 3px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 2px;
+  color: #E2E8F0;
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 3px;
+  letter-spacing: -0.01em;
 }
 
 .popover-row {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
+  margin-top: 3px;
+}
+
+.popover-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.popover-dot--issued {
+  background: #34D399;
+}
+
+.popover-dot--arrived {
+  background: #10B981;
+}
+
+.popover-dot--gold {
+  background: #F59E0B;
+}
+
+.popover-lbl {
+  color: #94A3B8;
+  flex: 1;
+}
+
+.popover-val {
+  color: #FFFFFF;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.popover-subrow {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  font-size: 10.5px;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Dues Chart Card ── */
