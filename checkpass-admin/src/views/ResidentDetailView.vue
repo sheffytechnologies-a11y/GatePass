@@ -367,8 +367,18 @@
                     </div>
 
                     <div class="contact-item">
-                      <span class="contact-label">Registered Household Occupants</span>
-                      <span class="contact-val font-mono">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'person' : 'people' }}</span>
+                      <span class="contact-label">Registered Occupants / Tenants</span>
+                      <span class="contact-val font-mono">{{ tenants.length }} {{ tenants.length === 1 ? 'person' : 'people' }}</span>
+                    </div>
+
+                    <div v-if="homeowner" class="contact-item">
+                      <span class="contact-label">Assigned Homeowner</span>
+                      <span class="contact-val">{{ homeowner.user?.name || 'Registered' }}</span>
+                    </div>
+
+                    <div class="contact-item">
+                      <span class="contact-label">Total Household Size</span>
+                      <span class="contact-val font-mono">{{ allOccupants.length }} {{ allOccupants.length === 1 ? 'member' : 'members' }}</span>
                     </div>
                   </div>
                 </div>

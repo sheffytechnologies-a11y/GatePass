@@ -500,8 +500,8 @@ onUnmounted(() => {
 
 /* ── Hero High-Contrast White Pill Variant ── */
 .estate-switcher--hero .switcher-dropdown {
-  left: 0;
-  right: auto;
+  right: 0;
+  left: auto;
 }
 
 .switcher-trigger.switcher-trigger--hero {

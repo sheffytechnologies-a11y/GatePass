@@ -1360,9 +1360,11 @@ onUnmounted(() => {
 /* ── Top Hero Container Card (Emerald Gradient) ── */
 .hero-card {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  flex-wrap: nowrap;
+  gap: 20px;
   border-radius: 20px;
   padding: 24px 28px;
   box-shadow: 0 4px 20px rgba(6, 78, 59, 0.16);
@@ -1376,7 +1378,16 @@ onUnmounted(() => {
 
 .hero-title-group {
   flex: 1;
-  min-width: 240px;
+  min-width: 0;
+  max-width: 820px;
+}
+
+.hero-switcher-box {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .loading-state {
@@ -2719,6 +2730,16 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .hero-switcher-box {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .hero-main-row { flex-direction: column; align-items: flex-start; }
   .hero-actions-group { width: 100%; }
