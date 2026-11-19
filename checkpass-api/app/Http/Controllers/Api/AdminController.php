@@ -734,7 +734,7 @@ class AdminController extends Controller
      */
     public function listEmergencies(Request $request)
     {
-        $query = Emergency::with(['resident.user', 'estate']);
+        $query = Emergency::with(['resident.user', 'resident.unit', 'estate']);
         $this->scopeEstate($query, $request);
 
         if ($request->filled('status')) {
@@ -1239,8 +1239,10 @@ class AdminController extends Controller
             'resolvedAt'       => $e->resolved_at?->toIso8601String(),
             'createdAt'        => $e->created_at?->toIso8601String(),
             'resident'         => $e->resident ? [
-                'id'   => $e->resident->id,
-                'name' => $e->resident->user?->name,
+                'id'          => $e->resident->id,
+                'name'        => $e->resident->user?->name,
+                'phone'       => $e->resident->user?->phone,
+                'flatAddress' => $e->resident->unit?->flat_address,
             ] : null,
             'estate'           => $e->estate ? ['id' => $e->estate->id, 'name' => $e->estate->name] : null,
         ];

@@ -16,7 +16,7 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
             </svg>
-            <span>+ New Announcement</span>
+            <span>New Announcement</span>
           </button>
         </div>
       </div>
@@ -48,6 +48,22 @@
           </svg>
           <span>Announcements &amp; Broadcasts</span>
           <span class="tab-counter">{{ newsList.length }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="nav-tab-pill nav-tab-pill--emergency"
+          :class="{ active: activeTab === 'emergencies', 'has-alert': activeEmergencyCount > 0 }"
+          @click="switchTab('emergencies')"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l10 18H2L12 3z" stroke-linejoin="round"/>
+            <path d="M12 9.5v4.5M12 17h.01" stroke-linecap="round"/>
+          </svg>
+          <span>Emergency Alerts</span>
+          <span class="tab-counter" :class="{ 'tab-counter--danger': activeEmergencyCount > 0 }">
+            {{ activeEmergencyCount > 0 ? `${activeEmergencyCount} Active` : emergenciesList.length }}
+          </span>
         </button>
       </div>
     </section>
@@ -136,7 +152,7 @@
     </div>
 
     <!-- ── TAB 2: ANNOUNCEMENTS & BROADCASTS ── -->
-    <div v-else class="tab-content">
+    <div v-else-if="activeTab === 'announcements'" class="tab-content">
       <!-- Search & Estate Filter Toolbar -->
       <div class="filters-toolbar card">
         <div class="search-input-wrap">
@@ -176,12 +192,11 @@
           <h2 class="section-title">Published Resident Announcements</h2>
           <p class="section-copy">{{ newsList.length }} announcement{{ newsList.length === 1 ? '' : 's' }} active in resident mobile app feeds.</p>
         </div>
-        <button class="btn btn-sm btn-outline refresh-btn" :disabled="loadingNews" @click="loadNews">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: loadingNews }">
-            <path d="M23 4v6h-6M1 20v-6h6"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        <button type="button" class="btn btn-primary hero-cta-btn" @click="openCreateAnnouncementModal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
           </svg>
-          Refresh
+          <span>New Announcement</span>
         </button>
       </div>
 
@@ -194,7 +209,12 @@
         <div class="empty-icon">📢</div>
         <h3>No Announcements Published Yet</h3>
         <p>Keep your community informed about facility maintenance, security updates, estate dues, or general meetings.</p>
-        <button class="btn btn-primary" @click="openCreateAnnouncementModal">+ Create First Announcement</button>
+        <button class="btn btn-primary" @click="openCreateAnnouncementModal">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+          </svg>
+          <span>Create First Announcement</span>
+        </button>
       </div>
 
       <div v-else class="news-grid">
@@ -230,6 +250,135 @@
             <span class="status-live-pill">
               <span class="pulse-dot"></span>
               Live in App
+            </span>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- ── TAB 3: RESIDENT EMERGENCY ALERTS ── -->
+    <div v-else-if="activeTab === 'emergencies'" class="tab-content">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Resident Emergency SOS Incidents</h2>
+          <p class="section-copy">
+            {{ emergenciesList.length }} incident report{{ emergenciesList.length === 1 ? '' : 's' }} logged from resident mobile panic triggers.
+          </p>
+        </div>
+        <div class="section-controls">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :class="{ active: emergencyFilter === '' }"
+            @click="setEmergencyFilter('')"
+          >
+            All ({{ emergenciesList.length }})
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :class="{ active: emergencyFilter === 'sent' }"
+            @click="setEmergencyFilter('sent')"
+          >
+            Active SOS ({{ activeEmergencyCount }})
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :class="{ active: emergencyFilter === 'acknowledged' }"
+            @click="setEmergencyFilter('acknowledged')"
+          >
+            Acknowledged
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :class="{ active: emergencyFilter === 'resolved' }"
+            @click="setEmergencyFilter('resolved')"
+          >
+            Resolved
+          </button>
+        </div>
+      </div>
+
+      <div v-if="loadingEmergencies" class="loading-state">
+        <BrandSpinner :size="40" color="#DC2626" />
+        <p>Checking active emergency broadcasts...</p>
+      </div>
+
+      <div v-else-if="filteredEmergencies.length === 0" class="empty-state card">
+        <div class="empty-icon">🛡️</div>
+        <h3>No Emergency Incidents</h3>
+        <p>{{ emergencyFilter ? 'No incidents match this status.' : 'All resident sectors are secure. Any panic alerts triggered by residents will appear here in real-time.' }}</p>
+      </div>
+
+      <div v-else class="stack-list">
+        <article
+          v-for="incident in filteredEmergencies"
+          :key="incident.id"
+          class="record-card card emergency-card"
+          :class="{ urgent: incident.status === 'sent' }"
+        >
+          <div class="record-top">
+            <div class="record-badges">
+              <span class="badge" :class="emergencyTypeBadge(incident.type)">
+                {{ emergencyTypeIcon(incident.type) }} {{ incident.type }}
+              </span>
+              <span class="badge" :class="emergencyStatusBadge(incident.status)">
+                <span v-if="incident.status === 'sent'" class="pulse-dot-red"></span>
+                {{ incident.status === 'sent' ? 'Pending Dispatch' : incident.status }}
+              </span>
+            </div>
+            <div class="emergency-actions-row">
+              <button
+                v-if="incident.status === 'sent'"
+                class="btn btn-sm btn-outline emergency-btn-ack"
+                :disabled="savingEmergencyId === incident.id"
+                @click="acknowledgeEmergency(incident)"
+              >
+                Acknowledge
+              </button>
+              <button
+                v-if="incident.status !== 'resolved'"
+                class="btn btn-sm btn-primary emergency-btn-resolve"
+                :disabled="savingEmergencyId === incident.id"
+                @click="resolveEmergency(incident)"
+              >
+                Resolve
+              </button>
+              <button
+                class="btn btn-sm btn-danger-subtle"
+                :disabled="savingEmergencyId === incident.id"
+                @click="confirmDeleteEmergency(incident)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <div class="emergency-resident-block">
+            <div class="resident-detail-chip">
+              <span class="chip-lbl">Resident:</span>
+              <strong class="chip-val">{{ incident.resident?.name || 'Estate Resident' }}</strong>
+            </div>
+            <div v-if="incident.resident?.flatAddress" class="resident-detail-chip">
+              <span class="chip-lbl">Unit / Flat:</span>
+              <strong class="chip-val">{{ incident.resident.flatAddress }}</strong>
+            </div>
+            <div v-if="incident.resident?.phone" class="resident-detail-chip">
+              <span class="chip-lbl">Phone:</span>
+              <a :href="`tel:${incident.resident.phone}`" class="chip-link">{{ incident.resident.phone }}</a>
+            </div>
+          </div>
+
+          <p class="incident-notes">{{ incident.notes || 'Emergency distress trigger dispatched from resident app.' }}</p>
+
+          <div class="record-bottom">
+            <span class="record-sub">
+              <strong>Reported:</strong> {{ fmtDatetime(incident.createdAt) }}
+            </span>
+            <span v-if="incident.estate?.name" class="record-sub">
+              {{ incident.estate.name }}
             </span>
           </div>
         </article>
@@ -338,13 +487,35 @@
         </div>
       </div>
     </div>
+
+    <!-- ── MODAL: DELETE EMERGENCY ── -->
+    <div v-if="deleteEmergencyTarget" class="sheet-overlay" @click.self="deleteEmergencyTarget = null">
+      <div class="sheet sheet-sm card">
+        <div class="sheet-head">
+          <div>
+            <div class="sheet-eyebrow">Delete Emergency Record</div>
+            <h3 class="sheet-title">Remove {{ deleteEmergencyTarget.type }} alert?</h3>
+          </div>
+          <button class="sheet-close" @click="deleteEmergencyTarget = null">&times;</button>
+        </div>
+        <p class="confirm-copy">
+          This incident record from <strong>{{ deleteEmergencyTarget.resident?.name || 'Resident' }}</strong> will be permanently removed.
+        </p>
+        <div class="sheet-actions">
+          <button class="btn btn-outline" @click="deleteEmergencyTarget = null">Cancel</button>
+          <button class="btn btn-danger" :disabled="deletingEmergency" @click="doDeleteEmergency">
+            {{ deletingEmergency ? 'Deleting...' : 'Delete Incident' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { notificationsApi, newsApi, estatesApi } from '@/api/index'
+import { notificationsApi, newsApi, estatesApi, emergenciesApi } from '@/api/index'
 import { useToast } from '@/composables/useToast'
 import BrandSpinner from '@/components/BrandSpinner.vue'
 
@@ -352,13 +523,16 @@ const route = useRoute()
 const router = useRouter()
 const { showToast } = useToast()
 
-const activeTab = ref<'notifications' | 'announcements'>('notifications')
+const activeTab = ref<'notifications' | 'announcements' | 'emergencies'>('notifications')
 
 // Watch route query to switch tabs cleanly
 watch(
   () => [route.query.tab, route.path],
   () => {
-    if (route.query.tab === 'announcements' || route.path.startsWith('/news')) {
+    if (route.query.tab === 'emergencies' || route.path.startsWith('/emergencies')) {
+      activeTab.value = 'emergencies'
+      loadEmergencies()
+    } else if (route.query.tab === 'announcements' || route.path.startsWith('/news')) {
       activeTab.value = 'announcements'
     } else {
       activeTab.value = 'notifications'
@@ -367,9 +541,16 @@ watch(
   { immediate: true }
 )
 
-function switchTab(tab: 'notifications' | 'announcements') {
+function switchTab(tab: 'notifications' | 'announcements' | 'emergencies') {
   activeTab.value = tab
-  router.replace({ path: '/notifications', query: tab === 'announcements' ? { tab: 'announcements' } : {} })
+  if (tab === 'emergencies') {
+    loadEmergencies()
+  } else if (tab === 'announcements') {
+    loadNews()
+  } else {
+    loadNotifications()
+  }
+  router.replace({ path: '/notifications', query: tab !== 'notifications' ? { tab } : {} })
 }
 
 // ── NOTIFICATIONS STATE ──
@@ -429,7 +610,7 @@ function typeClass(type: string) {
   return map[type?.toLowerCase()] ?? 'badge-gray'
 }
 
-function fmtDatetime(dt?: string) {
+function fmtDatetime(dt?: string | null) {
   if (!dt) return '—'
   return new Date(dt).toLocaleString('en-GB', {
     day: 'numeric',
@@ -602,10 +783,184 @@ function fmtDate(dt?: string) {
   })
 }
 
+// ── EMERGENCY SOS STATE & ACTIONS ──
+interface EmergencyItem {
+  id: number
+  type: string
+  notes?: string | null
+  status: 'sent' | 'acknowledged' | 'resolved' | string
+  acknowledgedAt?: string | null
+  resolvedAt?: string | null
+  createdAt?: string | null
+  resident?: {
+    id: number
+    name?: string
+    phone?: string
+    flatAddress?: string
+  } | null
+  estate?: {
+    id: number
+    name?: string
+  } | null
+}
+
+const loadingEmergencies = ref(false)
+const emergenciesList = ref<EmergencyItem[]>([])
+const emergencyFilter = ref<string>('')
+const savingEmergencyId = ref<number | null>(null)
+const deleteEmergencyTarget = ref<EmergencyItem | null>(null)
+const deletingEmergency = ref(false)
+
+const activeEmergencyCount = computed(() => {
+  return emergenciesList.value.filter(e => e.status === 'sent').length
+})
+
+const filteredEmergencies = computed(() => {
+  if (!emergencyFilter.value) return emergenciesList.value
+  return emergenciesList.value.filter(e => e.status === emergencyFilter.value)
+})
+
+function setEmergencyFilter(val: string) {
+  emergencyFilter.value = val
+  loadEmergencies()
+}
+
+async function loadEmergencies(silent = false) {
+  if (!silent) loadingEmergencies.value = true
+  try {
+    const params: Record<string, unknown> = {}
+    if (emergencyFilter.value) params.status = emergencyFilter.value
+    const res = await emergenciesApi.getAll(params)
+    emergenciesList.value = res.data?.emergencies || []
+  } catch {
+    if (!silent) showToast('Failed to load emergencies.', 'error')
+  } finally {
+    if (!silent) loadingEmergencies.value = false
+  }
+}
+
+async function acknowledgeEmergency(incident: EmergencyItem) {
+  savingEmergencyId.value = incident.id
+  try {
+    await emergenciesApi.acknowledge(incident.id)
+    incident.status = 'acknowledged'
+    showToast('Emergency incident acknowledged & dispatched.', 'success')
+    loadEmergencies(true)
+  } catch {
+    showToast('Failed to acknowledge emergency.', 'error')
+  } finally {
+    savingEmergencyId.value = null
+  }
+}
+
+async function resolveEmergency(incident: EmergencyItem) {
+  savingEmergencyId.value = incident.id
+  try {
+    await emergenciesApi.resolve(incident.id)
+    incident.status = 'resolved'
+    showToast('Emergency incident marked as resolved.', 'success')
+    loadEmergencies(true)
+  } catch {
+    showToast('Failed to resolve emergency.', 'error')
+  } finally {
+    savingEmergencyId.value = null
+  }
+}
+
+function confirmDeleteEmergency(incident: EmergencyItem) {
+  deleteEmergencyTarget.value = incident
+}
+
+async function doDeleteEmergency() {
+  if (!deleteEmergencyTarget.value) return
+  deletingEmergency.value = true
+  try {
+    await emergenciesApi.delete(deleteEmergencyTarget.value.id)
+    showToast('Emergency record deleted.', 'success')
+    deleteEmergencyTarget.value = null
+    loadEmergencies(true)
+  } catch {
+    showToast('Failed to delete emergency record.', 'error')
+  } finally {
+    deletingEmergency.value = false
+  }
+}
+
+function emergencyTypeIcon(type?: string): string {
+  switch (type?.toLowerCase()) {
+    case 'fire': return '🔥'
+    case 'medical': return '🚑'
+    case 'intruder': return '🚨'
+    case 'security incident': return '🛡️'
+    default: return '⚠️'
+  }
+}
+
+function emergencyTypeBadge(type?: string): string {
+  switch (type?.toLowerCase()) {
+    case 'fire': return 'badge-red'
+    case 'medical': return 'badge-yellow'
+    case 'intruder': return 'badge-red'
+    case 'security incident': return 'badge-blue'
+    default: return 'badge-gray'
+  }
+}
+
+function emergencyStatusBadge(status?: string): string {
+  switch (status) {
+    case 'sent': return 'badge-red'
+    case 'acknowledged': return 'badge-yellow'
+    case 'resolved': return 'badge-green'
+    default: return 'badge-gray'
+  }
+}
+
+// ── BACKGROUND AUTO-REFRESH ──
+let autoRefreshTimer: any = null
+
+async function silentRefresh() {
+  try {
+    if (activeTab.value === 'notifications') {
+      const res = await notificationsApi.getAll()
+      notifications.value = res.data?.notifications || []
+    } else if (activeTab.value === 'announcements') {
+      const params: Record<string, unknown> = {}
+      if (selectedEstateId.value) params.estate_id = selectedEstateId.value
+      if (selectedAudience.value && selectedAudience.value !== 'all') params.target_audience = selectedAudience.value
+      if (announcementSearch.value.trim()) params.search = announcementSearch.value.trim()
+      const res = await newsApi.getAll(params)
+      newsList.value = res.data?.news || []
+    } else if (activeTab.value === 'emergencies') {
+      const params: Record<string, unknown> = {}
+      if (emergencyFilter.value) params.status = emergencyFilter.value
+      const res = await emergenciesApi.getAll(params)
+      emergenciesList.value = res.data?.emergencies || []
+    }
+
+    // Keep active emergency counter updated at all times across all tabs
+    if (activeTab.value !== 'emergencies') {
+      const emRes = await emergenciesApi.getAll()
+      emergenciesList.value = emRes.data?.emergencies || []
+    }
+  } catch {
+    // silent catch to avoid interrupting user activity
+  }
+}
+
 onMounted(() => {
   loadNotifications()
   loadEstates()
   loadNews()
+  loadEmergencies(true)
+
+  // Start auto-refresh interval every 8 seconds
+  autoRefreshTimer = setInterval(silentRefresh, 8000)
+})
+
+onUnmounted(() => {
+  if (autoRefreshTimer) {
+    clearInterval(autoRefreshTimer)
+  }
 })
 </script>
 
@@ -1265,5 +1620,138 @@ onMounted(() => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* ── Emergency Tab & Incident Alerts ── */
+.nav-tab-pill--emergency.has-alert {
+  border-color: #FCA5A5;
+  background: #FEF2F2;
+  color: #DC2626;
+  animation: pulse-border 2s infinite;
+}
+
+.nav-tab-pill--emergency.active {
+  background: #DC2626 !important;
+  border-color: #DC2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+.tab-counter--danger {
+  background: #DC2626 !important;
+  color: #ffffff !important;
+}
+
+.nav-tab-pill.active .tab-counter--danger {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.emergency-card.urgent {
+  background: #FFF5F5;
+  border-color: #FECACA;
+  border-left: 4px solid #DC2626;
+}
+
+.emergency-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.emergency-btn-ack {
+  color: #B45309;
+  border-color: #FCD34D;
+  background: #FFFBEB;
+}
+
+.emergency-btn-ack:hover {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.emergency-btn-resolve {
+  background: #0A5C38;
+  border-color: #0A5C38;
+  color: #FFFFFF;
+}
+
+.emergency-btn-resolve:hover {
+  background: #08482C;
+}
+
+.emergency-resident-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 10px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+}
+
+.resident-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.chip-lbl {
+  color: #6B7280;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.chip-val {
+  color: #111827;
+  font-weight: 700;
+}
+
+.chip-link {
+  color: #0A5C38;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.chip-link:hover {
+  text-decoration: underline;
+}
+
+.incident-notes {
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px dashed #D1D5DB;
+}
+
+.pulse-dot-red {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #DC2626;
+  margin-right: 4px;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
 }
 </style>
