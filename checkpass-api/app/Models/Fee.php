@@ -16,7 +16,15 @@ class Fee extends Model
         'name',
         'amount',
         'type',
+        'target_audience',
+        'frequency',
+        'effective_date',
         'description',
+    ];
+
+    protected $casts = [
+        'effective_date' => 'date',
+        'amount'         => 'float',
     ];
 
     public function users(): BelongsToMany

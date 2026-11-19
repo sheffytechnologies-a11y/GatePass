@@ -35,8 +35,24 @@ class FeeController extends Controller
             ], 403);
         }
 
-        $fees = Fee::query()
-            ->where('estate_id', $resident->estate_id)
+        $isHomeowner = $user->hasRole('homeowner') || ($user->active_role === 'homeowner') || ($resident->is_homeowner ?? false);
+
+        $feeQuery = Fee::query()
+            ->where('estate_id', $resident->estate_id);
+
+        if ($isHomeowner) {
+            $feeQuery->where(function ($q) {
+                $q->whereIn('target_audience', ['homeowner', 'both'])
+                  ->orWhereNull('target_audience');
+            });
+        } else {
+            $feeQuery->where(function ($q) {
+                $q->whereIn('target_audience', ['occupant', 'both'])
+                  ->orWhereNull('target_audience');
+            });
+        }
+
+        $fees = $feeQuery
             ->with(['users' => fn($q) => $q->where('user_id', $user->id)])
             ->latest()
             ->get()
@@ -59,12 +75,16 @@ class FeeController extends Controller
                 }
 
                 return [
-                'id' => (string) $fee->id,
-                'amount' => (float) $fee->amount,
-                'title' => $fee->name,
-                'date' => $fee->created_at?->format('M d Y'),
-                'status' => $status,
-            ];
+                    'id'             => (string) $fee->id,
+                    'amount'         => (float) $fee->amount,
+                    'title'          => $fee->name,
+                    'type'           => $fee->type,
+                    'targetAudience' => $fee->target_audience ?? 'both',
+                    'frequency'      => $fee->frequency ?? 'monthly',
+                    'effectiveDate'  => $fee->effective_date ? substr((string)$fee->effective_date, 0, 10) : null,
+                    'date'           => $fee->effective_date ? date('M d Y', strtotime((string)$fee->effective_date)) : $fee->created_at?->format('M d Y'),
+                    'status'         => $status,
+                ];
             });
 
         return response()->json(['fees' => $fees]);
@@ -458,17 +478,27 @@ class FeeController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'estate_id'   => 'nullable|exists:estates,id',
-            'code'        => 'required|string|max:50|unique:fees,code',
-            'name'        => 'required|string|max:255',
-            'amount'      => 'required|numeric|min:0',
-            'type'        => 'required|in:one-time,recurring',
-            'description' => 'nullable|string',
+            'estate_id'       => 'nullable|exists:estates,id',
+            'code'            => 'required|string|max:50|unique:fees,code',
+            'name'            => 'required|string|max:255',
+            'amount'          => 'required|numeric|min:0',
+            'type'            => 'required|in:one-time,recurring',
+            'target_audience' => 'nullable|in:occupant,homeowner,both',
+            'frequency'       => 'nullable|in:daily,weekly,monthly,yearly',
+            'effective_date'  => 'nullable|date',
+            'description'     => 'nullable|string',
         ]);
 
         $estateId = $this->resolveEstateId($request, $data['estate_id'] ?? null);
         $this->assertEstateAccess($request, $estateId);
         $data['estate_id'] = $estateId;
+
+        if (empty($data['target_audience'])) {
+            $data['target_audience'] = 'both';
+        }
+        if ($data['type'] === 'recurring' && empty($data['frequency'])) {
+            $data['frequency'] = 'monthly';
+        }
 
         $fee = Fee::create($data);
 
@@ -495,11 +525,14 @@ class FeeController extends Controller
         $this->assertEstateAccess($request, $fee->estate_id);
 
         $data = $request->validate([
-            'code'        => ['sometimes', 'string', 'max:50', Rule::unique('fees', 'code')->ignore($id)],
-            'name'        => 'sometimes|string|max:255',
-            'amount'      => 'sometimes|numeric|min:0',
-            'type'        => 'sometimes|in:one-time,recurring',
-            'description' => 'sometimes|nullable|string',
+            'code'            => ['sometimes', 'string', 'max:50', Rule::unique('fees', 'code')->ignore($id)],
+            'name'            => 'sometimes|string|max:255',
+            'amount'          => 'sometimes|numeric|min:0',
+            'type'            => 'sometimes|in:one-time,recurring',
+            'target_audience' => 'sometimes|nullable|in:occupant,homeowner,both',
+            'frequency'       => 'sometimes|nullable|in:daily,weekly,monthly,yearly',
+            'effective_date'  => 'sometimes|nullable|date',
+            'description'     => 'sometimes|nullable|string',
         ]);
 
         $fee->update($data);
@@ -661,15 +694,18 @@ class FeeController extends Controller
     private function formatFee(Fee $fee): array
     {
         return [
-            'id'          => $fee->id,
-            'estateId'    => $fee->estate_id,
-            'code'        => $fee->code,
-            'name'        => $fee->name,
-            'amount'      => (float) $fee->amount,
-            'type'        => $fee->type,
-            'description' => $fee->description,
-            'createdAt'   => $fee->created_at->toIso8601String(),
-            'updatedAt'   => $fee->updated_at->toIso8601String(),
+            'id'             => $fee->id,
+            'estateId'       => $fee->estate_id,
+            'code'           => $fee->code,
+            'name'           => $fee->name,
+            'amount'         => (float) $fee->amount,
+            'type'           => $fee->type,
+            'targetAudience' => $fee->target_audience ?? 'both',
+            'frequency'      => $fee->frequency ?? 'monthly',
+            'effectiveDate'  => $fee->effective_date ? substr((string)$fee->effective_date, 0, 10) : null,
+            'description'    => $fee->description,
+            'createdAt'      => $fee->created_at->toIso8601String(),
+            'updatedAt'      => $fee->updated_at->toIso8601String(),
         ];
     }
 
