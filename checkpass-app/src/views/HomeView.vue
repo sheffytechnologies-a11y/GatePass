@@ -148,6 +148,98 @@
                 </div>
                 <h4 class="sec-news-title">{{ item.title }}</h4>
                 <p class="sec-news-text">{{ item.content }}</p>
+
+                <!-- Footer: Comments count & Reactions -->
+                <div class="news-card-footer sec-news-card-footer">
+                  <div class="news-card-actions-left">
+                    <button
+                      type="button"
+                      class="news-card-comment-btn"
+                      @click.stop="toggleInlineComments(item.id)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
+                    </button>
+                  </div>
+
+                  <div class="news-card-reactions">
+                    <button
+                      type="button"
+                      class="news-reaction-btn"
+                      :class="{ active: getNewsReaction(item.id).userReaction === 'like' }"
+                      title="Like announcement"
+                      @click.stop="toggleReaction(item.id, 'like')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                      </svg>
+                      <span class="reaction-count">{{ getNewsReaction(item.id).likes }}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="news-reaction-btn is-dislike"
+                      :class="{ active: getNewsReaction(item.id).userReaction === 'dislike' }"
+                      title="Dislike announcement"
+                      @click.stop="toggleReaction(item.id, 'dislike')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+                      </svg>
+                      <span class="reaction-count">{{ getNewsReaction(item.id).dislikes }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Inline Comments Accordion for Security Announcements -->
+                <transition name="slide-fade">
+                  <div
+                    v-if="openInlineCommentsIds.includes(item.id)"
+                    class="news-inline-comments-box"
+                    @click.stop
+                  >
+                    <!-- Comment Composer -->
+                    <div class="inline-comment-row">
+                      <input
+                        v-model="inlineCommentInputs[item.id]"
+                        type="text"
+                        class="inline-comment-input"
+                        placeholder="Write a comment..."
+                        maxlength="200"
+                        @keydown.enter.prevent="submitInlineComment(item.id)"
+                      />
+                      <button
+                        class="inline-comment-post-btn"
+                        :disabled="!inlineCommentInputs[item.id] || !inlineCommentInputs[item.id].trim()"
+                        @click="submitInlineComment(item.id)"
+                      >
+                        Post
+                      </button>
+                    </div>
+
+                    <!-- Existing Comments List -->
+                    <div v-if="getNewsComments(item.id).length > 0" class="inline-comments-stream">
+                      <div
+                        v-for="c in getNewsComments(item.id)"
+                        :key="c.id"
+                        class="inline-comment-entry"
+                      >
+                        <div class="inline-comment-header">
+                          <div class="inline-comment-author-wrap">
+                            <span class="inline-comment-author">{{ c.authorName }}</span>
+                            <span v-if="c.authorRole" class="inline-comment-role-tag">{{ c.authorRole }}</span>
+                            <span v-else-if="c.authorUnit" class="inline-comment-unit-tag">• {{ c.authorUnit }}</span>
+                          </div>
+                          <span class="inline-comment-time">{{ c.createdAt }}</span>
+                        </div>
+                        <div class="inline-comment-msg">{{ c.content }}</div>
+                      </div>
+                    </div>
+                    <div v-else class="inline-no-comments">No comments yet. Be the first to comment!</div>
+                  </div>
+                </transition>
               </div>
             </div>
           </div>
@@ -353,25 +445,55 @@
                       </div>
 
                       <div class="news-card-footer">
-                        <button
-                          type="button"
-                          class="news-card-comment-btn"
-                          @click.stop="toggleInlineComments(item.id)"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                          </svg>
-                          <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
-                        </button>
+                        <div class="news-card-actions-left">
+                          <button
+                            type="button"
+                            class="news-card-comment-btn"
+                            @click.stop="toggleInlineComments(item.id)"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
+                          </button>
 
-                        <button
-                          v-if="isLongNewsContent(item.content)"
-                          type="button"
-                          class="news-see-more-link"
-                          @click.stop="toggleExpandNews(item.id)"
-                        >
-                          {{ expandedNewsIds.includes(item.id) ? 'See less' : 'See more' }}
-                        </button>
+                          <button
+                            v-if="isLongNewsContent(item.content)"
+                            type="button"
+                            class="news-see-more-link"
+                            @click.stop="toggleExpandNews(item.id)"
+                          >
+                            {{ expandedNewsIds.includes(item.id) ? 'See less' : 'See more' }}
+                          </button>
+                        </div>
+
+                        <div class="news-card-reactions">
+                          <button
+                            type="button"
+                            class="news-reaction-btn"
+                            :class="{ active: getNewsReaction(item.id).userReaction === 'like' }"
+                            title="Like announcement"
+                            @click.stop="toggleReaction(item.id, 'like')"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                            </svg>
+                            <span class="reaction-count">{{ getNewsReaction(item.id).likes }}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="news-reaction-btn is-dislike"
+                            :class="{ active: getNewsReaction(item.id).userReaction === 'dislike' }"
+                            title="Dislike announcement"
+                            @click.stop="toggleReaction(item.id, 'dislike')"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+                            </svg>
+                            <span class="reaction-count">{{ getNewsReaction(item.id).dislikes }}</span>
+                          </button>
+                        </div>
                       </div>
 
                       <!-- Inline Comments Accordion -->
@@ -408,7 +530,11 @@
                               class="inline-comment-entry"
                             >
                               <div class="inline-comment-header">
-                                <span class="inline-comment-author">{{ c.authorName }}</span>
+                                <div class="inline-comment-author-wrap">
+                                  <span class="inline-comment-author">{{ c.authorName }}</span>
+                                  <span v-if="c.authorRole" class="inline-comment-role-tag">{{ c.authorRole }}</span>
+                                  <span v-else-if="c.authorUnit" class="inline-comment-unit-tag">• {{ c.authorUnit }}</span>
+                                </div>
                                 <span class="inline-comment-time">{{ c.createdAt }}</span>
                               </div>
                               <div class="inline-comment-msg">{{ c.content }}</div>
@@ -834,6 +960,33 @@
               <span class="news-comments-title">
                 Comments ({{ getNewsComments(selectedNewsItem.id).length }})
               </span>
+              <div class="news-card-reactions">
+                <button
+                  type="button"
+                  class="news-reaction-btn"
+                  :class="{ active: getNewsReaction(selectedNewsItem.id).userReaction === 'like' }"
+                  title="Like announcement"
+                  @click.stop="toggleReaction(selectedNewsItem.id, 'like')"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                  </svg>
+                  <span class="reaction-count">{{ getNewsReaction(selectedNewsItem.id).likes }}</span>
+                </button>
+
+                <button
+                  type="button"
+                  class="news-reaction-btn is-dislike"
+                  :class="{ active: getNewsReaction(selectedNewsItem.id).userReaction === 'dislike' }"
+                  title="Dislike announcement"
+                  @click.stop="toggleReaction(selectedNewsItem.id, 'dislike')"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+                  </svg>
+                  <span class="reaction-count">{{ getNewsReaction(selectedNewsItem.id).dislikes }}</span>
+                </button>
+              </div>
             </div>
 
             <!-- Comment Composer -->
@@ -1074,7 +1227,7 @@ function markAllNewsRead() {
 
 export interface NewsComment {
   id: string
-  newsId: number
+  newsId: number | string
   authorName: string
   authorUnit: string
   authorRole?: string
@@ -1084,7 +1237,7 @@ export interface NewsComment {
 
 const newsCommentsStorageKey = 'checkpass_news_comments'
 
-const initialDefaultNewsComments: Record<number, NewsComment[]> = {
+const initialDefaultNewsComments: Record<string | number, NewsComment[]> = {
   101: [
     {
       id: 'c-101-1',
@@ -1116,7 +1269,7 @@ const initialDefaultNewsComments: Record<number, NewsComment[]> = {
   ],
 }
 
-function loadInitialNewsComments(): Record<number, NewsComment[]> {
+function loadInitialNewsComments(): Record<string | number, NewsComment[]> {
   try {
     const raw = localStorage.getItem(newsCommentsStorageKey)
     if (raw) return JSON.parse(raw)
@@ -1124,28 +1277,105 @@ function loadInitialNewsComments(): Record<number, NewsComment[]> {
   return initialDefaultNewsComments
 }
 
-const newsCommentsMap = ref<Record<number, NewsComment[]>>(loadInitialNewsComments())
+const newsCommentsMap = ref<Record<string | number, NewsComment[]>>(loadInitialNewsComments())
 
-function getNewsComments(newsId: number): NewsComment[] {
+function getNewsComments(newsId: number | string): NewsComment[] {
   return newsCommentsMap.value[newsId] || []
+}
+
+// ── ESTATE ANNOUNCEMENT REACTIONS (Like & Dislike) ─────────────
+export interface NewsReactionState {
+  likes: number
+  dislikes: number
+  userReaction?: 'like' | 'dislike' | null
+}
+
+const newsReactionsStorageKey = 'checkpass_news_reactions'
+
+const initialDefaultNewsReactions: Record<string | number, NewsReactionState> = {
+  101: { likes: 12, dislikes: 0, userReaction: null },
+  102: { likes: 8, dislikes: 1, userReaction: null },
+}
+
+function loadNewsReactions(): Record<string | number, NewsReactionState> {
+  try {
+    const raw = localStorage.getItem(newsReactionsStorageKey)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return initialDefaultNewsReactions
+}
+
+const newsReactions = ref<Record<string | number, NewsReactionState>>(loadNewsReactions())
+
+function getNewsReaction(id: number | string): NewsReactionState {
+  if (!newsReactions.value[id]) {
+    newsReactions.value[id] = { likes: 0, dislikes: 0, userReaction: null }
+  }
+  return newsReactions.value[id]
+}
+
+function saveNewsReactions() {
+  try {
+    localStorage.setItem(newsReactionsStorageKey, JSON.stringify(newsReactions.value))
+  } catch {}
+}
+
+function toggleReaction(id: number | string, type: 'like' | 'dislike') {
+  const state = getNewsReaction(id)
+  if (state.userReaction === type) {
+    // Undo reaction
+    if (type === 'like') {
+      state.likes = Math.max(0, state.likes - 1)
+    } else {
+      state.dislikes = Math.max(0, state.dislikes - 1)
+    }
+    state.userReaction = null
+  } else {
+    // If switching reaction from opposite
+    if (state.userReaction === 'like') {
+      state.likes = Math.max(0, state.likes - 1)
+    } else if (state.userReaction === 'dislike') {
+      state.dislikes = Math.max(0, state.dislikes - 1)
+    }
+    // Set new reaction
+    if (type === 'like') {
+      state.likes++
+    } else {
+      state.dislikes++
+    }
+    state.userReaction = type
+  }
+  saveNewsReactions()
 }
 
 const newNewsCommentText = ref('')
 const submittingComment = ref(false)
 
-function submitNewsComment(newsId: number) {
+function submitNewsComment(newsId: number | string) {
   const text = newNewsCommentText.value.trim()
   if (!text || submittingComment.value) return
   submittingComment.value = true
 
-  const authorName = auth.resident?.name || 'Resident Neighbor'
-  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+  let authorName = 'Resident Neighbor'
+  let authorUnit = 'Estate Resident'
+  let authorRole: string | undefined
+
+  if (auth.isSecurityUser) {
+    authorName = (summary.value as any)?.user?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || 'Security Officer'
+    authorUnit = securityStation.value || 'Main Gate'
+    authorRole = 'Security Officer'
+  } else {
+    authorName = auth.resident?.name || 'Resident Neighbor'
+    authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+    authorRole = auth.resident?.role || undefined
+  }
 
   const newComment: NewsComment = {
     id: 'c-' + Date.now(),
     newsId,
     authorName,
     authorUnit,
+    authorRole,
     content: text,
     createdAt: 'Just now',
   }
@@ -1165,17 +1395,17 @@ function submitNewsComment(newsId: number) {
 }
 
 
-const expandedNewsIds = ref<number[]>([])
-const openInlineCommentsIds = ref<number[]>([])
-const inlineCommentInputs = ref<Record<number, string>>({})
+const expandedNewsIds = ref<(number | string)[]>([])
+const openInlineCommentsIds = ref<(number | string)[]>([])
+const inlineCommentInputs = ref<Record<string | number, string>>({})
 
-function toggleExpandNews(id: number) {
+function toggleExpandNews(id: number | string) {
   const idx = expandedNewsIds.value.indexOf(id)
   if (idx >= 0) expandedNewsIds.value.splice(idx, 1)
   else expandedNewsIds.value.push(id)
 }
 
-function toggleInlineComments(id: number) {
+function toggleInlineComments(id: number | string) {
   const idx = openInlineCommentsIds.value.indexOf(id)
   if (idx >= 0) {
     openInlineCommentsIds.value.splice(idx, 1)
@@ -1187,18 +1417,30 @@ function toggleInlineComments(id: number) {
   }
 }
 
-function submitInlineComment(newsId: number) {
+function submitInlineComment(newsId: number | string) {
   const text = (inlineCommentInputs.value[newsId] || '').trim()
   if (!text) return
 
-  const authorName = auth.resident?.name || 'Resident Neighbor'
-  const authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+  let authorName = 'Resident Neighbor'
+  let authorUnit = 'Estate Resident'
+  let authorRole: string | undefined
+
+  if (auth.isSecurityUser) {
+    authorName = (summary.value as any)?.user?.name || JSON.parse(localStorage.getItem('w_user') ?? 'null')?.name || 'Security Officer'
+    authorUnit = securityStation.value || 'Main Gate'
+    authorRole = 'Security Officer'
+  } else {
+    authorName = auth.resident?.name || 'Resident Neighbor'
+    authorUnit = auth.resident?.flatAddress || 'Estate Resident'
+    authorRole = auth.resident?.role || undefined
+  }
 
   const newComment: NewsComment = {
     id: 'c-' + Date.now(),
     newsId,
     authorName,
     authorUnit,
+    authorRole,
     content: text,
     createdAt: 'Just now',
   }
@@ -4152,6 +4394,110 @@ onMounted(() => {
   color: #0A5C38;
   cursor: pointer;
 }
+
+/* ── Reactions (Like & Dislike) ── */
+.news-card-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.news-card-reactions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.news-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+}
+
+.news-reaction-btn:hover {
+  background: #E5E7EB;
+  color: #1F2937;
+}
+
+.news-reaction-btn:active {
+  transform: scale(0.92);
+}
+
+.news-reaction-btn.active {
+  background: #E8F5EE;
+  color: #0A5C38;
+  border-color: #A3D9BD;
+}
+
+.news-reaction-btn.is-dislike.active {
+  background: #FEE2E2;
+  color: #DC2626;
+  border-color: #FECACA;
+}
+
+.news-reaction-btn svg {
+  width: 13.5px;
+  height: 13.5px;
+  stroke: currentColor;
+  fill: transparent;
+  transition: all 0.16s ease;
+  flex-shrink: 0;
+}
+
+.news-reaction-btn.active svg {
+  fill: currentColor;
+}
+
+.news-reaction-btn .reaction-count {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.sec-news-card-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inline-comment-author-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.inline-comment-role-tag {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.inline-comment-unit-tag {
+  font-size: 10.5px;
+  color: #64748B;
+}
+
 .news-inline-comments-box {
   margin-top: 10px;
   padding-top: 10px;
