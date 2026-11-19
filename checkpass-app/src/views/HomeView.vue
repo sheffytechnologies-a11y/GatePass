@@ -37,12 +37,12 @@
               </button>
               <div class="sec-matrix-vdivider"></div>
               <button type="button" class="sec-matrix-box" @click="router.push('/passes?filter=On-site')">
-                <div class="sec-matrix-val text-onsite">{{ summary?.stats?.onPremises ?? 0 }}</div>
+                <div class="sec-matrix-val">{{ summary?.stats?.onPremises ?? 0 }}</div>
                 <div class="sec-matrix-lbl">Currently On-Site</div>
               </button>
               <div class="sec-matrix-vdivider"></div>
               <button type="button" class="sec-matrix-box" @click="router.push('/passes?filter=Declined')">
-                <div class="sec-matrix-val text-declined">{{ summary?.stats?.declinedToday ?? 0 }}</div>
+                <div class="sec-matrix-val">{{ summary?.stats?.declinedToday ?? 0 }}</div>
                 <div class="sec-matrix-lbl">Declined Access</div>
               </button>
             </div>
@@ -3602,11 +3602,13 @@ onMounted(() => {
   font-weight: 800;
   letter-spacing: -0.5px;
   line-height: 1.1;
+  color: #FFFFFF;
 }
 
 .sec-matrix-lbl {
   font-size: 11px;
-  opacity: 0.8;
+  color: #FFFFFF;
+  opacity: 0.85;
   margin-top: 3px;
   font-weight: 500;
 }
@@ -3615,14 +3617,6 @@ onMounted(() => {
   width: 1px;
   height: 38px;
   background: rgba(255, 255, 255, 0.22);
-}
-
-.text-onsite {
-  color: #6EE7B7 !important;
-}
-
-.text-declined {
-  color: #FCA5A5 !important;
 }
 
 /* ─── SECURITY STICKY TABS (ACCESS | ANNOUNCEMENTS | EMERGENCIES) ─── */
