@@ -247,10 +247,6 @@
 
           <div class="news-card-footer">
             <span class="author-tag">Posted by {{ item.adminName || 'Estate Management' }}</span>
-            <span class="status-live-pill">
-              <span class="pulse-dot"></span>
-              Live in App
-            </span>
           </div>
         </article>
       </div>

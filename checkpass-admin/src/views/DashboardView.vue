@@ -445,7 +445,7 @@
               </div>
               <h4 class="notice-title">{{ recentNews[0].title }}</h4>
               <p class="notice-snippet">{{ recentNews[0].content }}</p>
-              <div class="notice-meta">Live in mobile feed &bull; {{ fmtDate(recentNews[0].createdAt) }}</div>
+              <div class="notice-meta">Published &bull; {{ fmtDate(recentNews[0].createdAt) }}</div>
             </div>
             <div v-else class="notice-empty">
               <p>No active announcements broadcasted.</p>
