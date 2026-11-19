@@ -17,10 +17,48 @@ class PassController extends Controller
      */
     public function index(Request $request)
     {
-        $resident = $request->user()->resident()->with(['unit', 'estate'])->firstOrFail();
+        $user = $request->user();
+
+        // ── Security Officer Pass Feed ──
+        if ($user->type === 'security') {
+            $estateId = $user->estate_id;
+            $query = Pass::where('estate_id', $estateId)
+                ->whereIn('status', ['On-site', 'Exited', 'Declined'])
+                ->with(['resident.unit', 'resident.user', 'flaggedItems']);
+
+            // Filter by status
+            if ($request->filled('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+
+            // Search by visitor name, phone, or car plate
+            if ($request->filled('search')) {
+                $term = $request->search;
+                $query->where(function ($q) use ($term) {
+                    $q->where('visitor_name', 'like', '%' . $term . '%')
+                      ->orWhere('visitor_phone', 'like', '%' . $term . '%')
+                      ->orWhere('vehicle_plate', 'like', '%' . $term . '%');
+                });
+            }
+
+            // Sort
+            match ($request->get('sort', 'newest')) {
+                'oldest' => $query->oldest(),
+                'name'   => $query->orderBy('visitor_name'),
+                default  => $query->latest(),
+            };
+
+            $passes = $query->get();
+
+            return response()->json([
+                'passes' => $passes->map(fn($p) => $this->formatPassForSecurity($p)),
+            ]);
+        }
+
+        $resident = $user->resident()->with(['unit', 'estate'])->firstOrFail();
 
         $query = Pass::where('resident_id', $resident->id)
-                     ->with('flaggedItems');
+            ->with('flaggedItems');
 
         // Filter by status
         if ($request->filled('status') && $request->status !== 'all') {
@@ -59,7 +97,7 @@ class PassController extends Controller
         $resident = null;
 
         $query = Pass::where('ulid', $ulid)
-                    ->with(['flaggedItems', 'resident.unit', 'resident.user']);
+            ->with(['flaggedItems', 'resident.unit', 'resident.user']);
 
         if ($user->type !== 'security') {
             $resident = $user->resident()->with(['user', 'unit', 'estate'])->first();
@@ -168,7 +206,7 @@ class PassController extends Controller
             'type'           => 'required|string|in:One-time,Recurring',
             'expiresAt'      => 'required|date|after:now',
             'recurringDays'  => 'nullable|array',
-            'recurringDays.*'=> 'string|in:Mon,Tue,Wed,Thu,Fri,Sat,Sun',
+            'recurringDays.*' => 'string|in:Mon,Tue,Wed,Thu,Fri,Sat,Sun',
             'vehiclePlate'   => 'nullable|string|max:20',
         ]);
 
@@ -211,8 +249,8 @@ class PassController extends Controller
         $resident = $request->user()->resident()->firstOrFail();
 
         $pass = Pass::where('ulid', $ulid)
-                    ->where('resident_id', $resident->id)
-                    ->first();
+            ->where('resident_id', $resident->id)
+            ->first();
 
         if (! $pass) {
             return response()->json(['error' => true, 'code' => 'PASS_NOT_FOUND', 'message' => 'Pass not found.'], 404);
@@ -249,8 +287,8 @@ class PassController extends Controller
         ]);
 
         $pass = Pass::where('ulid', $ulid)
-                    ->where('resident_id', $resident->id)
-                    ->first();
+            ->where('resident_id', $resident->id)
+            ->first();
 
         if (! $pass) {
             return response()->json(['error' => true, 'code' => 'PASS_NOT_FOUND', 'message' => 'Pass not found.'], 404);
@@ -445,8 +483,8 @@ class PassController extends Controller
         ]);
 
         $pass = Pass::where('ulid', $ulid)
-                    ->where('resident_id', $resident->id)
-                    ->first();
+            ->where('resident_id', $resident->id)
+            ->first();
 
         if (! $pass) {
             return response()->json(['error' => true, 'code' => 'PASS_NOT_FOUND', 'message' => 'Pass not found.'], 404);

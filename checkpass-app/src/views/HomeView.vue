@@ -31,114 +31,54 @@
 
             <!-- Matrix of Passes: Admitted Today | On-Site Now | Declined Access -->
             <div class="sec-matrix-strip">
-              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'all'">
+              <button type="button" class="sec-matrix-box" @click="router.push('/passes?filter=all')">
                 <div class="sec-matrix-val">{{ summary?.stats?.grantedToday ?? 0 }}</div>
                 <div class="sec-matrix-lbl">Granted Today</div>
               </button>
               <div class="sec-matrix-vdivider"></div>
-              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'onsite'">
+              <button type="button" class="sec-matrix-box" @click="router.push('/passes?filter=On-site')">
                 <div class="sec-matrix-val text-onsite">{{ summary?.stats?.onPremises ?? 0 }}</div>
                 <div class="sec-matrix-lbl">Currently On-Site</div>
               </button>
               <div class="sec-matrix-vdivider"></div>
-              <button type="button" class="sec-matrix-box" @click="activeSecurityTab = 'access'; securityFilterTab = 'declined'">
+              <button type="button" class="sec-matrix-box" @click="router.push('/passes?filter=Declined')">
                 <div class="sec-matrix-val text-declined">{{ summary?.stats?.declinedToday ?? 0 }}</div>
                 <div class="sec-matrix-lbl">Declined Access</div>
               </button>
             </div>
           </div>
 
-          <!-- Sticky Sub-Tabs Bar: Access | Announcements | Emergencies -->
-          <div class="sec-tabs-sticky-shell">
-            <div class="sec-tabs-container">
+          <!-- Sticky Sub-Tabs Bar (Identical Underline Nav Style as Resident Home) -->
+          <div class="passes-tabs-sticky-bar">
+            <div class="passes-tabs">
               <button
-                type="button"
-                class="sec-tab-item"
+                class="passes-tab"
                 :class="{ active: activeSecurityTab === 'access' }"
                 @click="activeSecurityTab = 'access'"
               >
                 <span>Access</span>
-                <span class="sec-pill-count">{{ filteredSecurityPasses.length }}</span>
               </button>
               <button
-                type="button"
-                class="sec-tab-item"
+                class="passes-tab"
                 :class="{ active: activeSecurityTab === 'announcements' }"
                 @click="activeSecurityTab = 'announcements'"
               >
                 <span>Announcements</span>
-                <span v-if="securityAnnouncements.length > 0" class="sec-pill-count">{{ securityAnnouncements.length }}</span>
+                <span v-if="securityAnnouncements.length > 0" class="tab-unread-pill">{{ securityAnnouncements.length }}</span>
               </button>
               <button
-                type="button"
-                class="sec-tab-item"
+                class="passes-tab"
                 :class="{ active: activeSecurityTab === 'emergencies' }"
                 @click="activeSecurityTab = 'emergencies'"
               >
                 <span>Emergencies</span>
-                <span v-if="securityEmergencies.length > 0" class="sec-pill-count sec-pill-count--red">{{ securityEmergencies.length }}</span>
+                <span v-if="securityEmergencies.length > 0" class="tab-unread-pill tab-unread-pill--red">{{ securityEmergencies.length }}</span>
               </button>
             </div>
           </div>
 
           <!-- ── TAB 1: ACCESS CLEARANCES ── -->
-          <div v-if="activeSecurityTab === 'access'" class="sec-tab-content">
-            <!-- Filter Pills Row -->
-            <div class="sec-filter-chips">
-              <button
-                type="button"
-                class="sec-chip-btn"
-                :class="{ active: securityFilterTab === 'all' }"
-                @click="securityFilterTab = 'all'"
-              >
-                All Clearances
-              </button>
-              <button
-                type="button"
-                class="sec-chip-btn"
-                :class="{ active: securityFilterTab === 'onsite' }"
-                @click="securityFilterTab = 'onsite'"
-              >
-                On-Site ({{ onsiteCount }})
-              </button>
-              <button
-                type="button"
-                class="sec-chip-btn"
-                :class="{ active: securityFilterTab === 'exited' }"
-                @click="securityFilterTab = 'exited'"
-              >
-                Exited ({{ exitedCount }})
-              </button>
-              <button
-                type="button"
-                class="sec-chip-btn"
-                :class="{ active: securityFilterTab === 'declined' }"
-                @click="securityFilterTab = 'declined'"
-              >
-                Declined ({{ declinedCount }})
-              </button>
-            </div>
-
-            <!-- Search Bar -->
-            <div class="sec-search-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                v-model="securitySearchQuery"
-                type="text"
-                placeholder="Search visitor, car plate, resident, phone..."
-                class="sec-search-input"
-              />
-              <button
-                v-if="securitySearchQuery"
-                type="button"
-                class="sec-search-clear"
-                @click="securitySearchQuery = ''"
-              >✕</button>
-            </div>
-
+          <template v-if="activeSecurityTab === 'access'">
             <!-- Visitor Without Phone: Quick Access Phrase Trigger -->
             <div class="sec-phrase-trigger-row">
               <button type="button" class="sec-phrase-trigger-btn" @click="phraseSheetOpen = true">
@@ -152,77 +92,41 @@
               </button>
             </div>
 
-            <!-- Clearance Passes Cards -->
-            <div v-if="filteredSecurityPasses.length === 0" class="sec-empty-box">
-              <div class="sec-empty-icon">🛡️</div>
-              <h3 class="sec-empty-title">No Clearances Found</h3>
-              <p class="sec-empty-desc">
-                {{ securitySearchQuery ? 'No visitors match your search filter.' : 'Only visitors you grant or decline access to will appear here.' }}
-              </p>
+            <!-- Recent Clearances Stream / Mini List (Top 5) -->
+            <div v-if="displayedSecurityPasses.length === 0">
+              <EmptyState
+                icon="🛡️"
+                heading="No clearances yet"
+                body="Visitors you grant or decline access to will appear here."
+              />
             </div>
 
-            <div v-else class="sec-passes-stream">
-              <div
-                v-for="pass in filteredSecurityPasses"
+            <div v-else class="pass-mini-list">
+              <button
+                v-for="pass in displayedSecurityPasses"
                 :key="pass.id"
-                class="sec-pass-card"
+                class="pass-mini-row"
                 @click="router.push(`/pass/${pass.id}`)"
               >
-                <!-- Card Header: Avatar, Name, Status Badge -->
-                <div class="sec-card-header">
-                  <div class="sec-visitor-info">
-                    <div class="sec-visitor-avatar" :style="{ background: avatarColor(pass.visitorName) }">
-                      {{ initials(pass.visitorName) }}
-                    </div>
-                    <div>
-                      <div class="sec-visitor-name">{{ pass.visitorName }}</div>
-                      <div class="sec-visitor-sub">
-                        <a v-if="pass.visitorPhone" :href="'tel:' + pass.visitorPhone" class="sec-phone-link" @click.stop>
-                          {{ pass.visitorPhone }}
-                        </a>
-                        <span v-if="pass.visitorPhone" class="sec-dot">•</span>
-                        <span>{{ pass.purpose || 'Visitor Access' }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Status Pill -->
-                  <div class="sec-card-status">
-                    <span
-                      class="sec-status-pill"
-                      :class="{
-                        'pill-onsite': pass.status === 'On-site',
-                        'pill-exited': pass.status === 'Exited',
-                        'pill-declined': pass.status === 'Declined'
-                      }"
-                    >
-                      <span class="status-micro-dot"></span>
-                      {{ pass.status }}
-                    </span>
-                  </div>
+                <div class="pass-mini-avatar" :style="{ background: avatarColor(pass.visitorName) }">
+                  {{ initials(pass.visitorName) }}
                 </div>
-
-                <!-- Card Body: Host Resident, Unit, Vehicle Plate -->
-                <div class="sec-card-details">
-                  <div class="sec-meta-row">
-                    <span class="sec-meta-lbl">Host:</span>
-                    <span class="sec-meta-val font-semibold">{{ pass.hostName || 'Resident' }}</span>
-                    <span class="sec-dot">•</span>
-                    <span class="sec-meta-val">{{ pass.hostUnit || 'Residential Unit' }}</span>
-                  </div>
-
-                  <div class="sec-meta-row sec-meta-bottom">
-                    <span class="sec-plate-badge" :class="pass.vehiclePlate && pass.vehiclePlate.toLowerCase() !== 'pedestrian' ? 'badge-plate' : 'badge-walk'">
-                      {{ pass.vehiclePlate || 'Pedestrian' }}
-                    </span>
-                    <span class="sec-time-stamp">
-                      {{ pass.arrivedAt ? formatPassTime(pass.arrivedAt) : 'Logged today' }}
-                    </span>
-                  </div>
+                <div class="pass-mini-body">
+                  <div class="pass-mini-name">{{ pass.visitorName }}</div>
+                  <div class="pass-mini-purpose">{{ pass.hostUnit || pass.purpose || 'Visitor Access' }}</div>
                 </div>
-              </div>
+                <span class="pass-mini-status" :class="statusClass(pass.status)">{{ pass.status }}</span>
+              </button>
+
+              <!-- View All Clearances button navigating to /passes where all, on-site, exited, declined are -->
+              <button
+                class="view-all-btn"
+                @click="router.push('/passes')"
+              >
+                View all {{ securityPasses.length }} clearances &amp; history →
+              </button>
             </div>
-          </div>
+          </template>
 
           <!-- ── TAB 2: ANNOUNCEMENTS ── -->
           <div v-else-if="activeSecurityTab === 'announcements'" class="sec-tab-content">
@@ -1067,51 +971,12 @@ const phraseSheetOpen = ref(false)
 
 // ── Security Role State & Computeds ──
 const activeSecurityTab   = ref<'access' | 'announcements' | 'emergencies'>('access')
-const securityFilterTab   = ref<'all' | 'onsite' | 'exited' | 'declined'>('all')
-const securitySearchQuery = ref('')
-
 const securityPasses = computed(() => {
   return (summary.value?.recentPasses || []) as any[]
 })
 
-const onsiteCount = computed(() => {
-  return securityPasses.value.filter(p => p.status === 'On-site').length
-})
-
-const exitedCount = computed(() => {
-  return securityPasses.value.filter(p => p.status === 'Exited').length
-})
-
-const declinedCount = computed(() => {
-  return securityPasses.value.filter(p => p.status === 'Declined').length
-})
-
-const filteredSecurityPasses = computed(() => {
-  let list = securityPasses.value
-
-  // Tab filter
-  if (securityFilterTab.value === 'onsite') {
-    list = list.filter(p => p.status === 'On-site')
-  } else if (securityFilterTab.value === 'exited') {
-    list = list.filter(p => p.status === 'Exited')
-  } else if (securityFilterTab.value === 'declined') {
-    list = list.filter(p => p.status === 'Declined')
-  }
-
-  // Search filter
-  const q = securitySearchQuery.value.trim().toLowerCase()
-  if (!q) return list
-
-  return list.filter(p => {
-    return (
-      (p.visitorName && p.visitorName.toLowerCase().includes(q)) ||
-      (p.visitorPhone && p.visitorPhone.includes(q)) ||
-      (p.vehiclePlate && p.vehiclePlate.toLowerCase().includes(q)) ||
-      (p.purpose && p.purpose.toLowerCase().includes(q)) ||
-      (p.hostName && p.hostName.toLowerCase().includes(q)) ||
-      (p.hostUnit && p.hostUnit.toLowerCase().includes(q))
-    )
-  })
+const displayedSecurityPasses = computed(() => {
+  return securityPasses.value.slice(0, 5)
 })
 
 const securityAnnouncements = computed(() => {

@@ -5,7 +5,7 @@
         <ion-buttons slot="start">
           <ion-back-button default-href="/tabs/home" text="" />
         </ion-buttons>
-        <ion-title>My Passes</ion-title>
+        <ion-title>{{ auth.isSecurityUser ? 'Access Clearances' : 'My Passes' }}</ion-title>
       </ion-toolbar>
       <!-- Integrated Search & Sort Container -->
       <div class="search-sort-bar">
@@ -18,7 +18,7 @@
             v-model="search"
             type="text"
             class="search-input"
-            placeholder="Search by visitor name…"
+            :placeholder="auth.isSecurityUser ? 'Search visitor, plate, phone, resident…' : 'Search by visitor name…'"
           />
           <button
             v-if="search"
@@ -73,7 +73,7 @@
           :icon="emptyIcon"
           :heading="emptyHeading"
           :body="emptyBody"
-          :cta-label="activeFilter === 'all' && !search ? 'Create a pass' : undefined"
+          :cta-label="activeFilter === 'all' && !search && !auth.isSecurityUser ? 'Create a pass' : undefined"
           @cta="router.push('/tabs/create')"
         />
 
@@ -94,19 +94,22 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonContent, IonRefresher, IonRefresherContent
 } from '@ionic/vue'
 import { usePassesStore } from '@/stores/passes'
+import { useAuthStore } from '@/stores/auth'
 import PassCard from '@/components/PassCard.vue'
 import SkeletonList from '@/components/SkeletonList.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
 const router = useRouter()
+const route  = useRoute()
 const store  = usePassesStore()
+const auth   = useAuthStore()
 
 const search      = ref('')
 const sort        = ref<'newest' | 'oldest' | 'name'>('newest')
@@ -119,13 +122,22 @@ const sortLabel = computed(() => {
   return 'Newest'
 })
 
-const FILTERS = [
-  { label: 'All',          value: 'all' },
-  { label: 'On-site',      value: 'On-site' },
-  { label: 'Pending',      value: 'Pending' },
-  { label: 'Exited',       value: 'Exited' },
-  // { label: 'Item Flagged', value: 'Item Flagged' },
-]
+const FILTERS = computed(() => {
+  if (auth.isSecurityUser) {
+    return [
+      { label: 'All Clearances', value: 'all' },
+      { label: 'On-site',        value: 'On-site' },
+      { label: 'Exited',         value: 'Exited' },
+      { label: 'Declined',       value: 'Declined' },
+    ]
+  }
+  return [
+    { label: 'All',          value: 'all' },
+    { label: 'On-site',      value: 'On-site' },
+    { label: 'Pending',      value: 'Pending' },
+    { label: 'Exited',       value: 'Exited' },
+  ]
+})
 
 const filteredPasses = computed(() => {
   let list = [...store.passes]
@@ -135,10 +147,16 @@ const filteredPasses = computed(() => {
     list = list.filter(p => store.displayStatus(p) === activeFilter.value)
   }
 
-  // Search
+  // Search by visitor name, phone, car plate, or resident host
   if (search.value.trim()) {
     const q = search.value.toLowerCase()
-    list = list.filter(p => p.visitorName.toLowerCase().includes(q))
+    list = list.filter(p =>
+      p.visitorName.toLowerCase().includes(q) ||
+      p.visitorPhone?.toLowerCase().includes(q) ||
+      p.vehiclePlate?.toLowerCase().includes(q) ||
+      (p as any).hostName?.toLowerCase().includes(q) ||
+      (p as any).hostUnit?.toLowerCase().includes(q)
+    )
   }
 
   // Sort
@@ -149,26 +167,48 @@ const filteredPasses = computed(() => {
   return list
 })
 
-const EMPTY_STATES: Record<string, { icon: string; heading: string; body: string }> = {
-  all:          { icon: '🎟️', heading: 'No passes yet',       body: 'Create your first visitor pass and it will appear here.' },
-  'On-site':    { icon: '👤', heading: 'No visitors on-site', body: 'Nobody has checked in today.' },
-  Pending:      { icon: '⏳', heading: 'No pending passes',   body: "Passes you've created that haven't been used yet will show here." },
-  Exited:       { icon: '🚪', heading: 'No exits yet',        body: 'Passes used and exited will appear here.' },
-  'Item Flagged':{ icon:'📦', heading: 'No item declarations', body: "When you declare items on a pass exit, they'll appear here." },
-  search:       { icon: '🔍', heading: `No results`,          body: 'Try a different name or clear the search.' },
+interface EmptyInfo {
+  icon: string
+  heading: string
+  body: string
 }
 
+const EMPTY_STATES = computed<Record<string, EmptyInfo>>(() => {
+  const base: Record<string, EmptyInfo> = {
+    all:          { icon: '🎟️', heading: 'No passes yet',       body: 'Create your first visitor pass and it will appear here.' },
+    'On-site':    { icon: '👤', heading: 'No visitors on-site', body: 'Nobody has checked in today.' },
+    Pending:      { icon: '⏳', heading: 'No pending passes',   body: "Passes you've created that haven't been used yet will show here." },
+    Exited:       { icon: '🚪', heading: 'No exits yet',        body: 'Passes used and exited will appear here.' },
+    Declined:     { icon: '🚫', heading: 'No declined clearances', body: 'Visitors turned back or denied entry will appear here.' },
+    'Item Flagged':{ icon:'📦', heading: 'No item declarations', body: "When you declare items on a pass exit, they'll appear here." },
+    search:       { icon: '🔍', heading: 'No results',          body: 'Try a different name or clear the search.' },
+  }
+  if (auth.isSecurityUser) {
+    base.all = { icon: '🛡️', heading: 'No clearances yet', body: 'Visitors you grant or decline access to will appear here.' }
+    base['On-site'] = { icon: '👤', heading: 'No visitors on-site', body: 'Nobody is currently checked in at the estate.' }
+    base.Exited = { icon: '🚪', heading: 'No exits recorded yet', body: 'Passes that have concluded and exited will appear here.' }
+    base.Declined = { icon: '🚫', heading: 'No declined clearances', body: 'Visitors turned back or denied entry will appear here.' }
+    base.search = { icon: '🔍', heading: 'No results for search', body: 'Try a different visitor, phone number, or plate.' }
+  }
+  return base
+})
+
 const emptyKey     = computed(() => search.value.trim() ? 'search' : activeFilter.value)
-const emptyIcon    = computed(() => EMPTY_STATES[emptyKey.value]?.icon || '🎟️')
-const emptyHeading = computed(() => search.value.trim() ? `No results for "${search.value}"` : EMPTY_STATES[emptyKey.value]?.heading || '')
-const emptyBody    = computed(() => EMPTY_STATES[emptyKey.value]?.body || '')
+const emptyIcon    = computed(() => EMPTY_STATES.value[emptyKey.value]?.icon || '🎟️')
+const emptyHeading = computed(() => search.value.trim() ? `No results for "${search.value}"` : EMPTY_STATES.value[emptyKey.value]?.heading || '')
+const emptyBody    = computed(() => EMPTY_STATES.value[emptyKey.value]?.body || '')
 
 async function onRefresh(e: CustomEvent) {
   await store.fetchAll()
   ;(e.target as HTMLIonRefresherElement).complete()
 }
 
-onMounted(() => store.fetchAll())
+onMounted(() => {
+  if (route.query.filter && typeof route.query.filter === 'string') {
+    activeFilter.value = route.query.filter
+  }
+  store.fetchAll()
+})
 </script>
 
 <style scoped>
