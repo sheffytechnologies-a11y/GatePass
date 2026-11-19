@@ -318,10 +318,6 @@
                 <div class="sec-estate-eyebrow">{{ (summary as any)?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
                 <div class="sec-station-title">Property Portfolio</div>
               </div>
-              <div class="sec-duty-pill homeowner-pill">
-                <span class="sec-duty-pulse"></span>
-                <span>Deed Holder</span>
-              </div>
             </div>
 
             <!-- Matrix: Total Properties | Occupied Units | Levies Due -->
