@@ -1,32 +1,50 @@
 <template>
-  <div class="mobile-page">
-    <section class="hero-card">
-      <div class="hero-eyebrow">Finance</div>
-      <h1 class="hero-title">Manage estate fees and billing records.</h1>
-      <p class="hero-copy">Admins can review all fees and create new fee entries linked to the backend.</p>
-      <button class="btn btn-primary hero-button" @click="openCreate">Create New Fee</button>
+  <div class="mobile-page fees-page">
+    <section class="hero-card hero-card--emerald">
+      <div class="hero-title-group">
+        <div class="hero-eyebrow">Finance</div>
+        <h1 class="hero-title">Manage estate fees and billing records.</h1>
+      </div>
+      <button class="hero-button" @click="openCreate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>Create New Fee</span>
+      </button>
     </section>
 
-    <section class="card section-card search-card">
-      <input
-        v-model="search"
-        class="form-input"
-        type="search"
-        placeholder="Search fee name or code"
-        @keyup.enter="loadFees"
-      />
-      <div class="filter-grid">
-        <select v-model="typeFilter" class="form-input" @change="loadFees">
-          <option value="">All types</option>
+    <!-- Filter & Search Toolbar (Single Line, exactly like Residents and Properties) -->
+    <div class="toolbar-card">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          v-model="search"
+          type="search"
+          placeholder="Search fee name or code..."
+          class="search-input"
+          @input="debouncedLoadFees"
+          @keyup.enter="loadFees"
+        />
+      </div>
+
+      <div class="filter-group">
+        <select v-model="typeFilter" class="toolbar-select" @change="loadFees">
+          <option value="">All Types</option>
           <option value="one-time">One-time</option>
           <option value="recurring">Recurring</option>
         </select>
-        <select v-model="estateFilter" class="form-input" @change="loadFees">
-          <option value="">All estates</option>
-          <option v-for="estate in estates" :key="estate.id" :value="String(estate.id)">{{ estate.name }}</option>
+        <select v-model="estateFilter" class="toolbar-select" @change="loadFees">
+          <option value="">All Estates</option>
+          <option v-for="estate in estates" :key="estate.id" :value="String(estate.id)">
+            🏡 {{ estate.name }}
+          </option>
         </select>
       </div>
-    </section>
+    </div>
 
     <section class="fees-section">
       <div class="section-head">
@@ -116,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { estatesApi, feesApi } from '@/api'
 import { useToast } from '@/composables/useToast'
 
@@ -198,6 +216,18 @@ async function loadEstates() {
   }
 }
 
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+function debouncedLoadFees() {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    loadFees()
+  }, 250)
+}
+
+onUnmounted(() => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+})
+
 async function loadFees() {
   loading.value = true
   try {
@@ -267,22 +297,124 @@ onMounted(async () => {
 
 <style scoped>
 .mobile-page { display: flex; flex-direction: column; gap: 16px; }
-.hero-card {
-  background: linear-gradient(160deg, #18422f 0%, #216143 70%, #8dd5b0 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 28px;
-  box-shadow: var(--shadow-md);
-}
-.hero-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.74); }
-.hero-title { margin-top: 10px; font-size: 26px; line-height: 1.05; font-family: var(--font-display); }
-.hero-copy { margin-top: 8px; color: rgba(255,255,255,0.82); font-size: 14px; }
-.hero-button { margin-top: 16px; background: white; color: var(--c-primary); justify-content: center; }
 
+/* ── Hero Header ───────────────────────────────────── */
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 20px;
+  color: white;
+  background: linear-gradient(145deg, #0d3824 0%, #165637 55%, #2a8a5b 100%);
+  box-shadow: 0 4px 18px rgba(10, 92, 56, 0.18);
+}
+
+.hero-title-group {
+  flex: 1;
+  min-width: 240px;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.74);
+  font-weight: 700;
+}
+
+.hero-title {
+  margin-top: 6px;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 800;
+  font-family: var(--font-display, inherit);
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.hero-button {
+  background: #ffffff;
+  color: #0A5C38;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  flex-shrink: 0;
+}
+
+.hero-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  background: #F0FDF4;
+}
+
+/* ── Filter & Search Toolbar (Single Line) ─────────── */
+.toolbar-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: #111827;
+  width: 100%;
+  background: transparent;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.toolbar-select {
+  padding: 7px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background: #F9FAFB;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #374151;
+  outline: none;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.toolbar-select:hover {
+  border-color: #D1D5DB;
+  background: #ffffff;
+}
+
+/* ── Fee List Section ──────────────────────────────── */
 .fees-section { margin-top: 4px; }
-.section-card { padding: 16px; }
-.search-card { display: flex; flex-direction: column; gap: 10px; }
-.filter-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
 .section-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
 .section-title { font-size: 18px; font-weight: 700; }
 .section-copy { margin-top: 4px; color: var(--c-muted); font-size: 13px; }
@@ -305,8 +437,32 @@ onMounted(async () => {
 .double-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
 .sheet-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
+@media (max-width: 768px) {
+  .hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+  .hero-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .toolbar-select {
+    width: 100%;
+  }
+}
+
 @media (max-width: 520px) {
-  .filter-grid { grid-template-columns: 1fr; }
+  .filter-group { grid-template-columns: 1fr; }
   .double-grid { grid-template-columns: 1fr; }
 }
 </style>
