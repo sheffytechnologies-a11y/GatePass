@@ -1181,6 +1181,10 @@ class AdminController extends Controller
     {
         return [
             'id'        => $r->id,
+            'unit_id'   => $r->unit_id,
+            'unitId'    => $r->unit_id,
+            'estate_id' => $r->estate_id,
+            'estateId'  => $r->estate_id,
             'user'      => $r->user ? $this->formatUser($r->user) : null,
             'unit'      => $r->unit  ? $this->formatUnit($r->unit) : null,
             'estate'    => $r->estate? ['id' => $r->estate->id,'name'   => $r->estate->name]  : null,

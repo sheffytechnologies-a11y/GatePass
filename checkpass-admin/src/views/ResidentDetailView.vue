@@ -568,7 +568,7 @@
               <label class="form-label">Assigned Property Unit</label>
               <select v-model="editForm.unit_id" class="form-select">
                 <option :value="null">Unassigned</option>
-                <option v-for="unit in availableUnits" :key="unit.id" :value="unit.id">
+                <option v-for="unit in availableUnits" :key="unit.id" :value="Number(unit.id)">
                   {{ unit.flatAddress || unit.flat_address || ('Unit #' + unit.id) }}
                 </option>
               </select>
@@ -865,19 +865,22 @@ async function loadResident(id: number) {
     dues.value = res.data.dues || []
 
     // Populate edit form
+    const currentUnitId = resident.value.unit_id ?? resident.value.unitId ?? resident.value.unit?.id ?? null
+    const currentEstateId = resident.value.estate_id ?? resident.value.estateId ?? resident.value.estate?.id ?? null
+
     editForm.value = {
       name: resident.value.user?.name || '',
       phone: resident.value.user?.phone || '',
       email: resident.value.user?.email || '',
       avatar: resident.value.user?.avatar || '',
       role: resident.value.role || 'tenant',
-      unit_id: resident.value.unit_id || null,
+      unit_id: currentUnitId ? Number(currentUnitId) : null,
       is_active: !!resident.value.isActive,
     }
 
     // Load available estate units
-    if (resident.value.estate_id) {
-      loadEstateUnits(resident.value.estate_id)
+    if (currentEstateId) {
+      await loadEstateUnits(Number(currentEstateId))
     }
   } catch (err: any) {
     console.error('Failed to load resident:', err)
@@ -923,13 +926,20 @@ async function toggleAccountStatus() {
 // Full Edit Modal Handlers
 function openEditModal() {
   if (!resident.value) return
+  const currentUnitId = resident.value.unit_id ?? resident.value.unitId ?? resident.value.unit?.id ?? null
+  const currentEstateId = resident.value.estate_id ?? resident.value.estateId ?? resident.value.estate?.id ?? null
+
+  if (currentEstateId && availableUnits.value.length === 0) {
+    loadEstateUnits(Number(currentEstateId))
+  }
+
   editForm.value = {
     name: resident.value.user?.name || '',
     phone: resident.value.user?.phone || '',
     email: resident.value.user?.email || '',
     avatar: resident.value.user?.avatar || '',
     role: resident.value.role || 'tenant',
-    unit_id: resident.value.unit_id || null,
+    unit_id: currentUnitId ? Number(currentUnitId) : null,
     is_active: !!resident.value.isActive,
   }
   editError.value = ''
@@ -1026,9 +1036,12 @@ async function submitAddOccupant() {
   addError.value = ''
 
   try {
+    const currentEstateId = resident.value.estate_id ?? resident.value.estateId ?? resident.value.estate?.id ?? null
+    const currentUnitId = resident.value.unit_id ?? resident.value.unitId ?? resident.value.unit?.id ?? null
+
     const payload: Record<string, unknown> = {
-      estate_id: resident.value.estate_id,
-      unit_id: resident.value.unit_id,
+      estate_id: currentEstateId ? Number(currentEstateId) : null,
+      unit_id: currentUnitId ? Number(currentUnitId) : null,
       name: addForm.value.name.trim(),
       phone: addForm.value.phone.trim(),
       email: addForm.value.email.trim() || null,
