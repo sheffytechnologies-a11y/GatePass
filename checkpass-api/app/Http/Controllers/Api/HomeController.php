@@ -84,7 +84,7 @@ class HomeController extends Controller
                 'phone'           => $user->phone,
                 'email'           => $user->email,
                 'estateName'      => $estateName,
-                'assignedStation' => 'Main Entrance Gate - Terminal 1',
+                'assignedStation' => 'Main Gate',
                 'dutyStatus'      => $user->is_active ? 'On Duty' : 'Off Duty',
             ],
             'resident' => null,

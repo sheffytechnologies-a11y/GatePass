@@ -213,7 +213,7 @@ class AdminController extends Controller
         ] : null;
 
         $userData['assignedStation'] = $user->type === 'security'
-            ? 'Main Entrance Gate - Terminal 1'
+            ? 'Main Gate'
             : ($user->resident ? ($user->resident->unit?->flat_address ?? 'Residential Zone') : 'Estate Operations');
 
         $userData['shift'] = $user->type === 'security' ? 'Day / Active Patrol Shift' : 'Standard Access';
@@ -248,7 +248,7 @@ class AdminController extends Controller
                 'arrivedFormatted' => $p->arrived_at ? $p->arrived_at->format('d M Y, h:i A') : ($p->created_at ? $p->created_at->format('d M Y, h:i A') : '-'),
                 'exitedAt'         => $p->exited_at?->toIso8601String(),
                 'exitedFormatted'  => $p->exited_at ? $p->exited_at->format('d M Y, h:i A') : null,
-                'gatePoint'        => 'Main Entrance Gate - Terminal 1',
+                'gatePoint'        => 'Main Gate',
                 'badgeCode'        => 'CP-' . strtoupper(substr($p->ulid, -4)),
             ];
         });

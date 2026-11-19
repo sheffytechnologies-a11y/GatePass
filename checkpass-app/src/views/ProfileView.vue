@@ -446,7 +446,7 @@ const effectiveResident = computed<Resident>(() => {
   if (auth.isSecurityUser) {
     const secUser = homeSummary?.user || cachedUser || {}
     const name = (secUser.name || 'Gate Security Officer').trim()
-    const flatAddress = (secUser.assignedStation || 'Main Entrance Gate · Terminal 1').trim()
+    const flatAddress = (secUser.assignedStation && !secUser.assignedStation.includes('Main Entrance Gate') ? secUser.assignedStation : 'Main Gate').trim()
     const estateName = (secUser.estateName || 'Sheffy Estate').trim()
     const phone = (secUser.phone || '').trim()
 

@@ -21,7 +21,7 @@
             <div class="sec-hero-top">
               <div class="sec-hero-left">
                 <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
-                <div class="sec-station-title">{{ summary?.user?.assignedStation || 'Main Entrance Gate - Terminal 1' }}</div>
+                <div class="sec-station-title">{{ securityStation }}</div>
               </div>
               <div class="sec-duty-pill">
                 <span class="sec-duty-pulse"></span>
@@ -971,6 +971,13 @@ const phraseSheetOpen = ref(false)
 
 // ── Security Role State & Computeds ──
 const activeSecurityTab   = ref<'access' | 'announcements' | 'emergencies'>('access')
+const securityStation = computed(() => {
+  const station = (summary.value as any)?.user?.assignedStation || (auth.resident as any)?.assignedStation
+  if (!station || station.includes('Main Entrance Gate') || station.includes('Terminal 1')) {
+    return 'Main Gate'
+  }
+  return station
+})
 const securityPasses = computed(() => {
   return (summary.value?.recentPasses || []) as any[]
 })
