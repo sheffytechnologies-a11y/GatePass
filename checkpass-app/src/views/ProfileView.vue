@@ -26,44 +26,6 @@
           </div>
         </div>
 
-        <!-- Multi-Role Switcher (Visible only when user holds > 1 role) -->
-        <div v-if="auth.userRoles.length > 1" class="role-switcher-card">
-          <div class="role-switcher-header">
-            <span class="role-switcher-tag">ACTIVE ACCOUNT ROLE</span>
-            <span class="role-switcher-hint">Tap to switch view</span>
-          </div>
-          <div class="role-switcher-grid">
-            <button
-              v-for="r in auth.userRoles"
-              :key="r.role"
-              type="button"
-              class="role-switch-btn"
-              :class="{ 'is-active': auth.activeRole === r.role }"
-              @click="handleRoleSwitch(r.role)"
-            >
-              <div class="role-switch-icon-box" :class="'icon-' + r.role">
-                <span v-if="r.role === 'resident'">🏠</span>
-                <span v-else-if="r.role === 'homeowner'">🏢</span>
-                <span v-else-if="r.role === 'security'">🛡️</span>
-                <span v-else>👤</span>
-              </div>
-              <div class="role-switch-details">
-                <div class="role-switch-title">{{ r.label }}</div>
-                <div class="role-switch-sub">{{ r.description }}</div>
-              </div>
-              <div v-if="auth.activeRole === r.role" class="role-active-indicator">
-                <span class="role-active-dot"></span>
-                <span>Active</span>
-              </div>
-              <div v-else class="role-switch-chevron">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </div>
-            </button>
-          </div>
-        </div>
-
         <!-- Push disabled banner -->
         <div v-if="pushDenied" class="push-banner">
           <ion-icon :icon="notificationsOffOutline" />
@@ -539,14 +501,6 @@ const residentDisplayUnit = computed(() => {
   return effectiveResident.value.flatAddress
 })
 const residentDisplayEstate = computed(() => effectiveResident.value.estateName)
-
-function handleRoleSwitch(role: 'resident' | 'security' | 'homeowner') {
-  if (auth.activeRole === role) return
-  auth.setActiveRole(role)
-  const roleTitle = role === 'homeowner' ? 'Property Owner' : role === 'security' ? 'Gate Security' : 'Resident'
-  showToast(`Switched to ${roleTitle} view`, 'success')
-  router.push('/tabs/home')
-}
 
 const initials = computed(() => {
   const name = residentDisplayName.value.trim()

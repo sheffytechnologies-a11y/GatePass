@@ -14,6 +14,34 @@
 
       <div class="content-pad" v-if="!summaryLoading && !summaryError">
 
+        <!-- Multi-Role Persona Switcher Tabs (Activated when user holds > 1 role; Homeowner first, Occupant second) -->
+        <div v-if="hasMultipleRoles" class="role-selector-wrap">
+          <div class="role-selector-tabs" role="tablist">
+            <button
+              v-for="r in orderedRoles"
+              :key="r.role"
+              type="button"
+              class="role-tab-btn"
+              :class="{ 'is-active': auth.activeRole === r.role }"
+              @click="handleRoleSwitch(r.role)"
+              role="tab"
+              :aria-selected="auth.activeRole === r.role"
+            >
+              <svg v-if="r.role === 'homeowner'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
+                <path d="M3 21h18M3 7v14M21 7v14M9 3h6v18M13 7h-2M13 11h-2M13 15h-2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg v-else-if="r.role === 'resident'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="role-tab-label">{{ r.label }}</span>
+            </button>
+          </div>
+        </div>
+
         <!-- ── SECURITY VIEW ─────────────────────────────── -->
         <template v-if="auth.isSecurityUser">
           <!-- Top Hero Card: Styled like EstateHero, displaying matrix of passes -->
@@ -2125,6 +2153,45 @@ const firstName = computed(() => {
   const trimmed = name.trim()
   return trimmed ? trimmed.split(' ')[0] : 'Resident'
 })
+
+// Multi-Role Persona State & Handler
+const hasMultipleRoles = computed(() => {
+  if (auth.userRoles && auth.userRoles.length > 1) return true
+  if ((auth.resident as any)?.role === 'owner') return true
+  return false
+})
+
+const orderedRoles = computed(() => {
+  let roles = auth.userRoles || []
+  if (roles.length <= 1 && (auth.resident as any)?.role === 'owner') {
+    roles = [
+      { role: 'homeowner', label: 'Homeowner', description: 'Estate Deed Holder' },
+      { role: 'resident', label: 'Occupant', description: auth.resident?.flatAddress || 'Resident View' }
+    ]
+  }
+  return roles.map(r => {
+    let displayLabel = r.label
+    if (r.role === 'homeowner') displayLabel = 'Homeowner'
+    if (r.role === 'resident') displayLabel = 'Occupant'
+    return {
+      ...r,
+      label: displayLabel,
+    }
+  }).sort((a, b) => {
+    const order: Record<string, number> = { homeowner: 1, resident: 2, security: 3 }
+    const orderA = order[a.role] ?? 99
+    const orderB = order[b.role] ?? 99
+    return orderA - orderB
+  })
+})
+
+function handleRoleSwitch(role: 'resident' | 'security' | 'homeowner') {
+  if (auth.activeRole === role) return
+  auth.setActiveRole(role)
+  const roleName = role === 'homeowner' ? 'Homeowner' : role === 'resident' ? 'Occupant' : 'Gate Security'
+  showToast(`Switched to ${roleName} view`, 'success')
+  loadSummary()
+}
 const greeting  = computed(() => {
   const h = new Date().getHours()
   if (h < 12) return 'Good morning'
@@ -2299,6 +2366,66 @@ onMounted(() => {
 .home-content { --background: var(--w-bg); }
 .home-title { font-size: 16px !important; font-weight: 600; }
 .content-pad { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ─── ROLE SELECTOR TABS (HOMEOWNER / OCCUPANT) ─── */
+.role-selector-wrap {
+  width: 100%;
+  margin-bottom: -6px;
+}
+
+.role-selector-tabs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 6px;
+  background: #EBE8E2;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid #DFDBD3;
+}
+
+.role-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 14px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-tab-btn:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.5);
+  color: #1E293B;
+}
+
+.role-tab-btn.is-active {
+  background: #FFFFFF;
+  color: var(--w-primary, #0A5C38);
+  border-color: rgba(10, 92, 56, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.tab-role-icon {
+  flex-shrink: 0;
+  color: #94A3B8;
+  transition: color 0.18s ease;
+}
+
+.role-tab-btn.is-active .tab-role-icon {
+  color: var(--w-primary, #0A5C38);
+}
+
+.role-tab-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-family: var(--w-font-display, inherit);
+}
 .section { display: flex; flex-direction: column; gap: 10px; }
 .section-header { display: flex; justify-content: space-between; align-items: center; }
 .section-title  { font-size: 17px; font-weight: 700; color: var(--w-text); }
