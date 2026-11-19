@@ -405,10 +405,20 @@ async function handleLogout() {
   .sidebar-scrim { display: block; position: fixed; inset: 0; background: rgba(10,18,14,0.45); z-index: 30; }
   .topbar { display: flex; }
   .content { padding: 20px 16px 40px; }
+  .side-link { padding: 12px 14px; min-height: 48px; }
 }
 
 @media (max-width: 640px) {
   .toast-container { bottom: 16px; right: 16px; left: 16px; }
+  .topbar { padding: 10px 14px; gap: 8px; }
+  .topbar-title { font-size: 15px; }
+  .content { padding: 14px 12px 40px; }
+  .menu-btn { padding: 6px; }
+}
+
+@media (max-width: 480px) {
+  .topbar-role-chip { display: none; }
+  .topbar-actions { gap: 6px; }
 }
 
 .nav-label-wrap {

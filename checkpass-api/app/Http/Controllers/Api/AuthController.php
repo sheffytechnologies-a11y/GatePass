@@ -50,37 +50,64 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Security users don't need a resident profile
+        // Dynamic Multi-Role Discovery
+        $roles = [];
         if ($user->type === 'security') {
-            $tokens = $this->issueTokenPair($user);
-
-            return response()->json([
-                'token'        => $tokens['token'],
-                'refreshToken' => $tokens['refreshToken'],
-                'userType'     => 'security',
-                'data'         => $user,
-                'resident'     => null,
-            ]);
+            $roles[] = [
+                'role' => 'security',
+                'label' => 'Gate Security',
+                'description' => $user->assigned_station ?? 'Main Gate Security Officer',
+            ];
         }
 
-        $resident = $user->resident()->with(['unit', 'estate'])->first();
-
-        if (! $resident) {
-            return response()->json([
-                'error' => true,
-                'code' => 'NO_RESIDENT_PROFILE',
-                'message' => 'No resident profile found for this account.',
-            ], 403);
+        $ownerResidents = $user->residents()->where('role', 'owner')->with(['unit', 'estate'])->get();
+        if ($ownerResidents->isNotEmpty()) {
+            $propCount = $ownerResidents->count();
+            $roles[] = [
+                'role' => 'homeowner',
+                'label' => 'Property Owner',
+                'description' => $propCount . ' ' . ($propCount === 1 ? 'Property Deed' : 'Property Deeds') . ' in Estate',
+                'propertiesCount' => $propCount,
+            ];
         }
 
+        $occupantResidents = $user->residents()->where('role', '!=', 'owner')->with(['unit', 'estate'])->get();
+        if ($occupantResidents->isNotEmpty() || ($user->type === 'resident' && $ownerResidents->isEmpty())) {
+            $firstUnit = $occupantResidents->first()?->unit?->flat_address ?? $ownerResidents->first()?->unit?->flat_address ?? 'Estate Resident';
+            $roles[] = [
+                'role' => 'resident',
+                'label' => 'Resident Occupant',
+                'description' => $firstUnit,
+            ];
+        } elseif ($ownerResidents->isNotEmpty()) {
+            $roles[] = [
+                'role' => 'resident',
+                'label' => 'Resident Occupant',
+                'description' => $ownerResidents->first()?->unit?->flat_address ?? 'Resident View',
+            ];
+        }
+
+        // If no roles matched but user is active, provide default resident role
+        if (empty($roles)) {
+            $roles[] = [
+                'role' => 'resident',
+                'label' => 'Resident Member',
+                'description' => 'Estate Community Member',
+            ];
+        }
+
+        $primaryResident = $user->resident()->with(['unit', 'estate'])->first();
         $tokens = $this->issueTokenPair($user);
+        $defaultType = $roles[0]['role'] ?? ($user->type ?? 'resident');
 
         return response()->json([
             'token'        => $tokens['token'],
             'refreshToken' => $tokens['refreshToken'],
-            'userType'     => 'resident',
+            'userType'     => $defaultType,
+            'activeRole'   => $defaultType,
+            'roles'        => $roles,
             'data'         => $user,
-            'resident'     => $this->formatResident($resident, $user),
+            'resident'     => $primaryResident ? $this->formatResident($primaryResident, $user) : null,
         ]);
     }
 

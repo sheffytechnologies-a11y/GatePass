@@ -17,41 +17,8 @@
           
           <!-- Heading -->
           <div class="heading-block">
-            <h1>{{ activeRole === 'security' ? 'Gate Security Login' : 'Log In' }}</h1>
-            <p>{{ activeRole === 'security' ? 'Verify passes, monitor access clearances, and scan incoming visitors.' : 'Securely access visitor passes, gate alerts, and estate clearance.' }}</p>
-          </div>
-
-          <!-- Role Navigation Bar (Resident vs Security - inspired by web) -->
-          <div class="role-selector-wrap">
-            <div class="role-selector-tabs" role="tablist">
-              <button
-                type="button"
-                class="role-tab-btn"
-                :class="{ 'is-active': activeRole === 'resident' }"
-                @click="setRole('resident')"
-                role="tab"
-                :aria-selected="activeRole === 'resident'"
-              >
-                <svg width="17" height="17" viewBox="0 0 256 256" fill="currentColor" class="tab-role-icon">
-                  <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/>
-                </svg>
-                <span class="role-tab-label">Resident</span>
-              </button>
-
-              <button
-                type="button"
-                class="role-tab-btn"
-                :class="{ 'is-active': activeRole === 'security' }"
-                @click="setRole('security')"
-                role="tab"
-                :aria-selected="activeRole === 'security'"
-              >
-                <svg width="17" height="17" viewBox="0 0 256 256" fill="currentColor" class="tab-role-icon">
-                  <path d="M208,40H48A16,16,0,0,0,32,56v56c0,82.4,62.74,123.63,92.51,134.78a8.26,8.26,0,0,0,6.98,0C161.26,235.63,224,194.4,224,112V56A16,16,0,0,0,208,40Zm0,72c0,71.22-54.3,107.41-80,118.25C102.3,219.41,48,183.22,48,112V56H208Zm-34.34-29.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,132.69l50.34-50.35A8,8,0,0,1,173.66,82.34Z"/>
-                </svg>
-                <span class="role-tab-label">Security</span>
-              </button>
-            </div>
+            <h1>Log In</h1>
+            <p>Securely access visitor passes, gate alerts, and estate clearance.</p>
           </div>
 
           <!-- Banners for session expired or suspended -->
@@ -72,7 +39,7 @@
                 <input
                   v-model="loginIdentifier"
                   :type="isEmail ? 'email' : 'text'"
-                  :placeholder="activeRole === 'security' ? 'e.g. 0814 394 8473 or security@estate.com' : 'e.g. 0803 000 0000 or name@email.com'"
+                  placeholder="e.g. 0803 000 0000 or name@email.com"
                   autocomplete="username"
                   required
                 />
@@ -130,7 +97,8 @@
               class="login-submit-btn"
               :disabled="!canSubmit || loading"
             >
-              <span>{{ activeRole === 'security' ? 'Log In as Gate Security' : 'Log In' }}</span>
+              <span v-if="loading">Logging In...</span>
+              <span v-else>Log In</span>
             </button>
 
             <!-- Section 1: Resident Guidance (No self-registration) -->
@@ -280,6 +248,49 @@
           </div>
         </div>
       </ion-modal>
+
+      <!-- Multi-Role Active Workspace Selection Bottom Sheet Modal -->
+      <ion-modal
+        :is-open="multiRoleModalOpen"
+        :backdrop-dismiss="false"
+        class="workspace-modal"
+      >
+        <div class="workspace-sheet">
+          <div class="workspace-handle-bar">
+            <div class="workspace-handle" />
+          </div>
+          <div class="workspace-head">
+            <span class="workspace-badge">ESTATE ACCESS GATEWAY</span>
+            <h2 class="workspace-title">Select Active Workspace</h2>
+            <p class="workspace-desc">You hold multiple verified roles in this estate. Select which view to launch (you can switch anytime from your Profile).</p>
+          </div>
+          <div class="workspace-list">
+            <button
+              v-for="r in pendingRoles"
+              :key="r.role"
+              type="button"
+              class="workspace-item-btn"
+              @click="selectWorkspaceRole(r.role)"
+            >
+              <div class="workspace-icon-wrap" :class="'icon-' + r.role">
+                <span v-if="r.role === 'resident'">🏠</span>
+                <span v-else-if="r.role === 'homeowner'">🏢</span>
+                <span v-else-if="r.role === 'security'">🛡️</span>
+                <span v-else>👤</span>
+              </div>
+              <div class="workspace-info">
+                <div class="workspace-role-title">{{ r.label }}</div>
+                <div class="workspace-role-sub">{{ r.description }}</div>
+              </div>
+              <span class="workspace-action-arrow">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </ion-modal>
   </ion-page>
 </template>
 
@@ -288,7 +299,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { IonPage, IonContent, IonModal, alertController } from '@ionic/vue'
 import BrandLoadingOverlay from '@/components/BrandLoadingOverlay.vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore, type UserRoleItem } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import { authApi } from '@/api/auth'
 
@@ -297,7 +308,6 @@ const route  = useRoute()
 const auth   = useAuthStore()
 const { showToast } = useToast()
 
-const activeRole      = ref<'resident' | 'security'>((route.query.role as any) === 'security' ? 'security' : 'resident')
 const loginIdentifier = ref('')
 const password        = ref('')
 const loading         = ref(false)
@@ -307,10 +317,10 @@ const fieldError      = ref({ login: '', password: '' })
 const legalModalOpen  = ref(false)
 const legalTab        = ref<'terms' | 'privacy'>('terms')
 
-function setRole(role: 'resident' | 'security') {
-  activeRole.value = role
-  authError.value = ''
-}
+// Multi-role workspace picker state
+const multiRoleModalOpen = ref(false)
+const pendingRoles       = ref<UserRoleItem[]>([])
+const pendingAuthPayload = ref<{ token: string; refreshToken: string; resident: any; user: any; userRoles: UserRoleItem[] } | null>(null)
 
 function openLegalModal(tab: 'terms' | 'privacy') {
   legalTab.value = tab
@@ -333,6 +343,31 @@ const canSubmit = computed(() => {
   return val.replace(/\D/g, '').length >= 9 && password.value.length >= 1
 })
 
+function selectWorkspaceRole(role: 'resident' | 'security' | 'homeowner') {
+  multiRoleModalOpen.value = false
+  if (!pendingAuthPayload.value) return
+
+  const { token, refreshToken, resident, user, userRoles } = pendingAuthPayload.value
+  auth.setSession({
+    token,
+    refreshToken,
+    resident,
+    userType: role,
+    user,
+    roles: userRoles,
+    activeRole: role,
+  })
+
+  if (role === 'security') {
+    showToast('Logged in to Gate Security Portal', 'success')
+  } else if (role === 'homeowner') {
+    showToast('Logged in to Property Owner Portal', 'success')
+  } else {
+    showToast('Welcome back to Checkpass!', 'success')
+  }
+  router.replace('/tabs/home')
+}
+
 async function handleLogin() {
   authError.value = ''
   loading.value = true
@@ -350,23 +385,62 @@ async function handleLogin() {
     if (!res.data || typeof res.data !== 'object' || !res.data.token) {
       throw new Error('Invalid authentication response from server')
     }
-    const { token, refreshToken, resident, userType, data: user } = res.data
-    const effectiveType = userType || (user as any)?.type || activeRole.value
-    auth.setSession({ token, refreshToken, resident, userType: effectiveType, user })
+    const { token, refreshToken, resident, userType, data: user, roles } = res.data
 
-    // Check if user logged in with default/initial password or requires password change
+    // Discover and harmonize available roles
+    let userRoles: UserRoleItem[] = roles || []
+    if (!userRoles || userRoles.length === 0) {
+      if (userType === 'security' || (user as any)?.type === 'security') {
+        userRoles = [{ role: 'security', label: 'Gate Security', description: 'Main Gate Duty Officer' }]
+      } else if (resident?.role === 'owner') {
+        userRoles = [
+          { role: 'homeowner', label: 'Property Owner', description: 'Estate Deed Holder' },
+          { role: 'resident', label: 'Resident Occupant', description: resident?.flatAddress || 'Resident View' },
+        ]
+      } else {
+        userRoles = [
+          { role: 'resident', label: 'Resident Occupant', description: resident?.flatAddress || 'Household Member' },
+        ]
+      }
+    }
+
+    // Check if temporary or initial password change required
     const isDefaultPassword = password.value === '123456'
     const mustChange = isDefaultPassword || !!(user as any)?.must_change_password
 
     if (mustChange) {
+      const initialRole = userRoles[0]?.role || (userType as any) || 'resident'
+      auth.setSession({ token, refreshToken, resident, userType: initialRole, user, roles: userRoles, activeRole: initialRole })
       sessionStorage.setItem('w_temp_pwd', password.value)
       showToast('Temporary password detected. Please set your new password.', 'warning')
       router.replace('/set-new-password')
+      return
+    }
+
+    // If account has multiple roles, pop up workspace selector sheet
+    if (userRoles.length > 1) {
+      pendingAuthPayload.value = { token, refreshToken, resident, user, userRoles }
+      pendingRoles.value = userRoles
+      multiRoleModalOpen.value = true
     } else {
-      if (effectiveType === 'security') {
+      // Single role account - launch directly
+      const singleRole = userRoles[0]?.role || (userType as any) || 'resident'
+      auth.setSession({
+        token,
+        refreshToken,
+        resident,
+        userType: singleRole,
+        user,
+        roles: userRoles,
+        activeRole: singleRole,
+      })
+
+      if (singleRole === 'security') {
         showToast('Logged in to Gate Security Portal', 'success')
+      } else if (singleRole === 'homeowner') {
+        showToast('Logged in to Property Owner Portal', 'success')
       } else {
-        showToast('Welcome back!', 'success')
+        showToast('Welcome back to Checkpass!', 'success')
       }
       router.replace('/tabs/home')
     }
@@ -1005,11 +1079,145 @@ async function showResidentAccessInfo() {
   cursor: pointer;
 }
 
+/* ── Workspace Selection Sheet Modal ── */
+.workspace-sheet {
+  background: #FFFFFF;
+  padding: 16px 20px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-handle-bar {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 14px;
+}
+
+.workspace-handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: #E2E8F0;
+}
+
+.workspace-head {
+  margin-bottom: 18px;
+}
+
+.workspace-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.workspace-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.workspace-desc {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workspace-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.workspace-item-btn:hover {
+  border-color: #0A5C38;
+  background: #F0FDF4;
+}
+
+.workspace-item-btn:active {
+  transform: scale(0.98);
+}
+
+.workspace-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  background: #F1F5F9;
+}
+
+.workspace-icon-wrap.icon-resident {
+  background: #E8F5EE;
+}
+
+.workspace-icon-wrap.icon-homeowner {
+  background: #EFF6FF;
+}
+
+.workspace-icon-wrap.icon-security {
+  background: #FEF3C7;
+}
+
+.workspace-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-role-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+
+.workspace-role-sub {
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+.workspace-action-arrow {
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+}
+
 </style>
 
 <style>
 ion-modal.legal-sheet-modal {
   --height: 85%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.65;
+  align-items: flex-end;
+}
+
+ion-modal.workspace-modal {
+  --height: auto;
   --border-radius: 24px 24px 0 0;
   --backdrop-opacity: 0.65;
   align-items: flex-end;

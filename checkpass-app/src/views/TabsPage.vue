@@ -6,7 +6,7 @@
         v-if="showTabBar"
         slot="bottom"
         class="custom-tab-bar"
-        :class="{ 'security-bar': auth.isSecurityUser }"
+        :class="{ 'security-bar': auth.isSecurityUser, 'homeowner-bar': auth.isHomeownerUser }"
         :selected-tab="activeTab"
       >
 
@@ -35,6 +35,45 @@
               <svg width="24" height="24" viewBox="0 0 119 119" fill="none" xmlns="http://www.w3.org/2000/svg" class="checkpass-fab-logo">
                 <path d="M21.6807 96.6416H55.5674V118.174H42.3701C30.6745 118.174 21.1566 108.849 20.8457 97.2285C9.34033 96.8386 0.108192 87.4159 0.0576172 75.8047L0 62.6084L21.5322 62.5146L21.6807 96.6416ZM118.079 62.6084L118.021 75.8047C117.971 87.4163 108.738 96.8391 97.2324 97.2285C96.9215 108.849 87.4046 118.174 75.709 118.174H62.5127V96.6416H96.3984L96.5469 62.5146L118.079 62.6084ZM55.5674 21.5322H21.6807L21.5322 55.6592L0 55.5654L0.0576172 42.3691C0.108192 30.7579 9.34032 21.3343 20.8457 20.9443C21.1571 9.32425 30.6748 0 42.3701 0H55.5674V21.5322ZM75.71 0C87.405 0.000315153 96.923 9.32446 97.2344 20.9443C108.739 21.3347 117.971 30.7582 118.021 42.3691L118.079 55.5654L96.5479 55.6592L96.3994 21.5322H62.5127V0H75.71Z" fill="#FFFFFF"/>
               </svg>
+            </div>
+          </ion-tab-button>
+
+          <!-- 3. Profile -->
+          <ion-tab-button
+            tab="profile"
+            href="/tabs/profile"
+            :class="{ 'is-active': activeTab === 'profile' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'profile' }">
+              <PhUser :size="20" :weight="activeTab === 'profile' ? 'fill' : 'regular'" />
+              <span class="tab-label">Profile</span>
+            </div>
+          </ion-tab-button>
+        </template>
+
+        <!-- HOMEOWNER TABS: Home, Dues, Profile (No center pass create FAB) -->
+        <template v-else-if="auth.isHomeownerUser">
+          <!-- 1. Home -->
+          <ion-tab-button
+            tab="home"
+            href="/tabs/home"
+            :class="{ 'is-active': activeTab === 'home' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'home' }">
+              <PhHouse :size="20" :weight="activeTab === 'home' ? 'fill' : 'regular'" />
+              <span class="tab-label">Home</span>
+            </div>
+          </ion-tab-button>
+
+          <!-- 2. Fees / Dues -->
+          <ion-tab-button
+            tab="fees"
+            href="/tabs/fees"
+            :class="{ 'is-active': activeTab === 'fees' }"
+          >
+            <div class="tab-pill" :class="{ 'pill-active': activeTab === 'fees' }">
+              <PhCreditCard :size="20" :weight="activeTab === 'fees' ? 'fill' : 'regular'" />
+              <span class="tab-label">Dues</span>
             </div>
           </ion-tab-button>
 
@@ -235,8 +274,9 @@ const activeTab = computed(() => {
   z-index: 999;
 }
 
-/* 3-tab security bar: slightly narrower, ultra-balanced */
-.custom-tab-bar.security-bar {
+/* 3-tab bars: slightly narrower, ultra-balanced */
+.custom-tab-bar.security-bar,
+.custom-tab-bar.homeowner-bar {
   max-width: 310px !important;
   padding: 0 10px;
 }

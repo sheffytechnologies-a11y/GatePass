@@ -26,6 +26,44 @@
           </div>
         </div>
 
+        <!-- Multi-Role Switcher (Visible only when user holds > 1 role) -->
+        <div v-if="auth.userRoles.length > 1" class="role-switcher-card">
+          <div class="role-switcher-header">
+            <span class="role-switcher-tag">ACTIVE ACCOUNT ROLE</span>
+            <span class="role-switcher-hint">Tap to switch view</span>
+          </div>
+          <div class="role-switcher-grid">
+            <button
+              v-for="r in auth.userRoles"
+              :key="r.role"
+              type="button"
+              class="role-switch-btn"
+              :class="{ 'is-active': auth.activeRole === r.role }"
+              @click="handleRoleSwitch(r.role)"
+            >
+              <div class="role-switch-icon-box" :class="'icon-' + r.role">
+                <span v-if="r.role === 'resident'">🏠</span>
+                <span v-else-if="r.role === 'homeowner'">🏢</span>
+                <span v-else-if="r.role === 'security'">🛡️</span>
+                <span v-else>👤</span>
+              </div>
+              <div class="role-switch-details">
+                <div class="role-switch-title">{{ r.label }}</div>
+                <div class="role-switch-sub">{{ r.description }}</div>
+              </div>
+              <div v-if="auth.activeRole === r.role" class="role-active-indicator">
+                <span class="role-active-dot"></span>
+                <span>Active</span>
+              </div>
+              <div v-else class="role-switch-chevron">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Push disabled banner -->
         <div v-if="pushDenied" class="push-banner">
           <ion-icon :icon="notificationsOffOutline" />
@@ -490,8 +528,25 @@ const effectiveResident = computed<Resident>(() => {
 })
 
 const residentDisplayName = computed(() => effectiveResident.value.name)
-const residentDisplayUnit = computed(() => effectiveResident.value.flatAddress)
+const residentDisplayUnit = computed(() => {
+  if (auth.isHomeownerUser) {
+    const ownerRole = auth.userRoles.find(r => r.role === 'homeowner')
+    return ownerRole?.description || 'Property Owner • Investor'
+  }
+  if (auth.isSecurityUser) {
+    return 'Main Gate Duty Officer'
+  }
+  return effectiveResident.value.flatAddress
+})
 const residentDisplayEstate = computed(() => effectiveResident.value.estateName)
+
+function handleRoleSwitch(role: 'resident' | 'security' | 'homeowner') {
+  if (auth.activeRole === role) return
+  auth.setActiveRole(role)
+  const roleTitle = role === 'homeowner' ? 'Property Owner' : role === 'security' ? 'Gate Security' : 'Resident'
+  showToast(`Switched to ${roleTitle} view`, 'success')
+  router.push('/tabs/home')
+}
 
 const initials = computed(() => {
   const name = residentDisplayName.value.trim()
@@ -1026,6 +1081,128 @@ async function handleLogout() {
   padding: 20px 20px;
   color: white;
   box-shadow: 0 4px 16px rgba(10, 92, 56, 0.18);
+}
+
+/* ── Role Switcher Card ── */
+.role-switcher-card {
+  margin-top: 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--w-radius-lg, 16px);
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.role-switcher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.role-switcher-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+}
+
+.role-switcher-hint {
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.role-switcher-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid #F1F5F9;
+  background: #F8FAFC;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  width: 100%;
+}
+
+.role-switch-btn:hover {
+  border-color: #0A5C38;
+  background: #F0FDF4;
+}
+
+.role-switch-btn.is-active {
+  border-color: #0A5C38;
+  background: #E8F5EE;
+}
+
+.role-switch-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  flex-shrink: 0;
+}
+
+.role-switch-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.role-switch-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 1px;
+}
+
+.role-switch-sub {
+  font-size: 11.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role-active-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0A5C38;
+  background: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #A3D9BD;
+}
+
+.role-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0A5C38;
+}
+
+.role-switch-chevron {
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
 }
 .profile-card-main {
   display: flex;

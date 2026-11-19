@@ -281,6 +281,274 @@
           </div>
         </template>
 
+        <!-- ── HOMEOWNER VIEW ────────────────────────────── -->
+        <template v-else-if="auth.isHomeownerUser">
+          <!-- Top Hero Card: Styled like EstateHero with Portfolio Matrix -->
+          <div class="security-hero-card homeowner-hero-card">
+            <div class="sec-hero-top">
+              <div class="sec-hero-left">
+                <div class="sec-estate-eyebrow">{{ (summary as any)?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-station-title">Property Portfolio</div>
+              </div>
+              <div class="sec-duty-pill homeowner-pill">
+                <span class="sec-duty-pulse"></span>
+                <span>Deed Holder</span>
+              </div>
+            </div>
+
+            <!-- Matrix: Total Properties | Occupied Units | Levies Due -->
+            <div class="sec-matrix-strip">
+              <div class="sec-matrix-box">
+                <div class="sec-matrix-val">{{ homeownerProperties.length }}</div>
+                <div class="sec-matrix-lbl">Properties Owned</div>
+              </div>
+              <div class="sec-matrix-box">
+                <div class="sec-matrix-val">{{ homeownerOccupiedCount }}</div>
+                <div class="sec-matrix-lbl">Occupied Units</div>
+              </div>
+              <div class="sec-matrix-box" @click="router.push('/tabs/fees')">
+                <div class="sec-matrix-val text-white">₦0</div>
+                <div class="sec-matrix-lbl">Levies In Arrears</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Segmented Tabs for Homeowner (Properties | Announcements | Emergencies) -->
+          <div class="sec-tabs-sticky-shell">
+            <div class="sec-tabs-row" role="tablist">
+              <button
+                class="passes-tab"
+                :class="{ active: activeHomeownerTab === 'properties' }"
+                @click="activeHomeownerTab = 'properties'"
+              >
+                <span>Properties</span>
+                <span class="tab-unread-pill">{{ homeownerProperties.length }}</span>
+              </button>
+              <button
+                class="passes-tab"
+                :class="{ active: activeHomeownerTab === 'announcements' }"
+                @click="activeHomeownerTab = 'announcements'"
+              >
+                <span>Announcements</span>
+                <span v-if="displayedNews.length > 0" class="tab-unread-pill">{{ displayedNews.length }}</span>
+              </button>
+              <button
+                class="passes-tab"
+                :class="{ active: activeHomeownerTab === 'emergencies' }"
+                @click="activeHomeownerTab = 'emergencies'"
+              >
+                <span>Emergencies</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── TAB 1: PROPERTIES ── -->
+          <div v-if="activeHomeownerTab === 'properties'" class="homeowner-tab-content">
+            <div class="prop-portfolio-stream">
+              <div
+                v-for="prop in homeownerProperties"
+                :key="prop.id"
+                class="prop-portfolio-card"
+                @click="openPropertyDetails(prop)"
+              >
+                <div class="prop-card-head">
+                  <div class="prop-badge-wrap">
+                    <span class="prop-type-badge">{{ prop.type }}</span>
+                    <span class="prop-status-pill" :class="prop.isOccupied ? 'is-occupied' : 'is-vacant'">
+                      {{ prop.isOccupied ? '● Occupied' : '○ Vacant' }}
+                    </span>
+                  </div>
+                  <h3 class="prop-card-title">{{ prop.unitNumber }} - {{ prop.streetName }}</h3>
+                </div>
+
+                <div v-if="prop.isOccupied && prop.primaryTenant" class="prop-occupant-box">
+                  <div class="prop-tenant-row">
+                    <div class="prop-tenant-avatar">{{ prop.primaryTenant.name.charAt(0) }}</div>
+                    <div class="prop-tenant-meta">
+                      <div class="prop-tenant-name">{{ prop.primaryTenant.name }}</div>
+                      <div class="prop-tenant-sub">Primary Tenant • Verified Resident</div>
+                    </div>
+                  </div>
+                  <div class="prop-meta-tags">
+                    <span class="prop-tag">👥 {{ prop.registeredHouseholdCount }} Household Members</span>
+                    <span class="prop-tag">🚗 {{ prop.registeredVehiclesCount }} Vehicles</span>
+                  </div>
+                </div>
+                <div v-else class="prop-vacant-box">
+                  <p>Unit is currently vacant. No active tenant on record.</p>
+                </div>
+
+                <div class="prop-card-foot">
+                  <span class="prop-dues-tag" :class="{ 'dues-clear': prop.duesClear }">
+                    {{ prop.duesClear ? '✓ All Capital Levies Paid' : '⚠ Capital Levies Due' }}
+                  </span>
+                  <span class="prop-link-cta">Inspect Details →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 2: ANNOUNCEMENTS ── -->
+          <div v-else-if="activeHomeownerTab === 'announcements'" class="homeowner-tab-content">
+            <div v-if="displayedNews.length === 0" class="sec-empty-box">
+              <div class="sec-empty-icon">📢</div>
+              <h3 class="sec-empty-title">No Estate Announcements</h3>
+              <p class="sec-empty-desc">New notices and landlord broadcasts from estate management will appear here.</p>
+            </div>
+            <div v-else class="sec-news-stream">
+              <div
+                v-for="item in displayedNews"
+                :key="item.id"
+                class="sec-news-card"
+              >
+                <div class="sec-news-top">
+                  <span class="sec-news-cat">{{ (item as any).category || item.authorRole || 'Estate Notice' }}</span>
+                  <span class="sec-news-date">{{ fmtNewsDate(item.createdAt) }}</span>
+                </div>
+                <h4 class="sec-news-title">{{ item.title }}</h4>
+                <p class="sec-news-text">{{ item.content }}</p>
+
+                <!-- Footer: Comments count & Reactions -->
+                <div class="news-card-footer sec-news-card-footer">
+                  <div class="news-card-actions-left">
+                    <button
+                      type="button"
+                      class="news-card-comment-btn"
+                      @click.stop="toggleInlineComments(item.id)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      <span>{{ getNewsComments(item.id).length }} {{ getNewsComments(item.id).length === 1 ? 'Comment' : 'Comments' }}</span>
+                    </button>
+                  </div>
+
+                  <div class="news-card-reactions">
+                    <button
+                      type="button"
+                      class="news-reaction-btn"
+                      :class="{ active: getNewsReaction(item.id).userReaction === 'like' }"
+                      title="Like announcement"
+                      @click.stop="toggleReaction(item.id, 'like')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                      </svg>
+                      <span class="reaction-count">{{ getNewsReaction(item.id).likes }}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="news-reaction-btn is-dislike"
+                      :class="{ active: getNewsReaction(item.id).userReaction === 'dislike' }"
+                      title="Dislike announcement"
+                      @click.stop="toggleReaction(item.id, 'dislike')"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+                      </svg>
+                      <span class="reaction-count">{{ getNewsReaction(item.id).dislikes }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Inline Comments Accordion -->
+                <transition name="slide-fade">
+                  <div
+                    v-if="openInlineCommentsIds.includes(item.id)"
+                    class="news-inline-comments-box"
+                    @click.stop
+                  >
+                    <div class="inline-comment-row">
+                      <input
+                        v-model="inlineCommentInputs[item.id]"
+                        type="text"
+                        class="inline-comment-input"
+                        placeholder="Write a comment..."
+                        maxlength="200"
+                        @keydown.enter.prevent="submitInlineComment(item.id)"
+                      />
+                      <button
+                        class="inline-comment-post-btn"
+                        :disabled="!inlineCommentInputs[item.id] || !inlineCommentInputs[item.id].trim()"
+                        @click="submitInlineComment(item.id)"
+                      >
+                        Post
+                      </button>
+                    </div>
+
+                    <div v-if="getNewsComments(item.id).length > 0" class="inline-comments-stream">
+                      <div
+                        v-for="c in getNewsComments(item.id)"
+                        :key="c.id"
+                        class="inline-comment-entry"
+                      >
+                        <div class="inline-comment-header">
+                          <div class="inline-comment-author-wrap">
+                            <span class="inline-comment-author">{{ c.authorName }}</span>
+                            <span v-if="c.authorRole" class="inline-comment-role-tag">{{ c.authorRole }}</span>
+                            <span v-else-if="c.authorUnit" class="inline-comment-unit-tag">• {{ c.authorUnit }}</span>
+                          </div>
+                          <span class="inline-comment-time">{{ c.createdAt }}</span>
+                        </div>
+                        <div class="inline-comment-msg">{{ c.content }}</div>
+                      </div>
+                    </div>
+                    <div v-else class="inline-no-comments">No comments yet. Be the first to comment!</div>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB 3: EMERGENCIES ── -->
+          <div v-else-if="activeHomeownerTab === 'emergencies'" class="homeowner-tab-content">
+            <div class="homeowner-dispatch-card">
+              <h3 class="dispatch-title">Direct Gate &amp; Security Dispatch</h3>
+              <p class="dispatch-sub">Instantly reach duty security guards and estate emergency lines for rapid response to your property.</p>
+              
+              <div class="dispatch-actions-grid">
+                <a href="tel:08143948473" class="dispatch-btn">
+                  <div class="dispatch-icon">📞</div>
+                  <div class="dispatch-info">
+                    <span class="dispatch-name">Main Gatehouse Control</span>
+                    <span class="dispatch-num">0814 394 8473 (Direct)</span>
+                  </div>
+                </a>
+                <a href="tel:08021234567" class="dispatch-btn">
+                  <div class="dispatch-icon">🛡️</div>
+                  <div class="dispatch-info">
+                    <span class="dispatch-name">Security Chief &amp; Dispatch</span>
+                    <span class="dispatch-num">0802 123 4567</span>
+                  </div>
+                </a>
+                <a href="tel:112" class="dispatch-btn dispatch-btn--red">
+                  <div class="dispatch-icon">🚨</div>
+                  <div class="dispatch-info">
+                    <span class="dispatch-name">State Emergency Response</span>
+                    <span class="dispatch-num">112 / 199 (Police, Fire, Ambulance)</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Estate Incident Stream -->
+            <div class="homeowner-incidents-section">
+              <h4 class="incident-sec-title">Recent Security &amp; Utility Bulletins</h4>
+              <div class="incident-log-card">
+                <div class="incident-log-badge">PERIMETER CHECK</div>
+                <div class="incident-log-text">Perimeter cameras and electric fence tested — 100% operational across all sectors.</div>
+                <div class="incident-log-time">Today, 04:30 AM • Main Gate Control</div>
+              </div>
+              <div class="incident-log-card">
+                <div class="incident-log-badge badge-green">FACILITY NOTICE</div>
+                <div class="incident-log-text">Estate generator switch completed smoothly for early morning scheduled maintenance.</div>
+                <div class="incident-log-time">Yesterday, 11:15 PM • Facility Office</div>
+              </div>
+            </div>
+          </div>
+        </template>
+
         <!-- ── RESIDENT VIEW ─────────────────────────────── -->
         <template v-else>
           <EstateHero
@@ -1053,6 +1321,105 @@
     </div>
   </Transition>
 </Teleport>
+
+    <!-- Property & Occupant Detail Bottom Sheet Modal -->
+    <Teleport to="body">
+      <Transition name="sheet-modal">
+        <div
+          v-if="selectedProperty"
+          class="custom-sheet-overlay"
+          @click.self="selectedProperty = null"
+        >
+          <div class="custom-sheet-container property-custom-sheet">
+            <div class="sheet-drag-handle-bar" @click="selectedProperty = null">
+              <div class="sheet-drag-handle" />
+            </div>
+
+            <div class="sheet-modal-header">
+              <div>
+                <div class="sheet-header-tag">OFFICIAL ESTATE DEED RECORD</div>
+                <h2 class="sheet-header-title">{{ selectedProperty.unitNumber }} - {{ selectedProperty.streetName }}</h2>
+              </div>
+              <button class="modal-close-btn" @click="selectedProperty = null">&times;</button>
+            </div>
+
+            <div class="sheet-modal-body property-sheet-body">
+              <!-- Property Specs Chips -->
+              <div class="prop-detail-chips">
+                <span class="prop-chip">{{ selectedProperty.type }}</span>
+                <span class="prop-chip" :class="selectedProperty.isOccupied ? 'chip-occupied' : 'chip-vacant'">
+                  {{ selectedProperty.isOccupied ? '● Occupied' : '○ Vacant' }}
+                </span>
+                <span class="prop-chip">{{ selectedProperty.deedRef || 'DEED-CP-' + selectedProperty.id }}</span>
+              </div>
+
+              <!-- Verified Occupant & Tenancy Section -->
+              <div class="prop-sheet-section">
+                <h4 class="prop-sheet-section-title">Verified Occupant &amp; Tenancy</h4>
+                <div v-if="selectedProperty.isOccupied && selectedProperty.primaryTenant" class="tenant-profile-card">
+                  <div class="tenant-profile-header">
+                    <div class="tenant-avatar-large">{{ selectedProperty.primaryTenant.name.charAt(0) }}</div>
+                    <div class="tenant-profile-info">
+                      <div class="tenant-name-lg">{{ selectedProperty.primaryTenant.name }}</div>
+                      <div class="tenant-phone-lg">{{ selectedProperty.primaryTenant.phone }}</div>
+                      <div class="tenant-lease-meta">Move-in: {{ selectedProperty.primaryTenant.moveInDate }} • Verified Resident</div>
+                    </div>
+                  </div>
+
+                  <div class="tenant-breakdown-grid">
+                    <div class="tenant-stat-box">
+                      <div class="stat-num">{{ selectedProperty.registeredHouseholdCount }}</div>
+                      <div class="stat-lbl">Household Members</div>
+                    </div>
+                    <div class="tenant-stat-box">
+                      <div class="stat-num">{{ selectedProperty.registeredVehiclesCount }}</div>
+                      <div class="stat-lbl">Registered Vehicles</div>
+                    </div>
+                    <div class="tenant-stat-box">
+                      <div class="stat-num text-emerald">Active</div>
+                      <div class="stat-lbl">Gate Clearance</div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="tenant-empty-card">
+                  <p>This unit is registered as vacant in estate management records. No active tenant occupant is currently attached.</p>
+                </div>
+              </div>
+
+              <!-- Capital Infrastructure Levies Section -->
+              <div class="prop-sheet-section">
+                <h4 class="prop-sheet-section-title">Capital Infrastructure Levies</h4>
+                <div class="levies-list">
+                  <div
+                    v-for="levy in (selectedProperty.levies || defaultPropertyLevies)"
+                    :key="levy.name"
+                    class="levy-item-row"
+                  >
+                    <div class="levy-meta">
+                      <div class="levy-name">{{ levy.name }}</div>
+                      <div class="levy-amt">₦{{ levy.amount.toLocaleString() }}</div>
+                    </div>
+                    <span class="levy-badge" :class="levy.status === 'paid' ? 'badge-paid' : 'badge-pending'">
+                      {{ levy.status === 'paid' ? 'Paid' : 'Unpaid' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="prop-sheet-actions">
+                <button
+                  type="button"
+                  class="prop-action-primary-btn"
+                  @click="router.push('/tabs/fees'); selectedProperty = null"
+                >
+                  View Estate Dues &amp; Receipts
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </ion-page>
 </template>
 
@@ -1146,6 +1513,86 @@ const securityAnnouncements = computed(() => {
 const securityEmergencies = computed(() => {
   return (summary.value as any)?.emergencies || []
 })
+
+// ── Homeowner Role State & Types ──
+export interface PropertyPortfolioItem {
+  id: number | string
+  unitNumber: string
+  streetName: string
+  type: string
+  isOccupied: boolean
+  deedRef?: string
+  primaryTenant?: {
+    name: string
+    phone: string
+    moveInDate: string
+    verified: boolean
+  } | null
+  registeredHouseholdCount: number
+  registeredVehiclesCount: number
+  duesClear: boolean
+  levies?: Array<{
+    name: string
+    amount: number
+    status: 'paid' | 'pending'
+  }>
+}
+
+const activeHomeownerTab = ref<'properties' | 'announcements' | 'emergencies'>('properties')
+const selectedProperty = ref<PropertyPortfolioItem | null>(null)
+
+const defaultPropertyLevies = [
+  { name: '2026 Road Resurfacing & Drainage Levy', amount: 120000, status: 'paid' as const },
+  { name: 'Perimeter Electric Fence Upgrade', amount: 65000, status: 'paid' as const },
+  { name: 'Dedicated Transformer Maintenance', amount: 45000, status: 'paid' as const }
+]
+
+const homeownerProperties = ref<PropertyPortfolioItem[]>([
+  {
+    id: 101,
+    unitNumber: 'House 4B',
+    streetName: 'Palm Avenue',
+    type: 'Detached 5-Bed Villa',
+    isOccupied: true,
+    deedRef: 'DEED-SE-2024-004B',
+    primaryTenant: {
+      name: 'Mr. Emeka Okafor',
+      phone: '0803 123 4567',
+      moveInDate: 'Jan 2025',
+      verified: true
+    },
+    registeredHouseholdCount: 4,
+    registeredVehiclesCount: 2,
+    duesClear: true,
+    levies: defaultPropertyLevies
+  },
+  {
+    id: 102,
+    unitNumber: 'Flat 2, Block C',
+    streetName: 'Orchid Close',
+    type: 'Luxury 3-Bed Apartment',
+    isOccupied: true,
+    deedRef: 'DEED-SE-2023-012C',
+    primaryTenant: {
+      name: 'Dr. Folashade Adeleke',
+      phone: '0809 876 5432',
+      moveInDate: 'Aug 2024',
+      verified: true
+    },
+    registeredHouseholdCount: 3,
+    registeredVehiclesCount: 1,
+    duesClear: true,
+    levies: defaultPropertyLevies
+  }
+])
+
+const homeownerOccupiedCount = computed(() => {
+  return homeownerProperties.value.filter(p => p.isOccupied).length
+})
+
+function openPropertyDetails(prop: PropertyPortfolioItem) {
+  selectedProperty.value = prop
+}
 
 function formatPassTime(dateStr?: string) {
   if (!dateStr) return ''
@@ -3844,7 +4291,7 @@ onMounted(() => {
   font-weight: 800;
   letter-spacing: -0.5px;
   line-height: 1.1;
-  color: #FFFFFF;
+  color: #FFFFFF !important;
 }
 
 .sec-matrix-lbl {
@@ -4582,5 +5029,538 @@ onMounted(() => {
   font-style: italic;
   padding: 4px 2px;
 }
+
+/* ─── HOMEOWNER VIEW STYLES ─── */
+.homeowner-hero-card {
+  background: linear-gradient(135deg, #0A5C38 0%, #07472A 100%) !important;
+}
+
+.homeowner-pill {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.homeowner-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.prop-portfolio-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prop-portfolio-card {
+  background: var(--w-card-bg, #FFFFFF);
+  border: 1.5px solid var(--w-border, #E2E8F0);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.prop-portfolio-card:active {
+  transform: scale(0.985);
+  border-color: #0A5C38;
+}
+
+.prop-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.prop-badge-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prop-type-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.prop-status-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.prop-status-pill.is-occupied {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.prop-status-pill.is-vacant {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.prop-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--w-text, #0F172A);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.prop-occupant-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.prop-tenant-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prop-tenant-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #0A5C38;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.prop-tenant-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.prop-tenant-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.prop-tenant-sub {
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.prop-meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prop-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.prop-vacant-box {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  color: #64748B;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.prop-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--w-border, #E2E8F0);
+}
+
+.prop-dues-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #B45309;
+}
+
+.prop-dues-tag.dues-clear {
+  color: #15803D;
+}
+
+.prop-link-cta {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0A5C38;
+}
+
+/* Homeowner Emergencies & Dispatch */
+.homeowner-dispatch-card {
+  background: var(--w-card-bg, #FFFFFF);
+  border: 1.5px solid var(--w-border, #E2E8F0);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.dispatch-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--w-text, #0F172A);
+  margin: 0 0 4px;
+}
+
+.dispatch-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.dispatch-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dispatch-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+}
+
+.dispatch-btn:active {
+  background: #E8F5EE;
+  border-color: #0A5C38;
+}
+
+.dispatch-btn--red {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+}
+
+.dispatch-btn--red:active {
+  background: #FEE2E2;
+}
+
+.dispatch-icon {
+  font-size: 20px;
+}
+
+.dispatch-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dispatch-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.dispatch-num {
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.homeowner-incidents-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.incident-sec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.incident-log-card {
+  background: var(--w-card-bg, #FFFFFF);
+  border: 1px solid var(--w-border, #E2E8F0);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.incident-log-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+  letter-spacing: 0.04em;
+}
+
+.incident-log-badge.badge-green {
+  color: #0369A1;
+  background: #E0F2FE;
+}
+
+.incident-log-text {
+  font-size: 12.5px;
+  color: var(--w-text, #1E293B);
+  line-height: 1.4;
+}
+
+.incident-log-time {
+  font-size: 11px;
+  color: #94A3B8;
+}
+
+/* Property Modal Bottom Sheet */
+.property-custom-sheet {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-sheet-body {
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.prop-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prop-chip {
+  font-size: 11.5px;
+  font-weight: 600;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.prop-chip.chip-occupied {
+  background: #DCFCE7;
+  color: #15803D;
+  font-weight: 700;
+}
+
+.prop-chip.chip-vacant {
+  background: #F8FAFC;
+  color: #94A3B8;
+}
+
+.prop-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prop-sheet-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748B;
+  margin: 0;
+}
+
+.tenant-profile-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tenant-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tenant-avatar-large {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #0A5C38;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.tenant-profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tenant-name-lg {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.tenant-phone-lg {
+  font-size: 12.5px;
+  color: #0A5C38;
+  font-weight: 600;
+}
+
+.tenant-lease-meta {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.tenant-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.tenant-stat-box {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.stat-lbl {
+  font-size: 10px;
+  color: #64748B;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.tenant-empty-card {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 16px;
+  color: #64748B;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.levies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.levy-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.levy-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.levy-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.levy-amt {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A5C38;
+}
+
+.levy-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.badge-paid {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.badge-pending {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.prop-sheet-actions {
+  margin-top: 6px;
+}
+
+.prop-action-primary-btn {
+  width: 100%;
+  height: 44px;
+  background: #0A5C38;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.prop-action-primary-btn:active {
+  opacity: 0.85;
+}
+
+
 
 </style>
