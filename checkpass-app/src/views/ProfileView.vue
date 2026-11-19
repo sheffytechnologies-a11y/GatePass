@@ -374,40 +374,34 @@
               <!-- Branded Resident Pass Card -->
               <ResidentPassCard :resident="effectiveResident" />
 
-              <!-- Actions below card (Download Pass & Share Pass) -->
+              <!-- Actions below card (Side-by-side Download Pass & Share Pass filling provided space) -->
               <div class="pass-modal-actions">
-                <!-- Primary Action: Download / Save Pass -->
-                <div class="action-row-share">
-                  <button
-                    class="btn-action btn-share-full"
-                    @click="downloadResidentPass"
-                    :disabled="downloadingPass"
-                    type="button"
-                  >
-                    <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
-                    <span>{{ downloadingPass ? 'Preparing Pass…' : 'Download Pass' }}</span>
-                  </button>
-                </div>
+                <button
+                  class="btn-action btn-share-full"
+                  @click="downloadResidentPass"
+                  :disabled="downloadingPass"
+                  type="button"
+                >
+                  <svg v-if="!downloadingPass" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <ion-spinner v-else name="crescent" color="light" style="width:16px;height:16px" />
+                  <span>{{ downloadingPass ? 'Preparing…' : 'Download Pass' }}</span>
+                </button>
 
-                <!-- Secondary Action: Share Pass directly -->
-                <div class="action-row-secondary">
-                  <button
-                    class="btn-action btn-secondary-full"
-                    @click="shareResidentPass"
-                    :disabled="downloadingPass"
-                    type="button"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
-                      <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
-                    </svg>
-                    <span>Share Pass</span>
-                  </button>
-                </div>
+                <button
+                  class="btn-action btn-secondary-full"
+                  @click="shareResidentPass"
+                  :disabled="downloadingPass"
+                  type="button"
+                >
+                  <svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor">
+                    <path d="M176,160a39.88,39.88,0,0,0-28.53,12L98.67,143.51a40,40,0,0,0,0-31L147.47,84A40,40,0,1,0,136,56a39.63,39.63,0,0,0,2.16,13L89.36,97.51a40,40,0,1,0,0,61L138.16,187A39.63,39.63,0,0,0,136,200a40,40,0,1,0,40-40Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z"/>
+                  </svg>
+                  <span>Share Pass</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1112,22 +1106,26 @@ ion-modal.resident-pass-modal {
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
 }
 .pass-modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  margin: 6px auto 0;
+  box-sizing: border-box;
 }
 .btn-share-full {
   width: 100%;
-  height: 50px;
+  height: 48px;
   background: var(--w-primary, #0A5C38);
   color: #FFFFFF;
   border: none;
   border-radius: var(--w-radius-md, 14px);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1136,9 +1134,10 @@ ion-modal.resident-pass-modal {
   box-shadow: 0 4px 14px rgba(10, 92, 56, 0.22);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 .btn-share-full:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 .btn-secondary-full {
   width: 100%;
@@ -1155,10 +1154,11 @@ ion-modal.resident-pass-modal {
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 .btn-secondary-full:active {
   background: rgba(10, 92, 56, 0.05);
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .push-banner { background: var(--w-warning-light); border-radius: var(--w-radius-md); padding: 12px 16px; font-size: 14px; color: var(--w-warning); display: flex; align-items: center; gap: 8px; }
