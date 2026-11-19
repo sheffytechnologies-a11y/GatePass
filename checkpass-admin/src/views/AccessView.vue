@@ -521,7 +521,7 @@ onMounted(() => {
   color: #FFFFFF;
   border: none;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: var(--btn-radius, 10px);
   font-weight: 700;
   font-size: 13px;
   cursor: pointer;

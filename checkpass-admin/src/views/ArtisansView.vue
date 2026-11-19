@@ -1381,7 +1381,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 9px 16px;
-  border-radius: 10px;
+  border-radius: var(--btn-radius, 10px);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -1412,7 +1412,7 @@ onUnmounted(() => {
 .btn-sm {
   padding: 5px 10px;
   font-size: 11.5px;
-  border-radius: 7px;
+  border-radius: var(--btn-radius-sm, 8px);
 }
 
 /* Modals */

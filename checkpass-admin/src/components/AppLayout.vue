@@ -337,7 +337,7 @@ async function handleLogout() {
 .logout-btn {
   display: flex; align-items: center; gap: 8px;
   border: none; background: transparent; color: var(--c-muted);
-  font-size: 13px; font-weight: 600; padding: 8px 6px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; padding: 8px 10px; border-radius: var(--btn-radius-sm, 8px);
 }
 .logout-btn:hover { background: var(--c-danger-light); color: var(--c-danger); }
 
@@ -489,7 +489,7 @@ async function handleLogout() {
   font-weight: 700;
   font-size: 12.5px;
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm, 8px);
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.15s ease;

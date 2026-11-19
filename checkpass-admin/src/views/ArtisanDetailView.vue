@@ -776,7 +776,7 @@ onMounted(() => {
   color: #374151;
   text-decoration: none;
   padding: 7px 14px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius-sm, 8px);
   background: #ffffff;
   border: 1px solid #E5E7EB;
   transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -1191,7 +1191,7 @@ onMounted(() => {
   padding: 10px 12px;
   background: #F9FAFB;
   border: 1px solid #F3F4F6;
-  border-radius: 9px;
+  border-radius: var(--radius-sm, 8px);
 }
 
 .gate-log-dot {
@@ -1673,7 +1673,7 @@ onMounted(() => {
   font-size: 13.5px;
   font-weight: 600;
   padding: 8px 16px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius, 10px);
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 140ms ease;
@@ -1712,7 +1712,7 @@ onMounted(() => {
 .btn-sm {
   font-size: 12px;
   padding: 5px 12px;
-  border-radius: 7px;
+  border-radius: var(--btn-radius-sm, 8px);
 }
 
 .not-found-card {

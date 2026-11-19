@@ -901,7 +901,7 @@ onMounted(() => {
   color: #374151;
   text-decoration: none;
   padding: 7px 14px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius-sm, 8px);
   background: #ffffff;
   border: 1px solid #E5E7EB;
   transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -955,7 +955,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius-sm, 8px);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1464,7 +1464,7 @@ onMounted(() => {
   padding: 10px 38px 10px 40px;
   font-size: 13px;
   border: 1px solid #E5E7EB;
-  border-radius: 9px;
+  border-radius: var(--btn-radius, 10px);
   background: #F9FAFB;
   outline: none;
   transition: all 160ms ease;
@@ -1899,6 +1899,7 @@ onMounted(() => {
   color: #9CA3AF;
   cursor: pointer;
   padding: 4px;
+  border-radius: var(--btn-radius-sm, 8px);
 }
 
 .btn-close:hover {
@@ -1933,7 +1934,7 @@ onMounted(() => {
   padding: 10px 14px;
   font-size: 14px;
   border: 1px solid #D1D5DB;
-  border-radius: 9px;
+  border-radius: var(--btn-radius, 10px);
   background: #ffffff;
   outline: none;
   transition: all 150ms ease;

@@ -1022,7 +1022,7 @@ onUnmounted(() => {
   font-size: 13.5px;
   font-weight: 600;
   padding: 9px 18px;
-  border-radius: 10px;
+  border-radius: var(--btn-radius-lg, 12px);
   border: none;
   cursor: pointer;
   transition: all 160ms ease;
@@ -1047,7 +1047,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius-md, 10px);
   font-size: 13.5px;
   font-weight: 600;
   color: #4B5563;
@@ -1322,7 +1322,7 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   padding: 5px;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm, 8px);
   color: #6B7280;
   cursor: pointer;
   transition: all 140ms ease;
@@ -1394,7 +1394,7 @@ onUnmounted(() => {
   font-size: 13.5px;
   font-weight: 600;
   padding: 8px 16px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius, 10px);
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 140ms ease;
@@ -1410,7 +1410,7 @@ onUnmounted(() => {
 .btn-danger { background: #DC2626; color: #ffffff; }
 .btn-danger:hover { background: #B91C1C; }
 
-.btn-sm { font-size: 12px; padding: 5px 11px; border-radius: 7px; }
+.btn-sm { font-size: 12px; padding: 5px 11px; border-radius: var(--btn-radius-sm, 8px); }
 
 .empty-state {
   text-align: center;

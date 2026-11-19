@@ -726,7 +726,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: 12px;
+  border-radius: var(--btn-radius-lg, 12px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   white-space: nowrap;
@@ -912,7 +912,7 @@ onUnmounted(() => {
   color: #6B7280;
   background: transparent;
   border: none;
-  border-radius: 7px;
+  border-radius: var(--btn-radius-sm, 8px);
   cursor: pointer;
   transition: all 140ms ease;
 }
@@ -1485,7 +1485,7 @@ onUnmounted(() => {
   color: #9CA3AF;
   cursor: pointer;
   padding: 4px;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm, 8px);
 }
 
 .btn-close:hover {
@@ -1520,7 +1520,7 @@ onUnmounted(() => {
 .form-input {
   padding: 9px 12px;
   border: 1px solid #D1D5DB;
-  border-radius: 8px;
+  border-radius: var(--btn-radius, 10px);
   font-size: 13.5px;
   color: #111827;
   background: #ffffff;

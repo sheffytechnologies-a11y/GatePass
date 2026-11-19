@@ -471,7 +471,7 @@ onUnmounted(() => {
   gap: 6px;
   width: 100%;
   padding: 8px 12px;
-  border-radius: 9px;
+  border-radius: var(--btn-radius-sm, 8px);
   background: #ffffff;
   border: 1px dashed #cbd5e1;
   color: #0a5c38;

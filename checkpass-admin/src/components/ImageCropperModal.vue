@@ -523,7 +523,7 @@ onUnmounted(() => {
 .btn-ctrl {
   background: white;
   border: 1px solid #D1D5DB;
-  border-radius: 8px;
+  border-radius: var(--btn-radius-sm, 8px);
   width: 28px;
   height: 28px;
   display: flex;
@@ -558,7 +558,7 @@ onUnmounted(() => {
   gap: 6px;
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
-  border-radius: 10px;
+  border-radius: var(--btn-radius, 10px);
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -584,7 +584,7 @@ onUnmounted(() => {
 .btn-cancel {
   background: white;
   border: 1px solid #D1D5DB;
-  border-radius: 10px;
+  border-radius: var(--btn-radius, 10px);
   padding: 9px 16px;
   font-size: 13.5px;
   font-weight: 600;
@@ -601,7 +601,7 @@ onUnmounted(() => {
   background: #0A5C38;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--btn-radius, 10px);
   padding: 9px 20px;
   font-size: 13.5px;
   font-weight: 700;

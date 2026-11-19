@@ -1198,7 +1198,7 @@ onMounted(async () => {
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--btn-radius, 10px);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
@@ -1210,6 +1210,7 @@ onMounted(async () => {
 .btn-sm {
   padding: 6px 12px;
   font-size: 12.5px;
+  border-radius: var(--btn-radius-sm, 8px);
 }
 
 .btn-primary {

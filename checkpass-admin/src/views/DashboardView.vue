@@ -1780,7 +1780,7 @@ onUnmounted(() => {
   font-size: 11.5px;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm, 8px);
   cursor: pointer;
 }
 
@@ -2354,7 +2354,7 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 600;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--btn-radius, 10px);
   cursor: pointer;
   border: 1px solid transparent;
 }

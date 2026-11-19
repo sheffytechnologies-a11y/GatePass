@@ -1169,7 +1169,7 @@ onMounted(() => {
   padding: 4px;
   display: flex;
   align-items: center;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm, 8px);
   transition: all 0.15s ease;
 }
 

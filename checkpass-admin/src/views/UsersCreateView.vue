@@ -256,7 +256,7 @@ async function save() {
 
 .type-chip {
   border: 1px solid #E5E7EB;
-  border-radius: 999px;
+  border-radius: var(--btn-radius-pill, 999px);
   padding: 8px 18px;
   background: #F9FAFB;
   color: #4B5563;
@@ -364,7 +364,7 @@ async function save() {
   justify-content: center;
   color: #6B7280;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--btn-radius-sm, 8px);
   transition: color 0.15s ease, background 0.15s ease;
 }
 
