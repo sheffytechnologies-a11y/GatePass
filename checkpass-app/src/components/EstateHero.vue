@@ -58,24 +58,24 @@ const safeStats = computed(() => ({
 <style scoped>
 .hero-card {
   background: var(--w-primary, #0A5C38);
-  border-radius: var(--w-radius-xl, 20px);
-  padding: 20px;
+  border-radius: var(--w-radius-xl, 16px);
+  padding: 14px 16px;
   color: white;
   margin-bottom: 4px;
 }
-.hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-.estate-name { font-size: 13px; opacity: 0.85; margin-bottom: 4px; font-weight: 500; }
-.address { font-family: var(--w-font-display, inherit); font-size: 21px; font-weight: 700; letter-spacing: -0.2px; }
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.estate-name { font-size: 11.5px; opacity: 0.85; margin-bottom: 2px; font-weight: 500; }
+.address { font-family: var(--w-font-display, inherit); font-size: 14px; font-weight: 700; letter-spacing: -0.1px; line-height: 1.25; }
 .gate-badge {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
 }
 .gate-open  { background: rgba(0,201,122,0.2); color: #00C97A; }
 .gate-closed{ background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
-.gate-dot   { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.gate-dot   { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .stats-row  { display: flex; align-items: center; }
 .stat       { flex: 1; text-align: center; }
-.stat-value { font-family: var(--w-font-display, inherit); font-size: 28px; font-weight: 700; }
-.stat-label { font-size: 11px; opacity: 0.75; margin-top: 2px; }
-.divider    { width: 1px; height: 40px; background: rgba(255,255,255,0.2); }
+.stat-value { font-family: var(--w-font-display, inherit); font-size: 16px; font-weight: 700; }
+.stat-label { font-size: 10px; opacity: 0.75; margin-top: 1px; }
+.divider    { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
 </style>

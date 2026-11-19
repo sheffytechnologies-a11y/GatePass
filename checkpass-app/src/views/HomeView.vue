@@ -4334,8 +4334,8 @@ onMounted(() => {
 /* ─── SECURITY HERO CARD & MATRIX ─── */
 .security-hero-card {
   background: var(--w-primary, #0A5C38);
-  border-radius: var(--w-radius-xl, 20px);
-  padding: 20px;
+  border-radius: var(--w-radius-xl, 16px);
+  padding: 14px 16px;
   color: white;
   margin-bottom: 4px;
   box-shadow: 0 4px 14px rgba(10, 92, 56, 0.25);
@@ -4345,31 +4345,31 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .sec-estate-eyebrow {
-  font-size: 13px;
+  font-size: 11.5px;
   opacity: 0.85;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-weight: 500;
 }
 
 .sec-station-title {
   font-family: var(--w-font-display, inherit);
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: -0.2px;
-  line-height: 1.2;
+  letter-spacing: -0.1px;
+  line-height: 1.25;
 }
 
 .sec-duty-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
+  gap: 5px;
+  padding: 3px 9px;
   border-radius: 9999px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   background: rgba(0, 201, 122, 0.2);
   color: #00E68C;
@@ -4377,8 +4377,8 @@ onMounted(() => {
 }
 
 .sec-duty-pulse {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #00E68C;
   box-shadow: 0 0 0 0 rgba(0, 230, 140, 0.7);
@@ -4403,7 +4403,7 @@ onMounted(() => {
   background: transparent;
   border: none;
   color: white;
-  padding: 4px 0;
+  padding: 2px 0;
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -4414,24 +4414,24 @@ onMounted(() => {
 
 .sec-matrix-val {
   font-family: var(--w-font-display, inherit);
-  font-size: 26px;
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   line-height: 1.1;
   color: #FFFFFF !important;
 }
 
 .sec-matrix-lbl {
-  font-size: 11px;
+  font-size: 10px;
   color: #FFFFFF;
   opacity: 0.85;
-  margin-top: 3px;
+  margin-top: 1px;
   font-weight: 500;
 }
 
 .sec-matrix-vdivider {
   width: 1px;
-  height: 38px;
+  height: 24px;
   background: rgba(255, 255, 255, 0.22);
 }
 
