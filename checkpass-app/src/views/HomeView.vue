@@ -341,16 +341,16 @@
             </div>
           </div>
 
-          <!-- Sticky Segmented Tabs for Homeowner (Properties | Announcements | Emergencies) -->
-          <div class="sec-tabs-sticky-shell">
-            <div class="sec-tabs-row" role="tablist">
+          <!-- Sticky Navigation Tabs for Homeowner (Properties | Announcements | Emergencies) -->
+          <div class="passes-tabs-sticky-bar">
+            <div class="passes-tabs" role="tablist">
               <button
                 class="passes-tab"
                 :class="{ active: activeHomeownerTab === 'properties' }"
                 @click="activeHomeownerTab = 'properties'"
               >
                 <span>Properties</span>
-                <span class="tab-unread-pill">{{ homeownerProperties.length }}</span>
+                <span class="tab-count-pill">{{ homeownerProperties.length }}</span>
               </button>
               <button
                 class="passes-tab"
@@ -397,20 +397,9 @@
                       <div class="prop-tenant-sub">Primary Tenant • Verified Resident</div>
                     </div>
                   </div>
-                  <div class="prop-meta-tags">
-                    <span class="prop-tag">👥 {{ prop.registeredHouseholdCount }} Household Members</span>
-                    <span class="prop-tag">🚗 {{ prop.registeredVehiclesCount }} Vehicles</span>
-                  </div>
                 </div>
                 <div v-else class="prop-vacant-box">
                   <p>Unit is currently vacant. No active tenant on record.</p>
-                </div>
-
-                <div class="prop-card-foot">
-                  <span class="prop-dues-tag" :class="{ 'dues-clear': prop.duesClear }">
-                    {{ prop.duesClear ? '✓ All Capital Levies Paid' : '⚠ Capital Levies Due' }}
-                  </span>
-                  <span class="prop-link-cta">Inspect Details →</span>
                 </div>
               </div>
             </div>
@@ -2475,22 +2464,31 @@ onMounted(() => {
 
 .passes-tabs {
   display: flex;
-  gap: 22px;
+  gap: 24px;
+  align-items: center;
   border-bottom: none;
   margin-bottom: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.passes-tabs::-webkit-scrollbar {
+  display: none;
 }
 .passes-tab {
   background: none;
   border: none;
   padding: 0 0 10px;
   color: #8C9991;
-  font-size: 16.5px; /* Increased in size by 20% */
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   display: inline-flex;
   align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .passes-tab.active {
   color: var(--w-primary, #0A5C38);
@@ -2507,6 +2505,26 @@ onMounted(() => {
   border-radius: 999px;
 }
 
+.tab-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #E8ECE9;
+  color: #4A5568;
+  font-size: 11px;
+  font-weight: 700;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 999px;
+  padding: 0 5.5px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+.passes-tab.active .tab-count-pill {
+  background: #E8F5EE;
+  color: #0A5C38;
+}
+
 .tab-unread-pill {
   display: inline-flex;
   align-items: center;
@@ -2518,8 +2536,7 @@ onMounted(() => {
   height: 18px;
   min-width: 18px;
   border-radius: 999px;
-  padding: 0 5px;
-  margin-left: 6px;
+  padding: 0 5.5px;
   line-height: 1;
 }
 
@@ -5252,7 +5269,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .prop-tenant-row {
@@ -5291,55 +5308,15 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.prop-meta-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.prop-tag {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #334155;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
 .prop-vacant-box {
   background: #F8FAFC;
   border: 1px dashed #CBD5E1;
   border-radius: 12px;
   padding: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   color: #64748B;
   font-size: 12.5px;
   text-align: center;
-}
-
-.prop-card-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 10px;
-  border-top: 1px solid var(--w-border, #E2E8F0);
-}
-
-.prop-dues-tag {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #B45309;
-}
-
-.prop-dues-tag.dues-clear {
-  color: #15803D;
-}
-
-.prop-link-cta {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #0A5C38;
 }
 
 /* Homeowner Emergencies & Dispatch */
