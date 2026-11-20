@@ -27,22 +27,15 @@
               role="tab"
               :aria-selected="auth.activeRole === r.role"
             >
-              <svg v-if="r.role === 'homeowner'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
-                <path d="M3 21h18M3 7v14M21 7v14M9 3h6v18M13 7h-2M13 11h-2M13 15h-2" stroke-linecap="round" stroke-linejoin="round"/>
               <!-- 1. Admin -->
               <svg v-if="r.role === 'admin'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 <path d="m9 12 2 2 4-4"/>
               </svg>
-              <svg v-else-if="r.role === 'resident'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/>
-                <polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/>
               <!-- 2. Homeowner -->
               <svg v-else-if="r.role === 'homeowner'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
                 <path d="M3 21h18M3 7v14M21 7v14M9 3h6v18M13 7h-2M13 11h-2M13 15h-2"/>
               </svg>
-              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-role-icon">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round" stroke-linejoin="round"/>
               <!-- 3. Occupant (Person icon) -->
               <svg v-else-if="r.role === 'resident' || r.role === 'occupant'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-role-icon">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -127,7 +120,6 @@
         </template>
 
         <!-- ── SECURITY VIEW ─────────────────────────────── -->
-        <template v-if="auth.isSecurityUser">
         <template v-else-if="auth.isSecurityUser">
           <!-- Top Hero Card: Styled like EstateHero, displaying matrix of passes -->
           <div class="security-hero-card">
@@ -2243,7 +2235,6 @@ const orderedRoles = computed(() => {
     let displayLabel = r.label
     if (r.role === 'admin') displayLabel = 'Admin'
     if (r.role === 'homeowner') displayLabel = 'Homeowner'
-    if (r.role === 'resident') displayLabel = 'Occupant'
     if (r.role === 'resident' || r.role === 'occupant') displayLabel = 'Occupant'
     if (r.role === 'security' || r.role === 'guard') displayLabel = 'Security'
     return {
@@ -2251,7 +2242,6 @@ const orderedRoles = computed(() => {
       label: displayLabel,
     }
   }).sort((a, b) => {
-    const order: Record<string, number> = { homeowner: 1, resident: 2, security: 3 }
     // Strictly: admin -> homeowner -> occupants -> security
     const order: Record<string, number> = { admin: 1, homeowner: 2, resident: 3, occupant: 3, security: 4, guard: 4 }
     const orderA = order[a.role] ?? 99
@@ -2260,11 +2250,9 @@ const orderedRoles = computed(() => {
   })
 })
 
-function handleRoleSwitch(role: 'resident' | 'security' | 'homeowner') {
 function handleRoleSwitch(role: any) {
   if (auth.activeRole === role) return
   auth.setActiveRole(role)
-  const roleName = role === 'homeowner' ? 'Homeowner' : role === 'resident' ? 'Occupant' : 'Gate Security'
   const roleNames: Record<string, string> = {
     admin: 'Admin',
     homeowner: 'Homeowner',

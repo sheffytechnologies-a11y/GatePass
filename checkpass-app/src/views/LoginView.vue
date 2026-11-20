@@ -343,7 +343,7 @@ const canSubmit = computed(() => {
   return val.replace(/\D/g, '').length >= 9 && password.value.length >= 1
 })
 
-function selectWorkspaceRole(role: 'resident' | 'security' | 'homeowner') {
+function selectWorkspaceRole(role: any) {
   multiRoleModalOpen.value = false
   if (!pendingAuthPayload.value) return
 
