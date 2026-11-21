@@ -1964,18 +1964,33 @@
           </div>
         </div>
         <div class="contact-form-card" data-reveal="right">
-          <form id="contactForm" onsubmit="handleFormSubmit(event)">
+          <form id="contactForm" onsubmit="handleContactFormSubmit(event)">
             <div class="form-grid">
-              <div class="form-group"><label>Full Name *</label><input type="text" placeholder="Your full name" required></div>
+              <div class="form-group"><label>Full Name *</label><input type="text" id="contactFullName" placeholder="Your full name" required></div>
               <div class="form-group"><label>Your Role *</label>
-                <select required><option value="">Select your role</option><option>Estate Manager / Admin</option><option>Resident Association Chair</option><option>Property Developer</option><option>Facility Manager</option><option>Resident / Homeowner</option><option>Other</option></select>
+                <select id="contactRole" required>
+                  <option value="">Select your role</option>
+                  <option value="Estate Manager / Admin">Estate Manager / Admin</option>
+                  <option value="Resident Association Chair">Resident Association Chair</option>
+                  <option value="Property Developer">Property Developer</option>
+                  <option value="Facility Manager">Facility Manager</option>
+                  <option value="Resident / Homeowner">Resident / Homeowner</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
-              <div class="form-group"><label>Estate Name *</label><input type="text" placeholder="e.g. Victoria Crest Estate" required></div>
+              <div class="form-group"><label>Estate Name *</label><input type="text" id="contactEstateName" placeholder="e.g. Victoria Crest Estate" required></div>
               <div class="form-group"><label>Estate Location / City *</label>
-                <select required><option value="">Select city</option><option>Lagos</option><option>Abuja</option><option>Port Harcourt</option><option>Ibadan</option><option>Other Nigerian City</option></select>
+                <select id="contactCity" required>
+                  <option value="">Select city</option>
+                  <option value="Lagos">Lagos</option>
+                  <option value="Abuja">Abuja</option>
+                  <option value="Port Harcourt">Port Harcourt</option>
+                  <option value="Ibadan">Ibadan</option>
+                  <option value="Other Nigerian City">Other Nigerian City</option>
+                </select>
               </div>
-              <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="+234 800 000 0000" required></div>
-              <div class="form-group"><label>Email Address *</label><input type="email" placeholder="admin@estate.ng" required></div>
+              <div class="form-group"><label>Phone Number *</label><input type="tel" id="contactPhone" placeholder="+234 800 000 0000" required></div>
+              <div class="form-group"><label>Email Address *</label><input type="email" id="contactEmail" placeholder="admin@estate.ng" required></div>
               <div class="form-group full">
                 <label style="font-weight:700;color:var(--dark)">Select Estate Capacity / Package *</label>
                 <select id="contactPlanSelect" style="font-weight:600;border-color:rgba(10,91,56,0.3);background-color:#F7FAF8;padding:12px 14px">
@@ -2766,12 +2781,108 @@ function goToRegister() {
   router.push('/register')
 }
 
+async function handleContactFormSubmit(e?: Event) {
+  if (e && typeof e.preventDefault === 'function') {
+    e.preventDefault()
+  }
+
+  const fullName = (document.getElementById('contactFullName') as HTMLInputElement)?.value?.trim() || ''
+  const role = (document.getElementById('contactRole') as HTMLSelectElement)?.value?.trim() || 'Estate Admin'
+  const estateName = (document.getElementById('contactEstateName') as HTMLInputElement)?.value?.trim() || 'Inquiring Estate'
+  const city = (document.getElementById('contactCity') as HTMLSelectElement)?.value?.trim() || 'Lagos'
+  const phone = (document.getElementById('contactPhone') as HTMLInputElement)?.value?.trim() || ''
+  const email = (document.getElementById('contactEmail') as HTMLInputElement)?.value?.trim() || ''
+  const plan = (document.getElementById('contactPlanSelect') as HTMLSelectElement)?.value?.trim() || 'residential'
+  const unitsRaw = (document.getElementById('contactUnitsInput') as HTMLInputElement)?.value?.trim() || ''
+
+  let units = parseInt(unitsRaw.replace(/\D/g, ''), 10)
+  if (!units || isNaN(units)) {
+    if (plan === 'boutique') units = 40
+    else if (plan === 'enterprise') units = 400
+    else units = 120
+  }
+
+  const dealValue = units * 1200 * 12
+
+  const newLead = {
+    id: `lead-${Date.now()}`,
+    estateName,
+    name: fullName,
+    role,
+    phone,
+    email,
+    city,
+    units,
+    dealValue,
+    stage: 'new',
+    source: 'Website Contact',
+    notes: `Submitted via website Contact Us form. Plan requested: ${plan}. Scope: ${units} units. Contact: ${fullName} (${phone}, ${email}).`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+
+  // Persist directly into local storage for immediate visibility in CRM
+  try {
+    const raw = localStorage.getItem('checkpass_crm_leads')
+    let currentLeads = raw ? JSON.parse(raw) : []
+    const MOCK_LEAD_IDS = new Set(['lead-1', 'lead-2', 'lead-3', 'lead-4', 'lead-5', 'lead-6'])
+    const MOCK_ESTATES = new Set([
+      'victoria crest estate iv',
+      'megamound carlton gate',
+      'pinnock beach estate',
+      'crown estate sangotedo',
+      'sunrise hills estate',
+      'phdl estate guzape',
+    ])
+    if (Array.isArray(currentLeads)) {
+      currentLeads = currentLeads.filter((l: any) => {
+        const id = String(l.id || '')
+        const name = String(l.estateName || '').toLowerCase().trim()
+        return !MOCK_LEAD_IDS.has(id) && !MOCK_ESTATES.has(name)
+      })
+    } else {
+      currentLeads = []
+    }
+    currentLeads.unshift(newLead)
+    localStorage.setItem('checkpass_crm_leads', JSON.stringify(currentLeads))
+  } catch (err) {
+    console.debug('Failed to cache lead locally:', err)
+  }
+
+  // Transmit to backend CRM API
+  try {
+    await crmApi.createLead({
+      estate_name: estateName,
+      name: fullName,
+      role: role,
+      phone: phone,
+      email: email,
+      city: city,
+      units: units,
+      deal_value: dealValue,
+      stage: 'new',
+      source: 'Website Contact',
+      notes: newLead.notes,
+    })
+  } catch (err) {
+    console.debug('Backend lead API write deferred:', err)
+  }
+
+  // Display success card
+  const formEl = document.getElementById('contactForm')
+  const successEl = document.getElementById('formSuccess')
+  if (formEl) formEl.style.display = 'none'
+  if (successEl) successEl.style.display = 'block'
+}
+
 if (typeof window !== 'undefined') {
   (window as any).goToLogin = goToLogin;
   (window as any).goToRegister = goToRegister;
   (window as any).openLoginModal = goToLogin;
   (window as any).toggleMobileNav = toggleMobileNav;
   (window as any).closeMobileNav = closeMobileNav;
+  (window as any).handleContactFormSubmit = handleContactFormSubmit;
+  (window as any).handleFormSubmit = handleContactFormSubmit;
   (window as any).showPage = (id: string) => {
     const next = document.getElementById('page-' + id);
     if (!next) return;

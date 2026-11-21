@@ -11,7 +11,11 @@
       <div class="crm-header-actions">
         <button class="btn btn-secondary" @click="syncLeadsFromStorage">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-          Sync AI Inquiries
+          Sync Inquiries
+        </button>
+        <button class="btn btn-secondary" @click="clearDummyLeads" title="Purge all dummy and placeholder mock leads">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Clear Mock Data
         </button>
         <button class="btn btn-primary" @click="showAddLeadModal = true">
           + Add Estate Lead
@@ -475,11 +479,37 @@ const newLeadForm = ref({
 
 const leads = ref<Lead[]>([])
 
+const MOCK_LEAD_IDS = new Set(['lead-1', 'lead-2', 'lead-3', 'lead-4', 'lead-5', 'lead-6'])
+const MOCK_ESTATE_NAMES = new Set([
+  'victoria crest estate iv',
+  'megamound carlton gate',
+  'pinnock beach estate',
+  'crown estate sangotedo',
+  'sunrise hills estate',
+  'phdl estate guzape',
+])
+
+function isMockLead(item: any): boolean {
+  if (!item) return true
+  const id = String(item.id || '')
+  if (MOCK_LEAD_IDS.has(id)) return true
+  const estate = String(item.estateName || item.estate_name || '').toLowerCase().trim()
+  if (MOCK_ESTATE_NAMES.has(estate)) return true
+  return false
+}
+
+function clearDummyLeads() {
+  leads.value = leads.value.filter(l => !isMockLead(l))
+  saveAllLeads()
+  showToast('All placeholder and dummy leads purged successfully', 'success')
+}
+
 async function loadLeads() {
   try {
     const raw = localStorage.getItem('checkpass_crm_leads')
     if (raw) {
-      leads.value = JSON.parse(raw)
+      const parsed = JSON.parse(raw)
+      leads.value = Array.isArray(parsed) ? parsed.filter(l => !isMockLead(l)) : []
     } else {
       leads.value = []
     }
@@ -487,33 +517,42 @@ async function loadLeads() {
     leads.value = []
   }
 
+  // Immediately persist sanitized clean state to local storage
+  saveAllLeads()
+
   // Attempt background sync with persistent backend database
   try {
     const res = await crmApi.getLeads()
     const backendData = res.data?.data || []
     if (Array.isArray(backendData) && backendData.length > 0) {
-      const remoteLeads: Lead[] = backendData.map((b: any) => ({
-        id: String(b.ulid || b.id),
-        estateName: b.estate_name,
-        name: b.name,
-        role: b.role,
-        phone: b.phone,
-        email: b.email,
-        city: b.city,
-        units: Number(b.units || 50),
-        dealValue: Number(b.deal_value || 0),
-        stage: b.stage as LeadStage,
-        source: b.source,
-        chatTranscript: b.chat_transcript,
-        notes: b.notes,
-        createdAt: b.created_at,
-        updatedAt: b.updated_at,
-      }))
+      const remoteLeads: Lead[] = backendData
+        .filter((b: any) => !isMockLead(b))
+        .map((b: any) => ({
+          id: String(b.ulid || b.id),
+          estateName: b.estate_name,
+          name: b.name,
+          role: b.role,
+          phone: b.phone,
+          email: b.email,
+          city: b.city,
+          units: Number(b.units || 50),
+          dealValue: Number(b.deal_value || 0),
+          stage: b.stage as LeadStage,
+          source: b.source,
+          chatTranscript: b.chat_transcript,
+          notes: b.notes,
+          createdAt: b.created_at,
+          updatedAt: b.updated_at,
+        }))
 
       // Merge remote with local leads
       const localMap = new Map<string, Lead>()
-      leads.value.forEach(l => localMap.set(l.estateName.toLowerCase().trim(), l))
-      remoteLeads.forEach(r => localMap.set(r.estateName.toLowerCase().trim(), r))
+      leads.value.forEach(l => {
+        if (!isMockLead(l)) localMap.set(l.estateName.toLowerCase().trim(), l)
+      })
+      remoteLeads.forEach(r => {
+        if (!isMockLead(r)) localMap.set(r.estateName.toLowerCase().trim(), r)
+      })
       leads.value = Array.from(localMap.values())
       saveAllLeads()
     }
