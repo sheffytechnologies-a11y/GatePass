@@ -274,58 +274,10 @@ const activeTab = computed(() => {
   z-index: 999;
 }
 
-/* ─── 3-TAB BARS: CIRCULAR RADIUS & CONCENTRIC DOCK ─── */
-/* Outer dock height: 64px, outer radius: 32px (full pill)
-   Inner active button: 52px × 52px circular button with 50% radius (R = 26px)
-   Padding: 6px all around (32px - 6px = 26px concentric radius)
-   Circular active indicator matching other circular FABs and avatar buttons
-*/
+/* ─── 3-TAB BARS (Homeowner & Security): COMPACT DOCK MATCHING OCCUPANT VIEW ─── */
 .custom-tab-bar.homeowner-bar,
 .custom-tab-bar.security-bar {
-  width: 280px !important;
-  max-width: 280px !important;
-  height: 64px !important;
-  padding: 6px !important;
-  border-radius: 32px !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-}
-
-.custom-tab-bar.homeowner-bar ion-tab-button,
-.custom-tab-bar.security-bar ion-tab-button {
-  height: 52px !important;
-  width: 52px !important;
-  max-width: 52px !important;
-  flex: 0 0 52px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.custom-tab-bar.homeowner-bar .tab-pill,
-.custom-tab-bar.security-bar .tab-pill {
-  height: 52px !important;
-  width: 52px !important;
-  max-width: 52px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-}
-
-.custom-tab-bar.homeowner-bar .tab-pill.pill-active,
-.custom-tab-bar.security-bar .tab-pill.pill-active {
-  background: #FFFFFF !important;
-  border-radius: 50% !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  max-width: 252px !important;
 }
 
 .scan-fab {
