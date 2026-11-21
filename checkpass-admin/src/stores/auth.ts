@@ -21,7 +21,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const storedEstateId = localStorage.getItem('admin_active_estate_id')
   const activeEstateId = ref<string | number | null>(storedEstateId ?? 'all')
-  const activeEstateName = ref<string>(localStorage.getItem('admin_active_estate_name') || '🌐 All Estates')
+  const rawStoredName = localStorage.getItem('admin_active_estate_name') || 'All Estates'
+  const activeEstateName = ref<string>(rawStoredName.replace('🌐', '').trim() || 'All Estates')
   const estates = ref<EstateWorkspace[]>(
     JSON.parse(localStorage.getItem('admin_estates') ?? '[]')
   )
@@ -51,21 +52,21 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('admin_active_estate_name', activeEstateName.value)
     } else if (resolvedRole === 'super_admin') {
       activeEstateId.value = 'all'
-      activeEstateName.value = '🌐 All Estates'
+      activeEstateName.value = 'All Estates'
       localStorage.setItem('admin_active_estate_id', 'all')
-      localStorage.setItem('admin_active_estate_name', '🌐 All Estates')
+      localStorage.setItem('admin_active_estate_name', 'All Estates')
     }
   }
 
   function setActiveEstate(estate: EstateWorkspace) {
     activeEstateId.value = estate.id
-    activeEstateName.value = estate.name
+    activeEstateName.value = estate.name.replace('🌐', '').trim()
     if (estate.role && (estate.role === 'super_admin' || estate.role === 'estate_admin')) {
       role.value = estate.role as AppRole
       localStorage.setItem('admin_role', estate.role)
     }
     localStorage.setItem('admin_active_estate_id', String(estate.id))
-    localStorage.setItem('admin_active_estate_name', estate.name)
+    localStorage.setItem('admin_active_estate_name', activeEstateName.value)
   }
 
   function setEstatesList(list: EstateWorkspace[]) {
@@ -73,9 +74,9 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('admin_estates', JSON.stringify(list))
     if (!activeEstateId.value) {
       activeEstateId.value = 'all'
-      activeEstateName.value = '🌐 All Estates'
+      activeEstateName.value = 'All Estates'
       localStorage.setItem('admin_active_estate_id', 'all')
-      localStorage.setItem('admin_active_estate_name', '🌐 All Estates')
+      localStorage.setItem('admin_active_estate_name', 'All Estates')
     }
   }
 

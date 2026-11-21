@@ -34,7 +34,7 @@
         </div>
 
         <div class="estates-list">
-          <!-- 🌐 All Estates Global View (Default) -->
+          <!-- All Estates Global View (Default) -->
           <button
             type="button"
             class="estate-item-row estate-item-row--all"
@@ -42,7 +42,7 @@
             @click="selectAllEstates"
           >
             <div class="item-main">
-              <div class="item-name">🌐 All Estates</div>
+              <div class="item-name">All Estates</div>
               <div class="item-sub">Unified multi-estate view &amp; telemetry</div>
             </div>
 
@@ -163,9 +163,10 @@ const dropdownRef = ref<HTMLElement | null>(null)
 
 const currentEstateName = computed(() => {
   if (auth.activeEstateId === 'all' || !auth.activeEstateId) {
-    return '🌐 All Estates'
+    return 'All Estates'
   }
-  return auth.activeEstateName || '🌐 All Estates'
+  const name = auth.activeEstateName || 'All Estates'
+  return name.replace('🌐', '').trim()
 })
 
 // Fallback list if user has only 1 estate so far
@@ -190,7 +191,7 @@ function toggleDropdown() {
 function selectAllEstates() {
   const allEstate: EstateWorkspace = {
     id: 'all',
-    name: '🌐 All Estates',
+    name: 'All Estates',
     role: 'Super Admin',
     address: 'All Communities',
   }

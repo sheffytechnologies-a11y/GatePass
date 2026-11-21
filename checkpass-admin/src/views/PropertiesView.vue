@@ -80,7 +80,7 @@
           class="form-select toolbar-select estate-filter-select"
           @change="onEstateFilterChange"
         >
-          <option value="all">🌐 All Estates</option>
+          <option value="all">All Estates</option>
           <option v-for="est in auth.estates" :key="est.id" :value="est.id">
             🏡 {{ est.name }}
           </option>

@@ -1280,7 +1280,7 @@ async function load(showSpinner = true) {
     if (!auth.activeEstateId) {
       auth.setActiveEstate({
         id: 'all',
-        name: '🌐 All Estates',
+        name: 'All Estates',
         role: 'Super Admin',
         address: 'All Communities'
       })
