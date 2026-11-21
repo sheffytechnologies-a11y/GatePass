@@ -24,6 +24,10 @@ export const onboardingApi = {
 }
 
 export const billingApi = {
+  getSubscribers: (params?: Record<string, unknown>) =>
+    client.get('/v1/admin/billing/subscribers', { params }),
+  updateSubscriber: (estateId: number | string, data: Record<string, unknown>) =>
+    client.patch(`/v1/admin/billing/subscribers/${estateId}`, data),
   getSubscription: (params?: Record<string, unknown>) =>
     client.get('/v1/admin/billing/subscription', { params }),
   getPlans: () => client.get('/v1/admin/billing/plans'),

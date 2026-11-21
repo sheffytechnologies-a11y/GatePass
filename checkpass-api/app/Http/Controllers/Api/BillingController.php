@@ -17,6 +17,173 @@ use Illuminate\Support\Facades\Log;
 class BillingController extends Controller
 {
     /**
+     * GET /api/v1/admin/billing/subscribers
+     * Super Admin endpoint: list all client estates with their subscription & expiration status
+     */
+    public function subscribers(Request $request)
+    {
+        /** @var Admin $admin */
+        $admin = $request->user();
+        abort_unless($admin && $admin->isSuperAdmin(), 403, 'Unauthorized. Super Admin access required.');
+
+        $defaultPlan = Plan::where('code', 'free_trial')->first() ?? Plan::first();
+
+        $estates = Estate::with(['admins', 'subscription.plan'])
+            ->withCount(['units', 'residents'])
+            ->orderBy('name')
+            ->get();
+
+        $subscribers = [];
+        $totalSubscribers = $estates->count();
+        $activePaid = 0;
+        $expiringSoon = 0;
+        $mrr = 0.0;
+
+        foreach ($estates as $estate) {
+            $sub = $estate->subscription;
+            if (!$sub) {
+                $sub = Subscription::create([
+                    'estate_id' => $estate->id,
+                    'plan_id' => $defaultPlan?->id,
+                    'billing_cycle' => 'monthly',
+                    'status' => 'trialing',
+                    'current_period_start' => now(),
+                    'current_period_end' => now()->addDays(30),
+                    'extra_units' => 0,
+                ]);
+                $sub->load('plan');
+            }
+
+            $plan = $sub->plan ?? $defaultPlan;
+            $daysRemaining = $sub->daysUntilRenewal();
+            $isPastDue = $sub->status === 'past_due' || ($sub->current_period_end && $sub->current_period_end->isPast() && $sub->status !== 'active');
+            $isExpiringSoon = ($daysRemaining !== null && $daysRemaining <= 14 && $daysRemaining >= 0);
+
+            if ($plan && !$plan->is_custom && $plan->code !== 'free_trial' && $sub->status === 'active') {
+                $activePaid++;
+                $price = $sub->billing_cycle === 'yearly'
+                    ? ($plan->price_yearly / 12)
+                    : $plan->price_monthly;
+                $mrr += $price;
+            }
+
+            if ($isExpiringSoon) {
+                $expiringSoon++;
+            }
+
+            $primaryAdmin = $estate->admins->first();
+            $unitLimit = ($plan?->unit_limit === null) ? null : ($plan->unit_limit + $sub->extra_units);
+
+            $subscribers[] = [
+                'id' => $sub->id,
+                'estateId' => $estate->id,
+                'estateName' => $estate->name,
+                'estateAddress' => $estate->address,
+                'estateCity' => $estate->city,
+                'adminName' => $primaryAdmin?->name ?? 'Admin',
+                'adminEmail' => $primaryAdmin?->email ?? '—',
+                'adminPhone' => $primaryAdmin?->phone ?? '—',
+                'plan' => $plan ? [
+                    'id' => $plan->id,
+                    'code' => $plan->code,
+                    'name' => $plan->name,
+                    'unitLimit' => $plan->unit_limit,
+                    'priceMonthly' => $plan->price_monthly,
+                    'priceYearly' => $plan->price_yearly,
+                    'isCustom' => $plan->is_custom,
+                ] : null,
+                'status' => $sub->status,
+                'billingCycle' => $sub->billing_cycle,
+                'currentPeriodStart' => $sub->current_period_start?->toIso8601String(),
+                'currentPeriodEnd' => $sub->current_period_end?->toIso8601String(),
+                'daysRemaining' => $daysRemaining,
+                'isExpiringSoon' => $isExpiringSoon,
+                'isExpired' => $daysRemaining !== null && $daysRemaining < 0,
+                'unitsUsed' => $estate->units_count,
+                'unitLimit' => $unitLimit,
+                'residentsUsed' => $estate->residents_count,
+                'extraUnits' => $sub->extra_units,
+                'lastPaymentReference' => $sub->paystack_reference,
+            ];
+        }
+
+        return response()->json([
+            'subscribers' => $subscribers,
+            'metrics' => [
+                'totalEstates' => $totalSubscribers,
+                'activePaid' => $activePaid,
+                'expiringSoon' => $expiringSoon,
+                'mrr' => round($mrr, 2),
+            ],
+        ]);
+    }
+
+    /**
+     * PATCH /api/v1/admin/billing/subscribers/{estateId}
+     * Super Admin endpoint: extend, change plan, or modify status for an estate subscription
+     */
+    public function updateSubscriber(Request $request, $estateId)
+    {
+        /** @var Admin $admin */
+        $admin = $request->user();
+        abort_unless($admin && $admin->isSuperAdmin(), 403, 'Unauthorized. Super Admin access required.');
+
+        $estate = Estate::findOrFail($estateId);
+        $defaultPlanId = Plan::where('code', 'free_trial')->value('id') ?? 1;
+
+        $subscription = $estate->subscription()->firstOrCreate(
+            ['estate_id' => $estate->id],
+            [
+                'plan_id' => $defaultPlanId,
+                'billing_cycle' => 'monthly',
+                'status' => 'trialing',
+                'current_period_start' => now(),
+                'current_period_end' => now()->addDays(30),
+            ]
+        );
+
+        $validated = $request->validate([
+            'plan_id' => 'nullable|exists:plans,id',
+            'status' => 'nullable|string|in:active,trialing,past_due,canceled',
+            'billing_cycle' => 'nullable|string|in:monthly,yearly',
+            'current_period_end' => 'nullable|date',
+            'extend_days' => 'nullable|integer',
+            'extra_units' => 'nullable|integer|min:0',
+        ]);
+
+        if (isset($validated['plan_id'])) {
+            $subscription->plan_id = $validated['plan_id'];
+        }
+        if (isset($validated['status'])) {
+            $subscription->status = $validated['status'];
+        }
+        if (isset($validated['billing_cycle'])) {
+            $subscription->billing_cycle = $validated['billing_cycle'];
+        }
+        if (isset($validated['extra_units'])) {
+            $subscription->extra_units = $validated['extra_units'];
+        }
+        if (!empty($validated['current_period_end'])) {
+            $subscription->current_period_end = $validated['current_period_end'];
+        } elseif (!empty($validated['extend_days'])) {
+            $baseDate = ($subscription->current_period_end && $subscription->current_period_end->isFuture())
+                ? $subscription->current_period_end
+                : now();
+            $subscription->current_period_end = $baseDate->copy()->addDays((int) $validated['extend_days']);
+            if (in_array($subscription->status, ['past_due', 'canceled'])) {
+                $subscription->status = 'active';
+            }
+        }
+
+        $subscription->save();
+
+        return response()->json([
+            'message' => 'Estate subscription updated successfully.',
+            'subscription' => $subscription->load('plan'),
+        ]);
+    }
+
+    /**
      * GET /api/v1/admin/billing/subscription
      */
     public function subscription(Request $request)

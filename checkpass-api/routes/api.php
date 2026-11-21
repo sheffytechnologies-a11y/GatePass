@@ -253,13 +253,15 @@ Route::prefix('v1')->group(function () {
             Route::patch('artisans/{id}',   [ArtisanController::class, 'adminUpdate']);
             Route::delete('artisans/{id}',  [ArtisanController::class, 'adminDestroy']);
 
-            // Billing (self-service subscription management)
+            // Billing (self-service subscription management & Super Admin estate directory)
             Route::prefix('billing')->group(function () {
-                Route::get('subscription',  [BillingController::class, 'subscription']);
-                Route::get('plans',         [BillingController::class, 'plans']);
-                Route::get('transactions',  [BillingController::class, 'transactions']);
-                Route::post('checkout',     [BillingController::class, 'checkout']);
-                Route::post('verify',       [BillingController::class, 'verify']);
+                Route::get('subscribers',              [BillingController::class, 'subscribers']);
+                Route::patch('subscribers/{estateId}', [BillingController::class, 'updateSubscriber']);
+                Route::get('subscription',             [BillingController::class, 'subscription']);
+                Route::get('plans',                    [BillingController::class, 'plans']);
+                Route::get('transactions',             [BillingController::class, 'transactions']);
+                Route::post('checkout',                [BillingController::class, 'checkout']);
+                Route::post('verify',                  [BillingController::class, 'verify']);
             });
         });
     });

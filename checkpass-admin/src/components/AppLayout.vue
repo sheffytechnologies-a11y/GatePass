@@ -29,7 +29,7 @@
           @click="sidebarOpen = false"
         >
           <span class="side-icon" v-html="ICONS.billing" />
-          <span>Plan &amp; Subscription</span>
+          <span>{{ auth.isSuperAdmin ? 'Subscriptions' : 'Plan & Subscription' }}</span>
         </router-link>
 
         <div class="user-card">
@@ -240,7 +240,7 @@ function isItemActive(path: string) {
 
 const pageTitle = computed(() => {
   if (route.path.startsWith('/notifications') || route.path.startsWith('/news')) return 'Notifications & Announcements'
-  if (route.path.startsWith('/billing')) return 'Plan & Subscription'
+  if (route.path.startsWith('/billing')) return auth.isSuperAdmin ? 'Estate Subscriptions' : 'Plan & Subscription'
   const match = navItems.value.find(n => route.path.startsWith(n.path))
   return match?.label ?? 'Dashboard'
 })
