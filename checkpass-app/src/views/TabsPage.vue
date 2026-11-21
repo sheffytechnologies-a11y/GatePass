@@ -274,11 +274,55 @@ const activeTab = computed(() => {
   z-index: 999;
 }
 
-/* 3-tab bars: slightly narrower, ultra-balanced */
-.custom-tab-bar.security-bar,
-.custom-tab-bar.homeowner-bar {
-  max-width: 310px !important;
-  padding: 0 10px;
+/* ─── 3-TAB BARS: CONCENTRIC RADIUS & EQUAL SPACING ─── */
+/* Outer dock height: 64px, outer radius: 32px (full pill)
+   Inner active pill height: 52px, inner radius: 26px (32px - 6px = 26px)
+   Concentric Rule: R_inner = R_outer - Padding
+   Uniform padding: 6px on all sides (top, bottom, left, right = 6px)
+   Uniform gap between tabs: 6px
+   Each tab button width: 88px (total width: 6*2 + 88*3 + 6*2 = 288px)
+   Every point on the inner arc is identically 6px from the outer dock arc!
+*/
+.custom-tab-bar.homeowner-bar,
+.custom-tab-bar.security-bar {
+  width: 288px !important;
+  max-width: 288px !important;
+  height: 64px !important;
+  padding: 6px !important;
+  gap: 6px !important;
+  border-radius: 32px !important;
+  box-sizing: border-box !important;
+  justify-content: space-between !important;
+}
+
+.custom-tab-bar.homeowner-bar ion-tab-button,
+.custom-tab-bar.security-bar ion-tab-button {
+  height: 52px !important;
+  flex: 1 1 0% !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.custom-tab-bar.homeowner-bar .tab-pill,
+.custom-tab-bar.security-bar .tab-pill {
+  height: 52px !important;
+  width: 100% !important;
+  max-width: none !important;
+  border-radius: 26px !important;
+  padding: 4px 8px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.custom-tab-bar.homeowner-bar .tab-pill.pill-active,
+.custom-tab-bar.security-bar .tab-pill.pill-active {
+  background: #FFFFFF !important;
+  border-radius: 26px !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 .scan-fab {
