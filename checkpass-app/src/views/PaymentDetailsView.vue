@@ -19,6 +19,16 @@
           <span>Loading payment details...</span>
         </div>
 
+        <div v-else-if="fees.length === 0" class="pay-empty-wrap">
+          <EmptyState
+            icon="🧾"
+            heading="No Fees Selected"
+            body="No outstanding dues were selected for payment."
+            cta-label="Back to Dues"
+            @cta="router.push('/tabs/fees')"
+          />
+        </div>
+
         <template v-else>
           <!-- Summary Card -->
           <div class="summary-card">
@@ -124,20 +134,20 @@
             <div class="bank-account-card">
               <div class="bac-top">
                 <div class="bac-badge">OFFICIAL ESTATE ACCOUNT</div>
-                <div class="bac-bank-name">Providus Bank</div>
+                <div class="bac-bank-name">{{ bankInfo.bankName || 'Official Estate Bank Account' }}</div>
               </div>
 
               <div class="bac-item">
                 <span class="bac-label">Account Name</span>
-                <strong class="bac-val">PHDL Estate Residents Association</strong>
+                <strong class="bac-val">{{ bankInfo.accountName || auth.resident?.estateName || 'Estate Management' }}</strong>
               </div>
 
               <div class="bac-item bac-highlight">
                 <div>
                   <span class="bac-label">Account Number</span>
-                  <div class="bac-number">1023849102</div>
+                  <div class="bac-number">{{ bankInfo.accountNumber || 'Contact Estate Admin' }}</div>
                 </div>
-                <button type="button" class="copy-pill-btn" @click="copyText('1023849102', 'account')">
+                <button v-if="bankInfo.accountNumber" type="button" class="copy-pill-btn" @click="copyText(bankInfo.accountNumber, 'account')">
                   {{ copiedAccount ? '✓ Copied' : 'Copy' }}
                 </button>
               </div>
@@ -247,6 +257,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IonPage, IonContent } from '@ionic/vue'
+import EmptyState from '@/components/EmptyState.vue'
 import client from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
@@ -260,13 +271,6 @@ type FeeItem = {
   id: string
   title: string
   amount: number
-}
-
-const KNOWN_FEES: Record<string, { title: string; amount: number }> = {
-  'fee-101': { title: 'Estate Security & Maintenance Levy', amount: 21000 },
-  'fee-102': { title: 'Central Diesel & Energy Surcharge', amount: 12000 },
-  'fee-103': { title: 'Q3 Waste Management & Facility Fee', amount: 9000 },
-  'fee-104': { title: 'Quarterly Estate Infrastructure Dues', amount: 30000 },
 }
 
 const route = useRoute()
@@ -288,24 +292,34 @@ const copiedAccount = ref(false)
 const copiedRef = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const receiptFile = ref<File | null>(null)
-const depositorName = ref(auth.resident?.name || 'Sheriff Bello')
+const depositorName = ref(auth.resident?.name || '')
 const sessionReference = ref('')
 
+const bankInfo = ref({
+  bankName: '',
+  accountName: '',
+  accountNumber: '',
+})
+
 const transferReference = computed(() => {
-  const flat = (auth.resident?.flatAddress || 'L3-H7').replace(/[^a-zA-Z0-9]/g, '')
+  const flat = (auth.resident?.flatAddress || 'ESTATE').replace(/[^a-zA-Z0-9]/g, '')
   return `CP-${flat}-DUES`
 })
 
 function parseIdsFromQuery(): string[] {
   const raw = route.query.ids
-  if (!raw) return ['fee-101', 'fee-102']
+  if (!raw) return []
   const idsText = Array.isArray(raw) ? raw.join(',') : String(raw)
-  const parsed = idsText.split(',').map((p) => p.trim()).filter(Boolean)
-  return parsed.length > 0 ? parsed : ['fee-101', 'fee-102']
+  return idsText.split(',').map((p) => p.trim()).filter(Boolean)
 }
 
 async function loadPaymentDetails() {
   const feeIds = parseIdsFromQuery()
+  if (feeIds.length === 0) {
+    fees.value = []
+    totalAmount.value = 0
+    return
+  }
 
   loading.value = true
   errorMessage.value = ''
@@ -319,23 +333,22 @@ async function loadPaymentDetails() {
         title: item.title,
         amount: Number(item.amount || 0),
       }))
+      if (res.data.bankDetails) {
+        bankInfo.value = {
+          bankName: res.data.bankDetails.bankName || '',
+          accountName: res.data.bankDetails.accountName || '',
+          accountNumber: res.data.bankDetails.accountNumber || '',
+        }
+      }
       loading.value = false
       return
     }
-  } catch {
-    // Graceful fallback to known fee dictionary so the UI never crashes
+  } catch (err: any) {
+    errorMessage.value = err?.response?.data?.message || 'Could not load payment details for selected fees.'
   }
 
-  // Fallback computation
-  const fallbackItems: FeeItem[] = feeIds.map((id) => {
-    if (KNOWN_FEES[id]) {
-      return { id, ...KNOWN_FEES[id] }
-    }
-    return { id, title: `Estate Levy (${id})`, amount: 12000 }
-  })
-
-  fees.value = fallbackItems
-  totalAmount.value = fallbackItems.reduce((sum, item) => sum + item.amount, 0)
+  fees.value = []
+  totalAmount.value = 0
   loading.value = false
 }
 

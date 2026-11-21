@@ -472,107 +472,6 @@ const newLeadForm = ref({
   notes: '',
 })
 
-// Seed realistic default leads
-const DEFAULT_LEADS: Lead[] = [
-  {
-    id: 'lead-1',
-    estateName: 'Victoria Crest Estate IV',
-    name: 'Engr. Babatunde Alao',
-    role: 'Exco Chairman',
-    city: 'Lagos',
-    units: 180,
-    dealValue: 180 * 1200 * 12,
-    stage: 'new',
-    source: 'AI Concierge',
-    phone: '0802 403 5326',
-    email: 'babatunde@victoriacrest.ng',
-    chatTranscript: "User: How does the 4-second clearance work when internet is down?\nAI: CheckPass guards have an offline cached cryptographic token engine...\nUser: We have 180 flats in Lekki. My name is Babatunde Alao.",
-    notes: 'Inquired through on-site AI Concierge regarding offline guard scanning and dues automation.',
-    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    updatedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-  },
-  {
-    id: 'lead-2',
-    estateName: 'Megamound Carlton Gate',
-    name: 'Mrs. Folake Adeyemi',
-    role: 'Facility Manager',
-    city: 'Lagos',
-    units: 240,
-    dealValue: 240 * 1200 * 12,
-    stage: 'discovery',
-    source: 'Website Form',
-    phone: '0803 555 1234',
-    email: 'folake@carlton.ng',
-    notes: 'Needs integration with 2 existing BFT hydraulic boom barriers.',
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-  {
-    id: 'lead-3',
-    estateName: 'Pinnock Beach Estate',
-    name: 'Barrister Nnamdi Kanu',
-    role: 'Secretary HOA',
-    city: 'Lagos',
-    units: 210,
-    dealValue: 210 * 1200 * 12,
-    stage: 'demo',
-    source: 'AI Concierge',
-    phone: '0812 345 6789',
-    email: 'nnamdi@pinnockbeach.ng',
-    chatTranscript: "User: Can we track move-out trucks and defaulting tenants?\nAI: Yes, CheckPass has move-out asset verification manifests.\nUser: Schedule a walkthrough for our Exco Saturday 10am.",
-    notes: '15-min virtual walkthrough scheduled for Saturday 10:00 AM.',
-    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: 'lead-4',
-    estateName: 'Crown Estate Sangotedo',
-    name: 'Alhaji Musa Bello',
-    role: 'Estate Admin',
-    city: 'Lagos',
-    units: 420,
-    dealValue: 420 * 1200 * 12,
-    stage: 'proposal',
-    source: 'Referral',
-    phone: '0809 111 2233',
-    email: 'admin@crownestate.ng',
-    notes: 'Custom proposal sent for 420 units on Enterprise tier with guard devices included.',
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: 'lead-5',
-    estateName: 'Sunrise Hills Estate',
-    name: 'Dr. Chidi Okeke',
-    role: 'HOA President',
-    city: 'Abuja',
-    units: 110,
-    dealValue: 110 * 1200 * 12,
-    stage: 'pilot',
-    source: 'AI Concierge',
-    phone: '0806 777 8899',
-    email: 'chidi@sunrisehills.ng',
-    notes: '3-unit test sandbox active at Main Gate terminal.',
-    createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: 'lead-6',
-    estateName: 'PHDL Estate Guzape',
-    name: 'Captain Danjuma',
-    role: 'Chief Security Officer',
-    city: 'Abuja',
-    units: 75,
-    dealValue: 75 * 1200 * 12,
-    stage: 'won',
-    source: 'Direct Outbound',
-    phone: '0802 999 0000',
-    email: 'sec@phdl.ng',
-    notes: 'Successfully deployed! Gate terminal and resident app live.',
-    createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-  },
-]
 
 const leads = ref<Lead[]>([])
 
@@ -582,11 +481,10 @@ async function loadLeads() {
     if (raw) {
       leads.value = JSON.parse(raw)
     } else {
-      leads.value = DEFAULT_LEADS
-      saveAllLeads()
+      leads.value = []
     }
   } catch {
-    leads.value = DEFAULT_LEADS
+    leads.value = []
   }
 
   // Attempt background sync with persistent backend database

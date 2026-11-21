@@ -46,8 +46,8 @@ const props = withDefaults(defineProps<{
   stats: () => ({ onPremises: 0, activePasses: 0, newToday: 0 }),
 })
 
-const displayEstateName = computed(() => props.estateName || 'Sheffy Estate')
-const displayFlatAddress = computed(() => props.flatAddress || 'VIP 2, VVIP 2, 1% 2')
+const displayEstateName = computed(() => props.estateName || 'Estate')
+const displayFlatAddress = computed(() => props.flatAddress || '')
 const safeStats = computed(() => ({
   onPremises: typeof props.stats?.onPremises === 'number' ? props.stats.onPremises : 0,
   activePasses: typeof props.stats?.activePasses === 'number' ? props.stats.activePasses : 0,

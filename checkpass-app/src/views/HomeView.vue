@@ -55,7 +55,7 @@
           <div class="security-hero-card admin-hero-card">
             <div class="sec-hero-top">
               <div class="sec-hero-left">
-                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Estate' }}</div>
                 <div class="sec-station-title">Estate Administration</div>
               </div>
               <div class="sec-duty-pill admin-pill">
@@ -125,7 +125,7 @@
           <div class="security-hero-card">
             <div class="sec-hero-top">
               <div class="sec-hero-left">
-                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-estate-eyebrow">{{ summary?.user?.estateName || auth.resident?.estateName || 'Estate' }}</div>
                 <div class="sec-station-title">{{ securityStation }}</div>
               </div>
               <div class="sec-duty-pill">
@@ -392,7 +392,7 @@
           <div class="security-hero-card homeowner-hero-card">
             <div class="sec-hero-top">
               <div class="sec-hero-left">
-                <div class="sec-estate-eyebrow">{{ (summary as any)?.user?.estateName || auth.resident?.estateName || 'Sheffy Estate' }}</div>
+                <div class="sec-estate-eyebrow">{{ (summary as any)?.user?.estateName || auth.resident?.estateName || 'Estate' }}</div>
                 <div class="sec-station-title">Property Portfolio</div>
               </div>
             </div>
@@ -1572,7 +1572,6 @@ import PhraseEntrySheet from '@/components/PhraseEntrySheet.vue'
 import client from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import type { HomeSummary } from '@/types'
-import { MOCK_RESIDENT } from '@/api/mock'
 
 export type NewsFeedItem = {
   id: number
@@ -1814,37 +1813,7 @@ export interface NewsComment {
 
 const newsCommentsStorageKey = 'checkpass_news_comments'
 
-const initialDefaultNewsComments: Record<string | number, NewsComment[]> = {
-  101: [
-    {
-      id: 'c-101-1',
-      newsId: 101,
-      authorName: 'Engr. Tunde Adeleke',
-      authorUnit: 'House 4B',
-      content: 'Thank you for the early notice. Will borehole pumps remain powered on backup generators?',
-      createdAt: '2 hours ago',
-    },
-    {
-      id: 'c-101-2',
-      newsId: 101,
-      authorName: 'Estate Admin',
-      authorUnit: 'Facility Office',
-      authorRole: 'Estate Admin',
-      content: 'Yes Engr. Tunde, generator circuit 2 feeds the borehole pump station throughout.',
-      createdAt: '1 hour ago',
-    },
-  ],
-  102: [
-    {
-      id: 'c-102-1',
-      newsId: 102,
-      authorName: 'Mrs. Folake Adeyemi',
-      authorUnit: 'Flat 12',
-      content: 'This has reduced waiting queues at the main gate significantly this morning.',
-      createdAt: 'Yesterday',
-    },
-  ],
-}
+const initialDefaultNewsComments: Record<string | number, NewsComment[]> = {}
 
 function loadInitialNewsComments(): Record<string | number, NewsComment[]> {
   try {
@@ -1869,10 +1838,7 @@ export interface NewsReactionState {
 
 const newsReactionsStorageKey = 'checkpass_news_reactions'
 
-const initialDefaultNewsReactions: Record<string | number, NewsReactionState> = {
-  101: { likes: 12, dislikes: 0, userReaction: null },
-  102: { likes: 8, dislikes: 1, userReaction: null },
-}
+const initialDefaultNewsReactions: Record<string | number, NewsReactionState> = {}
 
 function loadNewsReactions(): Record<string | number, NewsReactionState> {
   try {
@@ -2383,10 +2349,15 @@ async function loadSummary() {
       const storedUser = JSON.parse(localStorage.getItem('w_user') ?? 'null')
       const storedResident = JSON.parse(localStorage.getItem('w_resident') ?? 'null')
       const residentData = auth.resident || storedResident || {
-        ...MOCK_RESIDENT,
-        name: storedUser?.name || 'Kemi Adeleke',
-        estateName: storedUser?.estateName || 'Sheffy Estate',
-        flatAddress: 'VIP 2, VVIP 2, 1% 2',
+        id: String(storedUser?.id || ''),
+        unitId: '',
+        name: storedUser?.name || 'Resident',
+        phone: storedUser?.phone || '',
+        flatAddress: '',
+        estateName: storedUser?.estateName || 'Estate',
+        role: 'member' as const,
+        pushEnabled: true,
+        isActive: true,
       }
       fallback = {
         resident: residentData,

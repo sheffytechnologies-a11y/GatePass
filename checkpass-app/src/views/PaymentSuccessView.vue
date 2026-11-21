@@ -152,11 +152,11 @@ const txReference = computed(() => {
 })
 
 const estateName = computed(() => {
-  return auth.resident?.estateName || 'PHDL Estate'
+  return auth.resident?.estateName || 'Estate'
 })
 
 const unitNumber = computed(() => {
-  return auth.resident?.flatAddress || (auth.resident?.flat ? `Flat ${auth.resident.flat}` : 'Unit A-12')
+  return auth.resident?.flatAddress || (auth.resident?.flat ? `Flat ${auth.resident.flat}` : 'Assigned Unit')
 })
 
 const residentName = computed(() => {

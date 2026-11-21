@@ -13,7 +13,7 @@
             <div class="outstanding-amount">{{ formatAmount(totalOutstanding) }}</div>
             <div class="outstanding-label">Total Outstanding</div>
           </div>
-          <button class="pay-btn" @click="goToPayment">Make Payment</button>
+          <button class="pay-btn" :disabled="totalOutstanding === 0" :class="{ 'disabled-btn': totalOutstanding === 0 }" @click="goToPayment">Make Payment</button>
         </div>
 
         <div class="filter-row">
@@ -114,13 +114,6 @@ function goToPayment() {
   router.push('/fees/payment')
 }
 
-const DEFAULT_FEES: FeeRow[] = [
-  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
-  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
-  { id: 'fee-103', title: 'Q3 Waste Management & Facility Fee', amount: 9000, date: '2026-10-15', status: 'Paid' },
-  { id: 'fee-104', title: 'Quarterly Estate Infrastructure Dues', amount: 30000, date: '2026-09-01', status: 'Paid' },
-]
-
 async function loadFees() {
   loading.value = true
   try {
@@ -141,10 +134,10 @@ async function loadFees() {
         status: item.status === 'Paid' || item.status === 'Due' ? item.status : 'Pending',
       }))
     } else {
-      fees.value = DEFAULT_FEES
+      fees.value = []
     }
   } catch {
-    fees.value = DEFAULT_FEES
+    fees.value = []
   } finally {
     loading.value = false
   }
@@ -208,6 +201,12 @@ onMounted(loadFees)
 .pay-btn:active {
   transform: scale(0.96);
   opacity: 0.9;
+}
+.pay-btn:disabled,
+.pay-btn.disabled-btn {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .filter-row {

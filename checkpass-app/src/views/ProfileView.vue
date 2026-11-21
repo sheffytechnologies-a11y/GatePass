@@ -450,7 +450,7 @@ const effectiveResident = computed<Resident>(() => {
     const secUser = homeSummary?.user || cachedUser || {}
     const name = (secUser.name || 'Gate Security Officer').trim()
     const flatAddress = (secUser.assignedStation && !secUser.assignedStation.includes('Main Entrance Gate') ? secUser.assignedStation : 'Main Gate').trim()
-    const estateName = (secUser.estateName || 'Sheffy Estate').trim()
+    const estateName = (secUser.estateName || '').trim()
     const phone = (secUser.phone || '').trim()
     const avatar = secUser.avatar || cachedUser?.avatar || (auth.resident as any)?.avatar || null
 
@@ -473,23 +473,23 @@ const effectiveResident = computed<Resident>(() => {
 
   const base = auth.resident || cachedResident || homeSummary?.resident || {}
 
-  const name = (base.name || cachedUser?.name || 'Kemi Adeleke').trim()
-  const flatAddress = (base.flatAddress || 'VIP 2, VVIP 2, 1% 2').trim()
-  const estateName = (base.estateName || cachedUser?.estateName || 'Sheffy Estate').trim()
-  const phone = (base.phone || cachedUser?.phone || '08023485736').trim()
+  const name = (base.name || cachedUser?.name || 'Resident').trim()
+  const flatAddress = (base.flatAddress || '').trim()
+  const estateName = (base.estateName || cachedUser?.estateName || '').trim()
+  const phone = (base.phone || cachedUser?.phone || '').trim()
   const avatar = base.avatar || cachedUser?.avatar || (auth.resident as any)?.avatar || (auth.resident as any)?.user?.avatar || (homeSummary?.user as any)?.avatar || null
 
   return {
-    id: String(base.id || 'res-01'),
-    unitId: String(base.unitId || '21'),
+    id: String(base.id || ''),
+    unitId: String(base.unitId || ''),
     name,
     phone,
     avatar,
     flatAddress,
     estateName,
-    lane: base.lane || 'VIP 2',
-    house: base.house || 'VVIP 2',
-    flat: base.flat || '1% 2',
+    lane: base.lane || '',
+    house: base.house || '',
+    flat: base.flat || '',
     role: (base.role === 'primary' ? 'primary' : 'member') as 'primary' | 'member',
     pushEnabled: typeof base.pushEnabled === 'boolean' ? base.pushEnabled : true,
     isActive: typeof base.isActive === 'boolean' ? base.isActive : true,

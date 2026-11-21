@@ -79,12 +79,7 @@ type FeeItem = {
   status: 'Paid' | 'Pending' | 'Due'
 }
 
-const DEFAULT_PAYMENT_FEES: FeeItem[] = [
-  { id: 'fee-101', title: 'Estate Security & Maintenance Levy', amount: 21000, date: '2026-11-01', status: 'Due' },
-  { id: 'fee-102', title: 'Central Diesel & Energy Surcharge', amount: 12000, date: '2026-11-01', status: 'Due' },
-]
-
-const feeItems = ref<FeeItem[]>(DEFAULT_PAYMENT_FEES)
+const feeItems = ref<FeeItem[]>([])
 
 const loading = ref(false)
 const router = useRouter()
@@ -93,7 +88,7 @@ const payableFeeItems = computed(() => {
   return feeItems.value.filter((item) => item.status === 'Due')
 })
 
-const selectedIds = ref<Set<string>>(new Set(['fee-101', 'fee-102']))
+const selectedIds = ref<Set<string>>(new Set())
 
 async function loadFeeItems() {
   loading.value = true
@@ -118,12 +113,12 @@ async function loadFeeItems() {
       feeItems.value = items
       selectedIds.value = new Set(items.filter((item: FeeItem) => item.status === 'Due').map((item: FeeItem) => item.id))
     } else {
-      feeItems.value = DEFAULT_PAYMENT_FEES
-      selectedIds.value = new Set(['fee-101', 'fee-102'])
+      feeItems.value = []
+      selectedIds.value = new Set()
     }
   } catch {
-    feeItems.value = DEFAULT_PAYMENT_FEES
-    selectedIds.value = new Set(['fee-101', 'fee-102'])
+    feeItems.value = []
+    selectedIds.value = new Set()
   } finally {
     loading.value = false
   }
