@@ -53,7 +53,7 @@ class HomeController extends Controller
         $totalGranted = $passes->filter(fn($p) => in_array($p->status, ['On-site', 'Exited']))->count();
 
         $estate = $user->estate;
-        $estateName = $estate?->name ?? 'Sheffy Estate';
+        $estateName = $estate?->name ?? 'Estate';
 
         // Emergencies for the emergencies tab
         $emergencies = \App\Models\Emergency::where(function ($q) use ($user) {

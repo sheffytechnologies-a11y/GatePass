@@ -91,9 +91,9 @@ const TYPES = [
 ]
 
 const CONTACTS = computed(() => [
-  { name: (auth.resident?.estateName ? `${auth.resident.estateName} Security Control` : 'Estate Security Control'), phone: '0800-CHECKPASS' },
-  { name: 'Rapid Response Unit',   phone: '112' },
-  { name: 'Federal Fire Service',  phone: '08032003557' },
+  { name: 'National Emergency Services', phone: '112' },
+  { name: 'Rapid Response Dispatch', phone: '199' },
+  { name: 'Federal Fire Service', phone: '112' },
 ])
 
 const recentIncidents = ref<{ id: string; type: string; status?: string; createdAt: string }[]>([])
@@ -137,7 +137,7 @@ async function sendSOS() {
     setTimeout(() => { alertSent.value = false }, 3000)
     await loadRecentAlerts()
   } catch {
-    showToast('Alert failed. Call security directly: 08100000000', 'error')
+    showToast('Alert failed. Please dial 112 or contact security control directly.', 'error')
   } finally {
     sending.value = false
   }

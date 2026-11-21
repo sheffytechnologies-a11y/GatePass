@@ -13,9 +13,6 @@
         <button class="hero-btn-outline-white" @click="showReportModal = true">
           📑 Generate Report
         </button>
-        <button class="hero-btn-outline-white" @click="toggleSimulation">
-          {{ simulateEmpty ? '↺ View Filled State' : '⚙ Empty Preview' }}
-        </button>
         <button class="hero-btn-white" @click="openCreateModal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -31,28 +28,28 @@
       <div class="metric-card">
         <div class="metric-icon metric-icon--green">🛠️</div>
         <div class="metric-data">
-          <div class="metric-val">{{ simulateEmpty ? 0 : activeArtisansCount }}</div>
+          <div class="metric-val">{{ activeArtisansCount }}</div>
           <div class="metric-lbl">Active Providers</div>
         </div>
       </div>
       <div class="metric-card">
         <div class="metric-icon metric-icon--blue">📂</div>
         <div class="metric-data">
-          <div class="metric-val">{{ simulateEmpty ? 0 : categoriesCount }}</div>
+          <div class="metric-val">{{ categoriesCount }}</div>
           <div class="metric-lbl">Service Categories</div>
         </div>
       </div>
       <div class="metric-card">
         <div class="metric-icon metric-icon--gold">⭐</div>
         <div class="metric-data">
-          <div class="metric-val">{{ simulateEmpty ? '0.0' : avgRating }}</div>
+          <div class="metric-val">{{ avgRating }}</div>
           <div class="metric-lbl">Avg. Resident Rating</div>
         </div>
       </div>
       <div class="metric-card">
         <div class="metric-icon metric-icon--teal">💬</div>
         <div class="metric-data">
-          <div class="metric-val">{{ simulateEmpty ? 0 : totalReviewsCount }}</div>
+          <div class="metric-val">{{ totalReviewsCount }}</div>
           <div class="metric-lbl">Neighbor Reviews</div>
         </div>
       </div>
@@ -109,19 +106,16 @@
       </div>
 
       <!-- EMPTY STATE -->
-      <div v-if="simulateEmpty || filteredArtisans.length === 0" class="card empty-card">
+      <div v-if="filteredArtisans.length === 0" class="card empty-card">
         <div class="empty-icon-wrap">🛠️</div>
         <h3 class="empty-title">
-          {{ simulateEmpty ? 'No Artisans Listed' : (searchQuery ? 'No matching service providers' : 'No artisans in this category') }}
+          {{ searchQuery ? 'No matching service providers' : 'No Artisans Listed' }}
         </h3>
         <p class="empty-desc">
-          {{ simulateEmpty ? 'Your estate community marketplace is currently empty. Add trusted local plumbers, electricians, and cleaners so residents can easily find and review vetted help.' : 'Try adjusting your search query or selecting a different category filter.' }}
+          {{ searchQuery ? 'Try adjusting your search query or selecting a different category filter.' : 'Your estate community directory is currently empty. Add trusted local plumbers, electricians, and cleaners so residents can easily find vetted help.' }}
         </p>
         <div class="empty-actions">
-          <button v-if="simulateEmpty" class="btn btn-primary" @click="simulateEmpty = false">
-            Restore Sample Artisans
-          </button>
-          <button class="btn btn-secondary" @click="openCreateModal">
+          <button class="btn btn-primary" @click="openCreateModal">
             + Add First Artisan
           </button>
         </div>
@@ -575,18 +569,12 @@ function goToArtisan(id: string) {
   router.push(`/artisans/${id}`)
 }
 
-const simulateEmpty = ref(false)
-function toggleSimulation() {
-  simulateEmpty.value = !simulateEmpty.value
-}
-
 const selectedCategory = ref('All')
 const searchQuery = ref('')
 
 const availableCategories = ['All', 'Electrician', 'Plumber', 'AC Repair', 'Cleaning', 'Carpentry', 'Painting', 'Generator Tech', 'Other']
 
 const filteredArtisans = computed(() => {
-  if (simulateEmpty.value) return []
   return artisansList.value.filter(a => {
     const matchCat = selectedCategory.value === 'All' || a.category === selectedCategory.value
     const q = searchQuery.value.toLowerCase().trim()
@@ -870,7 +858,6 @@ async function saveArtisan() {
       }
     }
     showArtisanModal.value = false
-    simulateEmpty.value = false
   } catch {
     showToast('Failed to save artisan details.', 'error')
   } finally {

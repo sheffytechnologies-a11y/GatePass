@@ -48,8 +48,12 @@ export const usePassesStore = defineStore('passes', () => {
       })
       const list = res.data?.passes || []
       passes.value = list
-      if (Array.isArray(list) && list.length > 0) {
-        list.forEach(p => cacheOfflinePass(p))
+      if (Array.isArray(list)) {
+        if (list.length > 0) {
+          list.forEach(p => cacheOfflinePass(p))
+        } else {
+          try { localStorage.removeItem('cp_offline_passes') } catch {}
+        }
       }
     } catch {
       const offline = Object.values(JSON.parse(localStorage.getItem('cp_offline_passes') || '{}')) as Pass[]

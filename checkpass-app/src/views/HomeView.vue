@@ -614,24 +614,10 @@
               <p class="dispatch-sub">Instantly reach duty security guards and estate emergency lines for rapid response to your property.</p>
               
               <div class="dispatch-actions-grid">
-                <a href="tel:08143948473" class="dispatch-btn">
-                  <div class="dispatch-icon">📞</div>
-                  <div class="dispatch-info">
-                    <span class="dispatch-name">Main Gatehouse Control</span>
-                    <span class="dispatch-num">0814 394 8473 (Direct)</span>
-                  </div>
-                </a>
-                <a href="tel:08021234567" class="dispatch-btn">
-                  <div class="dispatch-icon">🛡️</div>
-                  <div class="dispatch-info">
-                    <span class="dispatch-name">Security Chief &amp; Dispatch</span>
-                    <span class="dispatch-num">0802 123 4567</span>
-                  </div>
-                </a>
                 <a href="tel:112" class="dispatch-btn dispatch-btn--red">
                   <div class="dispatch-icon">🚨</div>
                   <div class="dispatch-info">
-                    <span class="dispatch-name">State Emergency Response</span>
+                    <span class="dispatch-name">National Emergency Services</span>
                     <span class="dispatch-num">112 / 199 (Police, Fire, Ambulance)</span>
                   </div>
                 </a>
@@ -641,15 +627,20 @@
             <!-- Estate Incident Stream -->
             <div class="homeowner-incidents-section">
               <h4 class="incident-sec-title">Recent Security &amp; Utility Bulletins</h4>
-              <div class="incident-log-card">
-                <div class="incident-log-badge">PERIMETER CHECK</div>
-                <div class="incident-log-text">Perimeter cameras and electric fence tested — 100% operational across all sectors.</div>
-                <div class="incident-log-time">Today, 04:30 AM • Main Gate Control</div>
+              <div v-if="!summary?.emergencies || (summary.emergencies as any[]).length === 0" class="sec-empty-box">
+                <div class="sec-empty-icon">🛡️</div>
+                <h3 class="sec-empty-title">No Active Bulletins</h3>
+                <p class="sec-empty-desc">Security patrol reports, power updates, and gate incident broadcasts will be logged here.</p>
               </div>
-              <div class="incident-log-card">
-                <div class="incident-log-badge badge-green">FACILITY NOTICE</div>
-                <div class="incident-log-text">Estate generator switch completed smoothly for early morning scheduled maintenance.</div>
-                <div class="incident-log-time">Yesterday, 11:15 PM • Facility Office</div>
+              <div
+                v-else
+                v-for="e in (summary.emergencies as any[])"
+                :key="e.id"
+                class="incident-log-card"
+              >
+                <div class="incident-log-badge" :class="{ 'badge-green': e.status === 'resolved' }">{{ e.type }}</div>
+                <div class="incident-log-text">{{ e.residentName }} • {{ e.flatAddress }}</div>
+                <div class="incident-log-time">{{ e.createdAt ? new Date(e.createdAt).toLocaleString('en-NG') : 'Recent' }}</div>
               </div>
             </div>
           </div>

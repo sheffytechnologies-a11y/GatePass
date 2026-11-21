@@ -69,29 +69,8 @@ export const defaultArtisans: ArtisanItem[] = [
       'Water Heater Element Replacement',
       'Smart Meter Calibration'
     ],
-    recentGateLogs: [
-      { id: 'log-101', date: 'Yesterday, 14:15', unit: 'House 14 • Palm Court', resident: 'Engr. Dapo Alabi', gate: 'Main Security Gate' },
-      { id: 'log-102', date: '11 Nov 2026, 09:30', unit: 'Flat 3B • Block 1', resident: 'Mrs. Fatima Bello', gate: 'Main Security Gate' },
-      { id: 'log-103', date: '04 Nov 2026, 16:20', unit: 'Villa 5 • Olive Drive', resident: 'Barr. Segun Odegbami', gate: 'West Gate' }
-    ],
-    reviews: [
-      {
-        id: 'rev-1',
-        residentName: 'Engr. Dapo Alabi',
-        residentUnit: 'House 14 • Palm Court',
-        rating: 5,
-        comment: 'Chinedu arrived in under 20 minutes when my inverter tripped. Very knowledgeable, neat cabling, and fair billing.',
-        date: '2 days ago',
-      },
-      {
-        id: 'rev-2',
-        residentName: 'Mrs. Fatima Bello',
-        residentUnit: 'Flat 3B • Block 1',
-        rating: 5,
-        comment: 'Replaced my water heater circuit breaker cleanly. No mess left behind, fully tested and verified.',
-        date: 'Last week',
-      },
-    ],
+    recentGateLogs: [],
+    reviews: [],
   },
   {
     id: 'art-2',
@@ -119,20 +98,8 @@ export const defaultArtisans: ArtisanItem[] = [
       'Underground Leak Detection',
       'Drainage Unclogging & De-scaling'
     ],
-    recentGateLogs: [
-      { id: 'log-201', date: '15 Nov 2026, 11:10', unit: 'Unit 9A • Hibiscus Lane', resident: 'Chief Emeka Eze', gate: 'Main Security Gate' },
-      { id: 'log-202', date: '08 Nov 2026, 14:00', unit: 'House 3 • Cedar Ave', resident: 'Alhaji Bashir', gate: 'East Gate' }
-    ],
-    reviews: [
-      {
-        id: 'rev-3',
-        residentName: 'Chief Emeka Eze',
-        residentUnit: 'Unit 9A • Hibiscus Lane',
-        rating: 5,
-        comment: 'Resolved an annoying overhead tank overflow that two other plumbers failed to fix. Very polite gentleman.',
-        date: '3 days ago',
-      },
-    ],
+    recentGateLogs: [],
+    reviews: [],
   },
   {
     id: 'art-3',
@@ -159,19 +126,8 @@ export const defaultArtisans: ArtisanItem[] = [
       'Indoor Coil Chemical Wash',
       'PCB Board Soldering & Repair'
     ],
-    recentGateLogs: [
-      { id: 'log-301', date: '14 Nov 2026, 15:45', unit: 'House 4B • Emerald St', resident: 'Dr. Chinedu Okafor', gate: 'Main Security Gate' }
-    ],
-    reviews: [
-      {
-        id: 'rev-4',
-        residentName: 'Dr. Chinedu Okafor',
-        residentUnit: 'House 4B • Emerald St',
-        rating: 5,
-        comment: 'Cleaned and recharged two inverter units. Excellent cooling restored and very neat drop cloths used indoors.',
-        date: '4 days ago',
-      },
-    ],
+    recentGateLogs: [],
+    reviews: [],
   },
   {
     id: 'art-4',
@@ -198,19 +154,8 @@ export const defaultArtisans: ArtisanItem[] = [
       'Kitchen Grease Extraction',
       'Glass Window Polishing'
     ],
-    recentGateLogs: [
-      { id: 'log-401', date: '13 Nov 2026, 08:30', unit: 'Flat 12 • Block 5', resident: 'Tolu Oladipo', gate: 'West Gate' }
-    ],
-    reviews: [
-      {
-        id: 'rev-5',
-        residentName: 'Tolu Oladipo',
-        residentUnit: 'Flat 12 • Block 5',
-        rating: 5,
-        comment: 'SparklePro did my move-in cleaning. Kitchen cabinets looked brand new.',
-        date: '5 days ago',
-      },
-    ],
+    recentGateLogs: [],
+    reviews: [],
   },
   {
     id: 'art-5',
@@ -237,19 +182,8 @@ export const defaultArtisans: ArtisanItem[] = [
       'Kitchen Cabinet Hinge Replacement',
       'Custom Wooden Doors & Framing'
     ],
-    recentGateLogs: [
-      { id: 'log-501', date: '11 Nov 2026, 12:00', unit: 'House 22 • Palm Court', resident: 'Pastor Segun Martins', gate: 'Main Security Gate' }
-    ],
-    reviews: [
-      {
-        id: 'rev-6',
-        residentName: 'Pastor Segun Martins',
-        residentUnit: 'House 22 • Palm Court',
-        rating: 5,
-        comment: 'Fixed our master bedroom sliding wardrobe door that was off track for months. Sturdy craftsmanship.',
-        date: '1 week ago',
-      },
-    ],
+    recentGateLogs: [],
+    reviews: [],
   },
 ]
 
@@ -265,15 +199,23 @@ export function loadArtisans(): ArtisanItem[] {
       saveArtisans(defaultArtisans)
       return [...defaultArtisans]
     }
-    // merge any defaults if missing
+    // merge and purge any legacy mock reviews or fake gate logs
     return parsed.map((item: any) => {
       const match = defaultArtisans.find(d => d.id === item.id)
+      const reviews = (Array.isArray(item.reviews) ? item.reviews : []).filter((r: any) => {
+        const id = String(r.id || '')
+        return id !== 'rev-1' && id !== 'rev-2' && id !== 'rev-3' && id !== 'rev-4' && id !== 'rev-5' && id !== 'rev-6'
+      })
+      const recentGateLogs = (Array.isArray(item.recentGateLogs) ? item.recentGateLogs : []).filter((l: any) => {
+        const id = String(l.id || '')
+        return id !== 'log-101' && id !== 'log-102' && id !== 'log-103' && id !== 'log-201' && id !== 'log-202' && id !== 'log-301' && id !== 'log-401' && id !== 'log-501'
+      })
       return {
         ...match,
         ...item,
-        reviews: Array.isArray(item.reviews) ? item.reviews : (match?.reviews || []),
+        reviews,
         skills: Array.isArray(item.skills) ? item.skills : (match?.skills || []),
-        recentGateLogs: Array.isArray(item.recentGateLogs) ? item.recentGateLogs : (match?.recentGateLogs || [])
+        recentGateLogs,
       }
     })
   } catch {

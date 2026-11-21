@@ -523,7 +523,7 @@ async function submitManualPayment() {
         ref: receiptRef,
         amount: String(totalAmount.value),
         items: fees.value.map((f) => f.title).join('|'),
-        channel: 'Direct Bank Transfer (Providus Bank)',
+        channel: bankInfo.value?.bankName ? `Direct Bank Transfer (${bankInfo.value.bankName})` : 'Direct Bank Transfer',
         status: 'Pending Verification',
       },
     })

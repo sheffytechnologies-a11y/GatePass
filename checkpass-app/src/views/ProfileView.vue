@@ -515,9 +515,9 @@ const residentDisplayEstate = computed(() => effectiveResident.value.estateName)
 
 const initials = computed(() => {
   const name = residentDisplayName.value.trim()
-  if (!name || name === 'Resident Account') return 'KA'
+  if (!name || name === 'Resident Account' || name === 'Resident') return 'CP'
   const parts = name.split(' ').filter(Boolean)
-  return parts.map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() || 'KA'
+  return parts.map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() || 'CP'
 })
 
 onMounted(() => {
@@ -731,17 +731,18 @@ const TKT_STORAGE_KEY = 'cp_support_tickets'
 function loadSavedMessages(): ResidentMessage[] {
   try {
     const saved = localStorage.getItem(MSG_STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((m: any) => m.id !== 'msg-1' && m.id !== 'msg-2')
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(MSG_STORAGE_KEY, JSON.stringify(cleaned))
+        }
+        return cleaned
+      }
+    }
   } catch {}
-  return [
-    {
-      id: 'msg-1',
-      category: 'Security & Gate Access',
-      body: 'Good morning, please inform the gate that moving van for Flat 3 will arrive at 2 PM today.',
-      time: 'Yesterday, 10:15 AM',
-      reply: 'Acknowledged. Gate officers notified.',
-    },
-  ]
+  return []
 }
 
 const sentMessages = ref<ResidentMessage[]>(loadSavedMessages())
