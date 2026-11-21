@@ -1455,44 +1455,9 @@
                       <div class="tenant-lease-meta">Move-in: {{ selectedProperty.primaryTenant.moveInDate }} • Verified Resident</div>
                     </div>
                   </div>
-
-                  <div class="tenant-breakdown-grid">
-                    <div class="tenant-stat-box">
-                      <div class="stat-num">{{ selectedProperty.registeredHouseholdCount }}</div>
-                      <div class="stat-lbl">Household Members</div>
-                    </div>
-                    <div class="tenant-stat-box">
-                      <div class="stat-num">{{ selectedProperty.registeredVehiclesCount }}</div>
-                      <div class="stat-lbl">Registered Vehicles</div>
-                    </div>
-                    <div class="tenant-stat-box">
-                      <div class="stat-num text-emerald">Active</div>
-                      <div class="stat-lbl">Gate Clearance</div>
-                    </div>
-                  </div>
                 </div>
                 <div v-else class="tenant-empty-card">
                   <p>This unit is registered as vacant in estate management records. No active tenant occupant is currently attached.</p>
-                </div>
-              </div>
-
-              <!-- Capital Infrastructure Levies Section -->
-              <div class="prop-sheet-section">
-                <h4 class="prop-sheet-section-title">Capital Infrastructure Levies</h4>
-                <div class="levies-list">
-                  <div
-                    v-for="levy in (selectedProperty.levies || defaultPropertyLevies)"
-                    :key="levy.name"
-                    class="levy-item-row"
-                  >
-                    <div class="levy-meta">
-                      <div class="levy-name">{{ levy.name }}</div>
-                      <div class="levy-amt">₦{{ levy.amount.toLocaleString() }}</div>
-                    </div>
-                    <span class="levy-badge" :class="levy.status === 'paid' ? 'badge-paid' : 'badge-pending'">
-                      {{ levy.status === 'paid' ? 'Paid' : 'Unpaid' }}
-                    </span>
-                  </div>
                 </div>
               </div>
 
