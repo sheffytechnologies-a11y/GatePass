@@ -423,7 +423,6 @@
                 @click="activeHomeownerTab = 'properties'"
               >
                 <span>Properties</span>
-                <span class="tab-count-pill">{{ homeownerProperties.length }}</span>
               </button>
               <button
                 class="passes-tab"
