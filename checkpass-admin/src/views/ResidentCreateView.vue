@@ -128,10 +128,10 @@
             <div v-if="!manualAddressMode" class="unit-select-wrap">
               <select v-model="form.unit_id" class="form-select" :disabled="loadingProperties">
                 <option value="">
-                  {{ loadingProperties ? 'Loading property units...' : 'Select a configured property...' }}
+                  {{ loadingProperties ? 'Loading property units...' : (estateProperties.length ? 'Select a configured property...' : 'No property units configured in this estate') }}
                 </option>
                 <option v-for="p in estateProperties" :key="p.id" :value="p.id">
-                  {{ p.address }} · {{ p.unitType || 'Unit' }} {{ p.residentsCount ? `(${p.residentsCount} resident${p.residentsCount > 1 ? 's' : ''})` : '(Vacant)' }}
+                  {{ p.flatAddress || p.address || p.flat_address || ('Unit #' + p.id) }} · {{ p.unitType || 'Unit' }} {{ p.residentsCount ? `(${p.residentsCount} resident${p.residentsCount > 1 ? 's' : ''})` : '(Vacant)' }}
                 </option>
               </select>
             </div>
@@ -353,7 +353,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { residentsApi, estatesApi, propertiesApi } from '@/api/index'
 import { useAuthStore } from '@/stores/auth'
@@ -494,32 +494,67 @@ function removeTenant(i: number) {
   form.value.tenants.splice(i, 1)
 }
 
+function resolveTargetEstateId(queryId: any, activeId: any, list: any[]): number | '' {
+  if (queryId && queryId !== 'all' && !isNaN(Number(queryId)) && Number(queryId) > 0) {
+    return Number(queryId)
+  }
+  if (activeId && activeId !== 'all' && !isNaN(Number(activeId)) && Number(activeId) > 0) {
+    return Number(activeId)
+  }
+  if (list && list.length > 0) {
+    const firstValid = list.find((e: any) => e.id && !isNaN(Number(e.id)) && Number(e.id) > 0)
+    if (firstValid) return Number(firstValid.id)
+  }
+  return ''
+}
+
 // ── Estates & Units Loading ──
 async function loadEstates() {
   try {
     const res = await estatesApi.getAll()
-    estates.value = res.data.estates
-    if (estates.value.length && !form.value.estate_id) {
-      const targetId = Number(route.query.estate_id || auth.activeEstateId || estates.value[0].id)
+    estates.value = res.data.estates || []
+    const targetId = resolveTargetEstateId(route.query.estate_id, auth.activeEstateId, estates.value)
+    if (targetId) {
       form.value.estate_id = targetId
       await loadProperties(targetId)
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.error('Failed to load estates:', err)
   }
 }
 
 async function onEstateChange() {
   form.value.unit_id = ''
-  if (form.value.estate_id) {
-    await loadProperties(Number(form.value.estate_id))
+  const estId = Number(form.value.estate_id)
+  if (estId && !isNaN(estId) && estId > 0) {
+    await loadProperties(estId)
+  } else {
+    estateProperties.value = []
   }
 }
 
+watch(
+  () => auth.activeEstateId,
+  async (newVal) => {
+    if (newVal && newVal !== 'all' && !isNaN(Number(newVal))) {
+      const numId = Number(newVal)
+      if (form.value.estate_id !== numId) {
+        form.value.estate_id = numId
+        await loadProperties(numId)
+      }
+    }
+  }
+)
+
 async function loadProperties(estateId: number) {
+  const numId = Number(estateId)
+  if (!numId || isNaN(numId) || numId <= 0) {
+    estateProperties.value = []
+    return
+  }
   loadingProperties.value = true
   try {
-    const res = await propertiesApi.getAll(estateId)
+    const res = await propertiesApi.getAll(numId)
     estateProperties.value = res.data?.properties || []
 
     // If query has unit_id or property_id, pre-select it

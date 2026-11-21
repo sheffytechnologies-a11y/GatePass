@@ -1327,6 +1327,7 @@ class AdminController extends Controller
             'lane'        => $u->lane,
             'house'       => $u->house,
             'flat'        => $u->flat,
+            'address'     => $u->flat_address,
             'flatAddress' => $u->flat_address,
             'isActive'    => $u->is_active,
         ];

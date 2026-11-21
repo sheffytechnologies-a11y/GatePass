@@ -385,9 +385,11 @@ async function loadEstates() {
 }
 
 function openCreate() {
-  const currentEstateId = estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')
-  if (currentEstateId) {
-    router.push(`/residents/new?estate_id=${currentEstateId}`)
+  const rawId = estateFilter.value || auth.activeEstateId || (estates.value.length ? estates.value[0].id : '')
+  if (rawId && rawId !== 'all' && !isNaN(Number(rawId)) && Number(rawId) > 0) {
+    router.push(`/residents/new?estate_id=${Number(rawId)}`)
+  } else if (estates.value.length > 0 && estates.value[0].id) {
+    router.push(`/residents/new?estate_id=${estates.value[0].id}`)
   } else {
     router.push('/residents/new')
   }

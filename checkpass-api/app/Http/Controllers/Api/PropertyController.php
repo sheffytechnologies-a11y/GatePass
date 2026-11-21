@@ -544,6 +544,7 @@ class PropertyController extends Controller
             'id'             => $u->id,
             'estateId'       => $u->estate_id,
             'estateName'     => $u->estate?->name ?? ('Estate #' . $u->estate_id),
+            'address'        => $u->flat_address,
             'flatAddress'    => $u->flat_address,
             'unitType'       => $u->unit_type ?? 'Apartment',
             'lane'           => $u->lane,
