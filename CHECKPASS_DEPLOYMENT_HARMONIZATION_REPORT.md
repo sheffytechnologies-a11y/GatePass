@@ -46,6 +46,7 @@ Every table in the backend database (`database.sqlite`) was directly inspected. 
 
 | Database Table | Live Row Count | Audit Status & Meaning |
 | :--- | :---: | :--- |
+| **`admins`** | **3** | Super Admin (`admin@checkpass.com`), Estate Admin (`estate@checkpass.com`), Sheriff (`sheffybig@gmail.com`) |
 | **`estates`** | **3** | Active verified estates (*PHDL Estate*, *Sheffy Estate*, *Lekki Horizon Estate*) |
 | **`units`** | **13** | 9 fully configured units in *Sheffy Estate*, 4 in other communities |
 | **`users`** | **7** | Real registered admin, resident, and homeowner user accounts |
