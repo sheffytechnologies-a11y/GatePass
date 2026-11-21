@@ -1454,14 +1454,14 @@
               <!-- Verified Occupants & Tenancy Section -->
               <div class="prop-sheet-section">
                 <div class="prop-sheet-section-head">
-                  <h4 class="prop-sheet-section-title">Verified Occupants &amp; Tenancy</h4>
+                  <h4 class="prop-sheet-section-title">Verified Occupants</h4>
                   <span v-if="selectedProperty.isOccupied" class="sheet-occupants-count-pill">
                     {{ 1 + getAdditionalOccupantsCount(selectedProperty) }} Registered
                   </span>
                 </div>
 
                 <div v-if="selectedProperty.isOccupied && selectedProperty.primaryTenant" class="sheet-occupants-stack">
-                  <!-- Primary Tenant Card -->
+                  <!-- Primary Tenant Card with Contact Details -->
                   <div class="tenant-profile-card">
                     <div class="tenant-profile-header">
                       <div class="tenant-avatar-large">{{ selectedProperty.primaryTenant.name.charAt(0) }}</div>
@@ -1470,9 +1470,19 @@
                           <span class="tenant-name-lg">{{ selectedProperty.primaryTenant.name }}</span>
                           <span class="tenant-badge-primary">Primary Tenant</span>
                         </div>
-                        <div class="tenant-phone-lg">{{ selectedProperty.primaryTenant.phone }}</div>
                         <div class="tenant-lease-meta">Move-in: {{ selectedProperty.primaryTenant.moveInDate }}</div>
                       </div>
+                    </div>
+
+                    <!-- Direct Contact Actions -->
+                    <div class="tenant-contact-row">
+                      <a :href="'tel:' + selectedProperty.primaryTenant.phone" class="tenant-call-action-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>{{ selectedProperty.primaryTenant.phone }}</span>
+                      </a>
+                      <a :href="'https://wa.me/' + selectedProperty.primaryTenant.phone.replace(/[^0-9]/g, '')" target="_blank" rel="noopener noreferrer" class="tenant-wa-action-btn">
+                        <span>WhatsApp</span>
+                      </a>
                     </div>
                   </div>
 
@@ -1495,7 +1505,12 @@
                             <span class="add-occ-name">{{ occ.name }}</span>
                             <span class="add-occ-relation-tag">{{ occ.relation }}</span>
                           </div>
-                          <div v-if="occ.phone" class="add-occ-phone">{{ occ.phone }}</div>
+                          <div v-if="occ.phone" class="add-occ-phone-row">
+                            <a :href="'tel:' + occ.phone" class="add-occ-quick-call">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                              <span>{{ occ.phone }}</span>
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1514,10 +1529,10 @@
               <div class="prop-sheet-actions">
                 <button
                   type="button"
-                  class="prop-action-primary-btn"
-                  @click="router.push('/tabs/fees'); selectedProperty = null"
+                  class="prop-action-close-btn"
+                  @click="selectedProperty = null"
                 >
-                  View Estate Dues &amp; Receipts
+                  Done
                 </button>
               </div>
             </div>
@@ -1642,23 +1657,10 @@ export interface PropertyPortfolioItem {
   } | null
   occupants?: PropertyOccupant[]
   registeredHouseholdCount: number
-  registeredVehiclesCount: number
-  duesClear: boolean
-  levies?: Array<{
-    name: string
-    amount: number
-    status: 'paid' | 'pending'
-  }>
 }
 
 const activeHomeownerTab = ref<'properties' | 'announcements' | 'emergencies'>('properties')
 const selectedProperty = ref<PropertyPortfolioItem | null>(null)
-
-const defaultPropertyLevies = [
-  { name: '2026 Road Resurfacing & Drainage Levy', amount: 120000, status: 'paid' as const },
-  { name: 'Perimeter Electric Fence Upgrade', amount: 65000, status: 'paid' as const },
-  { name: 'Dedicated Transformer Maintenance', amount: 45000, status: 'paid' as const }
-]
 
 const homeownerProperties = ref<PropertyPortfolioItem[]>([
   {
@@ -1678,10 +1680,7 @@ const homeownerProperties = ref<PropertyPortfolioItem[]>([
       { name: 'Mrs. Chioma Okafor', relation: 'Spouse', phone: '0803 987 6543', moveInDate: 'Jan 2025' },
       { name: 'Master David Okafor', relation: 'Son / Dependent', phone: '0803 123 4567', moveInDate: 'Jan 2025' }
     ],
-    registeredHouseholdCount: 3,
-    registeredVehiclesCount: 2,
-    duesClear: true,
-    levies: defaultPropertyLevies
+    registeredHouseholdCount: 3
   },
   {
     id: 102,
@@ -1699,10 +1698,7 @@ const homeownerProperties = ref<PropertyPortfolioItem[]>([
     occupants: [
       { name: 'Mr. Tunde Adeleke', relation: 'Spouse / Co-Occupant', phone: '0802 345 6789', moveInDate: 'Aug 2024' }
     ],
-    registeredHouseholdCount: 2,
-    registeredVehiclesCount: 1,
-    duesClear: true,
-    levies: defaultPropertyLevies
+    registeredHouseholdCount: 2
   }
 ])
 
@@ -1744,17 +1740,9 @@ function formatCompactCurrency(val: number | string | undefined | null): string 
 }
 
 const homeownerLeviesInArrears = computed(() => {
-  let total = 0
-  for (const prop of homeownerProperties.value) {
-    if (prop.levies) {
-      for (const levy of prop.levies) {
-        if (levy.status === 'pending') {
-          total += (levy.amount || 0)
-        }
-      }
-    }
-  }
-  return total
+  // Homeowners cannot view occupants' estate dues and levies.
+  // They can only view dues applicable to them alone or assigned to them directly.
+  return Number((summary.value as any)?.stats?.totalArrears ?? 0)
 })
 
 const homeownerOccupiedCount = computed(() => {
@@ -6070,42 +6058,86 @@ onMounted(() => {
   color: #0A5C38;
 }
 
-.levy-badge {
-  font-size: 11px;
+.tenant-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tenant-call-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #EBF8F2;
+  color: #0A5C38;
+  border: 1px solid #B6E5D0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s ease;
 }
 
-.badge-paid {
+.tenant-call-action-btn:active {
+  background: #D3F1E3;
+}
+
+.tenant-wa-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F0FDF4;
+  color: #16A34A;
+  border: 1px solid #BBF7D0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.tenant-wa-action-btn:active {
   background: #DCFCE7;
-  color: #15803D;
 }
 
-.badge-pending {
-  background: #FEF3C7;
-  color: #D97706;
+.add-occ-phone-row {
+  margin-top: 2px;
+}
+
+.add-occ-quick-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #0A5C38;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .prop-sheet-actions {
-  margin-top: 6px;
+  margin-top: 12px;
 }
 
-.prop-action-primary-btn {
+.prop-action-close-btn {
   width: 100%;
   height: 44px;
-  background: #0A5C38;
-  color: #FFFFFF;
-  border: none;
+  background: #F1F5F9;
+  color: #334155;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: all 0.15s ease;
 }
 
-.prop-action-primary-btn:active {
-  opacity: 0.85;
+.prop-action-close-btn:active {
+  background: #E2E8F0;
 }
 
 
