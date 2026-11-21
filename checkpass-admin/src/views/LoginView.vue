@@ -73,64 +73,10 @@
           <!-- ════════════════════════════════════════════════════════════════ -->
           <div v-if="!showForgotView">
 
-            <!-- Top Header: "Log In" -->
-            <!-- Top Header: Estate Management Portal -->
+            <!-- Top Header: "Login" -->
             <div class="form-header-group">
-              <h1 class="form-title">Estate Management Login</h1>
-              <p class="form-subtitle">Secure administrative access for super admins, estate excos, and facility managers.</p>
-            </div>
-
-            <!-- Followed by Role Navigation Bar with Person icon for Resident -->
-            <div class="role-tabs-wrap">
-              <div class="role-tabs-grid" role="tablist">
-                <!-- Admin Tab -->
-                <button
-                  type="button"
-                  class="role-tab"
-                  :class="{ active: activeRole === 'admin' }"
-                  @click="setRole('admin')"
-                  role="tab"
-                  :aria-selected="activeRole === 'admin'"
-                >
-                  <!-- Phosphor Buildings Icon -->
-                  <svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" class="tab-icon">
-                    <path d="M240,208H224V96a8,8,0,0,0-8-8H168V40a8,8,0,0,0-8-8H40a8,8,0,0,0-8,8V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM48,48H152V208H48ZM208,104V208H168V104ZM88,80a8,8,0,0,1,8-8h16a8,8,0,0,1,0,16H96A8,8,0,0,1,88,80Zm0,40a8,8,0,0,1,8-8h16a8,8,0,0,1,0,16H96A8,8,0,0,1,88,120Zm0,40a8,8,0,0,1,8-8h16a8,8,0,0,1,0,16H96A8,8,0,0,1,88,160Z"/>
-                  </svg>
-                  <span class="role-name">Estate Admin</span>
-                </button>
-
-                <!-- Security Tab -->
-                <button
-                  type="button"
-                  class="role-tab"
-                  :class="{ active: activeRole === 'guard' }"
-                  @click="setRole('guard')"
-                  role="tab"
-                  :aria-selected="activeRole === 'guard'"
-                >
-                  <!-- Phosphor ShieldCheck Icon -->
-                  <svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" class="tab-icon">
-                    <path d="M208,40H48A16,16,0,0,0,32,56v56c0,82.4,62.74,123.63,92.51,134.78a8.26,8.26,0,0,0,6.98,0C161.26,235.63,224,194.4,224,112V56A16,16,0,0,0,208,40Zm0,72c0,71.22-54.3,107.41-80,118.25C102.3,219.41,48,183.22,48,112V56H208Zm-34.34-29.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,132.69l50.34-50.35A8,8,0,0,1,173.66,82.34Z"/>
-                  </svg>
-                  <span class="role-name">Security</span>
-                </button>
-
-                <!-- Resident Tab: Authentic Phosphor Person (User) Icon -->
-                <button
-                  type="button"
-                  class="role-tab"
-                  :class="{ active: activeRole === 'resident' }"
-                  @click="setRole('resident')"
-                  role="tab"
-                  :aria-selected="activeRole === 'resident'"
-                >
-                  <!-- Phosphor User (Person) Icon -->
-                  <svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" class="tab-icon">
-                    <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/>
-                  </svg>
-                  <span class="role-name">Resident</span>
-                </button>
-              </div>
+              <h1 class="form-title">Login</h1>
+              <p class="form-subtitle">Securely access visitor passes, gate alerts, and estate clearance.</p>
             </div>
 
             <!-- Error Alert -->
@@ -173,10 +119,10 @@
                   <input
                     id="login-email"
                     v-model="identifier"
-                    :type="activeRole === 'admin' ? 'email' : 'text'"
+                    type="text"
                     class="text-input"
                     :placeholder="inputPlaceholder"
-                    :autocomplete="activeRole === 'admin' ? 'email' : 'username'"
+                    autocomplete="username"
                     required
                   />
                 </div>
@@ -235,17 +181,8 @@
 
             <!-- Footer Switch to Registration -->
             <div class="form-bottom-links">
-              <template v-if="activeRole === 'admin'">
-                <span class="new-estate-text">Setting up a new estate?</span>
-                <router-link to="/register" class="register-link">Create Account</router-link>
-              </template>
-              <template v-else-if="activeRole === 'guard'">
-                <span class="new-estate-text">Gate security staff? Contact your estate manager to be assigned to a post.</span>
-              </template>
-              <template v-else>
-                <span class="new-estate-text">Prefer mobile app?</span>
-                <a :href="residentAppUrl" class="register-link">Open resident web app</a>
-              </template>
+              <span class="new-estate-text">Setting up a new estate?</span>
+              <router-link to="/register" class="register-link">Create Account</router-link>
             </div>
 
           </div>
@@ -289,7 +226,7 @@
                   <input
                     id="forgot-identifier"
                     v-model="forgotIdentifier"
-                    :type="activeRole === 'admin' ? 'email' : 'text'"
+                    type="text"
                     class="text-input"
                     :placeholder="forgotPlaceholder"
                     required
@@ -450,8 +387,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api'
 
-type RoleType = 'admin' | 'guard' | 'resident'
-
 const router = useRouter()
 const route  = useRoute()
 const auth   = useAuthStore()
@@ -522,7 +457,6 @@ onMounted(() => {
   startRotation()
   if (route.query.email && typeof route.query.email === 'string') {
     identifier.value = route.query.email
-    activeRole.value = 'admin'
   }
   if (route.query.forgot === '1') {
     openForgotPassword()
@@ -536,12 +470,7 @@ onUnmounted(() => {
   stopRotation()
 })
 
-// ─── ROLE & LOGIN FORM STATE ───
-const activeRole = ref<RoleType>('admin')
-function setRole(role: RoleType) {
-  activeRole.value = role
-  error.value = ''
-}
+// ─── LOGIN FORM STATE ───
 const identifier = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -549,7 +478,7 @@ const loading  = ref(false)
 const error    = ref('')
 const residentLoggedIn = ref(false)
 
-// ─── FORGOT PASSWORD STATE (FOR ALL 3 ROLES) ───
+// ─── FORGOT PASSWORD STATE ───
 const showForgotView = ref(false)
 const forgotStep = ref<'request' | 'verify-otp' | 'new-password' | 'success'>('request')
 const forgotIdentifier = ref('')
@@ -602,25 +531,12 @@ const forgotGuideText = computed(() => {
   if (forgotStep.value === 'new-password') {
     return 'OTP verified successfully. Now create a new secure password for your account.'
   }
-  if (activeRole.value === 'admin') {
-    return 'Enter your official administrator email address to receive a 6-digit OTP.'
-  }
-  if (activeRole.value === 'guard') {
-    return 'Enter your registered guard phone number or email to receive a 6-digit OTP.'
-  }
-  return 'Enter your registered phone number or email address to receive your 6-digit OTP.'
+  return 'Enter your registered email address or phone number to receive a 6-digit OTP.'
 })
 
-const forgotIdentifierLabel = computed(() => {
-  if (activeRole.value === 'admin') return 'Email Address'
-  return 'Email Address / Phone No.'
-})
+const forgotIdentifierLabel = computed(() => 'Email Address / Phone No.')
 
-const forgotPlaceholder = computed(() => {
-  if (activeRole.value === 'admin') return 'admin@estate.com'
-  if (activeRole.value === 'guard') return '08012345678 or security@estate.com'
-  return '08012345678 or resident@estate.com'
-})
+const forgotPlaceholder = computed(() => 'e.g. admin@estate.com or 08012345678')
 
 async function handleSendResetOtp() {
   forgotError.value = ''
@@ -690,15 +606,8 @@ const residentAppUrl = computed(() => {
 })
 
 
-const inputLabel = computed(() => {
-  if (activeRole.value === 'admin') return 'Email Address'
-  return 'Email Address / Phone No.'
-})
-
-const inputPlaceholder = computed(() => {
-  if (activeRole.value === 'admin') return 'admin@estate.com'
-  return 'e.g. 08012345678 or name@domain.com'
-})
+const inputLabel = computed(() => 'Email Address')
+const inputPlaceholder = computed(() => 'e.g. admin@checkpass.com or 08012345678')
 
 const canSubmit = computed(() => {
   return identifier.value.trim().length >= 4 && password.value.length >= 1
@@ -707,16 +616,44 @@ const canSubmit = computed(() => {
 async function handleLogin() {
   error.value   = ''
   loading.value = true
+  const cred = identifier.value.trim()
   try {
-    if (activeRole.value === 'admin') {
-      await auth.loginAdmin(identifier.value.trim(), password.value)
-      router.push('/dashboard')
-    } else if (activeRole.value === 'guard') {
-      await auth.loginUser(identifier.value.trim(), password.value, 'security')
-      router.push('/access')
+    if (cred.includes('@')) {
+      try {
+        await auth.loginAdmin(cred, password.value)
+        router.push('/dashboard')
+        return
+      } catch (adminErr: any) {
+        try {
+          await auth.loginUser(cred, password.value)
+          if (auth.isSecurity) {
+            router.push('/access')
+          } else {
+            router.push('/dashboard')
+          }
+          return
+        } catch {
+          throw adminErr
+        }
+      }
     } else {
-      await auth.loginUser(identifier.value.trim(), password.value, 'resident')
-      residentLoggedIn.value = true
+      try {
+        await auth.loginUser(cred, password.value)
+        if (auth.isSecurity) {
+          router.push('/access')
+        } else {
+          router.push('/dashboard')
+        }
+        return
+      } catch (userErr: any) {
+        try {
+          await auth.loginAdmin(cred, password.value)
+          router.push('/dashboard')
+          return
+        } catch {
+          throw userErr
+        }
+      }
     }
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } } }
