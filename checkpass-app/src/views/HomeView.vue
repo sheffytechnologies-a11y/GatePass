@@ -77,7 +77,7 @@
               </div>
               <div class="sec-matrix-vdivider"></div>
               <div class="sec-matrix-box">
-                <div class="sec-matrix-val text-white">₦0</div>
+                <div class="sec-matrix-val text-white">{{ formatCompactCurrency((summary as any)?.stats?.totalArrears ?? 0) }}</div>
                 <div class="sec-matrix-lbl">Levies In Arrears</div>
               </div>
             </div>
@@ -408,7 +408,7 @@
                 <div class="sec-matrix-lbl">Occupied Units</div>
               </div>
               <div class="sec-matrix-box" @click="router.push('/tabs/fees')">
-                <div class="sec-matrix-val text-white">₦0</div>
+                <div class="sec-matrix-val text-white">{{ formatCompactCurrency(homeownerLeviesInArrears) }}</div>
                 <div class="sec-matrix-lbl">Levies In Arrears</div>
               </div>
             </div>
@@ -467,7 +467,16 @@
                     <div class="prop-tenant-avatar">{{ prop.primaryTenant.name.charAt(0) }}</div>
                     <div class="prop-tenant-meta">
                       <div class="prop-tenant-name">{{ prop.primaryTenant.name }}</div>
-                      <div class="prop-tenant-sub">Primary Tenant • Verified Resident</div>
+                      <div class="prop-tenant-sub">
+                        <span class="tenant-role-tag">Primary Tenant</span>
+                        <span class="sub-dot">•</span>
+                        <span v-if="getAdditionalOccupantsCount(prop) > 0" class="additional-occupants-badge">
+                          +{{ getAdditionalOccupantsCount(prop) }} occupant{{ getAdditionalOccupantsCount(prop) === 1 ? '' : 's' }}
+                        </span>
+                        <span v-else class="additional-occupants-badge sole-badge">
+                          Sole occupant
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1443,19 +1452,61 @@
                 <span class="prop-chip">{{ selectedProperty.deedRef || 'DEED-CP-' + selectedProperty.id }}</span>
               </div>
 
-              <!-- Verified Occupant & Tenancy Section -->
+              <!-- Verified Occupants & Tenancy Section -->
               <div class="prop-sheet-section">
-                <h4 class="prop-sheet-section-title">Verified Occupant &amp; Tenancy</h4>
-                <div v-if="selectedProperty.isOccupied && selectedProperty.primaryTenant" class="tenant-profile-card">
-                  <div class="tenant-profile-header">
-                    <div class="tenant-avatar-large">{{ selectedProperty.primaryTenant.name.charAt(0) }}</div>
-                    <div class="tenant-profile-info">
-                      <div class="tenant-name-lg">{{ selectedProperty.primaryTenant.name }}</div>
-                      <div class="tenant-phone-lg">{{ selectedProperty.primaryTenant.phone }}</div>
-                      <div class="tenant-lease-meta">Move-in: {{ selectedProperty.primaryTenant.moveInDate }} • Verified Resident</div>
+                <div class="prop-sheet-section-head">
+                  <h4 class="prop-sheet-section-title">Verified Occupants &amp; Tenancy</h4>
+                  <span v-if="selectedProperty.isOccupied" class="sheet-occupants-count-pill">
+                    {{ 1 + getAdditionalOccupantsCount(selectedProperty) }} Registered
+                  </span>
+                </div>
+
+                <div v-if="selectedProperty.isOccupied && selectedProperty.primaryTenant" class="sheet-occupants-stack">
+                  <!-- Primary Tenant Card -->
+                  <div class="tenant-profile-card">
+                    <div class="tenant-profile-header">
+                      <div class="tenant-avatar-large">{{ selectedProperty.primaryTenant.name.charAt(0) }}</div>
+                      <div class="tenant-profile-info">
+                        <div class="tenant-name-row">
+                          <span class="tenant-name-lg">{{ selectedProperty.primaryTenant.name }}</span>
+                          <span class="tenant-badge-primary">Primary Tenant</span>
+                        </div>
+                        <div class="tenant-phone-lg">{{ selectedProperty.primaryTenant.phone }}</div>
+                        <div class="tenant-lease-meta">Move-in: {{ selectedProperty.primaryTenant.moveInDate }}</div>
+                      </div>
                     </div>
                   </div>
+
+                  <!-- Other Registered Occupants List -->
+                  <div v-if="selectedProperty.occupants && selectedProperty.occupants.length > 0" class="additional-occupants-block">
+                    <div class="additional-occupants-head">
+                      <span class="add-occ-title">Other Occupants (+{{ selectedProperty.occupants.length }})</span>
+                    </div>
+                    <div class="additional-occupants-list">
+                      <div
+                        v-for="(occ, idx) in selectedProperty.occupants"
+                        :key="idx"
+                        class="additional-occupant-card"
+                      >
+                        <div class="add-occ-avatar" :class="'add-occ-avatar--' + (idx % 3)">
+                          {{ occ.name.charAt(0) }}
+                        </div>
+                        <div class="add-occ-info">
+                          <div class="add-occ-name-row">
+                            <span class="add-occ-name">{{ occ.name }}</span>
+                            <span class="add-occ-relation-tag">{{ occ.relation }}</span>
+                          </div>
+                          <div v-if="occ.phone" class="add-occ-phone">{{ occ.phone }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else class="tenant-single-occupant-hint">
+                    No additional occupants registered for this unit.
+                  </div>
                 </div>
+
                 <div v-else class="tenant-empty-card">
                   <p>This unit is registered as vacant in estate management records. No active tenant occupant is currently attached.</p>
                 </div>
@@ -1570,6 +1621,13 @@ const securityEmergencies = computed(() => {
 })
 
 // ── Homeowner Role State & Types ──
+export interface PropertyOccupant {
+  name: string
+  relation: string
+  phone?: string
+  moveInDate?: string
+}
+
 export interface PropertyPortfolioItem {
   id: number | string
   unitNumber: string
@@ -1583,6 +1641,7 @@ export interface PropertyPortfolioItem {
     moveInDate: string
     verified: boolean
   } | null
+  occupants?: PropertyOccupant[]
   registeredHouseholdCount: number
   registeredVehiclesCount: number
   duesClear: boolean
@@ -1616,7 +1675,11 @@ const homeownerProperties = ref<PropertyPortfolioItem[]>([
       moveInDate: 'Jan 2025',
       verified: true
     },
-    registeredHouseholdCount: 4,
+    occupants: [
+      { name: 'Mrs. Chioma Okafor', relation: 'Spouse', phone: '0803 987 6543', moveInDate: 'Jan 2025' },
+      { name: 'Master David Okafor', relation: 'Son / Dependent', phone: '0803 123 4567', moveInDate: 'Jan 2025' }
+    ],
+    registeredHouseholdCount: 3,
     registeredVehiclesCount: 2,
     duesClear: true,
     levies: defaultPropertyLevies
@@ -1634,12 +1697,66 @@ const homeownerProperties = ref<PropertyPortfolioItem[]>([
       moveInDate: 'Aug 2024',
       verified: true
     },
-    registeredHouseholdCount: 3,
+    occupants: [
+      { name: 'Mr. Tunde Adeleke', relation: 'Spouse / Co-Occupant', phone: '0802 345 6789', moveInDate: 'Aug 2024' }
+    ],
+    registeredHouseholdCount: 2,
     registeredVehiclesCount: 1,
     duesClear: true,
     levies: defaultPropertyLevies
   }
 ])
+
+function getAdditionalOccupantsCount(prop?: PropertyPortfolioItem | null): number {
+  if (!prop || !prop.isOccupied) return 0
+  if (prop.occupants && prop.occupants.length > 0) {
+    return prop.occupants.length
+  }
+  if (prop.registeredHouseholdCount && prop.registeredHouseholdCount > 1) {
+    return prop.registeredHouseholdCount - 1
+  }
+  return 0
+}
+
+function formatCompactCurrency(val: number | string | undefined | null): string {
+  if (val === undefined || val === null || val === '') return '₦0'
+  const num = typeof val === 'string' ? parseFloat(val.replace(/[^0-9.-]/g, '')) : val
+  if (isNaN(num) || num === 0) return '₦0'
+  const abs = Math.abs(num)
+  const sign = num < 0 ? '-' : ''
+
+  if (abs >= 1_000_000_000) {
+    const formatted = (abs / 1_000_000_000).toFixed(abs % 1_000_000_000 === 0 ? 0 : 1)
+    return `${sign}₦${formatted}b`
+  }
+  if (abs >= 1_000_000) {
+    const formatted = (abs / 1_000_000).toFixed(abs % 1_000_000 === 0 ? 0 : 1)
+    return `${sign}₦${formatted}m`
+  }
+  if (abs >= 100_000) {
+    const formatted = (abs / 1_000).toFixed(abs % 1_000 === 0 ? 0 : 1)
+    return `${sign}₦${formatted}k`
+  }
+  if (abs >= 1_000) {
+    const formatted = (abs / 1_000).toFixed(abs % 1_000 === 0 ? 0 : 1)
+    return `${sign}₦${formatted}k`
+  }
+  return `${sign}₦${abs.toLocaleString()}`
+}
+
+const homeownerLeviesInArrears = computed(() => {
+  let total = 0
+  for (const prop of homeownerProperties.value) {
+    if (prop.levies) {
+      for (const levy of prop.levies) {
+        if (levy.status === 'pending') {
+          total += (levy.amount || 0)
+        }
+      }
+    }
+  }
+  return total
+})
 
 const homeownerOccupiedCount = computed(() => {
   return homeownerProperties.value.filter(p => p.isOccupied).length
@@ -4560,13 +4677,15 @@ onMounted(() => {
 
 .sec-matrix-box {
   flex: 1;
+  min-width: 0;
   text-align: center;
   background: transparent;
   border: none;
   color: white;
-  padding: 2px 0;
+  padding: 2px 2px;
   cursor: pointer;
   transition: transform 0.15s ease;
+  overflow: hidden;
 }
 
 .sec-matrix-box:active {
@@ -4575,19 +4694,25 @@ onMounted(() => {
 
 .sec-matrix-val {
   font-family: var(--w-font-display, inherit);
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 750;
   letter-spacing: -0.3px;
   line-height: 1.1;
   color: #FFFFFF !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sec-matrix-lbl {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #FFFFFF;
   opacity: 0.85;
   margin-top: 2px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sec-matrix-vdivider {
@@ -5450,6 +5575,35 @@ onMounted(() => {
   font-size: 11px;
   color: #64748B;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tenant-role-tag {
+  color: #475569;
+}
+
+.sub-dot {
+  color: #94A3B8;
+}
+
+.additional-occupants-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  border: 1px solid #C6E7D2;
+  letter-spacing: -0.01em;
+}
+
+.additional-occupants-badge.sole-badge {
+  color: #64748B;
+  background: #F1F5F9;
+  border-color: #E2E8F0;
 }
 
 .prop-vacant-box {
@@ -5646,6 +5800,152 @@ onMounted(() => {
   letter-spacing: 0.04em;
   color: #64748B;
   margin: 0;
+}
+
+.prop-sheet-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sheet-occupants-count-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0A5C38;
+  background: #E8F5EE;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid #C6E7D2;
+}
+
+.sheet-occupants-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tenant-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tenant-badge-primary {
+  font-size: 9.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0A5C38;
+  background: #E8F5EE;
+  border: 1px solid #C6E7D2;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+.additional-occupants-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.additional-occupants-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-occ-title {
+  font-size: 11.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+}
+
+.additional-occupants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.additional-occupant-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.add-occ-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 750;
+  flex-shrink: 0;
+}
+
+.add-occ-avatar--0 {
+  background: #0284C7;
+}
+
+.add-occ-avatar--1 {
+  background: #7C3AED;
+}
+
+.add-occ-avatar--2 {
+  background: #D97706;
+}
+
+.add-occ-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.add-occ-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.add-occ-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.add-occ-relation-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #475569;
+  background: #E2E8F0;
+  padding: 1px 6px;
+  border-radius: 9999px;
+}
+
+.add-occ-phone {
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.tenant-single-occupant-hint {
+  font-size: 12px;
+  color: #64748B;
+  font-style: italic;
+  padding: 6px 2px;
 }
 
 .tenant-profile-card {
