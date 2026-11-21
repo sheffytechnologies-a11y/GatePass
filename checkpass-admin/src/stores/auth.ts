@@ -19,8 +19,9 @@ export const useAuthStore = defineStore('auth', () => {
     JSON.parse(localStorage.getItem('admin_user') ?? 'null')
   )
 
-  const activeEstateId = ref<string | number | null>(localStorage.getItem('admin_active_estate_id'))
-  const activeEstateName = ref<string>(localStorage.getItem('admin_active_estate_name') || 'Select Estate')
+  const storedEstateId = localStorage.getItem('admin_active_estate_id')
+  const activeEstateId = ref<string | number | null>(storedEstateId ?? 'all')
+  const activeEstateName = ref<string>(localStorage.getItem('admin_active_estate_name') || '🌐 All Estates')
   const estates = ref<EstateWorkspace[]>(
     JSON.parse(localStorage.getItem('admin_estates') ?? '[]')
   )
@@ -42,12 +43,17 @@ export const useAuthStore = defineStore('auth', () => {
     if (data.refreshToken) localStorage.setItem('admin_refresh_token', data.refreshToken)
     localStorage.setItem('admin_user', JSON.stringify(user.value))
 
-    // Set active estate if available in response
-    if (data.admin && data.admin.estateId) {
+    // For estate_admin, lock to their designated estate; for super_admin default to 'all'
+    if (resolvedRole === 'estate_admin' && data.admin && data.admin.estateId) {
       activeEstateId.value = data.admin.estateId as string | number
       activeEstateName.value = (data.admin.estateName as string) || 'Primary Estate'
       localStorage.setItem('admin_active_estate_id', String(data.admin.estateId))
       localStorage.setItem('admin_active_estate_name', activeEstateName.value)
+    } else if (resolvedRole === 'super_admin') {
+      activeEstateId.value = 'all'
+      activeEstateName.value = '🌐 All Estates'
+      localStorage.setItem('admin_active_estate_id', 'all')
+      localStorage.setItem('admin_active_estate_name', '🌐 All Estates')
     }
   }
 
@@ -65,8 +71,11 @@ export const useAuthStore = defineStore('auth', () => {
   function setEstatesList(list: EstateWorkspace[]) {
     estates.value = list
     localStorage.setItem('admin_estates', JSON.stringify(list))
-    if (!activeEstateId.value && list.length > 0) {
-      setActiveEstate(list[0])
+    if (!activeEstateId.value) {
+      activeEstateId.value = 'all'
+      activeEstateName.value = '🌐 All Estates'
+      localStorage.setItem('admin_active_estate_id', 'all')
+      localStorage.setItem('admin_active_estate_name', '🌐 All Estates')
     }
   }
 

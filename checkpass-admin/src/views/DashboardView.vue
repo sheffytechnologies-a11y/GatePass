@@ -1277,8 +1277,13 @@ async function load(showSpinner = true) {
     recentNews.value = (newsRes.data?.news || []).slice(0, 3)
     estates.value = estatesRes.data?.estates ?? []
 
-    if (!auth.activeEstateId && estates.value.length > 0) {
-      auth.setActiveEstate(estates.value[0])
+    if (!auth.activeEstateId) {
+      auth.setActiveEstate({
+        id: 'all',
+        name: '🌐 All Estates',
+        role: 'Super Admin',
+        address: 'All Communities'
+      })
     }
   } catch (err: any) {
     if (showSpinner) {

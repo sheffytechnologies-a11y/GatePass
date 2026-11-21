@@ -34,6 +34,24 @@
         </div>
 
         <div class="estates-list">
+          <!-- 🌐 All Estates Global View (Default) -->
+          <button
+            type="button"
+            class="estate-item-row estate-item-row--all"
+            :class="{ 'is-active': auth.activeEstateId === 'all' || !auth.activeEstateId }"
+            @click="selectAllEstates"
+          >
+            <div class="item-main">
+              <div class="item-name">🌐 All Estates</div>
+              <div class="item-sub">Unified multi-estate view &amp; telemetry</div>
+            </div>
+
+            <div class="item-status">
+              <span v-if="auth.activeEstateId === 'all' || !auth.activeEstateId" class="active-check">✓</span>
+              <span class="item-role-chip">Global</span>
+            </div>
+          </button>
+
           <button
             v-for="estate in displayEstates"
             :key="estate.id"
@@ -144,7 +162,10 @@ const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
 const currentEstateName = computed(() => {
-  return auth.activeEstateName || 'Primary Estate'
+  if (auth.activeEstateId === 'all' || !auth.activeEstateId) {
+    return '🌐 All Estates'
+  }
+  return auth.activeEstateName || '🌐 All Estates'
 })
 
 // Fallback list if user has only 1 estate so far
@@ -154,16 +175,28 @@ const displayEstates = computed<EstateWorkspace[]>(() => {
   }
   return [
     {
-      id: auth.activeEstateId || 1,
-      name: auth.activeEstateName || 'Victoria Gardens Estate',
+      id: 1,
+      name: 'PHDL Estate',
       role: auth.role === 'super_admin' ? 'Super Admin' : 'Estate Admin',
-      address: 'Lekki Phase 1, Lagos',
+      address: 'Port Harcourt, Rivers State',
     },
   ]
 })
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value
+}
+
+function selectAllEstates() {
+  const allEstate: EstateWorkspace = {
+    id: 'all',
+    name: '🌐 All Estates',
+    role: 'Super Admin',
+    address: 'All Communities',
+  }
+  auth.setActiveEstate(allEstate)
+  isOpen.value = false
+  window.dispatchEvent(new CustomEvent('checkpass:estate-switched', { detail: allEstate }))
 }
 
 function selectEstate(estate: EstateWorkspace) {

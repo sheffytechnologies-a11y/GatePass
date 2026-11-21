@@ -28,8 +28,9 @@ trait ScopesToEstate
             return $query->where($column, $admin->currentEstateId());
         }
 
-        if ($request->filled('estate_id')) {
-            return $query->where($column, $request->estate_id);
+        $targetEstateId = $request->header('X-Estate-Id') ?: $request->input('estate_id');
+        if (!empty($targetEstateId) && $targetEstateId !== 'all') {
+            return $query->where($column, $targetEstateId);
         }
 
         return $query;
