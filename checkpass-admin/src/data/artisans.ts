@@ -41,185 +41,46 @@ export interface ArtisanItem {
 
 export const STORAGE_KEY = 'cp_estate_artisans'
 
-export const defaultArtisans: ArtisanItem[] = [
-  {
-    id: 'art-1',
-    name: 'Chinedu Okafor',
-    trade: 'Senior Electrician & Inverter Specialist',
-    category: 'Electrician',
-    phone: '+2348031234567',
-    whatsapp: '2348031234567',
-    rating: 4.9,
-    avatarBg: '#0A5C38',
-    initials: 'CO',
-    status: 'Active',
-    address: 'Commercial Plaza, Ground Floor Shop 2',
-    verifiedSince: 'Nov 2024',
-    experienceYears: 9,
-    gatePassCleared: true,
-    policeCleared: true,
-    idVerified: true,
-    responseTime: '< 20 mins',
-    jobsCompleted: 68,
-    skills: [
-      'Inverter Diagnostics',
-      'Solar Battery Balancing',
-      'Distribution Board Wiring',
-      'Emergency Short Circuit Repair',
-      'Water Heater Element Replacement',
-      'Smart Meter Calibration'
-    ],
-    recentGateLogs: [],
-    reviews: [],
-  },
-  {
-    id: 'art-2',
-    name: 'Musa Abdullahi',
-    trade: 'Master Plumber & Water Pressure Engineer',
-    category: 'Plumber',
-    phone: '+2348023456789',
-    whatsapp: '2348023456789',
-    rating: 4.8,
-    avatarBg: '#1D4ED8',
-    initials: 'MA',
-    status: 'Active',
-    address: 'Estate Maintenance Yard Workshop',
-    verifiedSince: 'Jan 2025',
-    experienceYears: 12,
-    gatePassCleared: true,
-    policeCleared: true,
-    idVerified: true,
-    responseTime: '< 30 mins',
-    jobsCompleted: 92,
-    skills: [
-      'Overhead Tank Automatic Float Valves',
-      'Booster Pump Troubleshooting',
-      'PPR Pipe Thermal Welding',
-      'Underground Leak Detection',
-      'Drainage Unclogging & De-scaling'
-    ],
-    recentGateLogs: [],
-    reviews: [],
-  },
-  {
-    id: 'art-3',
-    name: 'Emmanuel Bassey',
-    trade: 'HVAC & Inverter AC Specialist',
-    category: 'AC Repair',
-    phone: '+2348056789012',
-    whatsapp: '2348056789012',
-    rating: 4.9,
-    avatarBg: '#B45309',
-    initials: 'EB',
-    status: 'Active',
-    address: 'External On-Call Provider (Accredited)',
-    verifiedSince: 'Feb 2025',
-    experienceYears: 7,
-    gatePassCleared: true,
-    policeCleared: true,
-    idVerified: true,
-    responseTime: '< 45 mins',
-    jobsCompleted: 54,
-    skills: [
-      'Inverter Compressor Diagnostics',
-      'R410A / R32 Gas Charging',
-      'Indoor Coil Chemical Wash',
-      'PCB Board Soldering & Repair'
-    ],
-    recentGateLogs: [],
-    reviews: [],
-  },
-  {
-    id: 'art-4',
-    name: 'SparklePro Cleaners (Mrs. Joy)',
-    trade: 'Deep Home & Move-In Cleaning',
-    category: 'Cleaning',
-    phone: '+2348089012345',
-    whatsapp: '2348089012345',
-    rating: 4.7,
-    avatarBg: '#7C3AED',
-    initials: 'SP',
-    status: 'Active',
-    address: 'Estate Commercial Annex Suite 1B',
-    verifiedSince: 'Mar 2025',
-    experienceYears: 6,
-    gatePassCleared: true,
-    policeCleared: true,
-    idVerified: true,
-    responseTime: '< 1 hour',
-    jobsCompleted: 110,
-    skills: [
-      'Post-Construction Deep Cleaning',
-      'Upholstery & Rug Steam Extraction',
-      'Kitchen Grease Extraction',
-      'Glass Window Polishing'
-    ],
-    recentGateLogs: [],
-    reviews: [],
-  },
-  {
-    id: 'art-5',
-    name: 'Sunday Adeyemi',
-    trade: 'Furniture Maker & Locksmith',
-    category: 'Carpentry',
-    phone: '+2348078901234',
-    whatsapp: '2348078901234',
-    rating: 4.8,
-    avatarBg: '#059669',
-    initials: 'SA',
-    status: 'Active',
-    address: 'Estate Perimeter Workshop',
-    verifiedSince: 'Apr 2025',
-    experienceYears: 15,
-    gatePassCleared: true,
-    policeCleared: true,
-    idVerified: true,
-    responseTime: '< 30 mins',
-    jobsCompleted: 76,
-    skills: [
-      'Smart & Mortise Lock Installation',
-      'Sliding Wardrobe Track Realignment',
-      'Kitchen Cabinet Hinge Replacement',
-      'Custom Wooden Doors & Framing'
-    ],
-    recentGateLogs: [],
-    reviews: [],
-  },
-]
+export const defaultArtisans: ArtisanItem[] = []
 
 export function loadArtisans(): ArtisanItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      saveArtisans(defaultArtisans)
-      return [...defaultArtisans]
+      return []
     }
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      saveArtisans(defaultArtisans)
-      return [...defaultArtisans]
+      return []
     }
-    // merge and purge any legacy mock reviews or fake gate logs
-    return parsed.map((item: any) => {
-      const match = defaultArtisans.find(d => d.id === item.id)
-      const reviews = (Array.isArray(item.reviews) ? item.reviews : []).filter((r: any) => {
-        const id = String(r.id || '')
-        return id !== 'rev-1' && id !== 'rev-2' && id !== 'rev-3' && id !== 'rev-4' && id !== 'rev-5' && id !== 'rev-6'
+    // Purge any legacy mock artisans (art-1 through art-5) and legacy mock logs/reviews
+    const valid = parsed
+      .filter((item: any) => {
+        const id = String(item.id || '')
+        return !['art-1', 'art-2', 'art-3', 'art-4', 'art-5'].includes(id)
       })
-      const recentGateLogs = (Array.isArray(item.recentGateLogs) ? item.recentGateLogs : []).filter((l: any) => {
-        const id = String(l.id || '')
-        return id !== 'log-101' && id !== 'log-102' && id !== 'log-103' && id !== 'log-201' && id !== 'log-202' && id !== 'log-301' && id !== 'log-401' && id !== 'log-501'
+      .map((item: any) => {
+        const reviews = (Array.isArray(item.reviews) ? item.reviews : []).filter((r: any) => {
+          const id = String(r.id || '')
+          return !['rev-1', 'rev-2', 'rev-3', 'rev-4', 'rev-5', 'rev-6'].includes(id)
+        })
+        const recentGateLogs = (Array.isArray(item.recentGateLogs) ? item.recentGateLogs : []).filter((l: any) => {
+          const id = String(l.id || '')
+          return !['log-101', 'log-102', 'log-103', 'log-201', 'log-202', 'log-301', 'log-401', 'log-501'].includes(id)
+        })
+        return {
+          ...item,
+          reviews,
+          skills: Array.isArray(item.skills) ? item.skills : [],
+          recentGateLogs,
+        }
       })
-      return {
-        ...match,
-        ...item,
-        reviews,
-        skills: Array.isArray(item.skills) ? item.skills : (match?.skills || []),
-        recentGateLogs,
-      }
-    })
+    if (valid.length !== parsed.length) {
+      saveArtisans(valid)
+    }
+    return valid
   } catch {
-    return [...defaultArtisans]
+    return []
   }
 }
 
