@@ -797,30 +797,19 @@ interface SupportTicketItem {
 function loadSavedTickets(): SupportTicketItem[] {
   try {
     const saved = localStorage.getItem(TKT_STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed)) {
+        // Purge legacy mock tickets if they were saved in localStorage
+        const cleaned = parsed.filter((t: any) => t.id !== 'TKT-1048' && t.id !== 'TKT-1025' && t.id !== 'TKT-1042')
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(TKT_STORAGE_KEY, JSON.stringify(cleaned))
+        }
+        return cleaned
+      }
+    }
   } catch {}
-  return [
-    {
-      id: 'TKT-1048',
-      title: 'Streetlight pole blinking intermittently on Lane 3',
-      category: 'Roads & Streetlights',
-      priority: 'Normal',
-      status: 'In Progress',
-      description: 'The pole opposite unit 4B is flickering loudly and cutting out after 9 PM.',
-      date: 'Oct 27, 2026',
-      adminNote: 'Facility technician scheduled for replacement this afternoon.',
-    },
-    {
-      id: 'TKT-1025',
-      title: 'Intercom unit not buzzing for incoming visitor pass verification',
-      category: 'Gate & Access Intercom',
-      priority: 'High',
-      status: 'Resolved',
-      description: 'Unit intercom at entrance not ringing when security dials.',
-      date: 'Oct 20, 2026',
-      adminNote: 'Wiring connection restored at distribution board.',
-    },
-  ]
+  return []
 }
 
 const ticketsList = ref<SupportTicketItem[]>(loadSavedTickets())

@@ -170,7 +170,13 @@
     <section v-else class="tab-content-section">
       <div class="card messages-grid-card">
         <div class="messages-list">
+          <div v-if="messagesList.length === 0" class="empty-placeholder" style="padding: 40px 16px;">
+            <div class="empty-icon">💬</div>
+            <div class="empty-title">No messages yet</div>
+            <div class="empty-sub">Resident inquiries will appear here.</div>
+          </div>
           <div
+            v-else
             v-for="msg in messagesList"
             :key="msg.id"
             class="message-item"
@@ -415,46 +421,18 @@ interface ResidentMessage {
 function loadSavedTickets(): SupportTicket[] {
   try {
     const saved = localStorage.getItem(TKT_STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((t: any) => t.id !== 'TKT-1048' && t.id !== 'TKT-1025' && t.id !== 'TKT-1042')
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(TKT_STORAGE_KEY, JSON.stringify(cleaned))
+        }
+        return cleaned
+      }
+    }
   } catch {}
-  return [
-    {
-      id: 'TKT-1048',
-      residentName: 'Sheriff Ibram',
-      unit: 'Flat 3B • Block 2',
-      title: 'Streetlight pole blinking intermittently on Lane 3',
-      category: 'Roads & Streetlights',
-      priority: 'Normal',
-      status: 'In Progress',
-      description: 'The pole opposite unit 4B is flickering loudly and cutting out after 9 PM.',
-      date: 'Oct 27, 2026',
-      adminNote: 'Facility technician scheduled for replacement this afternoon.',
-    },
-    {
-      id: 'TKT-1042',
-      residentName: 'Amaka Eze',
-      unit: 'House 14 • Palm Avenue',
-      title: 'Water pump pressure dropping during morning hours',
-      category: 'Water Supply & Plumbing',
-      priority: 'High',
-      status: 'Open',
-      description: 'Borehole pressure severely drops from 6:30 AM to 8:00 AM.',
-      date: 'Oct 28, 2026',
-      adminNote: null,
-    },
-    {
-      id: 'TKT-1025',
-      residentName: 'Folake Adeyemi',
-      unit: 'Flat 1A • Block C',
-      title: 'Intercom unit not buzzing for incoming visitor pass verification',
-      category: 'Gate & Access Intercom',
-      priority: 'High',
-      status: 'Resolved',
-      description: 'Unit intercom at entrance not ringing when security dials.',
-      date: 'Oct 20, 2026',
-      adminNote: 'Wiring connection restored at distribution board.',
-    },
-  ]
+  return []
 }
 
 // ── TICKETS STATE ──
@@ -517,30 +495,18 @@ function saveTicketModal() {
 function loadSavedMessages(): ResidentMessage[] {
   try {
     const saved = localStorage.getItem(MSG_STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((m: any) => m.id !== 'msg-1' && m.id !== 'msg-2')
+        if (cleaned.length !== parsed.length) {
+          localStorage.setItem(MSG_STORAGE_KEY, JSON.stringify(cleaned))
+        }
+        return cleaned
+      }
+    }
   } catch {}
-  return [
-    {
-      id: 'msg-1',
-      residentName: 'Sheriff Ibram',
-      unit: 'Flat 3B • Block 2',
-      phone: '08132489619',
-      category: 'Security & Gate Access',
-      body: 'Good morning, please inform the gate that moving van for Flat 3 will arrive at 2 PM today.',
-      time: 'Yesterday, 10:15 AM',
-      reply: 'Acknowledged. Gate officers notified.',
-    },
-    {
-      id: 'msg-2',
-      residentName: 'Babatunde Alao',
-      unit: 'House 8 • Hibiscus Lane',
-      phone: '08024035326',
-      category: 'Billing & Levies',
-      body: 'Kindly confirm receipt of my October estate security levy paid yesterday via Paystack.',
-      time: 'Today, 8:40 AM',
-      reply: null,
-    },
-  ]
+  return []
 }
 
 // ── MESSAGES STATE ──
