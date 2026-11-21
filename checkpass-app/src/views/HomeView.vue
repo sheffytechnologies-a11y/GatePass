@@ -1479,16 +1479,6 @@
                   <p>This unit is registered as vacant in estate management records. No active tenant occupant is currently attached.</p>
                 </div>
               </div>
-
-              <div class="prop-sheet-actions">
-                <button
-                  type="button"
-                  class="prop-action-close-btn"
-                  @click="selectedProperty = null"
-                >
-                  Done
-                </button>
-              </div>
             </div>
           </div>
         </div>
