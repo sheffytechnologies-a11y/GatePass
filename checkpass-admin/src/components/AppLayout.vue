@@ -380,18 +380,172 @@ async function handleLogout() {
 
 .content { flex: 1; padding: 28px 32px 48px; width: 100%; max-width: 100%; margin: 0; }
 
-/* ── Toast ───────────────────────────────── */
-.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-.toast {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 18px; border-radius: var(--radius); box-shadow: var(--shadow-md);
-  font-size: 14px; font-weight: 500; background: var(--c-surface); color: var(--c-text);
-  animation: slideIn 0.2s ease;
+/* ── Toast Notifications (Floating Capsule Pill inspired by Mobile App) ── */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 440px;
+  width: calc(100% - 56px);
 }
-@keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.toast-success { border-left: 4px solid var(--c-success); }
-.toast-error   { border-left: 4px solid var(--c-danger); }
-.toast-warning { border-left: 4px solid var(--c-warning); }
+
+.toast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.toast-pill {
+  pointer-events: auto;
+  background: #FFFFFF;
+  border-radius: 9999px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
+}
+
+.toast-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.15), 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.toast-pill.toast-error {
+  border-left: 4.5px solid #DC2626;
+}
+
+.toast-pill.toast-success {
+  border-left: 4.5px solid #16A34A;
+}
+
+.toast-pill.toast-warning {
+  border-left: 4.5px solid #F59E0B;
+}
+
+.toast-pill.toast-info {
+  border-left: 4.5px solid #2563EB;
+}
+
+.toast-icon-wrap {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast-icon-wrap.icon-success {
+  background: #16A34A;
+}
+
+.toast-icon-wrap.icon-info {
+  background: #2563EB;
+}
+
+.toast-icon-wrap.icon-warning,
+.toast-icon-wrap.icon-error {
+  background: transparent;
+}
+
+.toast-svg-poly {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.toast-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.25;
+  letter-spacing: -0.15px;
+  word-break: break-word;
+}
+
+.toast-subtitle {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #64748B;
+  line-height: 1.3;
+  letter-spacing: -0.1px;
+  word-break: break-word;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.toast-close:hover {
+  color: #334155;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.toast-close:active {
+  transform: scale(0.92);
+}
+
+.toast-anim-enter-active {
+  transition: all 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-anim-leave-active {
+  transition: all 0.22s ease-in;
+}
+
+.toast-anim-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.96);
+}
+
+.toast-anim-leave-to {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+}
+
+@media (max-width: 640px) {
+  .toast-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: 100%;
+  }
+}
 
 /* ── Responsive: collapse to drawer ──────── */
 @media (max-width: 900px) {
