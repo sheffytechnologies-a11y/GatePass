@@ -459,7 +459,7 @@
                       {{ prop.isOccupied ? '● Occupied' : '○ Vacant' }}
                     </span>
                   </div>
-                  <h3 class="prop-card-title">{{ prop.unitNumber }} - {{ prop.streetName }}</h3>
+                  <h3 class="prop-card-title">{{ prop.unitNumber }}<span v-if="prop.streetName && !prop.unitNumber.toLowerCase().includes(prop.streetName.toLowerCase())"> - {{ prop.streetName }}</span></h3>
                 </div>
 
                 <div v-if="prop.isOccupied && prop.primaryTenant" class="prop-occupant-box">
@@ -1390,7 +1390,7 @@
             <div class="sheet-modal-header">
               <div>
                 <div class="sheet-header-tag">OFFICIAL ESTATE DEED RECORD</div>
-                <h2 class="sheet-header-title">{{ selectedProperty.unitNumber }} - {{ selectedProperty.streetName }}</h2>
+                <h2 class="sheet-header-title">{{ selectedProperty.unitNumber }}<span v-if="selectedProperty.streetName && !selectedProperty.unitNumber.toLowerCase().includes(selectedProperty.streetName.toLowerCase())"> - {{ selectedProperty.streetName }}</span></h2>
               </div>
               <button class="modal-close-btn" @click="selectedProperty = null">&times;</button>
             </div>

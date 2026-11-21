@@ -166,7 +166,7 @@ class HomeController extends Controller
                 $homeownerProperties[] = [
                     'id' => $unit->id,
                     'unitNumber' => $unit->flat_address ?: ('Unit #' . $unit->id),
-                    'streetName' => $unit->lane ? ('Lane ' . $unit->lane) : ($ownerRes->estate?->name ?? 'Estate'),
+                    'streetName' => $unit->lane ?: ($ownerRes->estate?->name ?? ''),
                     'type' => $unit->type ?: 'Residential Unit',
                     'isOccupied' => $otherResidents->isNotEmpty(),
                     'deedRef' => 'DEED-' . strtoupper(substr($ownerRes->estate?->name ?? 'CP', 0, 2)) . '-' . $unit->id,
