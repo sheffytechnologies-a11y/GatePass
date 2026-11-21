@@ -987,6 +987,61 @@ class AdminController extends Controller
             ];
         }
 
+        // ── 4-Week Weekly Pass Trend ──────────────────────────────────────────
+        $passWeeks = [];
+        for ($w = 3; $w >= 0; $w--) {
+            $wStart = Carbon::today()->subWeeks($w)->startOfWeek();
+            $wEnd = Carbon::today()->subWeeks($w)->endOfWeek();
+
+            $pWQuery = Pass::query()->whereBetween('created_at', [$wStart, $wEnd]);
+            $this->scopeEstate($pWQuery, $request);
+            $wTotal = $pWQuery->count();
+
+            $aWQuery = Pass::query()
+                ->whereBetween('created_at', [$wStart, $wEnd])
+                ->where(function ($q) {
+                    $q->whereNotNull('arrived_at')
+                      ->orWhereIn('status', ['On-site', 'Exited']);
+                });
+            $this->scopeEstate($aWQuery, $request);
+            $wArrived = $aWQuery->count();
+
+            $passWeeks[] = [
+                'label'    => 'Wk ' . (4 - $w),
+                'fullDate' => 'Week ' . (4 - $w) . ' (' . $wStart->format('j M') . ' - ' . $wEnd->format('j M') . ')',
+                'total'    => $wTotal,
+                'arrived'  => $wArrived,
+            ];
+        }
+
+        // ── 6-Month Monthly Pass Trend ────────────────────────────────────────
+        $passMonths = [];
+        for ($m = 5; $m >= 0; $m--) {
+            $mDate = Carbon::today()->startOfMonth()->subMonths($m);
+            $mStart = $mDate->copy()->startOfMonth();
+            $mEnd = $mDate->copy()->endOfMonth();
+
+            $pMQuery = Pass::query()->whereBetween('created_at', [$mStart, $mEnd]);
+            $this->scopeEstate($pMQuery, $request);
+            $mTotal = $pMQuery->count();
+
+            $aMQuery = Pass::query()
+                ->whereBetween('created_at', [$mStart, $mEnd])
+                ->where(function ($q) {
+                    $q->whereNotNull('arrived_at')
+                      ->orWhereIn('status', ['On-site', 'Exited']);
+                });
+            $this->scopeEstate($aMQuery, $request);
+            $mArrived = $aMQuery->count();
+
+            $passMonths[] = [
+                'label'    => $mDate->format('M'),
+                'fullDate' => $mDate->format('F Y'),
+                'total'    => $mTotal,
+                'arrived'  => $mArrived,
+            ];
+        }
+
         // ── Category Breakdown (Guest, Delivery, Artisan, Family) ────────────
         $allPassesQuery = Pass::query()->where('created_at', '>=', Carbon::today()->subDays(30));
         $this->scopeEstate($allPassesQuery, $request);
@@ -1035,6 +1090,61 @@ class AdminController extends Controller
                     $totalDuesPending += $amount;
                 }
             }
+        }
+
+        // 7-Day Dues History
+        $duesDays = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $d = Carbon::today()->subDays($i);
+            $dStart = $d->copy()->startOfDay();
+            $dEnd = $d->copy()->endOfDay();
+            $collectedDay = 0;
+            if ($feeIds->isNotEmpty()) {
+                $collectedDay = (float) DB::table('fee_user')
+                    ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                    ->whereIn('fees.id', $feeIds)
+                    ->where('fee_user.payment_status', 'paid')
+                    ->whereBetween('fee_user.updated_at', [$dStart, $dEnd])
+                    ->sum('fees.amount');
+            }
+            $btQuery = BillingTransaction::query()
+                ->where('status', 'success')
+                ->whereBetween('paid_at', [$dStart, $dEnd]);
+            $this->scopeEstate($btQuery, $request);
+            $collectedDay += (float) $btQuery->sum('amount');
+
+            $duesDays[] = [
+                'label'    => $d->format('D'),
+                'fullDate' => $d->format('l, j M'),
+                'amount'   => $collectedDay,
+            ];
+        }
+
+        // 4-Week Dues History
+        $duesWeeks = [];
+        for ($w = 3; $w >= 0; $w--) {
+            $wStart = Carbon::today()->subWeeks($w)->startOfWeek();
+            $wEnd = Carbon::today()->subWeeks($w)->endOfWeek();
+            $collectedWk = 0;
+            if ($feeIds->isNotEmpty()) {
+                $collectedWk = (float) DB::table('fee_user')
+                    ->join('fees', 'fees.id', '=', 'fee_user.fee_id')
+                    ->whereIn('fees.id', $feeIds)
+                    ->where('fee_user.payment_status', 'paid')
+                    ->whereBetween('fee_user.updated_at', [$wStart, $wEnd])
+                    ->sum('fees.amount');
+            }
+            $btQuery = BillingTransaction::query()
+                ->where('status', 'success')
+                ->whereBetween('paid_at', [$wStart, $wEnd]);
+            $this->scopeEstate($btQuery, $request);
+            $collectedWk += (float) $btQuery->sum('amount');
+
+            $duesWeeks[] = [
+                'label'    => 'Wk ' . (4 - $w),
+                'fullDate' => 'Week ' . (4 - $w) . ' (' . $wStart->format('j M') . ' - ' . $wEnd->format('j M') . ')',
+                'amount'   => $collectedWk,
+            ];
         }
 
         // 6-Month Payment / Dues History
@@ -1116,7 +1226,11 @@ class AdminController extends Controller
             ],
             'analytics' => [
                 'passTrend'         => $passTrend,
+                'passWeeks'         => $passWeeks,
+                'passMonths'        => $passMonths,
                 'typeDistribution'  => $typeDistribution,
+                'duesDays'          => $duesDays,
+                'duesWeeks'         => $duesWeeks,
                 'paymentMonths'     => $paymentMonths,
             ],
             'recentPasses' => $recentPassQuery->limit(8)->get()

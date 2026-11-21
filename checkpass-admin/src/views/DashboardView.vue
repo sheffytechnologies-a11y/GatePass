@@ -470,7 +470,7 @@
                   :stroke-dashoffset="seg.dashoffset"
                   class="donut-segment"
                 />
-                <text x="80" y="76" text-anchor="middle" font-size="20" font-weight="800" fill="#0F172A">{{ totalCategoriesCount || stats.activePasses }}</text>
+                <text x="80" y="76" text-anchor="middle" font-size="20" font-weight="800" fill="#0F172A">{{ totalCategoriesCount }}</text>
                 <text x="80" y="94" text-anchor="middle" font-size="10.5" font-weight="600" fill="#64748B">Total Passes</text>
               </svg>
             </div>
@@ -861,12 +861,16 @@ const stats = ref({
 
 const analytics = ref({
   passTrend: [] as Array<{ day: string; date: string; label: string; total: number; arrived: number }>,
+  passWeeks: [] as Array<{ label: string; fullDate: string; total: number; arrived: number }>,
+  passMonths: [] as Array<{ label: string; fullDate: string; total: number; arrived: number }>,
   typeDistribution: {
     guest: 0,
     delivery: 0,
     artisan: 0,
     family: 0,
   },
+  duesDays: [] as Array<{ label: string; fullDate: string; amount: number }>,
+  duesWeeks: [] as Array<{ label: string; fullDate: string; amount: number }>,
   paymentMonths: [] as Array<{ month: string; year: number; amount: number }>,
 })
 
@@ -877,7 +881,10 @@ const totalCategoriesCount = computed(() => {
 })
 
 const categoryPercentages = computed(() => {
-  const total = totalCategoriesCount.value || 1
+  const total = totalCategoriesCount.value
+  if (!total) {
+    return { guest: 0, delivery: 0, artisan: 0, family: 0 }
+  }
   const dist = analytics.value.typeDistribution || { guest: 0, delivery: 0, artisan: 0, family: 0 }
   return {
     guest: Math.round(((dist.guest || 0) / total) * 100),
@@ -915,83 +922,70 @@ function shiftPassWindow(dir: number) {
 
 const passWindowLabel = computed(() => {
   if (passTimeframe.value === 'daily') {
-    if (passWindowOffset.value === 0) return 'Current Week (10 Nov - 16 Nov)'
+    if (passWindowOffset.value === 0) return 'Current Week'
     return `${Math.abs(passWindowOffset.value)} wk ago`
   }
   if (passTimeframe.value === 'weekly') {
-    if (passWindowOffset.value === 0) return 'This Month (Nov 2026)'
-    return `Last Month (Oct 2026)`
+    if (passWindowOffset.value === 0) return 'This Month'
+    return 'Last Month'
   }
   return 'Past 6 Months'
 })
 
 const currentPassBars = computed(() => {
   if (passTimeframe.value === 'daily') {
-    const raw = analytics.value.passTrend?.length ? analytics.value.passTrend : [
-      { day: 'Mon', total: 14, arrived: 11, label: '10 Nov' },
-      { day: 'Tue', total: 18, arrived: 15, label: '11 Nov' },
-      { day: 'Wed', total: 22, arrived: 19, label: '12 Nov' },
-      { day: 'Thu', total: 16, arrived: 12, label: '13 Nov' },
-      { day: 'Fri', total: 28, arrived: 24, label: '14 Nov' },
-      { day: 'Sat', total: 34, arrived: 29, label: '15 Nov' },
-      { day: 'Sun', total: 20, arrived: 16, label: '16 Nov' },
-    ]
-    const scale = passWindowOffset.value === 0 ? 1 : 0.85
-    const maxVal = Math.max(10, ...raw.map(d => Math.max(d.total, d.arrived)))
+    const raw = analytics.value.passTrend || []
+    const maxVal = Math.max(1, ...raw.map(d => Math.max(d.total, d.arrived)))
     return raw.map(d => {
-      const tot = Math.round(d.total * scale)
-      const arr = Math.round(d.arrived * scale)
+      const tot = d.total || 0
+      const arr = d.arrived || 0
       return {
         label: d.day,
         fullDate: `${d.day}, ${d.label}`,
         total: tot,
         arrived: arr,
-        pctTotal: Math.min(100, Math.max(6, Math.round((tot / maxVal) * 100))),
-        pctArrived: Math.min(100, Math.max(4, Math.round((arr / maxVal) * 100))),
+        pctTotal: tot > 0 ? Math.min(100, Math.max(4, Math.round((tot / maxVal) * 100))) : 0,
+        pctArrived: arr > 0 ? Math.min(100, Math.max(3, Math.round((arr / maxVal) * 100))) : 0,
       }
     })
   }
 
   if (passTimeframe.value === 'weekly') {
-    const weeks = [
-      { label: 'Wk 1', fullDate: 'Week 1 (1 - 7 Nov)', total: 95, arrived: 82 },
-      { label: 'Wk 2', fullDate: 'Week 2 (8 - 14 Nov)', total: 120, arrived: 104 },
-      { label: 'Wk 3', fullDate: 'Week 3 (15 - 21 Nov)', total: 142, arrived: 126 },
-      { label: 'Wk 4', fullDate: 'Week 4 (22 - 28 Nov)', total: 110, arrived: 98 },
-    ]
-    const maxVal = Math.max(10, ...weeks.map(w => w.total))
-    return weeks.map(w => ({
-      label: w.label,
-      fullDate: w.fullDate,
-      total: w.total,
-      arrived: w.arrived,
-      pctTotal: Math.min(100, Math.max(6, Math.round((w.total / maxVal) * 100))),
-      pctArrived: Math.min(100, Math.max(4, Math.round((w.arrived / maxVal) * 100))),
-    }))
+    const weeks = analytics.value.passWeeks || []
+    const maxVal = Math.max(1, ...weeks.map(w => Math.max(w.total, w.arrived)))
+    return weeks.map(w => {
+      const tot = w.total || 0
+      const arr = w.arrived || 0
+      return {
+        label: w.label,
+        fullDate: w.fullDate,
+        total: tot,
+        arrived: arr,
+        pctTotal: tot > 0 ? Math.min(100, Math.max(4, Math.round((tot / maxVal) * 100))) : 0,
+        pctArrived: arr > 0 ? Math.min(100, Math.max(3, Math.round((arr / maxVal) * 100))) : 0,
+      }
+    })
   }
 
   // Monthly
-  const months = [
-    { label: 'Jun', fullDate: 'June 2026', total: 320, arrived: 285 },
-    { label: 'Jul', fullDate: 'July 2026', total: 410, arrived: 360 },
-    { label: 'Aug', fullDate: 'August 2026', total: 390, arrived: 345 },
-    { label: 'Sep', fullDate: 'September 2026', total: 480, arrived: 430 },
-    { label: 'Oct', fullDate: 'October 2026', total: 530, arrived: 480 },
-    { label: 'Nov', fullDate: 'November 2026', total: Math.max(stats.value.activePasses * 15, 560), arrived: 495 },
-  ]
-  const maxVal = Math.max(10, ...months.map(m => m.total))
-  return months.map(m => ({
-    label: m.label,
-    fullDate: m.fullDate,
-    total: m.total,
-    arrived: m.arrived,
-    pctTotal: Math.min(100, Math.max(6, Math.round((m.total / maxVal) * 100))),
-    pctArrived: Math.min(100, Math.max(4, Math.round((m.arrived / maxVal) * 100))),
-  }))
+  const months = analytics.value.passMonths || []
+  const maxVal = Math.max(1, ...months.map(m => Math.max(m.total, m.arrived)))
+  return months.map(m => {
+    const tot = m.total || 0
+    const arr = m.arrived || 0
+    return {
+      label: m.label,
+      fullDate: m.fullDate,
+      total: tot,
+      arrived: arr,
+      pctTotal: tot > 0 ? Math.min(100, Math.max(4, Math.round((tot / maxVal) * 100))) : 0,
+      pctArrived: arr > 0 ? Math.min(100, Math.max(3, Math.round((arr / maxVal) * 100))) : 0,
+    }
+  })
 })
 
 const maxPassVal = computed(() => {
-  return Math.max(10, ...currentPassBars.value.map(b => b.total))
+  return Math.max(0, ...currentPassBars.value.map(b => b.total))
 })
 
 const currentPassTotal = computed(() => {
@@ -1014,72 +1008,52 @@ function shiftDuesWindow(dir: number) {
 
 const duesWindowLabel = computed(() => {
   if (duesTimeframe.value === 'daily') {
-    if (duesWindowOffset.value === 0) return 'This Week (10 - 16 Nov)'
+    if (duesWindowOffset.value === 0) return 'This Week'
     return `${Math.abs(duesWindowOffset.value)} wk ago`
   }
   if (duesTimeframe.value === 'weekly') {
-    if (duesWindowOffset.value === 0) return 'Current Month (Nov 2026)'
-    return 'Last Month (Oct 2026)'
+    if (duesWindowOffset.value === 0) return 'Current Month'
+    return 'Last Month'
   }
-  return 'Past 6 Months (2026)'
+  return 'Past 6 Months'
 })
 
 const currentDuesBars = computed(() => {
   if (duesTimeframe.value === 'daily') {
-    const days = [
-      { label: 'Mon', fullDate: 'Monday, 10 Nov', amount: 45000 },
-      { label: 'Tue', fullDate: 'Tuesday, 11 Nov', amount: 65000 },
-      { label: 'Wed', fullDate: 'Wednesday, 12 Nov', amount: 90000 },
-      { label: 'Thu', fullDate: 'Thursday, 13 Nov', amount: 55000 },
-      { label: 'Fri', fullDate: 'Friday, 14 Nov', amount: 120000 },
-      { label: 'Sat', fullDate: 'Saturday, 15 Nov', amount: 150000 },
-      { label: 'Sun', fullDate: 'Sunday, 16 Nov', amount: 80000 },
-    ]
-    const maxVal = Math.max(10000, ...days.map(d => d.amount))
+    const days = analytics.value.duesDays || []
+    const maxVal = Math.max(1, ...days.map(d => d.amount))
     return days.map(d => ({
       label: d.label,
       fullDate: d.fullDate,
-      amount: d.amount,
-      pctAmount: Math.min(100, Math.max(6, Math.round((d.amount / maxVal) * 100))),
+      amount: d.amount || 0,
+      pctAmount: (d.amount || 0) > 0 ? Math.min(100, Math.max(4, Math.round((d.amount / maxVal) * 100))) : 0,
     }))
   }
 
   if (duesTimeframe.value === 'weekly') {
-    const weeks = [
-      { label: 'Wk 1', fullDate: 'Week 1 (1 - 7 Nov)', amount: 180000 },
-      { label: 'Wk 2', fullDate: 'Week 2 (8 - 14 Nov)', amount: 240000 },
-      { label: 'Wk 3', fullDate: 'Week 3 (15 - 21 Nov)', amount: 310000 },
-      { label: 'Wk 4', fullDate: 'Week 4 (22 - 28 Nov)', amount: 210000 },
-    ]
-    const maxVal = Math.max(10000, ...weeks.map(w => w.amount))
+    const weeks = analytics.value.duesWeeks || []
+    const maxVal = Math.max(1, ...weeks.map(w => w.amount))
     return weeks.map(w => ({
       label: w.label,
       fullDate: w.fullDate,
-      amount: w.amount,
-      pctAmount: Math.min(100, Math.max(6, Math.round((w.amount / maxVal) * 100))),
+      amount: w.amount || 0,
+      pctAmount: (w.amount || 0) > 0 ? Math.min(100, Math.max(4, Math.round((w.amount / maxVal) * 100))) : 0,
     }))
   }
 
   // Monthly
-  const months = analytics.value.paymentMonths?.length ? analytics.value.paymentMonths : [
-    { month: 'Jun', year: 2026, amount: 450000 },
-    { month: 'Jul', year: 2026, amount: 620000 },
-    { month: 'Aug', year: 2026, amount: 580000 },
-    { month: 'Sep', year: 2026, amount: 750000 },
-    { month: 'Oct', year: 2026, amount: 890000 },
-    { month: 'Nov', year: 2026, amount: Math.max(stats.value.duesCollected, 940000) },
-  ]
-  const maxVal = Math.max(100000, ...months.map(m => m.amount))
+  const months = analytics.value.paymentMonths || []
+  const maxVal = Math.max(1, ...months.map(m => m.amount))
   return months.map(m => ({
     label: m.month,
     fullDate: `${m.month} ${m.year}`,
-    amount: m.amount,
-    pctAmount: Math.min(100, Math.max(6, Math.round((m.amount / maxVal) * 100))),
+    amount: m.amount || 0,
+    pctAmount: (m.amount || 0) > 0 ? Math.min(100, Math.max(4, Math.round((m.amount / maxVal) * 100))) : 0,
   }))
 })
 
 const maxDuesVal = computed(() => {
-  return Math.max(100000, ...currentDuesBars.value.map(b => b.amount))
+  return Math.max(0, ...currentDuesBars.value.map(b => b.amount))
 })
 
 const currentDuesTotal = computed(() => {
@@ -1087,19 +1061,22 @@ const currentDuesTotal = computed(() => {
 })
 
 const donutSegments = computed(() => {
+  const total = totalCategoriesCount.value
+  if (!total) {
+    return []
+  }
   const C = 2 * Math.PI * 54 // ~339.29
   const p = categoryPercentages.value
 
-  const g = p.guest || 25
-  const d = p.delivery || 25
-  const a = p.artisan || 25
-  const f = p.family || 25
-  const total = g + d + a + f || 100
+  const g = p.guest || 0
+  const d = p.delivery || 0
+  const a = p.artisan || 0
+  const f = p.family || 0
 
-  const gFrac = (g / total) * C
-  const dFrac = (d / total) * C
-  const aFrac = (a / total) * C
-  const fFrac = (f / total) * C
+  const gFrac = (g / 100) * C
+  const dFrac = (d / 100) * C
+  const aFrac = (a / 100) * C
+  const fFrac = (f / 100) * C
 
   return [
     { color: '#0A5C38', dasharray: `${gFrac.toFixed(1)} ${C.toFixed(1)}`, dashoffset: 0 },
