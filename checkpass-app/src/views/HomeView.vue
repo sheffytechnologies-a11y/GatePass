@@ -414,7 +414,7 @@
             </div>
           </div>
 
-          <!-- Sticky Navigation Tabs for Homeowner (Properties | Announcements | Emergencies) -->
+          <!-- Sticky Navigation Tabs for Homeowner (Properties | Announcements) -->
           <div class="passes-tabs-sticky-bar">
             <div class="passes-tabs" role="tablist">
               <button
@@ -431,13 +431,6 @@
               >
                 <span>Announcements</span>
                 <span v-if="displayedNews.length > 0" class="tab-unread-pill">{{ displayedNews.length }}</span>
-              </button>
-              <button
-                class="passes-tab"
-                :class="{ active: activeHomeownerTab === 'emergencies' }"
-                @click="activeHomeownerTab = 'emergencies'"
-              >
-                <span>Emergencies</span>
               </button>
             </div>
           </div>
@@ -603,44 +596,6 @@
                     <div v-else class="inline-no-comments">No comments yet. Be the first to comment!</div>
                   </div>
                 </transition>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── TAB 3: EMERGENCIES ── -->
-          <div v-else-if="activeHomeownerTab === 'emergencies'" class="homeowner-tab-content">
-            <div class="homeowner-dispatch-card">
-              <h3 class="dispatch-title">Direct Gate &amp; Security Dispatch</h3>
-              <p class="dispatch-sub">Instantly reach duty security guards and estate emergency lines for rapid response to your property.</p>
-              
-              <div class="dispatch-actions-grid">
-                <a href="tel:112" class="dispatch-btn dispatch-btn--red">
-                  <div class="dispatch-icon">🚨</div>
-                  <div class="dispatch-info">
-                    <span class="dispatch-name">National Emergency Services</span>
-                    <span class="dispatch-num">112 / 199 (Police, Fire, Ambulance)</span>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <!-- Estate Incident Stream -->
-            <div class="homeowner-incidents-section">
-              <h4 class="incident-sec-title">Recent Security &amp; Utility Bulletins</h4>
-              <div v-if="!summary?.emergencies || (summary.emergencies as any[]).length === 0" class="sec-empty-box">
-                <div class="sec-empty-icon">🛡️</div>
-                <h3 class="sec-empty-title">No Active Bulletins</h3>
-                <p class="sec-empty-desc">Security patrol reports, power updates, and gate incident broadcasts will be logged here.</p>
-              </div>
-              <div
-                v-else
-                v-for="e in (summary.emergencies as any[])"
-                :key="e.id"
-                class="incident-log-card"
-              >
-                <div class="incident-log-badge" :class="{ 'badge-green': e.status === 'resolved' }">{{ e.type }}</div>
-                <div class="incident-log-text">{{ e.residentName }} • {{ e.flatAddress }}</div>
-                <div class="incident-log-time">{{ e.createdAt ? new Date(e.createdAt).toLocaleString('en-NG') : 'Recent' }}</div>
               </div>
             </div>
           </div>
@@ -1657,7 +1612,7 @@ export interface PropertyPortfolioItem {
   registeredHouseholdCount: number
 }
 
-const activeHomeownerTab = ref<'properties' | 'announcements' | 'emergencies'>('properties')
+const activeHomeownerTab = ref<'properties' | 'announcements'>('properties')
 const selectedProperty = ref<PropertyPortfolioItem | null>(null)
 
 // Live homeowner property records (empty by default; populated from actual backend portfolio)
