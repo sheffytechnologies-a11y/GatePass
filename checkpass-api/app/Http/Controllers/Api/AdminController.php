@@ -446,6 +446,8 @@ class AdminController extends Controller
             'unit_id'   => 'nullable|exists:units,id',
             'estate_id' => 'nullable|exists:estates,id',
             'role'      => 'nullable|string|in:owner,tenant',
+            'is_resident' => 'nullable|boolean',
+            'landlord_is_occupant' => 'nullable|boolean',
             'lane'      => 'nullable|string|max:100',
             'house'     => 'nullable|string|max:100',
             'flat'      => 'nullable|string|max:100',
@@ -511,12 +513,18 @@ class AdminController extends Controller
                 ]);
             }
 
+            $isResident = true;
+            if (($data['role'] ?? 'tenant') === 'owner') {
+                $isResident = (bool) ($data['is_resident'] ?? $data['landlord_is_occupant'] ?? false);
+            }
+
             $resident = Resident::create([
-                'user_id'   => $user->id,
-                'unit_id'   => $unit->id,
-                'estate_id' => $estateId,
-                'role'      => $data['role'] ?? 'tenant',
-                'is_active' => true,
+                'user_id'     => $user->id,
+                'unit_id'     => $unit->id,
+                'estate_id'   => $estateId,
+                'role'        => $data['role'] ?? 'tenant',
+                'is_resident' => $isResident,
+                'is_active'   => true,
             ]);
 
             $resident->load(['user', 'unit', 'estate']);
@@ -583,14 +591,15 @@ class AdminController extends Controller
         $this->assertEstateAccess($request, $resident->estate_id);
 
         $data = $request->validate([
-            'name'      => 'sometimes|string|max:255',
-            'phone'     => 'sometimes|string|max:30',
-            'email'     => 'nullable|email|max:255',
-            'avatar'    => 'nullable|string',
-            'unit_id'   => 'nullable|exists:units,id',
-            'estate_id' => 'sometimes|exists:estates,id',
-            'role'      => 'sometimes|string|in:owner,tenant',
-            'is_active' => 'sometimes|boolean',
+            'name'        => 'sometimes|string|max:255',
+            'phone'       => 'sometimes|string|max:30',
+            'email'       => 'nullable|email|max:255',
+            'avatar'      => 'nullable|string',
+            'unit_id'     => 'nullable|exists:units,id',
+            'estate_id'   => 'sometimes|exists:estates,id',
+            'role'        => 'sometimes|string|in:owner,tenant',
+            'is_resident' => 'sometimes|boolean',
+            'is_active'   => 'sometimes|boolean',
         ]);
 
         \DB::transaction(function () use ($resident, $data) {
@@ -608,7 +617,7 @@ class AdminController extends Controller
             }
 
             // Update resident fields
-            $residentFields = array_intersect_key($data, array_flip(['unit_id', 'estate_id', 'role', 'is_active']));
+            $residentFields = array_intersect_key($data, array_flip(['unit_id', 'estate_id', 'role', 'is_resident', 'is_active']));
             if (! empty($residentFields)) {
                 $resident->update($residentFields);
             }
@@ -1180,17 +1189,19 @@ class AdminController extends Controller
     private function formatResident(Resident $r): array
     {
         return [
-            'id'        => $r->id,
-            'unit_id'   => $r->unit_id,
-            'unitId'    => $r->unit_id,
-            'estate_id' => $r->estate_id,
-            'estateId'  => $r->estate_id,
-            'user'      => $r->user ? $this->formatUser($r->user) : null,
-            'unit'      => $r->unit  ? $this->formatUnit($r->unit) : null,
-            'estate'    => $r->estate? ['id' => $r->estate->id,'name'   => $r->estate->name]  : null,
-            'role'      => $r->role,
-            'isActive'  => $r->is_active,
-            'createdAt' => $r->created_at?->toIso8601String(),
+            'id'          => $r->id,
+            'unit_id'     => $r->unit_id,
+            'unitId'      => $r->unit_id,
+            'estate_id'   => $r->estate_id,
+            'estateId'    => $r->estate_id,
+            'user'        => $r->user ? $this->formatUser($r->user) : null,
+            'unit'        => $r->unit  ? $this->formatUnit($r->unit) : null,
+            'estate'      => $r->estate? ['id' => $r->estate->id,'name'   => $r->estate->name]  : null,
+            'role'        => $r->role,
+            'is_resident' => (bool) ($r->is_resident ?? true),
+            'isResident'  => (bool) ($r->is_resident ?? true),
+            'isActive'    => $r->is_active,
+            'createdAt'   => $r->created_at?->toIso8601String(),
         ];
     }
 

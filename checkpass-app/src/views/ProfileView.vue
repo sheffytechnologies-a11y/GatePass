@@ -12,7 +12,10 @@
         <!-- Profile Resident Card (Clean, Uncongested, taps to view pass) -->
         <div class="profile-card" @click="openPassModal" role="button" tabindex="0" title="Tap to view your resident pass">
           <div class="profile-card-main">
-            <div class="profile-avatar">{{ initials }}</div>
+            <div class="profile-avatar" :class="{ 'profile-avatar--has-image': !!avatarUrl }">
+              <img v-if="avatarUrl" :src="avatarUrl" alt="Profile photo" class="profile-avatar-img" />
+              <span v-else>{{ initials }}</span>
+            </div>
             <div class="profile-info">
               <div class="profile-name">{{ residentDisplayName }}</div>
               <div class="profile-unit">{{ residentDisplayUnit }}</div>
@@ -449,12 +452,14 @@ const effectiveResident = computed<Resident>(() => {
     const flatAddress = (secUser.assignedStation && !secUser.assignedStation.includes('Main Entrance Gate') ? secUser.assignedStation : 'Main Gate').trim()
     const estateName = (secUser.estateName || 'Sheffy Estate').trim()
     const phone = (secUser.phone || '').trim()
+    const avatar = secUser.avatar || cachedUser?.avatar || (auth.resident as any)?.avatar || null
 
     return {
       id: String(secUser.id || 'sec-01'),
       unitId: 'gate-01',
       name,
       phone,
+      avatar,
       flatAddress,
       estateName,
       lane: 'Main Gate',
@@ -472,12 +477,14 @@ const effectiveResident = computed<Resident>(() => {
   const flatAddress = (base.flatAddress || 'VIP 2, VVIP 2, 1% 2').trim()
   const estateName = (base.estateName || cachedUser?.estateName || 'Sheffy Estate').trim()
   const phone = (base.phone || cachedUser?.phone || '08023485736').trim()
+  const avatar = base.avatar || cachedUser?.avatar || (auth.resident as any)?.avatar || (auth.resident as any)?.user?.avatar || (homeSummary?.user as any)?.avatar || null
 
   return {
     id: String(base.id || 'res-01'),
     unitId: String(base.unitId || '21'),
     name,
     phone,
+    avatar,
     flatAddress,
     estateName,
     lane: base.lane || 'VIP 2',
@@ -487,6 +494,10 @@ const effectiveResident = computed<Resident>(() => {
     pushEnabled: typeof base.pushEnabled === 'boolean' ? base.pushEnabled : true,
     isActive: typeof base.isActive === 'boolean' ? base.isActive : true,
   }
+})
+
+const avatarUrl = computed(() => {
+  return effectiveResident.value.avatar || auth.resident?.avatar || (auth.resident as any)?.user?.avatar || null
 })
 
 const residentDisplayName = computed(() => effectiveResident.value.name)
@@ -1174,6 +1185,18 @@ async function handleLogout() {
   font-size: 20px;
   font-weight: 700;
   flex-shrink: 0;
+  overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.3);
+}
+.profile-avatar--has-image {
+  background: transparent;
+}
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 .profile-info {
   flex: 1;

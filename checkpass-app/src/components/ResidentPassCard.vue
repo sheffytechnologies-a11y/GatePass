@@ -19,7 +19,8 @@
         <!-- Resident Identity Frosted Pod (No visitor or invite info) -->
         <div class="t1-identity-card">
           <div class="t1-avatar-wrap">
-            <span class="t1-avatar-fallback">{{ initials }}</span>
+            <img v-if="residentAvatar" :src="residentAvatar" alt="Resident" class="t1-avatar-img" />
+            <span v-else class="t1-avatar-fallback">{{ initials }}</span>
           </div>
           <div class="t1-info">
             <div class="t1-visitor-name">{{ residentName }}</div>
@@ -95,6 +96,7 @@ const residentName = computed(() => props.resident?.name || 'Resident')
 const unitAddress  = computed(() => props.resident?.flatAddress || 'Official Unit')
 const estateName   = computed(() => props.resident?.estateName || 'Estate Residence')
 const roleLabel    = computed(() => props.resident?.role === 'primary' ? 'Primary Resident' : 'Resident Member')
+const residentAvatar = computed(() => props.resident?.avatar || (props.resident as any)?.user?.avatar || null)
 
 const initials = computed(() => {
   return residentName.value
@@ -227,6 +229,15 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.t1-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
 }
 
 .t1-avatar-fallback {

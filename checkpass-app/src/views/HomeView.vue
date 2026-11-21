@@ -2270,10 +2270,9 @@ const orderedRoles = computed(() => {
     return [{ role: 'resident', label: 'Occupant', description: auth.resident?.flatAddress || 'Resident View' }]
   }
   let roles = (auth.userRoles || []).filter(r => r.role === 'homeowner' || r.role === 'resident' || r.role === 'occupant')
-  if (roles.length <= 1) {
+  if (roles.length === 0) {
     roles = [
-      { role: 'homeowner', label: 'Homeowner', description: 'Estate Deed Holder' },
-      { role: 'resident', label: 'Occupant', description: auth.resident?.flatAddress || 'Resident View' }
+      { role: 'homeowner', label: 'Homeowner', description: 'Estate Deed Holder' }
     ]
   }
   return roles.map(r => {
@@ -2349,6 +2348,15 @@ async function loadSummary() {
         homeownerProperties.value = []
         if (auth.activeRole === 'homeowner') {
           auth.setActiveRole('resident')
+        }
+      }
+
+      // If user is homeowner and does not reside in unit, prevent access to occupant tab
+      if (res.data.isHomeowner && res.data.canAccessOccupantRole === false) {
+        auth.userRoles = auth.userRoles.filter(r => r.role !== 'resident' && r.role !== 'occupant')
+        localStorage.setItem('checkpass_user_roles', JSON.stringify(auth.userRoles))
+        if (auth.activeRole !== 'homeowner') {
+          auth.setActiveRole('homeowner')
         }
       }
 

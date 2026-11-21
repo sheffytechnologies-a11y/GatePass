@@ -14,6 +14,7 @@ class Resident extends Model
         'unit_id',
         'estate_id',
         'role',
+        'is_resident',
         'push_enabled',
         'push_token',
         'arrival_alerts',
@@ -22,6 +23,7 @@ class Resident extends Model
     ];
 
     protected $casts = [
+        'is_resident'    => 'boolean',
         'push_enabled'   => 'boolean',
         'arrival_alerts' => 'boolean',
         'expiry_alerts'  => 'boolean',

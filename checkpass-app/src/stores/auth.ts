@@ -39,6 +39,23 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('checkpass_user_roles', JSON.stringify(userRoles.value))
   }
 
+  // Non-resident homeowners should only have homeowner role (no occupant access)
+  if (resident.value && isOwner.value) {
+    const isResident = (resident.value as any)?.is_resident ?? (resident.value as any)?.isResident
+    if (isResident === false) {
+      userRoles.value = userRoles.value.filter(r => r.role !== 'resident' && r.role !== 'occupant')
+      localStorage.setItem('checkpass_user_roles', JSON.stringify(userRoles.value))
+      if (activeRole.value !== 'homeowner') {
+        activeRole.value = 'homeowner'
+        localStorage.setItem('checkpass_active_role', 'homeowner')
+      }
+    }
+  }
+
+  const avatar = computed(() => {
+    return resident.value?.avatar || (resident.value as any)?.user?.avatar || null
+  })
+
   const isAuthenticated = computed(() => !!token.value)
   const isAdminUser = computed(() => activeRole.value === 'admin')
   const isSecurityUser = computed(() => activeRole.value === 'security')
@@ -93,10 +110,13 @@ export const useAuthStore = defineStore('auth', () => {
       if (chosenRole === 'security') {
         rolesList = [{ role: 'security', label: 'Gate Security', description: 'Main Gate Duty Officer' }]
       } else if (userIsOwner) {
+        const residesInUnit = (data.resident as any)?.is_resident ?? (data.resident as any)?.isResident ?? false
         rolesList = [
           { role: 'homeowner', label: 'Property Owner', description: 'Estate Deed Holder' },
-          { role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Resident View' },
         ]
+        if (residesInUnit) {
+          rolesList.push({ role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Resident View' })
+        }
       } else {
         rolesList = [
           { role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Household Member' },
@@ -160,6 +180,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     refreshToken,
     resident,
+    avatar,
     userType,
     activeRole,
     userRoles,

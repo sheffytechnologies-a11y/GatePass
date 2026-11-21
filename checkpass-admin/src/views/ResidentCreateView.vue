@@ -569,6 +569,7 @@ async function save() {
       lane: form.value.lane,
       house: form.value.house,
       flat: form.value.flat,
+      is_resident: form.value.landlordIsOccupant,
       landlord_is_occupant: form.value.landlordIsOccupant,
     }
     if (form.value.email?.trim()) ownerPayload.email = form.value.email.trim()

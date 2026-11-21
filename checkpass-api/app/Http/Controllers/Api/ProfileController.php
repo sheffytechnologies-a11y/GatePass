@@ -21,12 +21,16 @@ class ProfileController extends Controller
                 'unitId'         => (string) $resident->unit_id,
                 'name'           => $user->name,
                 'phone'          => $user->phone,
+                'email'          => $user->email,
+                'avatar'         => $user->avatar,
                 'flatAddress'    => $resident->unit?->flat_address ?? '',
                 'estateName'     => $resident->estate?->name ?? '',
                 'lane'           => $resident->unit?->lane ?? '',
                 'house'          => $resident->unit?->house ?? '',
                 'flat'           => $resident->unit?->flat ?? '',
                 'role'           => $resident->role,
+                'is_resident'    => (bool) ($resident->is_resident ?? true),
+                'isResident'     => (bool) ($resident->is_resident ?? true),
                 'pushEnabled'    => (bool) $resident->push_enabled,
                 'arrivalAlerts'  => (bool) $resident->arrival_alerts,
                 'expiryAlerts'   => (bool) $resident->expiry_alerts,
@@ -45,11 +49,20 @@ class ProfileController extends Controller
         $resident = $user->resident()->firstOrFail();
 
         $data = $request->validate([
-            'name' => 'sometimes|string|max:100',
+            'name'   => 'sometimes|string|max:100',
+            'avatar' => 'sometimes|nullable|string',
         ]);
 
+        $updates = [];
         if (isset($data['name'])) {
-            $user->update(['name' => $data['name']]);
+            $updates['name'] = $data['name'];
+        }
+        if (array_key_exists('avatar', $data)) {
+            $updates['avatar'] = $data['avatar'];
+        }
+
+        if (! empty($updates)) {
+            $user->update($updates);
         }
 
         $resident->load(['unit', 'estate']);
@@ -59,8 +72,13 @@ class ProfileController extends Controller
                 'id'          => (string) $resident->id,
                 'name'        => $user->fresh()->name,
                 'phone'       => $user->phone,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
                 'flatAddress' => $resident->unit?->flat_address ?? '',
                 'estateName'  => $resident->estate?->name ?? '',
+                'role'        => $resident->role,
+                'is_resident' => (bool) ($resident->is_resident ?? true),
+                'isResident'  => (bool) ($resident->is_resident ?? true),
             ],
         ]);
     }

@@ -574,6 +574,20 @@
               </select>
             </div>
 
+            <!-- Landlord Resides in Unit Toggle (Only shown when Occupancy Role is Homeowner) -->
+            <div v-if="editForm.role === 'owner'" class="form-group full-width">
+              <div class="toggle-card">
+                <label class="switch-control">
+                  <input type="checkbox" v-model="editForm.is_resident" />
+                  <span class="switch-slider"></span>
+                </label>
+                <div class="toggle-copy">
+                  <div class="toggle-title">Landlord resides in this unit</div>
+                  <p class="toggle-desc">Toggle on if the homeowner physically lives in this property rather than renting to tenants.</p>
+                </div>
+              </div>
+            </div>
+
             <div class="form-group">
               <label class="form-label">Assigned Property Unit</label>
               <select v-model="editForm.unit_id" class="form-select">
@@ -808,6 +822,7 @@ const editForm = ref({
   email: '',
   avatar: '',
   role: 'tenant',
+  is_resident: false,
   unit_id: null as number | null,
   is_active: true,
 })
@@ -884,6 +899,11 @@ async function loadResident(id: number) {
       email: resident.value.user?.email || '',
       avatar: resident.value.user?.avatar || '',
       role: resident.value.role || 'tenant',
+      is_resident: typeof resident.value.is_resident === 'boolean'
+        ? resident.value.is_resident
+        : (typeof resident.value.isResident === 'boolean'
+          ? resident.value.isResident
+          : (resident.value.role === 'owner' ? false : true)),
       unit_id: currentUnitId ? Number(currentUnitId) : null,
       is_active: !!resident.value.isActive,
     }
@@ -949,6 +969,11 @@ function openEditModal() {
     email: resident.value.user?.email || '',
     avatar: resident.value.user?.avatar || '',
     role: resident.value.role || 'tenant',
+    is_resident: typeof resident.value.is_resident === 'boolean'
+      ? resident.value.is_resident
+      : (typeof resident.value.isResident === 'boolean'
+        ? resident.value.isResident
+        : (resident.value.role === 'owner' ? false : true)),
     unit_id: currentUnitId ? Number(currentUnitId) : null,
     is_active: !!resident.value.isActive,
   }
@@ -1004,6 +1029,7 @@ async function saveEdit() {
       email: editForm.value.email.trim() || null,
       avatar: editForm.value.avatar || null,
       role: editForm.value.role,
+      is_resident: editForm.value.role === 'owner' ? !!editForm.value.is_resident : true,
       unit_id: editForm.value.unit_id,
       is_active: editForm.value.is_active,
     }
@@ -1180,6 +1206,80 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Landlord Resides in Unit Toggle */
+.toggle-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #F9FAFB;
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #E5E7EB;
+}
+
+.switch-control {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.switch-control input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #D1D5DB;
+  border-radius: 24px;
+  transition: 0.2s;
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.switch-control input:checked + .switch-slider {
+  background-color: #0A5C38;
+}
+
+.switch-control input:checked + .switch-slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.toggle-desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
 .resident-detail-page {
   display: flex;
   flex-direction: column;

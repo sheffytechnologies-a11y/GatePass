@@ -83,6 +83,7 @@ class HomeController extends Controller
                 'name'            => $user->name,
                 'phone'           => $user->phone,
                 'email'           => $user->email,
+                'avatar'          => $user->avatar,
                 'estateName'      => $estateName,
                 'assignedStation' => 'Main Gate',
                 'dutyStatus'      => $user->is_active ? 'On Duty' : 'Off Duty',
@@ -181,23 +182,40 @@ class HomeController extends Controller
             }
         }
 
+        $hasTenantRole = $user->residents()->where('role', 'tenant')->exists();
+        $ownerResidesInUnit = $user->residents()->where('role', 'owner')->where('is_resident', true)->exists();
+        $canAccessOccupantRole = $hasTenantRole || $ownerResidesInUnit || ($user->type === 'resident' && !$isHomeowner);
+
         return response()->json([
             'userType' => 'resident',
             'isHomeowner' => $isHomeowner,
+            'canAccessOccupantRole' => $canAccessOccupantRole,
             'homeownerProperties' => $homeownerProperties,
             'resident' => [
                 'id'          => (string) $resident->id,
                 'unitId'      => (string) $resident->unit_id,
                 'name'        => $user->name,
                 'phone'       => $user->phone,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
                 'flatAddress' => $resident->unit?->flat_address ?? '',
                 'estateName'  => $resident->estate?->name ?? '',
                 'lane'        => $resident->unit?->lane ?? '',
                 'house'       => $resident->unit?->house ?? '',
                 'flat'        => $resident->unit?->flat ?? '',
                 'role'        => $resident->role,
+                'is_resident' => (bool) ($resident->is_resident ?? true),
+                'isResident'  => (bool) ($resident->is_resident ?? true),
                 'pushEnabled' => (bool) $resident->push_enabled,
                 'isActive'    => (bool) $resident->is_active,
+            ],
+            'user' => [
+                'id'          => $user->id,
+                'name'        => $user->name,
+                'phone'       => $user->phone,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
+                'estateName'  => $resident->estate?->name ?? '',
             ],
             'stats' => [
                 'onPremises'  => $onPremises,

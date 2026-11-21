@@ -45,23 +45,31 @@ export interface Resident {
   unitId: string
   name: string
   phone: string
+  email?: string | null
+  avatar?: string | null
   flatAddress: string  // 'L3, H7, FA'
   estateName: string   // 'PHDL Estate'
   lane: string
   house: string
   flat: string
-  role: 'primary' | 'member'
+  role: 'primary' | 'member' | 'owner' | 'tenant' | string
+  is_resident?: boolean
+  isResident?: boolean
   pushEnabled: boolean
   isActive: boolean
 }
 
 export interface HomeSummary {
   userType?: string
+  isHomeowner?: boolean
+  canAccessOccupantRole?: boolean
+  homeownerProperties?: any[]
   user?: {
     id?: number | string
     name?: string
     phone?: string
     email?: string
+    avatar?: string | null
     estateName?: string
     assignedStation?: string
     dutyStatus?: string

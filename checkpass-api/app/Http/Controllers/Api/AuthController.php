@@ -71,28 +71,31 @@ class AuthController extends Controller
             ];
         }
 
-        $occupantResidents = $user->residents()->where('role', '!=', 'owner')->with(['unit', 'estate'])->get();
-        if ($occupantResidents->isNotEmpty() || ($user->type === 'resident' && $ownerResidents->isEmpty())) {
-            $firstUnit = $occupantResidents->first()?->unit?->flat_address ?? $ownerResidents->first()?->unit?->flat_address ?? 'Estate Resident';
+        // Occupant role check:
+        // A user only gets 'resident' (occupant) role IF:
+        // 1) They have an active tenant resident record, OR
+        // 2) An owner record has is_resident == true (landlord resides in unit)
+        // 3) Or they are user type 'resident' with no owner records (regular occupant)
+        $hasTenantRole = $user->residents()->where('role', 'tenant')->exists();
+        $ownerResidesInUnit = $user->residents()->where('role', 'owner')->where('is_resident', true)->exists();
+
+        if ($hasTenantRole || $ownerResidesInUnit || ($user->type === 'resident' && $ownerResidents->isEmpty())) {
+            $occupantRes = $user->residents()->where('role', 'tenant')->first()
+                ?? $user->residents()->where('role', 'owner')->where('is_resident', true)->first()
+                ?? $user->resident;
             $roles[] = [
                 'role' => 'resident',
                 'label' => 'Resident Occupant',
-                'description' => $firstUnit,
-            ];
-        } elseif ($ownerResidents->isNotEmpty()) {
-            $roles[] = [
-                'role' => 'resident',
-                'label' => 'Resident Occupant',
-                'description' => $ownerResidents->first()?->unit?->flat_address ?? 'Resident View',
+                'description' => $occupantRes?->unit?->flat_address ?? 'Resident View',
             ];
         }
 
-        // If no roles matched but user is active, provide default resident role
+        // If no roles matched but user is active, provide homeowner or resident
         if (empty($roles)) {
             $roles[] = [
-                'role' => 'resident',
-                'label' => 'Resident Member',
-                'description' => 'Estate Community Member',
+                'role' => 'homeowner',
+                'label' => 'Property Owner',
+                'description' => 'Estate Deed Holder',
             ];
         }
 
@@ -486,12 +489,16 @@ class AuthController extends Controller
             'unitId' => (string) $resident->unit_id,
             'name' => $user->name,
             'phone' => $user->phone,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
             'flatAddress' => $resident->unit?->flat_address ?? '',
             'estateName' => $resident->estate?->name ?? '',
             'lane' => $resident->unit?->lane ?? '',
             'house' => $resident->unit?->house ?? '',
             'flat' => $resident->unit?->flat ?? '',
             'role' => $resident->role,
+            'is_resident' => (bool) ($resident->is_resident ?? true),
+            'isResident' => (bool) ($resident->is_resident ?? true),
             'pushEnabled' => (bool) $resident->push_enabled,
             'isActive' => (bool) $resident->is_active,
         ];
