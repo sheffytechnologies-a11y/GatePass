@@ -34,7 +34,7 @@
           </span>
         </div>
         <div class="stat-val">{{ stats.totalProperties }}</div>
-        <div class="stat-hint">Registered across active estate</div>
+        <div class="stat-hint">{{ estateFilter === 'all' ? 'Registered across all estates' : `Registered in ${currentEstateName}` }}</div>
       </div>
 
       <div class="stat-card">
@@ -76,10 +76,11 @@
       <div class="filter-group">
         <select
           v-if="auth.estates && auth.estates.length > 1"
-          :value="activeEstateId"
-          class="form-select toolbar-select"
-          @change="onSwitchEstate(Number(($event.target as HTMLSelectElement).value))"
+          v-model="estateFilter"
+          class="form-select toolbar-select estate-filter-select"
+          @change="onEstateFilterChange"
         >
+          <option value="all">🌐 All Estates</option>
           <option v-for="est in auth.estates" :key="est.id" :value="est.id">
             🏡 {{ est.name }}
           </option>
@@ -140,7 +141,12 @@
       >
         <div class="property-header">
           <div class="property-title-wrap">
-            <span class="type-badge">{{ prop.unitType || 'Apartment' }}</span>
+            <div class="property-badges-row">
+              <span class="type-badge">{{ prop.unitType || 'Apartment' }}</span>
+              <span v-if="estateFilter === 'all' && (prop.estateName || prop.estate?.name)" class="estate-pill-badge">
+                🏡 {{ prop.estateName || prop.estate?.name }}
+              </span>
+            </div>
             <h3 class="property-address">{{ prop.flatAddress }}</h3>
           </div>
 
@@ -333,6 +339,16 @@
                 {{ p.label }}
               </button>
             </div>
+          </div>
+
+          <!-- Target Estate Selector (if multiple estates exist) -->
+          <div v-if="auth.estates && auth.estates.length > 1" class="form-group mb-3">
+            <label class="form-label">Target Estate</label>
+            <select v-model="singleForm.estate_id" class="form-select" :disabled="!!editingProperty">
+              <option v-for="est in auth.estates" :key="est.id" :value="est.id">
+                🏡 {{ est.name }}
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -658,6 +674,27 @@ const auth = useAuthStore()
 const { showToast } = useToast()
 
 const activeEstateId = computed(() => Number(auth.activeEstateId) || 1)
+const estateFilter = ref<string | number>(auth.activeEstateId || 'all')
+
+const currentEstateName = computed(() => {
+  if (estateFilter.value === 'all') return 'All Estates'
+  const numId = Number(estateFilter.value)
+  const found = auth.estates?.find((e: any) => e.id === numId)
+  return found?.name || auth.activeEstateName || 'Active Estate'
+})
+
+function onEstateFilterChange() {
+  if (estateFilter.value !== 'all') {
+    const numId = Number(estateFilter.value)
+    const match = auth.estates?.find((e: any) => e.id === numId)
+    if (match) {
+      auth.setActiveEstate(match)
+    }
+    loadStructure()
+  }
+  loadProperties()
+  loadStats()
+}
 
 // Telemetry & State
 const loading = ref(false)
@@ -754,15 +791,16 @@ function selectLocalPreset(p: any) {
 }
 
 async function loadStructure() {
-  if (!activeEstateId.value) return
-  const storedCustom = localStorage.getItem(`estate_custom_templates_${activeEstateId.value}`)
+  const targetId = estateFilter.value !== 'all' ? Number(estateFilter.value) : activeEstateId.value
+  if (!targetId) return
+  const storedCustom = localStorage.getItem(`estate_custom_templates_${targetId}`)
   if (storedCustom) {
     try {
       customTemplates.value = JSON.parse(storedCustom)
     } catch {}
   }
   try {
-    const res = await propertiesApi.getStructure(activeEstateId.value)
+    const res = await propertiesApi.getStructure(targetId)
     if (res.data?.structure) {
       structurePreset.value = res.data.structure.preset || 'lane_house_flat'
       structureLevels.value = res.data.structure.levels || structureLevels.value
@@ -897,13 +935,14 @@ function downloadSampleCsv() {
 }
 
 async function uploadCsvBatch() {
-  if (!activeEstateId.value || csvProperties.value.length === 0) return
+  const targetEstateId = singleForm.value.estate_id || (estateFilter.value !== 'all' ? Number(estateFilter.value) : activeEstateId.value)
+  if (!targetEstateId || csvProperties.value.length === 0) return
   generatingBatch.value = true
   batchError.value = ''
   try {
     for (const prop of csvProperties.value) {
       await propertiesApi.create({
-        estate_id: activeEstateId.value,
+        estate_id: targetEstateId,
         flat_address: prop.flat_address,
         unit_type: prop.unit_type,
         lane: prop.lane,
@@ -985,8 +1024,9 @@ const sampleBatchPreview = computed(() => {
 })
 
 async function executeBatchGeneration() {
-  if (!activeEstateId.value) {
-    showToast('No active estate selected.', 'error')
+  const targetEstateId = singleForm.value.estate_id || (estateFilter.value !== 'all' ? Number(estateFilter.value) : activeEstateId.value)
+  if (!targetEstateId) {
+    showToast('No estate selected.', 'error')
     return
   }
   batchError.value = ''
@@ -999,7 +1039,7 @@ async function executeBatchGeneration() {
 
   try {
     const res = await propertiesApi.batchCreate({
-      estate_id: activeEstateId.value,
+      estate_id: targetEstateId,
       unit_type: batchUnitType.value,
       levels: levelsPayload,
     })
@@ -1023,6 +1063,7 @@ const editingProperty = ref<any>(null)
 const savingSingle = ref(false)
 const singleError = ref('')
 const singleForm = ref({
+  estate_id: activeEstateId.value,
   flat_address: '',
   unit_type: 'Apartment',
   lane: '',
@@ -1116,6 +1157,7 @@ function openCreateModal(tab?: 'setup' | 'batch' | Event) {
   editingProperty.value = null
   addPropertyTab.value = resolvedTab
   singleForm.value = {
+    estate_id: Number(estateFilter.value !== 'all' ? estateFilter.value : (activeEstateId.value || auth.estates?.[0]?.id || 1)),
     flat_address: '',
     unit_type: 'Apartment',
     lane: '',
@@ -1136,6 +1178,7 @@ function openEditModal(prop: any) {
   editingProperty.value = prop
   addPropertyTab.value = 'setup'
   singleForm.value = {
+    estate_id: prop.estateId || activeEstateId.value,
     flat_address: prop.flatAddress || '',
     unit_type: prop.unitType || 'Apartment',
     lane: prop.lane || '',
@@ -1148,7 +1191,8 @@ function openEditModal(prop: any) {
 }
 
 async function saveSingleProperty() {
-  if (!activeEstateId.value) return
+  const targetEstateId = singleForm.value.estate_id || (estateFilter.value !== 'all' ? Number(estateFilter.value) : activeEstateId.value)
+  if (!targetEstateId) return
   const addressToSave = effectiveAddress.value
   if (!addressToSave) {
     singleError.value = 'Please provide the property address (e.g. vip1,vvip3,1%3 or Lane 2, House 12).'
@@ -1182,7 +1226,7 @@ async function saveSingleProperty() {
       showToast('Property updated successfully.', 'success')
     } else {
       await propertiesApi.create({
-        estate_id: activeEstateId.value,
+        estate_id: targetEstateId,
         flat_address: addressToSave,
         unit_type: singleForm.value.unit_type,
         lane: singleForm.value.lane.trim(),
@@ -1251,7 +1295,6 @@ async function executeDelete() {
 
 // Fetchers
 async function loadProperties() {
-  if (!activeEstateId.value) return
   loading.value = true
   try {
     const params: Record<string, unknown> = {}
@@ -1259,7 +1302,8 @@ async function loadProperties() {
     if (occupancyFilter.value !== 'all') params.occupancy = occupancyFilter.value
     if (unitTypeFilter.value !== 'all') params.unit_type = unitTypeFilter.value
 
-    const res = await propertiesApi.getAll(activeEstateId.value, params)
+    const targetEstate = estateFilter.value === 'all' ? 'all' : (Number(estateFilter.value) || activeEstateId.value)
+    const res = await propertiesApi.getAll(targetEstate, params)
     properties.value = res.data?.properties || []
     if (properties.value.length > 0) {
       isStructureConfigured.value = true
@@ -1272,9 +1316,9 @@ async function loadProperties() {
 }
 
 async function loadStats() {
-  if (!activeEstateId.value) return
   try {
-    const res = await propertiesApi.getStats(activeEstateId.value)
+    const targetEstate = estateFilter.value === 'all' ? 'all' : (Number(estateFilter.value) || activeEstateId.value)
+    const res = await propertiesApi.getStats(targetEstate)
     if (res.data?.stats) {
       stats.value = res.data.stats
     }
@@ -1283,17 +1327,13 @@ async function loadStats() {
   }
 }
 
-function onSwitchEstate(newId: number) {
-  const match = auth.estates.find((e: any) => e.id === newId)
-  if (match) {
-    auth.setActiveEstate(match)
+watch(activeEstateId, (newId) => {
+  if (estateFilter.value !== 'all' && newId && Number(estateFilter.value) !== Number(newId)) {
+    estateFilter.value = newId
+    loadStructure()
+    loadProperties()
+    loadStats()
   }
-}
-
-watch(activeEstateId, () => {
-  loadStructure()
-  loadProperties()
-  loadStats()
 })
 
 function getPropertyOwner(prop: any) {
@@ -1731,6 +1771,27 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
+}
+
+.property-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.estate-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: #E8F5E9;
+  color: #0A5C38;
+  border: 1px solid #A5D6A7;
 }
 
 .type-badge {

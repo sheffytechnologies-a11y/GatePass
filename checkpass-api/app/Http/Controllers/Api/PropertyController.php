@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Concerns\EnforcesPlanLimits;
 use App\Http\Controllers\Api\Concerns\ScopesToEstate;
+use App\Models\Admin;
 use App\Models\Estate;
 use App\Models\Unit;
 use Illuminate\Http\Request;
@@ -18,12 +19,25 @@ class PropertyController extends Controller
     /**
      * GET /api/v1/admin/estates/{estateId}/properties
      */
-    public function index(Request $request, int $estateId)
+    public function index(Request $request, string|int $estateId)
     {
-        $this->assertEstateAccess($request, $estateId);
+        $isAll = ($estateId === 'all' || $estateId === '0');
+        if (! $isAll) {
+            $this->assertEstateAccess($request, (int) $estateId);
+            $query = Unit::where('estate_id', (int) $estateId);
+        } else {
+            $admin = $request->user();
+            if ($admin instanceof Admin && $admin->isEstateAdmin()) {
+                $query = Unit::where('estate_id', $admin->currentEstateId());
+            } else {
+                $query = Unit::query();
+                if ($request->filled('estate_id') && $request->estate_id !== 'all') {
+                    $query->where('estate_id', (int) $request->estate_id);
+                }
+            }
+        }
 
-        $query = Unit::where('estate_id', $estateId)
-            ->with(['residents.user']);
+        $query->with(['residents.user', 'estate']);
 
         if ($request->filled('search')) {
             $term = '%' . trim($request->search) . '%';
@@ -35,6 +49,9 @@ class PropertyController extends Controller
                   ->orWhereHas('residents.user', function ($uq) use ($term) {
                       $uq->where('name', 'like', $term)
                          ->orWhere('phone', 'like', $term);
+                  })
+                  ->orWhereHas('estate', function ($eq) use ($term) {
+                      $eq->where('name', 'like', $term);
                   });
             });
         }
@@ -59,18 +76,32 @@ class PropertyController extends Controller
     /**
      * GET /api/v1/admin/estates/{estateId}/properties/stats
      */
-    public function stats(Request $request, int $estateId)
+    public function stats(Request $request, string|int $estateId)
     {
-        $this->assertEstateAccess($request, $estateId);
+        $isAll = ($estateId === 'all' || $estateId === '0');
+        if (! $isAll) {
+            $this->assertEstateAccess($request, (int) $estateId);
+            $baseQuery = Unit::where('estate_id', (int) $estateId);
+        } else {
+            $admin = $request->user();
+            if ($admin instanceof Admin && $admin->isEstateAdmin()) {
+                $baseQuery = Unit::where('estate_id', $admin->currentEstateId());
+            } else {
+                $baseQuery = Unit::query();
+                if ($request->filled('estate_id') && $request->estate_id !== 'all') {
+                    $baseQuery->where('estate_id', (int) $request->estate_id);
+                }
+            }
+        }
 
-        $total = Unit::where('estate_id', $estateId)->count();
-        $occupied = Unit::where('estate_id', $estateId)
+        $total = (clone $baseQuery)->count();
+        $occupied = (clone $baseQuery)
             ->whereHas('residents', fn($q) => $q->where('is_active', true))
             ->count();
         $vacant = max(0, $total - $occupied);
         $rate = $total > 0 ? round(($occupied / $total) * 100, 1) : 0;
 
-        $typeCounts = Unit::where('estate_id', $estateId)
+        $typeCounts = (clone $baseQuery)
             ->select('unit_type', DB::raw('count(*) as count'))
             ->groupBy('unit_type')
             ->pluck('count', 'unit_type')
@@ -438,18 +469,32 @@ class PropertyController extends Controller
      * GET /api/v1/admin/estates/{estateId}/properties/topology-tree
      * Returns structured nested tree of existing properties for cascading pickers
      */
-    public function topologyTree(Request $request, int $estateId)
+    public function topologyTree(Request $request, string|int $estateId)
     {
-        $this->assertEstateAccess($request, $estateId);
+        $isAll = ($estateId === 'all' || $estateId === '0');
+        if (! $isAll) {
+            $this->assertEstateAccess($request, (int) $estateId);
+            $query = Unit::where('estate_id', (int) $estateId);
+        } else {
+            $admin = $request->user();
+            if ($admin instanceof Admin && $admin->isEstateAdmin()) {
+                $query = Unit::where('estate_id', $admin->currentEstateId());
+            } else {
+                $query = Unit::query();
+                if ($request->filled('estate_id') && $request->estate_id !== 'all') {
+                    $query->where('estate_id', (int) $request->estate_id);
+                }
+            }
+        }
 
-        $units = Unit::where('estate_id', $estateId)
-            ->where('is_active', true)
-            ->with(['residents.user'])
+        $units = $query->where('is_active', true)
+            ->with(['residents.user', 'estate'])
             ->get();
 
         $tree = [];
         foreach ($units as $u) {
-            $l1 = $u->lane ?: 'General Area';
+            $prefix = $isAll && $u->estate ? ($u->estate->name . ' - ') : '';
+            $l1 = $prefix . ($u->lane ?: 'General Area');
             $l2 = $u->house ?: 'Building';
             $l3 = $u->flat ?: $u->flat_address;
 
@@ -462,6 +507,8 @@ class PropertyController extends Controller
 
             $tree[$l1][$l2][] = [
                 'id'          => $u->id,
+                'estateId'    => $u->estate_id,
+                'estateName'  => $u->estate?->name,
                 'label'       => $l3,
                 'flatAddress' => $u->flat_address,
                 'unitType'    => $u->unit_type,
@@ -496,6 +543,7 @@ class PropertyController extends Controller
         return [
             'id'             => $u->id,
             'estateId'       => $u->estate_id,
+            'estateName'     => $u->estate?->name ?? ('Estate #' . $u->estate_id),
             'flatAddress'    => $u->flat_address,
             'unitType'       => $u->unit_type ?? 'Apartment',
             'lane'           => $u->lane,

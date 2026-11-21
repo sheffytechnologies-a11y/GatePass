@@ -97,7 +97,7 @@ export const propertiesApi = {
       throw err
     }
   },
-  getAll: async (estateId: number, params?: Record<string, unknown>) => {
+  getAll: async (estateId: number | string, params?: Record<string, unknown>) => {
     try {
       return await client.get(`/v1/admin/estates/${estateId}/properties`, { params })
     } catch (err: any) {
@@ -126,7 +126,7 @@ export const propertiesApi = {
       throw err
     }
   },
-  getStats: async (estateId: number) => {
+  getStats: async (estateId: number | string) => {
     try {
       return await client.get(`/v1/admin/estates/${estateId}/properties/stats`)
     } catch (err: any) {
@@ -152,7 +152,7 @@ export const propertiesApi = {
       throw err
     }
   },
-  getTopologyTree: async (estateId: number) => {
+  getTopologyTree: async (estateId: number | string) => {
     try {
       return await client.get(`/v1/admin/estates/${estateId}/properties/topology-tree`)
     } catch (err: any) {
@@ -162,7 +162,7 @@ export const propertiesApi = {
       throw err
     }
   },
-  getStructure: async (estateId: number) => {
+  getStructure: async (estateId: number | string) => {
     const configuredFlag = localStorage.getItem(`estate_structure_configured_${estateId}`) === 'true'
     const stored = localStorage.getItem(`estate_structure_${estateId}`)
     try {
