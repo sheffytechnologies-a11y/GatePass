@@ -28,13 +28,27 @@ export const useAuthStore = defineStore('auth', () => {
   )
   const onboardingComplete = ref(localStorage.getItem('w_onboarded') === 'true')
 
+  // Sanitize stored session on startup: an occupant / tenant must never have homeowner access
+  const isOwner = computed(() => (resident.value as any)?.role === 'owner')
+  if (resident.value && !isOwner.value) {
+    if (activeRole.value === 'homeowner') {
+      activeRole.value = 'resident'
+      localStorage.setItem('checkpass_active_role', 'resident')
+    }
+    userRoles.value = userRoles.value.filter(r => r.role !== 'homeowner')
+    localStorage.setItem('checkpass_user_roles', JSON.stringify(userRoles.value))
+  }
+
   const isAuthenticated = computed(() => !!token.value)
   const isAdminUser = computed(() => activeRole.value === 'admin')
   const isSecurityUser = computed(() => activeRole.value === 'security')
-  const isHomeownerUser = computed(() => activeRole.value === 'homeowner')
+  const isHomeownerUser = computed(() => isOwner.value && activeRole.value === 'homeowner')
   const isResidentUser = computed(() => activeRole.value === 'resident')
 
   function setActiveRole(role: 'admin' | 'homeowner' | 'resident' | 'security') {
+    if (role === 'homeowner' && !isOwner.value) {
+      role = 'resident'
+    }
     activeRole.value = role
     userType.value = role === 'security' ? 'security' : 'resident'
     localStorage.setItem('checkpass_active_role', role)
@@ -42,8 +56,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function setUserRoles(roles: UserRoleItem[]) {
-    userRoles.value = roles
-    localStorage.setItem('checkpass_user_roles', JSON.stringify(roles))
+    const sanitized = isOwner.value ? roles : roles.filter(r => r.role !== 'homeowner')
+    userRoles.value = sanitized
+    localStorage.setItem('checkpass_user_roles', JSON.stringify(sanitized))
   }
 
   function setSession(data: {
@@ -59,26 +74,43 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken.value = data.refreshToken
     resident.value = data.resident ?? null
 
-    // Determine active role
-    const chosenRole = data.activeRole || (data.userType as any) || 'resident'
+    const userIsOwner = (data.resident as any)?.role === 'owner'
+
+    // Determine active role (strictly prevent homeowner for non-owners)
+    let chosenRole = data.activeRole || (data.userType as any) || 'resident'
+    if (chosenRole === 'homeowner' && !userIsOwner) {
+      chosenRole = 'resident'
+    }
     activeRole.value = chosenRole
     userType.value = chosenRole === 'security' ? 'security' : 'resident'
 
     // Determine user roles array
-    if (data.roles && data.roles.length > 0) {
-      userRoles.value = data.roles
-    } else {
-      const derivedRoles: UserRoleItem[] = []
+    let rolesList: UserRoleItem[] = (data.roles && data.roles.length > 0)
+      ? data.roles
+      : []
+
+    if (!rolesList || rolesList.length === 0) {
       if (chosenRole === 'security') {
-        derivedRoles.push({ role: 'security', label: 'Gate Security', description: 'Main Gate Duty Officer' })
-      } else if (chosenRole === 'homeowner' || (data.resident as any)?.role === 'owner') {
-        derivedRoles.push({ role: 'homeowner', label: 'Property Owner', description: 'Estate Deed Holder' })
-        derivedRoles.push({ role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Resident View' })
+        rolesList = [{ role: 'security', label: 'Gate Security', description: 'Main Gate Duty Officer' }]
+      } else if (userIsOwner) {
+        rolesList = [
+          { role: 'homeowner', label: 'Property Owner', description: 'Estate Deed Holder' },
+          { role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Resident View' },
+        ]
       } else {
-        derivedRoles.push({ role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Household Member' })
+        rolesList = [
+          { role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Household Member' },
+        ]
       }
-      userRoles.value = derivedRoles
     }
+
+    if (!userIsOwner) {
+      rolesList = rolesList.filter(r => r.role !== 'homeowner')
+      if (rolesList.length === 0) {
+        rolesList = [{ role: 'resident', label: 'Resident Occupant', description: data.resident?.flatAddress || 'Resident' }]
+      }
+    }
+    userRoles.value = rolesList
 
     onboardingComplete.value = true
     localStorage.setItem('w_token', data.token)
@@ -114,6 +146,14 @@ export const useAuthStore = defineStore('auth', () => {
   function updateResident(data: Resident) {
     resident.value = data
     localStorage.setItem('w_resident', JSON.stringify(data))
+    if ((data as any).role && (data as any).role !== 'owner') {
+      if (activeRole.value === 'homeowner') {
+        activeRole.value = 'resident'
+        localStorage.setItem('checkpass_active_role', 'resident')
+      }
+      userRoles.value = userRoles.value.filter(r => r.role !== 'homeowner')
+      localStorage.setItem('checkpass_user_roles', JSON.stringify(userRoles.value))
+    }
   }
 
   return {

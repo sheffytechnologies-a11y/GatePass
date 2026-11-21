@@ -141,8 +141,50 @@ class HomeController extends Controller
             ->limit(10)
             ->get();
 
+        // Homeowner Properties (real units owned by this user, if any)
+        $ownerResidents = $user->residents()->where('role', 'owner')->with(['unit.estate', 'unit.residents.user', 'estate'])->get();
+        $isHomeowner = $ownerResidents->isNotEmpty();
+        $homeownerProperties = [];
+
+        if ($isHomeowner) {
+            foreach ($ownerResidents as $ownerRes) {
+                $unit = $ownerRes->unit;
+                if (! $unit) continue;
+
+                $otherResidents = $unit->residents()->where('id', '!=', $ownerRes->id)->with('user')->get();
+                $primaryTenantRes = $otherResidents->first();
+                $additionalOccupants = $otherResidents->slice(1)->values()->map(function ($r) {
+                    return [
+                        'name' => $r->user?->name ?? 'Occupant',
+                        'relation' => $r->role === 'tenant' ? 'Co-Tenant' : ucfirst($r->role ?? 'Occupant'),
+                        'phone' => $r->user?->phone ?? '',
+                        'moveInDate' => $r->created_at ? $r->created_at->format('M Y') : 'Recent',
+                    ];
+                })->all();
+
+                $homeownerProperties[] = [
+                    'id' => $unit->id,
+                    'unitNumber' => $unit->flat_address ?: ('Unit #' . $unit->id),
+                    'streetName' => $unit->lane ? ('Lane ' . $unit->lane) : ($ownerRes->estate?->name ?? 'Estate'),
+                    'type' => $unit->type ?: 'Residential Unit',
+                    'isOccupied' => $otherResidents->isNotEmpty(),
+                    'deedRef' => 'DEED-' . strtoupper(substr($ownerRes->estate?->name ?? 'CP', 0, 2)) . '-' . $unit->id,
+                    'primaryTenant' => $primaryTenantRes ? [
+                        'name' => $primaryTenantRes->user?->name ?? 'Tenant',
+                        'phone' => $primaryTenantRes->user?->phone ?? '',
+                        'moveInDate' => $primaryTenantRes->created_at ? $primaryTenantRes->created_at->format('M Y') : 'Recent',
+                        'verified' => true,
+                    ] : null,
+                    'occupants' => $additionalOccupants,
+                    'registeredHouseholdCount' => $otherResidents->count(),
+                ];
+            }
+        }
+
         return response()->json([
             'userType' => 'resident',
+            'isHomeowner' => $isHomeowner,
+            'homeownerProperties' => $homeownerProperties,
             'resident' => [
                 'id'          => (string) $resident->id,
                 'unitId'      => (string) $resident->unit_id,

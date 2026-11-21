@@ -445,7 +445,15 @@
           <!-- ── TAB 1: PROPERTIES ── -->
           <div v-if="activeHomeownerTab === 'properties'" class="homeowner-tab-content">
             <div class="prop-portfolio-stream">
+              <!-- Empty state if homeowner has no properties added -->
+              <div v-if="homeownerProperties.length === 0" class="sec-empty-box">
+                <div class="sec-empty-icon">🏡</div>
+                <h3 class="sec-empty-title">No Properties Registered</h3>
+                <p class="sec-empty-desc">You currently have no properties registered in your portfolio for this estate.</p>
+              </div>
+
               <div
+                v-else
                 v-for="prop in homeownerProperties"
                 :key="prop.id"
                 class="prop-portfolio-card"
@@ -1662,45 +1670,8 @@ export interface PropertyPortfolioItem {
 const activeHomeownerTab = ref<'properties' | 'announcements' | 'emergencies'>('properties')
 const selectedProperty = ref<PropertyPortfolioItem | null>(null)
 
-const homeownerProperties = ref<PropertyPortfolioItem[]>([
-  {
-    id: 101,
-    unitNumber: 'House 4B',
-    streetName: 'Palm Avenue',
-    type: 'Detached 5-Bed Villa',
-    isOccupied: true,
-    deedRef: 'DEED-SE-2024-004B',
-    primaryTenant: {
-      name: 'Mr. Emeka Okafor',
-      phone: '0803 123 4567',
-      moveInDate: 'Jan 2025',
-      verified: true
-    },
-    occupants: [
-      { name: 'Mrs. Chioma Okafor', relation: 'Spouse', phone: '0803 987 6543', moveInDate: 'Jan 2025' },
-      { name: 'Master David Okafor', relation: 'Son / Dependent', phone: '0803 123 4567', moveInDate: 'Jan 2025' }
-    ],
-    registeredHouseholdCount: 3
-  },
-  {
-    id: 102,
-    unitNumber: 'Flat 2, Block C',
-    streetName: 'Orchid Close',
-    type: 'Luxury 3-Bed Apartment',
-    isOccupied: true,
-    deedRef: 'DEED-SE-2023-012C',
-    primaryTenant: {
-      name: 'Dr. Folashade Adeleke',
-      phone: '0809 876 5432',
-      moveInDate: 'Aug 2024',
-      verified: true
-    },
-    occupants: [
-      { name: 'Mr. Tunde Adeleke', relation: 'Spouse / Co-Occupant', phone: '0802 345 6789', moveInDate: 'Aug 2024' }
-    ],
-    registeredHouseholdCount: 2
-  }
-])
+// Live homeowner property records (empty by default; populated from actual backend portfolio)
+const homeownerProperties = ref<PropertyPortfolioItem[]>([])
 
 function getAdditionalOccupantsCount(prop?: PropertyPortfolioItem | null): number {
   if (!prop || !prop.isOccupied) return 0
@@ -2285,16 +2256,21 @@ const firstName = computed(() => {
   return trimmed ? trimmed.split(' ')[0] : 'Resident'
 })
 
-// Multi-Role Persona State & Handler
+// Multi-Role Persona State & Handler: strictly prevent homeowner persona for occupants
 const hasMultipleRoles = computed(() => {
-  if (auth.userRoles && auth.userRoles.length > 1) return true
-  if ((auth.resident as any)?.role === 'owner') return true
-  return false
+  const isOwner = (auth.resident as any)?.role === 'owner'
+  if (!isOwner) return false
+  const validRoles = (auth.userRoles || []).filter(r => r.role === 'homeowner' || r.role === 'resident' || r.role === 'occupant')
+  return validRoles.length > 1
 })
 
 const orderedRoles = computed(() => {
-  let roles = auth.userRoles || []
-  if (roles.length <= 1 && (auth.resident as any)?.role === 'owner') {
+  const isOwner = (auth.resident as any)?.role === 'owner'
+  if (!isOwner) {
+    return [{ role: 'resident', label: 'Occupant', description: auth.resident?.flatAddress || 'Resident View' }]
+  }
+  let roles = (auth.userRoles || []).filter(r => r.role === 'homeowner' || r.role === 'resident' || r.role === 'occupant')
+  if (roles.length <= 1) {
     roles = [
       { role: 'homeowner', label: 'Homeowner', description: 'Estate Deed Holder' },
       { role: 'resident', label: 'Occupant', description: auth.resident?.flatAddress || 'Resident View' }
@@ -2311,11 +2287,8 @@ const orderedRoles = computed(() => {
       label: displayLabel,
     }
   }).sort((a, b) => {
-    // Strictly: admin -> homeowner -> occupants -> security
     const order: Record<string, number> = { admin: 1, homeowner: 2, resident: 3, occupant: 3, security: 4, guard: 4 }
-    const orderA = order[a.role] ?? 99
-    const orderB = order[b.role] ?? 99
-    return orderA - orderB
+    return (order[a.role] ?? 99) - (order[b.role] ?? 99)
   })
 })
 
@@ -2363,6 +2336,22 @@ async function loadSummary() {
       summary.value = res.data
       notifStore.notifications = res.data.notifications || []
       if (res.data.resident) auth.updateResident(res.data.resident)
+
+      // Sync real homeowner properties from backend
+      if (res.data.homeownerProperties && Array.isArray(res.data.homeownerProperties)) {
+        homeownerProperties.value = res.data.homeownerProperties
+      } else {
+        homeownerProperties.value = []
+      }
+
+      // If user is not an owner, ensure homeowner state and active role are cleared
+      if ((auth.resident as any)?.role && (auth.resident as any).role !== 'owner') {
+        homeownerProperties.value = []
+        if (auth.activeRole === 'homeowner') {
+          auth.setActiveRole('resident')
+        }
+      }
+
       try {
         localStorage.setItem('cp_home_summary', JSON.stringify(res.data))
       } catch {}
