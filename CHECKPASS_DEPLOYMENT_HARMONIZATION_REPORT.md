@@ -10,41 +10,32 @@
 ## 1. Website Deployment Acknowledgement & Procedures
 
 > [!IMPORTANT]
-> **Deployment Capability Acknowledged:** The complete deployment procedure for pushing and releasing the CheckPass platform to the live website and web services is established, verified, and ready for execution.
+> **Deployment Capability & Previous Issue Acknowledged:** 
+> Previously, we observed that pushing commits only to the monorepo (`GatePass.git`) did not update the live website at `www.checkpass.ng`. 
+> 
+> **Why that happened:**
+> 1. **Dedicated Website Repository:** The live website (`www.checkpass.ng`) is managed and hosted by your colleague from a separate dedicated repository:
+>    `https://github.com/sheffytechnologies-a11y/Checkpass-Website.git`
+>    The hosting provider (e.g. Vercel / Netlify / Web server) listens to `Checkpass-Website.git` where files live directly at the root, rather than inside the `checkpass-admin/` subfolder.
+> 2. **Local Firebase Terminal Auth:** When attempting to run `firebase deploy` locally in terminal, it failed with `Error: Failed to authenticate, have you run firebase login?` because the machine did not have a local Firebase session.
+> 
+> **The Established Solution:**
+> We push to **both** repositories:
+> - Pushing the full codebase to `https://github.com/sheffytechnologies-a11y/GatePass.git` (branches `Sheriff` & `main`).
+> - Pushing `checkpass-admin` directly to `https://github.com/sheffytechnologies-a11y/Checkpass-Website.git` (branch `main`).
+> Once pushed to `Checkpass-Website.git`, your hosting platform / colleague automatically deploys the live website without requiring local terminal authentication.
 
-### Pre-requisites & Deployment Target Architecture
-The CheckPass platform consists of three coordinated production targets:
-1. **Frontend Web Dashboard & Public Landing Page** (`checkpass-admin`): Vue 3 + Vite + TypeScript application powering the public landing page (`/`), authentication (`/login`, `/register`), Super Admin CRM (`/crm`), and Estate Admin Command Center (`/dashboard`).
-2. **Backend API & Web Services** (`checkpass-api`): Laravel REST API providing SQLite/MySQL persistent storage, JWT token authentication, real-time telemetry, and webhook handlers.
-3. **Mobile Progressive Web & Native App** (`checkpass-app`): Ionic + Vue 3 mobile application for Residents, Homeowners, and Gate Security Guards.
-
-### Exact Push & Deployment Command Sequence
-When deploying to origin and the production website server:
+### Dual-Repository Push Commands
+To push both the full platform and the live website:
 
 ```bash
-# Step 1: Push committed branches to GitHub / Git Origin
+# 1. Push Full Monorepo (API, Admin, App)
 cd CheckPass
 git push origin Sheriff
 git push origin main
 
-# Step 2: Build production distribution for the website
-cd checkpass-admin
-npm run build
-# Creates optimized production assets in checkpass-admin/dist ready for web server deployment
-
-# Step 3: Server synchronization (on live production hosting / VPS / Cloud)
-# Pull latest code:
-git pull origin main
-
-# Update backend dependencies and run migrations:
-cd checkpass-api
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-
-# Deploy frontend static build to web root (e.g., Nginx / Apache / Firebase / Cloudflare):
-cp -r checkpass-admin/dist/* /var/www/checkpass/html/
+# 2. Push Standalone Website to Checkpass-Website.git
+powershell -ExecutionPolicy Bypass -File scripts/deploy-website-repo.ps1
 ```
 
 ---
