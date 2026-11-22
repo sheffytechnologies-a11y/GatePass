@@ -54,6 +54,17 @@ class User extends Authenticatable
         return $this->hasOne(Resident::class);
     }
 
+    public function hasRole(string $role): bool
+    {
+        if (($this->type ?? '') === $role || ($this->active_role ?? '') === $role) {
+            return true;
+        }
+        if ($role === 'homeowner' || $role === 'owner') {
+            return $this->residents()->where('role', 'owner')->exists();
+        }
+        return false;
+    }
+
     public function fees(): BelongsToMany
     {
         return $this->belongsToMany(Fee::class)

@@ -35,7 +35,11 @@ class FeeController extends Controller
             ], 403);
         }
 
-        $isHomeowner = $user->hasRole('homeowner') || ($user->active_role === 'homeowner') || ($resident->is_homeowner ?? false);
+        $isHomeowner = ($user->type === 'homeowner')
+            || (($user->active_role ?? null) === 'homeowner')
+            || (($resident->role ?? null) === 'owner')
+            || ($resident->is_homeowner ?? false)
+            || ($user->residents()->where('role', 'owner')->exists());
 
         $feeQuery = Fee::query()
             ->where('estate_id', $resident->estate_id);
