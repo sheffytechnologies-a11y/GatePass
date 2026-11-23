@@ -255,6 +255,7 @@ const userInitial = computed(() => {
 
 const activeEmergencyCount = ref(0)
 let emergencyPollTimer: any = null
+let modalObserver: MutationObserver | null = null
 
 async function checkActiveEmergencies() {
   if (!auth.isAuthenticated) return
@@ -270,10 +271,30 @@ async function checkActiveEmergencies() {
 onMounted(() => {
   checkActiveEmergencies()
   emergencyPollTimer = setInterval(checkActiveEmergencies, 12000)
+
+  // Universal Modal Scroll & Background Lock Observer
+  if (typeof MutationObserver !== 'undefined') {
+    modalObserver = new MutationObserver(() => {
+      const hasActiveModal = !!document.querySelector(
+        '.modal-backdrop, .modal-overlay, .login-modal-overlay, .legal-modal-backdrop, .modal-backdrop-overlay'
+      )
+      if (hasActiveModal) {
+        document.body.classList.add('modal-open')
+      } else {
+        document.body.classList.remove('modal-open')
+      }
+    })
+    modalObserver.observe(document.body, { childList: true, subtree: true })
+  }
 })
 
 onUnmounted(() => {
   if (emergencyPollTimer) clearInterval(emergencyPollTimer)
+  if (modalObserver) {
+    modalObserver.disconnect()
+    modalObserver = null
+  }
+  document.body.classList.remove('modal-open')
 })
 
 async function handleLogout() {

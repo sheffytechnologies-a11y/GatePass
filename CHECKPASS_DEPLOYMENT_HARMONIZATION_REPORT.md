@@ -150,6 +150,13 @@ All 145 commits completed since the last remote push have been analyzed and harm
   - `www.checkpass.ng` returned `NXDOMAIN` (DNS name does not exist) due to a missing CNAME / A record in the DigitalOcean DNS zone.
   - Documented resolution steps: Add CNAME `www` pointing to `checkpass.ng.` in DigitalOcean and add `www.checkpass.ng` as a redirect custom domain in Firebase Hosting Console.
 
+### Module 14: Universal Modal Scroll Architecture & Background Scroll Lock
+- **Commit References:** `Pending commit`
+- **What Was Done:**
+  - **Flexbox Scroll Resolution (`min-height: 0`):** Fixed the modal body clipping bug where child forms (e.g. Batch Upload property levels) expanded beyond screen height without scrolling. Added `flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;` so modal bodies reliably scroll on all viewports.
+  - **Universal Background Lock:** Implemented background scroll lock using modern CSS `:has()` selectors (`body:has(.modal-backdrop) { overflow: hidden !important; }`) and a global dynamic `MutationObserver` in `AppLayout.vue` (`body.modal-open`).
+  - **Scroll Bleed Prevention:** Added `overscroll-behavior: contain` and `@wheel.stop` event boundaries across modal backdrops and cards so mouse wheel gestures never propagate to the underlying page.
+
 ---
 
 ## 4. Pre-Push Verification Summary
@@ -158,7 +165,7 @@ All 145 commits completed since the last remote push have been analyzed and harm
 [Admin Dashboard & Website Build]
   > vue-tsc && vite build
   ✓ 205 modules transformed.
-  ✓ built in 10.72s — Result: 0 ERRORS
+  ✓ built in 9.34s — Result: 0 ERRORS
 
 [Mobile App Build]
   > vue-tsc && vite build

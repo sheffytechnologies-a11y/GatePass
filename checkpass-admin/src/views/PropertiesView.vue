@@ -266,8 +266,8 @@
     </div>
 
     <!-- UNIFIED MODAL: Add / Edit Property (Setup vs Batch Upload) -->
-    <div v-if="singleModalOpen" class="modal-backdrop" @click.self="singleModalOpen = false">
-      <div class="modal-card" :class="{ 'modal-lg': addPropertyTab === 'batch' && !editingProperty }">
+    <div v-if="singleModalOpen" class="modal-backdrop" @click.self="singleModalOpen = false" @wheel.stop>
+      <div class="modal-card" :class="{ 'modal-lg': addPropertyTab === 'batch' && !editingProperty }" @wheel.stop>
         <div class="modal-header">
           <div>
             <h2 class="modal-title">
@@ -635,8 +635,8 @@
     </div>
 
     <!-- MODAL 4: Delete Confirmation -->
-    <div v-if="deleteTarget" class="modal-backdrop" @click.self="deleteTarget = null">
-      <div class="modal-card modal-sm">
+    <div v-if="deleteTarget" class="modal-backdrop" @click.self="deleteTarget = null" @wheel.stop>
+      <div class="modal-card modal-sm" @wheel.stop>
         <div class="modal-header">
           <h2 class="modal-title text-danger">Delete Property</h2>
           <button class="close-btn" @click="deleteTarget = null">✕</button>
@@ -2229,6 +2229,7 @@ onUnmounted(() => {
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  overscroll-behavior: contain;
 }
 
 .modal-card {
@@ -2236,11 +2237,13 @@ onUnmounted(() => {
   border-radius: 20px;
   width: 100%;
   max-width: 520px;
+  max-height: calc(100dvh - 32px);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .modal-lg { max-width: 720px; }
@@ -2252,6 +2255,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -2283,14 +2287,20 @@ onUnmounted(() => {
 .modal-body {
   padding: 20px 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer-wrapper {
   background: #F9FAFB;
   border-top: 1px solid #E5E7EB;
+  flex-shrink: 0;
 }
 
 .modal-footer-alert {
