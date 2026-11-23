@@ -151,11 +151,32 @@ All 145 commits completed since the last remote push have been analyzed and harm
   - Documented resolution steps: Add CNAME `www` pointing to `checkpass.ng.` in DigitalOcean and add `www.checkpass.ng` as a redirect custom domain in Firebase Hosting Console.
 
 ### Module 14: Universal Modal Scroll Architecture & Background Scroll Lock
-- **Commit References:** `Pending commit`
+- **Commit References:** `f185f876`
 - **What Was Done:**
   - **Flexbox Scroll Resolution (`min-height: 0`):** Fixed the modal body clipping bug where child forms (e.g. Batch Upload property levels) expanded beyond screen height without scrolling. Added `flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;` so modal bodies reliably scroll on all viewports.
   - **Universal Background Lock:** Implemented background scroll lock using modern CSS `:has()` selectors (`body:has(.modal-backdrop) { overflow: hidden !important; }`) and a global dynamic `MutationObserver` in `AppLayout.vue` (`body.modal-open`).
   - **Scroll Bleed Prevention:** Added `overscroll-behavior: contain` and `@wheel.stop` event boundaries across modal backdrops and cards so mouse wheel gestures never propagate to the underlying page.
+
+### Module 15: Mobile Keyboard & Navigation Bar Viewport Harmonization
+- **Commit References:** `963eee08`
+- **What Was Done:**
+  - **Keyboard Overlay Lock (`interactive-widget=overlays-content`):** Configured the viewport meta tag in `checkpass-app/index.html` to prevent mobile browsers and WebViews from compressing the layout viewport and pushing fixed interface elements upward when the virtual keyboard appears.
+  - **Universal Navigation Bar Focus Guard:** Added instant CSS `:has()` and class-level rules in `variables.css` and `TabsPage.vue`:
+    ```css
+    body:has(input:focus:not([type="checkbox"]):not([type="radio"])) .custom-tab-bar,
+    body:has(textarea:focus) .custom-tab-bar,
+    body.keyboard-open .custom-tab-bar,
+    .custom-tab-bar.keyboard-hidden {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transform: translateY(160%) !important;
+    }
+    ```
+    This completely prevents the bottom navigation pill from riding on top of the keyboard or blocking chat/comment composer input boxes and post buttons.
+  - **Multi-Channel Keyboard Detection:** Added event listeners across `focusin`/`focusout`, `window.visualViewport` resize, `ionKeyboardDidShow`/`Hide`, and `keyboardWillShow`/`Hide` in `TabsPage.vue` to dynamically synchronize keyboard state across iOS and Android.
+  - **Auto-Centering Input Scroll:** Added smooth viewport centering (`@focus="onCommentInputFocus"`) across all announcement and news comment inputs in `HomeView.vue`.
 
 ---
 
@@ -165,12 +186,12 @@ All 145 commits completed since the last remote push have been analyzed and harm
 [Admin Dashboard & Website Build]
   > vue-tsc && vite build
   ✓ 205 modules transformed.
-  ✓ built in 9.34s — Result: 0 ERRORS
+  ✓ built in 7.61s — Result: 0 ERRORS
 
 [Mobile App Build]
   > vue-tsc && vite build
   ✓ 1954 modules transformed.
-  ✓ built in 18.85s — Result: 0 ERRORS
+  ✓ built in 20.53s — Result: 0 ERRORS
 
 [Autonomous Agent E2E Verification]
   > node tests/agent-e2e-runner.mjs
@@ -179,7 +200,7 @@ All 145 commits completed since the last remote push have been analyzed and harm
 
 [Git Branch Synchronization]
   Branch: Sheriff
-  Sync: Synchronized fast-forward with main
+  Sync: Synchronized fast-forward with main (Commit: 963eee08)
   Status: Clean working tree, ready for git push origin Sheriff
 ```
 
