@@ -129,6 +129,27 @@ All 145 commits completed since the last remote push have been analyzed and harm
   - Integrated official CheckPass vector branding (`#0A5C38` forest green) across navigation, mobile app status bars, and downloadable PDFs.
   - Formatted Master Services Agreement (MSA) and Data Processing Agreement (DPA) into legal compliance modals with digital clickwrap acceptance.
 
+### Module 11: Autonomous Agentic End-to-End Testing Framework
+- **Commit References:** `5b6051c0`
+- **What Was Done:**
+  - Architected zero-click automated E2E test engine (`CheckPass/tests/agent-e2e-runner.mjs`) and PowerShell execution wrapper (`scripts/run-agent-tests.ps1`).
+  - Implemented 7 comprehensive test suites covering all 6 personas (Public Web, Super Admin CRM, Estate Admin topology, Resident pass generation, Security Gate clearance, Homeowner deed verification, and automated post-test teardown).
+  - Registered subagent `checkpass-qa-tester` via `define_subagent`.
+  - Executed and achieved **100% Green Pass Rate (24 / 24 assertions passed)** with zero mock residue.
+
+### Module 12: Website Chat Concierge UI Architecture & Natural Dialogue Flow
+- **Commit References:** `00f20efa`
+- **What Was Done:**
+  - **Quick Topics Anchored Above Chat:** Restructured the chat layout so that `Quick Topics` is anchored directly below the initial greeting and permanently **above** all subsequent conversation messages. Sent messages and recent AI responses stream underneath `Quick Topics`.
+  - **Natural Conversational Introductions:** Upgraded the assistant engine with natural conversational replies for *"tell me about checkpass"*, *"what is checkpass"*, and greetings, replacing rigid fallback link dumps with warm, human responses.
+  - **Google Gemini API Free-Tier Clarification:** Documented that Google AI Studio provides Gemini 1.5/2.0 Flash completely free (15 RPM, 1,500 RPD, $0/₦0) with no credit card required.
+
+### Module 13: DNS & Subdomain Routing Architecture
+- **Diagnostic Findings:**
+  - `checkpass.ng` resolves to `199.36.158.100` (Firebase Hosting) via DigitalOcean nameservers (`ns1-3.digitalocean.com`).
+  - `www.checkpass.ng` returned `NXDOMAIN` (DNS name does not exist) due to a missing CNAME / A record in the DigitalOcean DNS zone.
+  - Documented resolution steps: Add CNAME `www` pointing to `checkpass.ng.` in DigitalOcean and add `www.checkpass.ng` as a redirect custom domain in Firebase Hosting Console.
+
 ---
 
 ## 4. Pre-Push Verification Summary
@@ -137,16 +158,21 @@ All 145 commits completed since the last remote push have been analyzed and harm
 [Admin Dashboard & Website Build]
   > vue-tsc && vite build
   ✓ 205 modules transformed.
-  ✓ built in 9.50s — Result: 0 ERRORS
+  ✓ built in 10.72s — Result: 0 ERRORS
 
 [Mobile App Build]
   > vue-tsc && vite build
   ✓ 1954 modules transformed.
   ✓ built in 18.85s — Result: 0 ERRORS
 
+[Autonomous Agent E2E Verification]
+  > node tests/agent-e2e-runner.mjs
+  ✓ 24 / 24 Assertions Passed (100% Green)
+  ✓ Execution Duration: 11.04s — Zero Mock Database Residue
+
 [Git Branch Synchronization]
   Branch: Sheriff
-  Sync: Synchronized fast-forward with main (commit 140c3ea3)
+  Sync: Synchronized fast-forward with main
   Status: Clean working tree, ready for git push origin Sheriff
 ```
 
@@ -155,5 +181,5 @@ All 145 commits completed since the last remote push have been analyzed and harm
 ## 5. Next Steps for Production Push
 To publish all changes live:
 1. Run `git push origin Sheriff` and `git push origin main`.
-2. Deploy the generated build directory `checkpass-admin/dist/` to the production web server.
+2. Push standalone website repo: `powershell -ExecutionPolicy Bypass -File scripts/deploy-website-repo.ps1`.
 3. Reload PHP-FPM / Laravel workers on the production API.
