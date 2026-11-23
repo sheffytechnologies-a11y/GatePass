@@ -118,6 +118,25 @@ ion-tab-bar {
   background: transparent !important;
 }
 
+/* ── Universal Navigation Bar Keyboard Lock: Tab Bar Stays Anchored at Screen Bottom & Hides on Focus ── */
+body.keyboard-open ion-tab-bar,
+body.keyboard-open .custom-tab-bar,
+body:has(input:focus:not([type="checkbox"]):not([type="radio"])) ion-tab-bar,
+body:has(input:focus:not([type="checkbox"]):not([type="radio"])) .custom-tab-bar,
+body:has(textarea:focus) ion-tab-bar,
+body:has(textarea:focus) .custom-tab-bar,
+body:has([contenteditable="true"]:focus) ion-tab-bar,
+body:has([contenteditable="true"]:focus) .custom-tab-bar,
+ion-tab-bar.keyboard-hidden,
+.custom-tab-bar.keyboard-hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(160%) !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+}
+
 ion-tab-bar::part(container) {
   overflow: visible !important;
   contain: none !important;

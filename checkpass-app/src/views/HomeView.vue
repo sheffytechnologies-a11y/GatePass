@@ -313,6 +313,7 @@
                         class="inline-comment-input"
                         placeholder="Write a comment..."
                         maxlength="200"
+                        @focus="onCommentInputFocus"
                         @keydown.enter.prevent="submitInlineComment(item.id)"
                       />
                       <button
@@ -565,6 +566,7 @@
                         class="inline-comment-input"
                         placeholder="Write a comment..."
                         maxlength="200"
+                        @focus="onCommentInputFocus"
                         @keydown.enter.prevent="submitInlineComment(item.id)"
                       />
                       <button
@@ -831,6 +833,7 @@
                               class="inline-comment-input"
                               placeholder="Write a comment..."
                               maxlength="200"
+                              @focus="onCommentInputFocus"
                               @keydown.enter.prevent="submitInlineComment(item.id)"
                             />
                             <button
@@ -1317,6 +1320,7 @@
                 type="text"
                 class="news-comment-input"
                 placeholder="Write a comment..."
+                @focus="onCommentInputFocus"
                 @keydown.enter.prevent="submitNewsComment(selectedNewsItem.id)"
               />
               <button
@@ -1894,6 +1898,15 @@ function toggleInlineComments(id: number | string) {
       inlineCommentInputs.value[id] = ''
     }
   }
+}
+
+function onCommentInputFocus(event: FocusEvent) {
+  const target = event.target as HTMLElement | null
+  if (!target) return
+  // Smoothly center the comment composer in the visible area above the keyboard
+  setTimeout(() => {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, 220)
 }
 
 function submitInlineComment(newsId: number | string) {

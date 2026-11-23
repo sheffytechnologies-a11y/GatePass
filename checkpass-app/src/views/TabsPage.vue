@@ -6,7 +6,11 @@
         v-if="showTabBar"
         slot="bottom"
         class="custom-tab-bar"
-        :class="{ 'security-bar': auth.isSecurityUser, 'homeowner-bar': auth.isHomeownerUser }"
+        :class="{
+          'security-bar': auth.isSecurityUser,
+          'homeowner-bar': auth.isHomeownerUser,
+          'keyboard-hidden': isKeyboardOpen
+        }"
         :selected-tab="activeTab"
       >
 
@@ -182,6 +186,7 @@ const auth = useAuthStore()
 const { showToast } = useToast()
 
 const isModalOpen = ref(false)
+const isKeyboardOpen = ref(false)
 const securityScannerOpen = ref(false)
 
 function triggerSecurityScan() {
@@ -206,6 +211,52 @@ function handleOpenScannerEvent() {
   securityScannerOpen.value = true
 }
 
+function evaluateKeyboardOrFocusState() {
+  const active = document.activeElement as HTMLElement | null
+  if (active) {
+    const tag = active.tagName?.toLowerCase()
+    const isTextInput = tag === 'textarea' ||
+      (tag === 'input' && !['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'color', 'file'].includes((active as HTMLInputElement).type?.toLowerCase())) ||
+      Boolean(active.isContentEditable)
+    if (isTextInput) {
+      isKeyboardOpen.value = true
+      document.body.classList.add('keyboard-open')
+      return
+    }
+  }
+
+  // Visual viewport height check (detects virtual keyboard when visual viewport shrinks)
+  if (window.visualViewport && window.visualViewport.height < window.innerHeight - 90) {
+    isKeyboardOpen.value = true
+    document.body.classList.add('keyboard-open')
+    return
+  }
+
+  isKeyboardOpen.value = false
+  document.body.classList.remove('keyboard-open')
+}
+
+function handleFocusIn() {
+  evaluateKeyboardOrFocusState()
+}
+
+function handleFocusOut() {
+  setTimeout(evaluateKeyboardOrFocusState, 120)
+}
+
+function handleViewportChange() {
+  evaluateKeyboardOrFocusState()
+}
+
+function onKeyboardShow() {
+  isKeyboardOpen.value = true
+  document.body.classList.add('keyboard-open')
+}
+
+function onKeyboardHide() {
+  setTimeout(evaluateKeyboardOrFocusState, 100)
+}
+
 onMounted(() => {
   window.addEventListener('ionModalDidPresent', () => { isModalOpen.value = true })
   window.addEventListener('ionModalDidDismiss', () => { isModalOpen.value = false })
@@ -214,13 +265,36 @@ onMounted(() => {
   window.addEventListener('ionActionSheetDidPresent', () => { isModalOpen.value = true })
   window.addEventListener('ionActionSheetDidDismiss', () => { isModalOpen.value = false })
   window.addEventListener('open-gate-scanner', handleOpenScannerEvent)
+
+  // Focus & Keyboard listeners across web, mobile browser & hybrid webviews
+  window.addEventListener('focusin', handleFocusIn, true)
+  window.addEventListener('focusout', handleFocusOut, true)
+  window.addEventListener('ionKeyboardDidShow', onKeyboardShow)
+  window.addEventListener('ionKeyboardDidHide', onKeyboardHide)
+  window.addEventListener('keyboardWillShow', onKeyboardShow)
+  window.addEventListener('keyboardWillHide', onKeyboardHide)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportChange)
+    window.visualViewport.addEventListener('scroll', handleViewportChange)
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('open-gate-scanner', handleOpenScannerEvent)
+  window.removeEventListener('focusin', handleFocusIn, true)
+  window.removeEventListener('focusout', handleFocusOut, true)
+  window.removeEventListener('ionKeyboardDidShow', onKeyboardShow)
+  window.removeEventListener('ionKeyboardDidHide', onKeyboardHide)
+  window.removeEventListener('keyboardWillShow', onKeyboardShow)
+  window.removeEventListener('keyboardWillHide', onKeyboardHide)
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', handleViewportChange)
+    window.visualViewport.removeEventListener('scroll', handleViewportChange)
+  }
 })
 
 const showTabBar = computed(() => {
+  if (isKeyboardOpen.value) return false
   if (isModalOpen.value) return false
   if (route.meta?.hideTabBar) return false
   const p = route.path || ''
@@ -386,9 +460,23 @@ ion-tab-button {
   box-shadow: 0 2px 8px rgba(10, 92, 56, 0.45);
 }
 
+body.keyboard-open ion-tab-bar,
+body.keyboard-open .custom-tab-bar,
+body:has(input:focus:not([type="checkbox"]):not([type="radio"])) ion-tab-bar,
+body:has(input:focus:not([type="checkbox"]):not([type="radio"])) .custom-tab-bar,
+body:has(textarea:focus) ion-tab-bar,
+body:has(textarea:focus) .custom-tab-bar,
+body:has([contenteditable="true"]:focus) ion-tab-bar,
+body:has([contenteditable="true"]:focus) .custom-tab-bar,
+ion-tab-bar.keyboard-hidden,
+.custom-tab-bar.keyboard-hidden,
 body.modal-open ion-tab-bar,
 .modal-is-open ion-tab-bar,
 ion-modal.show-modal ~ ion-tab-bar {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(160%) !important;
 }
 </style>
