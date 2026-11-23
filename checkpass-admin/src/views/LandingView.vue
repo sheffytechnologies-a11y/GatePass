@@ -2296,24 +2296,17 @@
       @wheel.stop
       @touchmove.stop
     >
+      <!-- Initial Welcome Message (Anchor Greeting) -->
       <div
-        v-for="(msg, i) in conciergeMessages"
-        :key="i"
+        v-if="conciergeMessages.length > 0"
         class="cp-msg-row"
-        :class="msg.sender === 'user' ? 'cp-msg-row-user' : 'cp-msg-row-ai'"
+        :class="conciergeMessages[0].sender === 'user' ? 'cp-msg-row-user' : 'cp-msg-row-ai'"
       >
-        <div class="cp-msg-balloon" v-html="msg.text"></div>
-        <div class="cp-msg-meta">{{ msg.time }}</div>
+        <div class="cp-msg-balloon" v-html="conciergeMessages[0].text"></div>
+        <div class="cp-msg-meta">{{ conciergeMessages[0].time }}</div>
       </div>
 
-      <!-- Thinking indicator -->
-      <div v-if="isConciergeThinking" class="cp-msg-row cp-msg-row-ai">
-        <div class="cp-msg-balloon cp-msg-typing">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-
-      <!-- Suggested Topics: Inline in the Single Scroll Flow -->
+      <!-- Quick Topics: Always positioned ABOVE conversation & recent responses -->
       <div class="cp-concierge-chips-inline">
         <div class="cp-chips-inline-heading">Quick Topics</div>
         <div class="cp-concierge-chips-stacked">
@@ -2328,6 +2321,24 @@
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
+        </div>
+      </div>
+
+      <!-- Subsequent Messages: All sent messages and AI responses appear BELOW Quick Topics -->
+      <div
+        v-for="(msg, i) in conciergeMessages.slice(1)"
+        :key="i + 1"
+        class="cp-msg-row"
+        :class="msg.sender === 'user' ? 'cp-msg-row-user' : 'cp-msg-row-ai'"
+      >
+        <div class="cp-msg-balloon" v-html="msg.text"></div>
+        <div class="cp-msg-meta">{{ msg.time }}</div>
+      </div>
+
+      <!-- Thinking indicator -->
+      <div v-if="isConciergeThinking" class="cp-msg-row cp-msg-row-ai">
+        <div class="cp-msg-balloon cp-msg-typing">
+          <span></span><span></span><span></span>
         </div>
       </div>
     </div>
@@ -3452,7 +3463,19 @@ async function queryOpenAIAPI(userQuery: string): Promise<string> {
 }
 
 function getConciergeAnswer(query: string): string {
-  const q = query.toLowerCase()
+  const q = query.toLowerCase().trim()
+
+  // 0. Natural Greetings & Intro
+  if (q === 'hello' || q === 'hi' || q === 'hey' || q.startsWith('hello ') || q.startsWith('hi ') || q.startsWith('good morning') || q.startsWith('good afternoon') || q.startsWith('good evening')) {
+    return "Hello! 👋 Welcome to CheckPass.<br><br>I'm your Estate Operations Assistant. I can answer questions about how our 4-second visitor gate clearance works, automated dues and service charges, vetted artisan dispatch, or how quickly we can onboard your gated community.<br><br>What would you like to know more about?"
+  }
+
+  // 0.1 "Tell me about CheckPass" / About / What is CheckPass
+  if (q.includes('tell me about') || q.includes('what is checkpass') || q.includes('about checkpass') || q.includes('what does checkpass do') || q.includes('how checkpass works') || q.includes('who are you') || q === 'checkpass' || q.includes('overview') || q.includes('introduce')) {
+    return "CheckPass is a modern digital access control and estate management platform built specifically for gated residential communities and HOAs in Nigeria.<br><br>" +
+      "Instead of slow paper visitor books and intercom calls at the gate, CheckPass lets residents generate <strong>4-second digital QR passes</strong> and share them directly via WhatsApp. We also automate <strong>service charge and estate dues collections</strong> with automated digital receipts, provide a <strong>vetted directory of domestic artisans</strong> (plumbers, electricians, AC techs), and keep gate security operating smoothly even during internet and cellular downtime.<br><br>" +
+      "Would you like to explore our <strong>gate security features</strong>, <strong>dues automation</strong>, or see our <strong>pricing tiers</strong>?"
+  }
 
   // 1. Core Value Proposition / Gains
   if (q.includes('gain') || q.includes('benefit') || q.includes('why') || q.includes('value') || q.includes('advantage') || q.includes('help') || q.includes('solve') || q.includes('differen') || q.includes('better')) {
@@ -3561,14 +3584,10 @@ function getConciergeAnswer(query: string): string {
       "Boutique and Gated plans include digital guard guides, self-serve onboarding, and dedicated operations support. Physical in-person guard drills are exclusive to Enterprise."
   }
 
-  // 13. Smart Helpful Fallback with Clickable Options
-  return "Thank you for asking! CheckPass is Nigeria's premier digital estate access and operations management platform.<br><br>" +
-    "Explore common topics with one tap:<br>" +
-    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('What do I gain using CheckPass?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🌟 What you &amp; your estate gain</a><br>" +
-    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How do automated dues and receipts work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">💳 Dues &amp; receipt verification</a><br>" +
-    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does 4s clearance work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">⚡ 4-Second gate passes</a><br>" +
-    "&bull; <a href=\"#\" onclick=\"window.__conciergeAsk && window.__conciergeAsk('How does the vetted artisan directory work?');return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">🛠️ Vetted artisan directory</a><br>" +
-    "&bull; <a href=\"#\" onclick=\"openDemoModal();return false;\" style=\"color:#0A5B38;font-weight:700;text-decoration:underline\">📅 Book a 15-min live walkthrough</a>"
+  // 13. Natural Helpful Fallback
+  return "CheckPass is built to make estate security faster, eliminate dues disputes, and protect residential communities across Nigeria.<br><br>" +
+    "You can tap any of the <strong>Quick Topics</strong> above to see instant breakdowns, or ask about our <em>4-second WhatsApp passes</em>, <em>service charge reconciliation</em>, <em>vetted artisan directory</em>, or <em>48-hour estate onboarding</em>.<br><br>" +
+    "Would you like to schedule a quick 15-minute walkthrough for your estate executive committee?"
 }
 
 function selectConciergeChip(chip: { label: string; query: string }) {
