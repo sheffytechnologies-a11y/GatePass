@@ -113,3 +113,22 @@ While the core CheckPass business workflows across Resident, Security Guard, Hom
 | **Properties & Topology** | Pass (CRUD, stats, topology tree, estate isolation) | Pass (`PropertiesView`, `PropertySetupView`) | Ready |
 | **Super Admin CRM** | **CRITICAL** (Unauthenticated `GET/PATCH/DELETE` on leads) | Pass (`CrmView`) | Lock down CRM routes immediately |
 | **Android Play Store Build** | N/A | **Blocked** (No keystore, no `google-services.json`, no in-app account delete, no Java/SDK on host) | Complete checklist in Section 3.1 |
+
+---
+
+## 5. Post-Fix Verification Update (November 26, 2026)
+
+Following commit `b409b2da`, the following items from Section 3 have been resolved and verified:
+
+### Resolved & Verified
+- **Production Builds:** Both `checkpass-admin` (`205` modules, `24.25s`) and `checkpass-app` (`1,954` modules, `17.35s`) pass `vue-tsc && vite build` with 0 errors.
+- **Production Environment (`checkpass-app/.env.production`):** Created with `VITE_API_BASE_URL=https://api.checkpass.ng/api` and `VITE_ADMIN_URL=https://checkpass.ng/login`.
+- **Hardcoded Localhost Links:** Removed from `HomeView.vue`; remaining `localhost` reference in `LoginView.vue` is strictly guarded by `window.location.hostname === 'localhost'`.
+- **In-App Account Deletion:** Implemented in `ProfileController.php` and `ProfileView.vue`.
+- **Backend Security & Crash Fixes:** Fixed `PassController.php` null-safe `flagged_at` handling, estate scoping, `cors.php` origin rules, and CRM route protection in `routes/api.php`.
+- **Android Manifest Permissions:** Updated `checkpass-app/android/app/src/main/AndroidManifest.xml`.
+
+### Remaining Items Before Play Store `.aab` Release
+1. **Paystack Live Key:** Replace `pk_test_...` in `checkpass-app/.env.production` (and `PaymentDetailsView.vue` fallback) with the live `pk_live_...` key.
+2. **Firebase Config (`google-services.json`):** Place `google-services.json` into `checkpass-app/android/app/` for FCM push notifications.
+3. **Android Release Keystore & SDK:** Configure `signingConfigs.release` in `android/app/build.gradle` and build the signed `.aab` on a machine with Java and Android SDK configured.
