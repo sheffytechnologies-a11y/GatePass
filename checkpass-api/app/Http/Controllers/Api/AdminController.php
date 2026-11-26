@@ -656,7 +656,12 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
         if ($request->filled('search')) {
-            $query->where('visitor_name', 'like', '%' . $request->search . '%');
+            $term = trim($request->search);
+            $query->where(function ($q) use ($term) {
+                $q->where('visitor_name', 'like', '%' . $term . '%')
+                  ->orWhere('visitor_phone', 'like', '%' . $term . '%')
+                  ->orWhere('pass_code', 'like', '%' . $term . '%');
+            });
         }
 
         $passes = $query->latest()->paginate(30);
@@ -1338,6 +1343,7 @@ class AdminController extends Controller
         return [
             'id'           => $p->id,
             'ulid'         => $p->ulid,
+            'passCode'     => $p->pass_code,
             'visitorName'  => $p->visitor_name,
             'visitorPhone' => $p->visitor_phone,
             'vehiclePlate' => $p->vehicle_plate,

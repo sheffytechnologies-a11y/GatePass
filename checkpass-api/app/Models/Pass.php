@@ -23,6 +23,7 @@ class Pass extends Model
         'items_flagged',
         'verified_by',
         'qr_data',
+        'pass_code',
         'share_token',
         'expires_at',
         'arrived_at',
@@ -56,7 +57,30 @@ class Pass extends Model
             if (empty($pass->share_token)) {
                 $pass->share_token = Str::random(32);
             }
+            if (empty($pass->pass_code)) {
+                $pass->pass_code = static::generateUniqueCode($pass->estate_id);
+            }
         });
+    }
+
+    /**
+     * Generate a unique 6-digit numeric gate code among active passes in the same estate.
+     */
+    public static function generateUniqueCode(?int $estateId): string
+    {
+        for ($i = 0; $i < 25; $i++) {
+            $code = (string) random_int(100000, 999999);
+            $exists = static::query()
+                ->when($estateId !== null, fn($q) => $q->where('estate_id', $estateId))
+                ->where('pass_code', $code)
+                ->whereIn('status', ['Pending', 'On-site'])
+                ->exists();
+            if (! $exists) {
+                return $code;
+            }
+        }
+
+        return (string) random_int(100000, 999999);
     }
 
     public function resident()

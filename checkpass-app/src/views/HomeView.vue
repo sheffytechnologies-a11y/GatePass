@@ -92,7 +92,7 @@
                 <p>Access resident roster, billing, pass logs, and operations.</p>
               </div>
             </div>
-            <a href="http://localhost:3100" target="_blank" class="admin-portal-btn">
+            <a :href="adminPortalUrl" target="_blank" rel="noopener noreferrer" class="admin-portal-btn">
               <span>Open Admin Dashboard</span>
               <span>→</span>
             </a>
@@ -1648,6 +1648,8 @@ function formatCompactCurrency(val: number | string | undefined | null): string 
   }
   return `${sign}₦${abs.toLocaleString()}`
 }
+
+const adminPortalUrl = import.meta.env.VITE_ADMIN_URL || 'https://checkpass.ng/login'
 
 const homeownerLeviesInArrears = computed(() => {
   // Homeowners cannot view occupants' estate dues and levies.

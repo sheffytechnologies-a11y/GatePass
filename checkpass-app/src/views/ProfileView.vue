@@ -124,6 +124,11 @@
               <span class="menu-label">Terms of Service</span>
               <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
             </button>
+            <button class="menu-row" @click="handleDeleteAccount">
+              <ion-icon :icon="shieldCheckmarkOutline" class="menu-icon" style="color: #DC2626;" />
+              <span class="menu-label" style="color: #DC2626;">Delete Account</span>
+              <ion-icon :icon="chevronForwardOutline" class="menu-chevron" />
+            </button>
           </div>
         </div>
 
@@ -986,6 +991,32 @@ async function handleLogout() {
           } catch {}
           auth.clearSession()
           router.replace('/login')
+        },
+      },
+    ],
+  })
+  await alert.present()
+}
+
+async function handleDeleteAccount() {
+  const alert = await alertController.create({
+    header: 'Delete Account',
+    message: 'This will permanently deactivate your CheckPass account and revoke your access across all estates. This action cannot be undone.',
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      {
+        text: 'Delete Account',
+        role: 'destructive',
+        handler: async () => {
+          try {
+            await client.delete('/v1/profile')
+            auth.clearSession()
+            showToast('Your account has been deleted.', 'success')
+            router.replace('/login')
+          } catch (err: any) {
+            showToast(err.response?.data?.message || 'Failed to delete account.', 'error')
+            return false
+          }
         },
       },
     ],

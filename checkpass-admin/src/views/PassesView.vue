@@ -25,7 +25,7 @@
         <input
           v-model="search"
           type="search"
-          placeholder="Search by visitor name or phone..."
+          placeholder="Search by visitor name, phone, or 6-digit code..."
           class="search-input"
           @input="debouncedLoad"
           @keyup.enter="load"

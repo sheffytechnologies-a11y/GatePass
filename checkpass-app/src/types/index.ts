@@ -22,6 +22,7 @@ export interface Pass {
   hostUnit: string     // 'L3, H7, FA'
   hostName: string
   qrData: string
+  passCode?: string | null
   vehiclePlate: string | null
   expiresAt: string  // ISO
   createdAt: string  // ISO

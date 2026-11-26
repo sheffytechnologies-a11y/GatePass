@@ -333,6 +333,35 @@ export async function generateInviteCardImage(pass: Pass, options: RenderPassOpt
     qrTargetSize
   )
 
+  // Draw 6-Digit Gate Code Pill below QR Pod
+  if (pass.passCode) {
+    const formattedCode = pass.passCode.length === 6
+      ? `${pass.passCode.slice(0, 3)} ${pass.passCode.slice(3)}`
+      : pass.passCode
+    const codePillW = 290
+    const codePillH = 54
+    const codePillX = cardX + (cardW - codePillW) / 2
+    const codePillY = qrPodY + qrPodSize + 22
+
+    ctx.save()
+    ctx.fillStyle = '#E6F4EE'
+    drawRoundedRect(ctx, codePillX, codePillY, codePillW, codePillH, 14)
+    ctx.fill()
+    ctx.strokeStyle = '#BFE2D1'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+
+    ctx.fillStyle = '#0A5C38'
+    ctx.font = 'bold 12px "DM Sans", -apple-system, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('GATE CODE', cardX + cardW / 2, codePillY + 19)
+
+    ctx.fillStyle = '#053B23'
+    ctx.font = 'bold 22px "Bricolage Grotesque", -apple-system, sans-serif'
+    ctx.fillText(formattedCode, cardX + cardW / 2, codePillY + 44)
+    ctx.restore()
+  }
+
   // ══ 6. CLEAN ATTRIBUTION FOOTER ════════════════════════════════════════════
   const footerY = cardY + cardH - 42
   ctx.save()

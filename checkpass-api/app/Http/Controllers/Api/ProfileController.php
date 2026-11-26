@@ -107,4 +107,39 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'Preferences updated.']);
     }
+
+    /**
+     * DELETE /api/v1/profile
+     * In-app account deletion for Google Play Data Deletion compliance.
+     */
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+
+        // Revoke all active Sanctum tokens immediately
+        $user->tokens()->delete();
+
+        // Deactivate and anonymize resident profile if present
+        $resident = $user->resident()->first();
+        if ($resident) {
+            $resident->update([
+                'is_active'    => false,
+                'push_enabled' => false,
+                'push_token'   => null,
+            ]);
+        }
+
+        // Anonymize user PII and disable account while preserving estate audit integrity
+        $user->update([
+            'name'      => 'Deleted User',
+            'email'     => 'deleted_' . $user->id . '_' . time() . '@deleted.checkpass.local',
+            'phone'     => null,
+            'avatar'    => null,
+            'is_active' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Your account has been deleted and your session revoked.',
+        ]);
+    }
 }

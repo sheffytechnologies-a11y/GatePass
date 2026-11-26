@@ -313,20 +313,21 @@ async function sharePass() {
       share?: (data?: ShareData) => Promise<void>
     }
 
+    const codeNote = activePass.passCode ? ` Gate Code: ${activePass.passCode}.` : ''
     let shared = false
     if (nav.share) {
       try {
         if (!nav.canShare || nav.canShare({ files: [imageFile] })) {
           await nav.share({
             title: `${activePass.visitorName} Checkpass Invite`,
-            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
+            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.${codeNote}`,
             files: [imageFile],
           })
           shared = true
         } else if (nav.canShare({ text: 'text' })) {
           await nav.share({
             title: `${activePass.visitorName} Checkpass Invite`,
-            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.`,
+            text: `Here is your Checkpass visitor pass for ${activePass.visitorName} at ${activePass.hostUnit}.${codeNote}`,
           })
           shared = true
         }

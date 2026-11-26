@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\AccessPhraseController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\CrmLeadController;
 use App\Http\Controllers\Api\ArtisanController;
+use App\Http\Controllers\Api\ConciergeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,15 +66,9 @@ Route::prefix('v1')->group(function () {
     // ── Public platform stats for landing page ─────────────────────────────
     Route::get('platform-stats', [AdminController::class, 'publicPlatformStats']);
 
-    // ── Super Admin Sales CRM & Public AI Concierge Lead Ingestion ─────────
-    Route::prefix('crm')->group(function () {
-        Route::post('leads', [CrmLeadController::class, 'store']);
-        Route::get('leads', [CrmLeadController::class, 'index']);
-        Route::get('leads/{id}', [CrmLeadController::class, 'show']);
-        Route::patch('leads/{id}', [CrmLeadController::class, 'update']);
-        Route::delete('leads/{id}', [CrmLeadController::class, 'destroy']);
-        Route::post('leads/{id}/provision-sandbox', [CrmLeadController::class, 'provisionSandbox']);
-    });
+    // ── Public AI Concierge & Website Lead Ingestion (rate-limited) ────────
+    Route::post('concierge/chat', [ConciergeController::class, 'chat'])->middleware('throttle:20,1');
+    Route::post('crm/leads', [CrmLeadController::class, 'store'])->middleware('throttle:30,1');
 
     // ── Public auth routes ─────────────────────────────────────────────────
     Route::prefix('auth')->group(function () {
@@ -138,6 +133,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('passes')->group(function () {
             Route::get('/',               [PassController::class, 'index']);
             Route::post('/',              [PassController::class, 'store']);
+            Route::get('lookup',          [PassController::class, 'lookup'])->middleware('throttle:30,1');
             Route::get('find-by-phone',   [PassController::class, 'findByPhone']);
             Route::get('{ulid}',          [PassController::class, 'show']);
             Route::patch('{ulid}/revoke', [PassController::class, 'revoke']);
@@ -171,7 +167,17 @@ Route::prefix('v1')->group(function () {
         Route::prefix('profile')->group(function () {
             Route::get('/',           [ProfileController::class, 'show']);
             Route::patch('/',         [ProfileController::class, 'update']);
+            Route::delete('/',        [ProfileController::class, 'destroy']);
             Route::patch('preferences', [ProfileController::class, 'updatePreferences']);
+        });
+
+        // ── Super Admin Sales CRM (protected) ───────────────────────────────
+        Route::prefix('crm')->middleware('admin')->group(function () {
+            Route::get('leads', [CrmLeadController::class, 'index']);
+            Route::get('leads/{id}', [CrmLeadController::class, 'show']);
+            Route::patch('leads/{id}', [CrmLeadController::class, 'update']);
+            Route::delete('leads/{id}', [CrmLeadController::class, 'destroy']);
+            Route::post('leads/{id}/provision-sandbox', [CrmLeadController::class, 'provisionSandbox']);
         });
 
         // ── Admin routes (security users only) ────────────────────────────

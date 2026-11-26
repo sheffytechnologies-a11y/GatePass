@@ -66,12 +66,22 @@
           </div>
         </div>
 
-        <!-- Standalone Clean QR Pod (No gate barrier clearance text) -->
+        <!-- Standalone Clean QR Pod + 6-Digit Gate Code -->
         <div v-if="showQR" class="t1-qr-center-box">
           <div class="t1-qr-wrapper">
             <img v-if="qrDataUrl" :src="qrDataUrl" alt="Pass QR Code" class="t1-qr-img" />
           </div>
-          </div>
+          <button
+            v-if="pass.passCode"
+            type="button"
+            class="t1-gate-code-pill"
+            @click.stop="copyGateCode"
+            :title="'Tap to copy Gate Code'"
+          >
+            <span class="t1-gate-code-lbl">GATE CODE</span>
+            <span class="t1-gate-code-val">{{ formattedGateCode }}</span>
+          </button>
+        </div>
 
         <!-- Clean Attribution Footer -->
         <div class="t1-footer">
@@ -102,6 +112,18 @@ const props = withDefaults(
 )
 
 const qrDataUrl = ref('')
+
+const formattedGateCode = computed(() => {
+  const c = props.pass?.passCode || ''
+  return c.length === 6 ? `${c.slice(0, 3)} ${c.slice(3)}` : c
+})
+
+async function copyGateCode() {
+  if (!props.pass?.passCode) return
+  try {
+    await navigator.clipboard.writeText(props.pass.passCode)
+  } catch {}
+}
 
 const visitorPhotoUrl = computed(() => {
   const p = props.pass as any
@@ -376,6 +398,31 @@ defineExpose({
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #66756C;
+}
+
+.t1-gate-code-pill {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #E6F4EE;
+  border: 1.5px solid #BFE2D1;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.t1-gate-code-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #0A5C38;
+}
+.t1-gate-code-val {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #053B23;
+  font-variant-numeric: tabular-nums;
 }
 
 .t1-val {

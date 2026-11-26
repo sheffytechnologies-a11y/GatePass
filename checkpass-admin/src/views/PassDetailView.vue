@@ -241,6 +241,26 @@
             <span class="ref-type-tag">{{ pass.type }}</span>
           </div>
 
+          <div v-if="pass.passCode" class="code-box" style="margin-bottom: 10px; background: #E6F4EE; border-color: #BFE2D1;">
+            <span class="code-label" style="color: #0A5C38;">6-Digit Gate Code</span>
+            <div class="code-value-row">
+              <span class="code-text" style="font-size: 1.15rem; font-weight: 800; letter-spacing: 0.14em; color: #053B23;">
+                {{ String(pass.passCode).length === 6 ? `${String(pass.passCode).slice(0, 3)} ${String(pass.passCode).slice(3)}` : pass.passCode }}
+              </span>
+              <button
+                type="button"
+                class="code-copy-btn"
+                title="Copy Gate Code"
+                @click="copyText(pass.passCode, 'Gate Code')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <div class="code-box">
             <span class="code-label">ULID Reference</span>
             <div class="code-value-row">

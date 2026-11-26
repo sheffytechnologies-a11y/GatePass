@@ -3613,12 +3613,29 @@ async function addUserMessage(text: string) {
   let reply = ''
 
   try {
-    if (GEMINI_API_KEY) {
-      reply = await queryGeminiAPI(text)
-    } else if (OPENAI_API_KEY) {
-      reply = await queryOpenAIAPI(text)
-    } else {
-      reply = getConciergeAnswer(text)
+    // 1. Try secure backend AI Concierge proxy first (keeps API key hidden on server)
+    const apiBase = import.meta.env.VITE_API_BASE_URL || '/api'
+    const aiRes = await fetch(`${apiBase}/v1/concierge/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    })
+    if (aiRes.ok) {
+      const aiData = await aiRes.json()
+      if (aiData?.reply) {
+        reply = aiData.reply
+      }
+    }
+
+    // 2. Fallback to optional direct key or local knowledge base
+    if (!reply) {
+      if (GEMINI_API_KEY) {
+        reply = await queryGeminiAPI(text)
+      } else if (OPENAI_API_KEY) {
+        reply = await queryOpenAIAPI(text)
+      } else {
+        reply = getConciergeAnswer(text)
+      }
     }
   } catch (err) {
     console.warn('AI API error, using knowledge base fallback:', err)

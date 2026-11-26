@@ -8,6 +8,9 @@ export const passesApi = {
   getById: (id: string) =>
     client.get(`/v1/passes/${id}`),
 
+  lookup: (query: string) =>
+    client.get('/v1/passes/lookup', { params: { query } }),
+
   create: (data: {
     visitorName: string
     visitorPhone?: string

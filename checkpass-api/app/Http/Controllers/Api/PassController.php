@@ -99,7 +99,9 @@ class PassController extends Controller
         $query = Pass::where('ulid', $ulid)
             ->with(['flaggedItems', 'resident.unit', 'resident.user']);
 
-        if ($user->type !== 'security') {
+        if ($user->type === 'security') {
+            $query->where('estate_id', $user->estate_id);
+        } else {
             $resident = $user->resident()->with(['user', 'unit', 'estate'])->first();
 
             if (! $resident) {
@@ -134,6 +136,105 @@ class PassController extends Controller
     }
 
     /**
+     * GET /api/v1/passes/lookup?query=...
+     * Unified security lookup by 6-digit pass code, visitor phone number, or pass ULID.
+     */
+    public function lookup(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->type !== 'security') {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'FORBIDDEN',
+                'message' => 'Only security users can look up visitor passes.',
+            ], 403);
+        }
+
+        $data = $request->validate([
+            'query' => 'required|string|max:120',
+        ]);
+
+        $raw = trim($data['query']);
+        if (str_contains($raw, '/pass/')) {
+            $parts = explode('/pass/', $raw, 2);
+            $raw = explode('?', explode('/', $parts[1])[0])[0];
+        }
+
+        $digitsOnly = preg_replace('/\D+/', '', $raw);
+        $pass = null;
+        $allMatches = collect();
+
+        // 1. Exact 6-digit numeric pass code
+        if ($digitsOnly !== '' && strlen($digitsOnly) === 6 && preg_match('/^[\d\s-]+$/', $raw)) {
+            $candidates = Pass::where('estate_id', $user->estate_id)
+                ->where('pass_code', $digitsOnly)
+                ->latest()
+                ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+                ->get();
+
+            foreach ($candidates as $c) {
+                $this->maybeExpire($c);
+            }
+
+            $active = $candidates->filter(fn(Pass $c) => in_array($c->status, ['Pending', 'On-site'], true));
+            $allMatches = $active->isNotEmpty() ? $active : $candidates;
+            $pass = $allMatches->first();
+        }
+        // 2. Visitor phone number (7+ digits)
+        elseif ($digitsOnly !== '' && strlen($digitsOnly) >= 7 && preg_match('/^[\d\s+\-()]+$/', $raw)) {
+            $searchTail = $this->phoneTail($raw);
+            $candidates = Pass::where('estate_id', $user->estate_id)
+                ->whereNotNull('visitor_phone')
+                ->latest()
+                ->limit(300)
+                ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+                ->get();
+
+            $matchingCandidates = $candidates->filter(fn(Pass $c) => $this->phoneTail((string) $c->visitor_phone) === $searchTail);
+
+            foreach ($matchingCandidates as $c) {
+                $this->maybeExpire($c);
+            }
+
+            $active = $matchingCandidates->filter(fn(Pass $c) => in_array($c->status, ['Pending', 'On-site'], true));
+            $allMatches = $active->isNotEmpty() ? $active : $matchingCandidates;
+            $pass = $allMatches->first();
+        }
+        // 3. Pass ULID
+        else {
+            $pass = Pass::where('estate_id', $user->estate_id)
+                ->where('ulid', $raw)
+                ->with(['flaggedItems', 'resident.unit', 'resident.user'])
+                ->first();
+
+            if ($pass) {
+                $this->maybeExpire($pass);
+                $allMatches = collect([$pass]);
+            }
+        }
+
+        if (! $pass) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'PASS_NOT_FOUND',
+                'message' => 'No active pass found for this code or phone number.',
+            ], 404);
+        }
+
+        $allMatches = $allMatches->map(function (Pass $p) {
+            return $p->refresh()->load(['flaggedItems', 'resident.unit', 'resident.user']);
+        });
+
+        $formattedPasses = $allMatches->map(fn(Pass $p) => $this->formatPassForSecurity($p))->values()->all();
+
+        return response()->json([
+            'pass'   => $formattedPasses[0] ?? $this->formatPassForSecurity($pass),
+            'passes' => $formattedPasses,
+        ]);
+    }
+
+    /**
      * GET /api/v1/passes/find-by-phone?phone=...
      */
     public function findByPhone(Request $request)
@@ -161,19 +262,24 @@ class PassController extends Controller
             ], 422);
         }
 
-        $candidates = Pass::whereNotNull('visitor_phone')
+        $candidates = Pass::where('estate_id', $user->estate_id)
+            ->whereNotNull('visitor_phone')
             ->latest()
             ->limit(300)
             ->with(['flaggedItems', 'resident.unit', 'resident.user'])
             ->get();
 
-        $matches = $candidates->filter(function (Pass $pass) use ($searchTail) {
+        $matchingCandidates = $candidates->filter(function (Pass $pass) use ($searchTail) {
             return $this->phoneTail((string) $pass->visitor_phone) === $searchTail;
         });
 
-        $pass = $matches->first(function (Pass $candidate) {
-            return in_array($candidate->status, ['Pending', 'On-site'], true);
-        }) ?? $matches->first();
+        foreach ($matchingCandidates as $c) {
+            $this->maybeExpire($c);
+        }
+
+        $active = $matchingCandidates->filter(fn(Pass $c) => in_array($c->status, ['Pending', 'On-site'], true));
+        $allMatches = $active->isNotEmpty() ? $active : $matchingCandidates;
+        $pass = $allMatches->first();
 
         if (! $pass) {
             return response()->json([
@@ -183,11 +289,15 @@ class PassController extends Controller
             ], 404);
         }
 
-        $this->maybeExpire($pass);
-        $pass->refresh()->load(['flaggedItems', 'resident.unit', 'resident.user']);
+        $allMatches = $allMatches->map(function (Pass $p) {
+            return $p->refresh()->load(['flaggedItems', 'resident.unit', 'resident.user']);
+        });
+
+        $formattedPasses = $allMatches->map(fn(Pass $p) => $this->formatPassForSecurity($p))->values()->all();
 
         return response()->json([
-            'pass' => $this->formatPassForSecurity($pass),
+            'pass'   => $formattedPasses[0] ?? $this->formatPassForSecurity($pass),
+            'passes' => $formattedPasses,
         ]);
     }
 
@@ -328,6 +438,7 @@ class PassController extends Controller
         }
 
         $pass = Pass::where('ulid', $ulid)
+            ->where('estate_id', $user->estate_id)
             ->with(['flaggedItems', 'resident.unit', 'resident.user'])
             ->first();
 
@@ -389,6 +500,7 @@ class PassController extends Controller
         }
 
         $pass = Pass::where('ulid', $ulid)
+            ->where('estate_id', $user->estate_id)
             ->with(['flaggedItems', 'resident.unit', 'resident.user'])
             ->first();
 
@@ -398,6 +510,14 @@ class PassController extends Controller
                 'code'    => 'PASS_NOT_FOUND',
                 'message' => 'Pass not found.',
             ], 404);
+        }
+
+        if (in_array($pass->status, ['Revoked', 'Exited', 'Expired'], true)) {
+            return response()->json([
+                'error'   => true,
+                'code'    => 'CANNOT_DECLINE_ENTRY',
+                'message' => 'This pass can no longer be declined.',
+            ], 422);
         }
 
         $pass->update([
@@ -428,6 +548,7 @@ class PassController extends Controller
         }
 
         $pass = Pass::where('ulid', $ulid)
+            ->where('estate_id', $user->estate_id)
             ->with(['flaggedItems', 'resident.unit', 'resident.user'])
             ->first();
 
@@ -570,6 +691,7 @@ class PassController extends Controller
             'hostUnit'      => $resident?->unit?->flat_address ?? '',
             'hostName'      => $resident?->user?->name ?? '',
             'qrData'        => $pass->qr_data,
+            'passCode'      => $pass->pass_code,
             'vehiclePlate'  => $pass->vehicle_plate,
             'expiresAt'     => $pass->expires_at->toIso8601String(),
             'createdAt'     => $pass->created_at->toIso8601String(),
@@ -581,7 +703,7 @@ class PassController extends Controller
                 'id'          => (string) $item->id,
                 'photoUrl'    => $item->photo_url,
                 'description' => $item->description,
-                'flaggedAt'   => $item->flagged_at->toIso8601String(),
+                'flaggedAt'   => $item->flagged_at?->toIso8601String(),
             ])->values()->all(),
         ];
     }
@@ -604,6 +726,7 @@ class PassController extends Controller
             'hostUnit'      => $resident->unit?->flat_address ?? '',
             'hostName'      => $resident->user?->name ?? '',
             'qrData'        => $pass->qr_data,
+            'passCode'      => $pass->pass_code,
             'vehiclePlate'  => $pass->vehicle_plate,
             'expiresAt'     => $pass->expires_at->toIso8601String(),
             'createdAt'     => $pass->created_at->toIso8601String(),
